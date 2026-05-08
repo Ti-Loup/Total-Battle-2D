@@ -216,6 +216,8 @@ public:
     TTF_Font *gameStatUIFont = nullptr;
     TTF_Text *gameStatUITitleText = nullptr;
     TTF_Text *gameStatUIText = nullptr;
+    TTF_Font *gameBuildingDescriptionFont = nullptr;
+    TTF_Text *gameBuildingDescriptionText = nullptr;
 
     //texture provinces when Unzoom
     SDL_Texture *provinceKnightBannerTexture = nullptr;
@@ -528,6 +530,11 @@ private://constructor
         gameBuildingConstructionTimeText = TTF_CreateText(textEngine, gameBuildingConstructionTimeFont, "0", 25);
         if (gameBuildingConstructionTimeText == nullptr) {
             SDL_LogWarn(0,"failed to create the text gameBuildingConstructionTimeText", SDL_GetError());
+        }
+        gameBuildingDescriptionFont = TTF_OpenFont("assets/Rubik.ttf", 15);
+        gameBuildingDescriptionText = TTF_CreateText(textEngine, gameBuildingDescriptionFont, "", 25);
+        if (gameBuildingDescriptionText == nullptr) {
+            SDL_LogWarn(0,"failed to create the text gameBuildingDescriptionText", SDL_GetError());
         }
 
         //CREATION OF THE SETTLEMENTS
@@ -904,6 +911,7 @@ private://constructor
         TTF_CloseFont(gameGeneralFont);
         TTF_CloseFont(gameBuildingCostUIFont);
         TTF_CloseFont(gameBuildingConstructionTimeFont);
+        TTF_CloseFont(gameBuildingDescriptionFont);
     // ---------------------------------
         TTF_DestroyText(fpsText);
         TTF_DestroyText(menuText);
@@ -936,6 +944,7 @@ private://constructor
         TTF_DestroyText(gameNumberOfTurnText);
         TTF_DestroyText(gameBuildingCostUIText);
         TTF_DestroyText(gameBuildingConstructionTimeText);
+        TTF_DestroyText(gameBuildingDescriptionText);
     // ---------------------------------
         SDL_DestroyTexture(provinceKnightBannerTexture);
         SDL_DestroyTexture(provinceVikingBannerTexture);
@@ -1869,12 +1878,12 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
     SDL_Color fc;
     if (province.owner == FactionZone::Knight) fc = {255, 215,   0, 255};
     else if (province.owner == FactionZone::Viking) fc = {255,   0,   0, 255};
-    else fc = {  0, 255, 215, 255};
+    else fc = {  0, 255, 215, 255};//samurai
 
     float tooltipX = 0.f;
     float tooltipW = 250.f;
-    float tooltipH = 90.f;
-    float tooltipY = 700.f - tooltipH - 6.f;
+    float tooltipH = 175.f;
+    float tooltipY = 600.f - tooltipH - 6.f;
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
@@ -1895,6 +1904,11 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
 
     float lineY = tooltipY + 36.f;
 
+    //building description
+    TTF_SetTextString(gameBuildingDescriptionText, (data->description).c_str(), 0);
+        TTF_SetTextColor(gameBuildingDescriptionText, 180, 230, 100, 255);
+        TTF_DrawRendererText(gameBuildingDescriptionText, tooltipX + 15.f, lineY);
+    lineY += 80.f;
     // Income bonus
     SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
     SDL_FRect goldIcon = {tooltipX + 8.f, lineY + 3.f, 12.f, 12.f};
