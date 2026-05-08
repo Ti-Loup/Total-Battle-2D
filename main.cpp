@@ -2488,7 +2488,11 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                                     SDL_Log("Already in construction (%d turn remaining)",sel->settlementData.constructionTime);
                                 }
                                 else if (app.player.SpendGold(cost)) {
-                                    int turns = app.GetConstructionTurns(sel->settlementData.type,sel->settlementData.settlementTier);
+                                    // read the database of building types
+                                    BuildingType currentBuilding = sel->settlementData.buildings[0];
+                                    const BuildingData* currentData = GetBuildingData(currentBuilding);
+                                    const BuildingData* nextTierData = (currentData && currentData->upgradesTo != BuildingType::None)? GetBuildingData(currentData->upgradesTo): nullptr;
+                                    int turns = nextTierData ? nextTierData->constructionTurns : 1;
                                     sel->settlementData.bBuidingUnderConstruction = true;
                                     sel->settlementData.pendingTier = t;
                                     sel->settlementData.constructionTime= turns;

@@ -265,45 +265,45 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::Settlement_Village_Knight_T1, {"Hamlet",        "", 0, 0, 25,  0, 1, 1, BuildingType::Settlement_Village_Knight_T2});
     add(BuildingType::Settlement_Village_Knight_T2, {"Village",       "", 10, 0, 50, 0, 2, 6, BuildingType::Settlement_Village_Knight_T3});
     add(BuildingType::Settlement_Village_Knight_T3, {"Large Village", "", 100, 0, 100, 0, 3, 1, BuildingType::None});
-    add(BuildingType::Settlement_Castle_Knight_T1,  {"Small Fort",    "", 0, 0, 100, 0, 1, 1, BuildingType::None});
-    add(BuildingType::Settlement_Castle_Knight_T2,  {"Fort",          "", 0, 0, 175, 0, 2, 1, BuildingType::None});
-    add(BuildingType::Settlement_Castle_Knight_T3,  {"Castle",        "", 0, 0, 275, 0, 3, 1, BuildingType::None});
-    add(BuildingType::Settlement_Castle_Knight_T4,  {"Large Castle",  "", 0, 0, 400, 0, 4, 1, BuildingType::None});
+    add(BuildingType::Settlement_Castle_Knight_T1,  {"Small Fort",    "", 0, 0, 100, 0, 1, 1, BuildingType::Settlement_Castle_Knight_T2});
+    add(BuildingType::Settlement_Castle_Knight_T2,  {"Fort",          "", 0, 0, 175, 0, 2, 1, BuildingType::Settlement_Castle_Knight_T3});
+    add(BuildingType::Settlement_Castle_Knight_T3,  {"Castle",        "", 0, 0, 275, 0, 3, 1, BuildingType::Settlement_Castle_Knight_T4});
+    add(BuildingType::Settlement_Castle_Knight_T4,  {"Large Castle",  "", 0, 0, 400, 0, 4, 1, BuildingType::Settlement_Castle_Knight_T5});
     add(BuildingType::Settlement_Castle_Knight_T5,  {"Citadel",       "", 0, 0, 550, 0, 5, 1, BuildingType::None});
-    add(BuildingType::Settlement_Capital_Knight_T1, {"Small Town",    "", 0, 0, 200,  0, 1, 1, BuildingType::None});
-    add(BuildingType::Settlement_Capital_Knight_T2, {"Town",          "", 0, 0, 350,  0, 2, 1, BuildingType::None});
-    add(BuildingType::Settlement_Capital_Knight_T3, {"City",          "", 0, 0, 550,  0, 3, 1, BuildingType::None});
-    add(BuildingType::Settlement_Capital_Knight_T4, {"Large City",    "", 0, 0, 800,  0, 4, 1, BuildingType::None});
+    add(BuildingType::Settlement_Capital_Knight_T1, {"Small Town",    "", 0, 0, 200,  0, 1, 1, BuildingType::Settlement_Capital_Knight_T2});
+    add(BuildingType::Settlement_Capital_Knight_T2, {"Town",          "", 0, 0, 350,  0, 2, 1, BuildingType::Settlement_Capital_Knight_T3});
+    add(BuildingType::Settlement_Capital_Knight_T3, {"City",          "", 0, 0, 550,  0, 3, 1, BuildingType::Settlement_Capital_Knight_T4});
+    add(BuildingType::Settlement_Capital_Knight_T4, {"Large City",    "", 0, 0, 800,  0, 4, 1, BuildingType::Settlement_Capital_Knight_T5});
     add(BuildingType::Settlement_Capital_Knight_T5, {"Royal Capital", "", 0, 0, 1100, 0, 5, 1, BuildingType::None});
 
     // ── VIKING SETTLEMENTS ──
-    add(BuildingType::Settlement_Village_Viking_T1, {"Small Settlement", "", 0, 0, 25,  0, 1, 1, BuildingType::None});
-    add(BuildingType::Settlement_Village_Viking_T2, {"Settlement",       "", 0, 0, 50,  0, 2, 1, BuildingType::None});
+    add(BuildingType::Settlement_Village_Viking_T1, {"Small Settlement", "", 0, 0, 25,  0, 1, 1, BuildingType::Settlement_Village_Viking_T2});
+    add(BuildingType::Settlement_Village_Viking_T2, {"Settlement",       "", 0, 0, 50,  0, 2, 1, BuildingType::Settlement_Village_Viking_T3});
     add(BuildingType::Settlement_Village_Viking_T3, {"Large Settlement", "", 0, 0, 100, 0, 3, 1, BuildingType::None});
-    add(BuildingType::Settlement_Castle_Viking_T1,  {"Small Longfort",   "", 0, 0, 100, 0, 1, 1, BuildingType::None});
-    add(BuildingType::Settlement_Castle_Viking_T2,  {"Longfort",         "", 0, 0, 175, 0, 2, 1, BuildingType::None});
-    add(BuildingType::Settlement_Castle_Viking_T3,  {"Great Longfort",   "", 0, 0, 275, 0, 3, 1, BuildingType::None});
-    add(BuildingType::Settlement_Castle_Viking_T4,  {"Viking Fortress",  "", 0, 0, 400, 0, 4, 1, BuildingType::None});
+    add(BuildingType::Settlement_Castle_Viking_T1,  {"Small Longfort",   "", 0, 0, 100, 0, 1, 1, BuildingType::Settlement_Castle_Viking_T2});
+    add(BuildingType::Settlement_Castle_Viking_T2,  {"Longfort",         "", 0, 0, 175, 0, 2, 1, BuildingType::Settlement_Castle_Viking_T3});
+    add(BuildingType::Settlement_Castle_Viking_T3,  {"Great Longfort",   "", 0, 0, 275, 0, 3, 1, BuildingType::Settlement_Castle_Viking_T4});
+    add(BuildingType::Settlement_Castle_Viking_T4,  {"Viking Fortress",  "", 0, 0, 400, 0, 4, 1, BuildingType::Settlement_Castle_Viking_T5});
     add(BuildingType::Settlement_Castle_Viking_T5,  {"Jarl's Keep",      "", 0, 0, 550, 0, 5, 1, BuildingType::None});
-    add(BuildingType::Settlement_Capital_Viking_T1, {"Small Longhouse",  "", 0, 0, 200,  0, 1, 1, BuildingType::None});
-    add(BuildingType::Settlement_Capital_Viking_T2, {"Longhouse",        "", 0, 0, 350,  0, 2, 1, BuildingType::None});
-    add(BuildingType::Settlement_Capital_Viking_T3, {"Great Longhouse",  "", 0, 0, 550,  0, 3, 1, BuildingType::None});
-    add(BuildingType::Settlement_Capital_Viking_T4, {"Viking City",      "", 0, 0, 800,  0, 4, 1, BuildingType::None});
+    add(BuildingType::Settlement_Capital_Viking_T1, {"Small Longhouse",  "", 0, 0, 200,  0, 1, 1, BuildingType::Settlement_Capital_Viking_T2});
+    add(BuildingType::Settlement_Capital_Viking_T2, {"Longhouse",        "", 0, 0, 350,  0, 2, 1, BuildingType::Settlement_Capital_Viking_T3});
+    add(BuildingType::Settlement_Capital_Viking_T3, {"Great Longhouse",  "", 0, 0, 550,  0, 3, 1, BuildingType::Settlement_Capital_Viking_T4});
+    add(BuildingType::Settlement_Capital_Viking_T4, {"Viking City",      "", 0, 0, 800,  0, 4, 1, BuildingType::Settlement_Capital_Viking_T5});
     add(BuildingType::Settlement_Capital_Viking_T5, {"Jarl's Capital",   "", 0, 0, 1100, 0, 5, 1, BuildingType::None});
 
     // ── SAMURAI SETTLEMENTS ──
-    add(BuildingType::Settlement_Village_Samurai_T1, {"Small Village", "", 0, 0, 25,  0, 1, 1, BuildingType::None});
-    add(BuildingType::Settlement_Village_Samurai_T2, {"Village",       "", 0, 0, 50,  0, 2, 1, BuildingType::None});
+    add(BuildingType::Settlement_Village_Samurai_T1, {"Small Village", "", 0, 0, 25,  0, 1, 1, BuildingType::Settlement_Village_Samurai_T2});
+    add(BuildingType::Settlement_Village_Samurai_T2, {"Village",       "", 0, 0, 50,  0, 2, 1, BuildingType::Settlement_Village_Samurai_T3});
     add(BuildingType::Settlement_Village_Samurai_T3, {"Large Village", "", 0, 0, 100, 0, 3, 1, BuildingType::None});
-    add(BuildingType::Settlement_Castle_Samurai_T1,  {"Small Yashiro", "", 0, 0, 100, 0, 1, 1, BuildingType::None});
-    add(BuildingType::Settlement_Castle_Samurai_T2,  {"Yashiro",       "", 0, 0, 175, 0, 2, 1, BuildingType::None});
-    add(BuildingType::Settlement_Castle_Samurai_T3,  {"Castle",        "", 0, 0, 275, 0, 3, 1, BuildingType::None});
-    add(BuildingType::Settlement_Castle_Samurai_T4,  {"Large Castle",  "", 0, 0, 400, 0, 4, 1, BuildingType::None});
+    add(BuildingType::Settlement_Castle_Samurai_T1,  {"Small Yashiro", "", 0, 0, 100, 0, 1, 1, BuildingType::Settlement_Castle_Samurai_T2});
+    add(BuildingType::Settlement_Castle_Samurai_T2,  {"Yashiro",       "", 0, 0, 175, 0, 2, 1, BuildingType::Settlement_Castle_Samurai_T3});
+    add(BuildingType::Settlement_Castle_Samurai_T3,  {"Castle",        "", 0, 0, 275, 0, 3, 1, BuildingType::Settlement_Castle_Samurai_T4});
+    add(BuildingType::Settlement_Castle_Samurai_T4,  {"Large Castle",  "", 0, 0, 400, 0, 4, 1, BuildingType::Settlement_Castle_Samurai_T5});
     add(BuildingType::Settlement_Castle_Samurai_T5,  {"Fortress",      "", 0, 0, 550, 0, 5, 1, BuildingType::None});
-    add(BuildingType::Settlement_Capital_Samurai_T1, {"Small Town",       "", 0, 0, 200,  0, 1, 1, BuildingType::None});
-    add(BuildingType::Settlement_Capital_Samurai_T2, {"Town",             "", 0, 0, 350,  0, 2, 1, BuildingType::None});
-    add(BuildingType::Settlement_Capital_Samurai_T3, {"City",             "", 0, 0, 550,  0, 3, 1, BuildingType::None});
-    add(BuildingType::Settlement_Capital_Samurai_T4, {"Large City",       "", 0, 0, 800,  0, 4, 1, BuildingType::None});
+    add(BuildingType::Settlement_Capital_Samurai_T1, {"Small Town",       "", 0, 0, 200,  0, 1, 1, BuildingType::Settlement_Capital_Samurai_T2});
+    add(BuildingType::Settlement_Capital_Samurai_T2, {"Town",             "", 0, 0, 350,  0, 2, 1, BuildingType::Settlement_Capital_Samurai_T3});
+    add(BuildingType::Settlement_Capital_Samurai_T3, {"City",             "", 0, 0, 550,  0, 3, 1, BuildingType::Settlement_Capital_Samurai_T4});
+    add(BuildingType::Settlement_Capital_Samurai_T4, {"Large City",       "", 0, 0, 800,  0, 4, 1, BuildingType::Settlement_Capital_Samurai_T2});
     add(BuildingType::Settlement_Capital_Samurai_T5, {"Shogun's Capital", "", 0, 0, 1100, 0, 5, 1, BuildingType::None});
 
     // ── KNIGHT ECONOMY ──
@@ -410,7 +410,7 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
 
     return db;
 }
-
+//data of a building
 inline const BuildingData* GetBuildingData(BuildingType type) {
     const auto& buildingDataBase = GetBuildingDatabase();
     auto it = buildingDataBase.find(type);
