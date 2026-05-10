@@ -298,6 +298,12 @@ public:
     int buildMenuSettlementIndex = -1;
     int hoveredCategory          = -1;
     int hoveredCardIndex = -1;
+    //hovered an available construction building.
+    int hoveredAvailableSlot = -1;
+    int hoveredAvailableBuilding = -1;
+    SDL_FRect hoveredAvailableSlotRect = {0,0,0,0};
+    std::vector<SDL_FRect> availableSlotRects;
+    std::vector<std::pair<int,int>> availableSlotInfo;
     // 0=Military 1=AdvMilitary 2=Defence 3=Economy 4=Religion
     BuildingType hoveredBuilding = BuildingType::None;
     std::vector<SDL_FRect> mainBuildingSlotRects;
@@ -1511,7 +1517,8 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
     SDL_RenderTexture(renderer,provinceTextureUIGarrison,nullptr,&provinceButtonUIGarrison);
 
 
-
+    availableSlotRects.clear();
+    availableSlotInfo.clear();
 
     //-> BOTTOM UI PANNEL <-
             int   count = (int)provinceSettlements.size();
@@ -1642,6 +1649,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                             } else {
                                 SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);  // not available
                             }
+
                         }
 
                         SDL_FRect slot = {sx, sy, slotSize, slotSize};
@@ -1729,10 +1737,74 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                                     SDL_RenderTexture(renderer, gameNotAvailableSlotSamurai, nullptr, &slot);
                                 }
                             }
+
+                            int settlementBuildingTier= s->settlementData.settlementTier;
+                            int slotThreshold2 = (s->settlementData.type == SettlementType::Capital) ? settlementBuildingTier + 1 : settlementBuildingTier;
+                            if (b <= slotThreshold2) {
+                                availableSlotRects.push_back(slot);
+                                availableSlotInfo.push_back({i, b});
+                            }
                         }
                     }
                 }
             }
+
+        //render of the Popup for the general Buildings
+        //just to get mouse position
+        float mouseX;
+        float mouseY;
+        SDL_GetMouseState (&mouseX, &mouseY);
+        float lenghtX, lenghtY;
+        SDL_RenderCoordinatesFromWindow(renderer, mouseX, mouseY, &lenghtX, &lenghtY);
+        SDL_FPoint mousePt = {lenghtX, lenghtY};
+
+        hoveredAvailableSlot = -1;
+        hoveredAvailableBuilding = -1;
+
+        for (int s = 0; s < (int)availableSlotRects.size(); s++) {
+            if (SDL_PointInRectFloat(&mousePt, &availableSlotRects[s])) {
+                hoveredAvailableBuilding = availableSlotInfo[s].first;
+                hoveredAvailableSlot = availableSlotInfo[s].second;
+                hoveredAvailableSlotRect = availableSlotRects[s];
+            }
+
+        }
+        //Buildings Category
+        //military, Adv military, Defence, Economy, Religion,
+        if (hoveredAvailableSlot >=0) {
+            const char* categoryNames[] = {"Mil", "Adv", "Def", "Eco", "Rel"};
+            SDL_Color categoryColors[] = {
+                {200, 50,  50,  220},
+                {140, 30,  30,  220},
+                {50,  80,  200, 220},
+                {200, 160, 30,  220},
+                {140, 50,  200, 220},
+        };
+            float buttonW = 65.f;
+            float buttonH = 65.f;
+            float buttonGap = 4.f;
+            float totalButtonW = 5 * buttonW + 4 * buttonGap;
+            float buttonStartX = hoveredAvailableSlotRect.x + (hoveredAvailableSlotRect.w - totalButtonW) / 2.f;
+            float btnY = hoveredAvailableSlotRect.y - buttonH - 6.f;
+
+            for (int k = 0; k < 5; k++) {
+                SDL_FRect buttonsRect = {buttonStartX + k * (buttonW + buttonGap), btnY, buttonW, buttonH};
+
+                SDL_SetRenderDrawColor(renderer, categoryColors[k].r, categoryColors[k].g, categoryColors[k].b, 220);
+                SDL_RenderFillRect(renderer, &buttonsRect);
+                SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
+                SDL_RenderRect(renderer, &buttonsRect);
+
+                TTF_SetTextString(gameStatUIText, categoryNames[k], 0);
+                TTF_SetTextColor(gameStatUIText, 255, 255, 255, 255);
+                int tw = 0, th = 0;
+                TTF_GetTextSize(gameStatUIText, &tw, &th);
+                TTF_DrawRendererText(gameStatUIText,
+                    buttonsRect.x + (buttonW - tw) / 2.f,
+                    buttonsRect.y + (buttonH - th) / 2.f);
+            }
+        }
+
         //TIER CHAIN POPUP
     if (hoveredSlotIndex == 0 && bButtonUIBuildingIsPressed && hoveredCardIndex >= 0) {
         const Settlement* provinceSettl = provinceSettlements[hoveredCardIndex];
