@@ -1774,11 +1774,11 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         if (hoveredAvailableSlot >=0) {
             const char* categoryNames[] = {"Mil", "Adv", "Def", "Eco", "Rel"};
             SDL_Color categoryColors[] = {
-                {200, 50,  50,  220},
-                {140, 30,  30,  220},
-                {50,  80,  200, 220},
-                {200, 160, 30,  220},
-                {140, 50,  200, 220},
+                {255, 26,  26,  255},
+                {93, 23,  255,  255},
+                {255,  255,  23, 255},
+                {0, 131, 57,  255},
+                {152, 0,  198, 255},
         };
             float buttonW = 65.f;
             float buttonH = 65.f;
