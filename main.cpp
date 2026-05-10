@@ -180,6 +180,12 @@ public:
     SDL_Texture *gameNotAvailableSlotKnight = nullptr;
     //Available Slot
     SDL_Texture *gameAvailableSlotKnight = nullptr;
+    //buildings types grouping
+    SDL_Texture *gameBuildingTypesGroupingMilitaryKnight = nullptr;
+    SDL_Texture *gameBuildingTypesGroupingAdvMilitaryKnight = nullptr;
+    SDL_Texture *gameBuildingTypesGroupingDefenceKnight = nullptr;
+    SDL_Texture *gameBuildingTypesGroupingEconomyKnight = nullptr;
+    SDL_Texture *gameBuildingTypesGroupingReligionKnight = nullptr;
     //                 ~ VIKING ~
     //capital
     SDL_Texture *capitalBuildingUpgrade1Viking = nullptr;
@@ -201,6 +207,12 @@ public:
     SDL_Texture *gameNotAvailableSlotViking = nullptr;
     //Available Slot
     SDL_Texture *gameAvailableSlotViking = nullptr;
+    //buildings types grouping
+    SDL_Texture *gameBuildingTypesGroupingMilitaryViking = nullptr;
+    SDL_Texture *gameBuildingTypesGroupingAdvMilitaryViking = nullptr;
+    SDL_Texture *gameBuildingTypesGroupingDefenceViking = nullptr;
+    SDL_Texture *gameBuildingTypesGroupingEconomyViking = nullptr;
+    SDL_Texture *gameBuildingTypesGroupingReligionViking = nullptr;
     //                 ~ SAMURAI ~
     //capital
     SDL_Texture *capitalBuildingUpgrade1Samurai = nullptr;
@@ -222,6 +234,12 @@ public:
     SDL_Texture *gameNotAvailableSlotSamurai = nullptr;
     //Available Slot
     SDL_Texture *gameAvailableSlotSamurai = nullptr;
+    //buildings types grouping
+    SDL_Texture *gameBuildingTypesGroupingMilitarySamurai = nullptr;
+    SDL_Texture *gameBuildingTypesGroupingAdvMilitarySamurai = nullptr;
+    SDL_Texture *gameBuildingTypesGroupingDefenceSamurai= nullptr;
+    SDL_Texture *gameBuildingTypesGroupingEconomySamurai = nullptr;
+    SDL_Texture *gameBuildingTypesGroupingReligionSamurai = nullptr;
     //UI TextFont
     TTF_Font *gameStatUITitleFont = nullptr;
 
@@ -743,6 +761,33 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture gameAvailableSlotKnight", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameAvailableSlotKnight, SDL_SCALEMODE_NEAREST);
+        //buildings types grouping Textures
+        gameBuildingTypesGroupingMilitaryKnight = IMG_LoadTexture(renderer,"assets/Knight/BuildingTypesGroupingMilitaryKnight.png");
+        if (gameBuildingTypesGroupingMilitaryKnight == nullptr) {
+            SDL_LogWarn(0,"failed to load texture gameBuildingTypesGroupingMilitaryKnight",SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameBuildingTypesGroupingMilitaryKnight, SDL_SCALEMODE_NEAREST);
+        gameBuildingTypesGroupingAdvMilitaryKnight = IMG_LoadTexture(renderer, "assets/Knight/BuildingTypesGroupingAdvMilitaryKnight.png");
+        if (gameBuildingTypesGroupingAdvMilitaryKnight == nullptr) {
+            SDL_LogWarn(0,"failed to load texture gameBuildingTypesGroupingAdvMilitaryKnight",SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameBuildingTypesGroupingAdvMilitaryKnight, SDL_SCALEMODE_NEAREST);
+        gameBuildingTypesGroupingDefenceKnight = IMG_LoadTexture(renderer, "assets/Knight/BuildingTypesGroupingDefenceKnight.png");
+        if (gameBuildingTypesGroupingDefenceKnight == nullptr) {
+            SDL_LogWarn(0,"failed to load texture gameBuildingTypesGroupingDefenceKnight", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameBuildingTypesGroupingDefenceKnight, SDL_SCALEMODE_NEAREST);
+        gameBuildingTypesGroupingEconomyKnight = IMG_LoadTexture(renderer, "assets/Knight/BuildingTypesGroupingEconomyKnight.png");
+        if (gameBuildingTypesGroupingEconomyKnight == nullptr) {
+            SDL_LogWarn(0, "failed to load texture of gameBuildingTypesGroupingEconomyKnight", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameBuildingTypesGroupingEconomyKnight, SDL_SCALEMODE_NEAREST);
+        gameBuildingTypesGroupingReligionKnight = IMG_LoadTexture(renderer, "assets/Knight/BuildingTypesGroupingReligionKnight.png");
+        if (gameBuildingTypesGroupingReligionKnight == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameBuildingTypesGroupingReligionKnight",SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameBuildingTypesGroupingReligionKnight, SDL_SCALEMODE_NEAREST);
+
         //                  ! VIKING !
         //capitals
         capitalBuildingUpgrade1Viking = IMG_LoadTexture(renderer, "assets/Viking/CapitalBuildingUpgrade1Viking.png");
@@ -825,6 +870,33 @@ private://constructor
         }
         SDL_SetTextureScaleMode(gameAvailableSlotViking, SDL_SCALEMODE_NEAREST);
 
+        //buildings types grouping Textures
+        gameBuildingTypesGroupingMilitaryViking = IMG_LoadTexture(renderer,"assets/Viking/BuildingTypesGroupingMilitaryViking.png");
+        if (gameBuildingTypesGroupingMilitaryViking == nullptr) {
+            SDL_LogWarn(0,"failed to load texture gameBuildingTypesGroupingMilitaryViking",SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameBuildingTypesGroupingMilitaryViking, SDL_SCALEMODE_NEAREST);
+        gameBuildingTypesGroupingAdvMilitaryViking = IMG_LoadTexture(renderer, "assets/Viking/BuildingTypesGroupingAdvMilitaryViking.png");
+        if (gameBuildingTypesGroupingAdvMilitaryViking == nullptr) {
+            SDL_LogWarn(0,"failed to load texture gameBuildingTypesGroupingAdvMilitaryViking",SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameBuildingTypesGroupingAdvMilitaryViking, SDL_SCALEMODE_NEAREST);
+        gameBuildingTypesGroupingDefenceViking = IMG_LoadTexture(renderer, "assets/Viking/BuildingTypesGroupingDefenceViking.png");
+        if (gameBuildingTypesGroupingDefenceViking == nullptr) {
+            SDL_LogWarn(0,"failed to load texture gameBuildingTypesGroupingDefenceViking", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameBuildingTypesGroupingDefenceViking, SDL_SCALEMODE_NEAREST);
+        gameBuildingTypesGroupingEconomyViking = IMG_LoadTexture(renderer, "assets/Viking/BuildingTypesGroupingEconomyViking.png");
+        if (gameBuildingTypesGroupingEconomyViking == nullptr) {
+            SDL_LogWarn(0, "failed to load texture of gameBuildingTypesGroupingEconomyViking", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameBuildingTypesGroupingEconomyViking, SDL_SCALEMODE_NEAREST);
+        gameBuildingTypesGroupingReligionViking = IMG_LoadTexture(renderer, "assets/Viking/BuildingTypesGroupingReligionViking.png");
+        if (gameBuildingTypesGroupingReligionViking == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameBuildingTypesGroupingReligionViking",SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameBuildingTypesGroupingReligionViking, SDL_SCALEMODE_NEAREST);
+
         //                  ! SAMURAI !
         //capitals
         capitalBuildingUpgrade1Samurai = IMG_LoadTexture(renderer, "assets/Samurai/CapitalBuildingUpgrade1Samurai.png");
@@ -906,6 +978,34 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture gameAvailableSlotSamurai", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameAvailableSlotSamurai, SDL_SCALEMODE_NEAREST);
+
+        //buildings types grouping Textures
+        gameBuildingTypesGroupingMilitarySamurai = IMG_LoadTexture(renderer,"assets/Samurai/BuildingTypesGroupingMilitarySamurai.png");
+        if (gameBuildingTypesGroupingMilitarySamurai == nullptr) {
+            SDL_LogWarn(0,"failed to load texture gameBuildingTypesGroupingMilitarySamurai",SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameBuildingTypesGroupingMilitarySamurai, SDL_SCALEMODE_NEAREST);
+        gameBuildingTypesGroupingAdvMilitarySamurai = IMG_LoadTexture(renderer, "assets/Samurai/BuildingTypesGroupingAdvMilitarySamurai.png");
+        if (gameBuildingTypesGroupingAdvMilitarySamurai == nullptr) {
+            SDL_LogWarn(0,"failed to load texture gameBuildingTypesGroupingAdvMilitarySamurai",SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameBuildingTypesGroupingAdvMilitarySamurai, SDL_SCALEMODE_NEAREST);
+        gameBuildingTypesGroupingDefenceSamurai = IMG_LoadTexture(renderer, "assets/Samurai/BuildingTypesGroupingDefenceSamurai.png");
+        if (gameBuildingTypesGroupingDefenceSamurai == nullptr) {
+            SDL_LogWarn(0,"failed to load texture gameBuildingTypesGroupingDefenceSamurai", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameBuildingTypesGroupingDefenceSamurai, SDL_SCALEMODE_NEAREST);
+        gameBuildingTypesGroupingEconomySamurai = IMG_LoadTexture(renderer, "assets/Samurai/BuildingTypesGroupingEconomySamurai.png");
+        if (gameBuildingTypesGroupingEconomySamurai == nullptr) {
+            SDL_LogWarn(0, "failed to load texture of gameBuildingTypesGroupingEconomySamurai", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameBuildingTypesGroupingEconomySamurai, SDL_SCALEMODE_NEAREST);
+        gameBuildingTypesGroupingReligionSamurai = IMG_LoadTexture(renderer, "assets/Samurai/BuildingTypesGroupingReligionSamurai.png");
+        if (gameBuildingTypesGroupingReligionSamurai == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameBuildingTypesGroupingReligionSamurai",SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameBuildingTypesGroupingReligionSamurai, SDL_SCALEMODE_NEAREST);
+
         // -> CREDITS <-
         creditsTitleFont = TTF_OpenFont("assets/font.ttf", 50);
         creditsRoleTitleFont = TTF_OpenFont("assets/font.ttf", 40);
@@ -1055,6 +1155,21 @@ private://constructor
         SDL_DestroyTexture(gameAvailableSlotKnight);
         SDL_DestroyTexture(gameAvailableSlotViking);
         SDL_DestroyTexture(gameAvailableSlotSamurai);
+        SDL_DestroyTexture(gameBuildingTypesGroupingMilitaryKnight);
+        SDL_DestroyTexture(gameBuildingTypesGroupingAdvMilitaryKnight);
+        SDL_DestroyTexture(gameBuildingTypesGroupingDefenceKnight);
+        SDL_DestroyTexture(gameBuildingTypesGroupingEconomyKnight);
+        SDL_DestroyTexture(gameBuildingTypesGroupingReligionKnight);
+        SDL_DestroyTexture(gameBuildingTypesGroupingMilitaryViking);
+        SDL_DestroyTexture(gameBuildingTypesGroupingAdvMilitaryViking);
+        SDL_DestroyTexture(gameBuildingTypesGroupingDefenceViking);
+        SDL_DestroyTexture(gameBuildingTypesGroupingEconomyViking);
+        SDL_DestroyTexture(gameBuildingTypesGroupingReligionViking);
+        SDL_DestroyTexture(gameBuildingTypesGroupingMilitarySamurai);
+        SDL_DestroyTexture(gameBuildingTypesGroupingAdvMilitarySamurai);
+        SDL_DestroyTexture(gameBuildingTypesGroupingDefenceSamurai);
+        SDL_DestroyTexture(gameBuildingTypesGroupingEconomySamurai);
+        SDL_DestroyTexture(gameBuildingTypesGroupingReligionSamurai);
     // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
@@ -1769,7 +1884,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
             }
 
         }
-        //Buildings Category
+        // ~ Buildings Categories ~
         //military, Adv military, Defence, Economy, Religion,
         if (hoveredAvailableSlot >=0) {
             const char* categoryNames[] = {"Mil", "Adv", "Def", "Eco", "Rel"};
@@ -1790,6 +1905,8 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
             for (int k = 0; k < 5; k++) {
                 SDL_FRect buttonsRect = {buttonStartX + k * (buttonW + buttonGap), btnY, buttonW, buttonH};
 
+                //render textures based of faction culture instead of text
+
                 SDL_SetRenderDrawColor(renderer, categoryColors[k].r, categoryColors[k].g, categoryColors[k].b, 220);
                 SDL_RenderFillRect(renderer, &buttonsRect);
                 SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
@@ -1799,9 +1916,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                 TTF_SetTextColor(gameStatUIText, 255, 255, 255, 255);
                 int tw = 0, th = 0;
                 TTF_GetTextSize(gameStatUIText, &tw, &th);
-                TTF_DrawRendererText(gameStatUIText,
-                    buttonsRect.x + (buttonW - tw) / 2.f,
-                    buttonsRect.y + (buttonH - th) / 2.f);
+                TTF_DrawRendererText(gameStatUIText,buttonsRect.x + (buttonW - tw) / 2.f,buttonsRect.y + (buttonH - th) / 2.f);
             }
         }
 
