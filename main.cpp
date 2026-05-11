@@ -320,6 +320,8 @@ public:
     int hoveredAvailableSlot = -1;
     int hoveredAvailableBuilding = -1;
     SDL_FRect hoveredAvailableSlotRect = {0,0,0,0};
+    SDL_FRect categoryButtonsPopupRect = {0,0,0,0};
+
     std::vector<SDL_FRect> availableSlotRects;
     std::vector<std::pair<int,int>> availableSlotInfo;
     // 0=Military 1=AdvMilitary 2=Defence 3=Economy 4=Religion
@@ -1875,15 +1877,27 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
 
         hoveredAvailableSlot = -1;
         hoveredAvailableBuilding = -1;
-
+        bool keepPopupOpen = SDL_PointInRectFloat(&mousePt, &categoryButtonsPopupRect);
         for (int s = 0; s < (int)availableSlotRects.size(); s++) {
             if (SDL_PointInRectFloat(&mousePt, &availableSlotRects[s])) {
                 hoveredAvailableBuilding = availableSlotInfo[s].first;
                 hoveredAvailableSlot = availableSlotInfo[s].second;
                 hoveredAvailableSlotRect = availableSlotRects[s];
             }
-
         }
+
+        // To keep the popup of the constructions
+        if (hoveredAvailableSlot < 0) {
+            SDL_FRect expandedPopup = categoryButtonsPopupRect;
+            expandedPopup.h += 10.f;
+
+            if (categoryButtonsPopupRect.w > 0 && SDL_PointInRectFloat(&mousePt, &expandedPopup)) {
+                hoveredAvailableSlot = 0; // garde le popup ouvert
+            } else {
+                categoryButtonsPopupRect = {0.f, 0.f, 0.f, 0.f}; // ferme et reset proprement
+            }
+        }
+
         // ~ Buildings Categories ~
         //military, Adv military, Defence, Economy, Religion,
         if (hoveredAvailableSlot >=0) {
@@ -1900,10 +1914,13 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
             float buttonGap = 4.f;
             float totalButtonW = 5 * buttonW + 4 * buttonGap;
             float buttonStartX = hoveredAvailableSlotRect.x + (hoveredAvailableSlotRect.w - totalButtonW) / 2.f;
-            float btnY = hoveredAvailableSlotRect.y - buttonH - 6.f;
+            float buttonY = hoveredAvailableSlotRect.y - buttonH - 6.f;
+
+            //The rect of the buttons category
+            categoryButtonsPopupRect = {buttonStartX, buttonY, totalButtonW, buttonW};
 
             for (int k = 0; k < 5; k++) {
-                SDL_FRect buttonsRect = {buttonStartX + k * (buttonW + buttonGap), btnY, buttonW, buttonH};
+                SDL_FRect buttonsRect = {buttonStartX + k * (buttonW + buttonGap), buttonY, buttonW, buttonH};
 
                 //font de la couleur
                 SDL_SetRenderDrawColor(renderer, categoryColors[k].r, categoryColors[k].g, categoryColors[k].b, 200);
