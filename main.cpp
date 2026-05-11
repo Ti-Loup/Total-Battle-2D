@@ -1929,7 +1929,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                 }
 
 
-                SDL_SetRenderDrawColor(renderer, categoryColors[k].r, categoryColors[k].g, categoryColors[k].b, 220);
+                SDL_SetRenderDrawColor(renderer, categoryColors[k].r, categoryColors[k].g, categoryColors[k].b, 80);
                 SDL_RenderFillRect(renderer, &buttonsRect);
                 SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
                 SDL_RenderRect(renderer, &buttonsRect);
