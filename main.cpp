@@ -321,11 +321,18 @@ public:
     int hoveredAvailableBuilding = -1;
     SDL_FRect hoveredAvailableSlotRect = {0,0,0,0};
     SDL_FRect categoryButtonsPopupRect = {0,0,0,0};
-
+    //for the differents Buildings category
+    int hoveredBuildingCategoryIndex = -1;
+    int categoryPopupCardIndex = -1;
+    BuildingType hoveredCategoryBuildingType = BuildingType::None;
+    std::vector<std::pair<SDL_FRect, BuildingType>> categoryEvolutionTileRects;
+    SDL_FRect categoryEvolutionPopupRect = {0,0,0,0};
     std::vector<SDL_FRect> availableSlotRects;
     std::vector<std::pair<int,int>> availableSlotInfo;
     // 0=Military 1=AdvMilitary 2=Defence 3=Economy 4=Religion
     BuildingType hoveredBuilding = BuildingType::None;
+    std::vector<SDL_FRect> categoryButtonsRects;//5 rects for the buildings categories UI
+
     std::vector<SDL_FRect> mainBuildingSlotRects;
     SDL_FRect mainBuildingPopupRect = {0,0,0,0};
 
@@ -1883,6 +1890,8 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                 hoveredAvailableBuilding = availableSlotInfo[s].first;
                 hoveredAvailableSlot = availableSlotInfo[s].second;
                 hoveredAvailableSlotRect = availableSlotRects[s];
+                hoveredCardIndex = availableSlotInfo[s].first;
+                categoryPopupCardIndex = hoveredCardIndex;
             }
         }
 
@@ -1919,47 +1928,60 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
             //The rect of the buttons category
             categoryButtonsPopupRect = {buttonStartX, buttonY, totalButtonW, buttonW};
 
+            bool mouseOnEvolutionPopup = categoryEvolutionPopupRect.w > 0 && SDL_PointInRectFloat(&mousePt, &categoryEvolutionPopupRect);
+            if (!mouseOnEvolutionPopup) {
+                hoveredBuildingCategoryIndex = -1;//reset
+                for (int k = 0; k < 5; k++) {
+                    SDL_FRect buttonsRect = {buttonStartX + k * (buttonW + buttonGap), buttonY, buttonW, buttonH};
+                    if (SDL_PointInRectFloat(&mousePt, &buttonsRect)) {
+                        hoveredBuildingCategoryIndex = k;
+                    }
+                    //font de la couleur
+                    SDL_SetRenderDrawColor(renderer, categoryColors[k].r, categoryColors[k].g, categoryColors[k].b, 200);
+                    SDL_RenderFillRect(renderer, &buttonsRect);
+                    SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
+                    SDL_RenderRect(renderer, &buttonsRect);
+
+                    //render textures based of faction culture instead of text
+                    if (province.owner == FactionZone::Knight) {
+                        if (k == 0) SDL_RenderTexture(renderer, gameBuildingTypesGroupingMilitaryKnight, nullptr, &buttonsRect);
+                        else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitaryKnight, nullptr, &buttonsRect);
+                        else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceKnight, nullptr, &buttonsRect);
+                        else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomyKnight, nullptr, &buttonsRect);
+                        else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionKnight, nullptr, &buttonsRect);
+                    }
+                    else if (province.owner == FactionZone::Viking) {
+                        if (k == 0) SDL_RenderTexture(renderer, gameBuildingTypesGroupingMilitaryViking, nullptr, &buttonsRect);
+                        else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitaryViking, nullptr, &buttonsRect);
+                        else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceViking, nullptr, &buttonsRect);
+                        else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomyViking, nullptr, &buttonsRect);
+                        else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionViking, nullptr, &buttonsRect);
+                    }
+                    else if (province.owner == FactionZone::Samurai) {
+                        if (k == 0) SDL_RenderTexture(renderer, gameBuildingTypesGroupingMilitarySamurai, nullptr, &buttonsRect);
+                        else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitarySamurai, nullptr, &buttonsRect);
+                        else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceSamurai, nullptr, &buttonsRect);
+                        else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomySamurai, nullptr, &buttonsRect);
+                        else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionSamurai, nullptr, &buttonsRect);
+                    }
+
+                    // //TTF_SetTextString(gameStatUIText, categoryNames[k], 0);
+                    // TTF_SetTextColor(gameStatUIText, 255, 255, 255, 255);
+                    // int tw = 0, th = 0;
+                    // TTF_GetTextSize(gameStatUIText, &tw, &th);
+                    // TTF_DrawRendererText(gameStatUIText,buttonsRect.x + (buttonW - tw) / 2.f,buttonsRect.y + (buttonH - th) / 2.f);
+                }
+            }
+            //to stock their rectangles
+            categoryButtonsRects.resize(5);
             for (int k = 0; k < 5; k++) {
-                SDL_FRect buttonsRect = {buttonStartX + k * (buttonW + buttonGap), buttonY, buttonW, buttonH};
-
-                //font de la couleur
-                SDL_SetRenderDrawColor(renderer, categoryColors[k].r, categoryColors[k].g, categoryColors[k].b, 200);
-                SDL_RenderFillRect(renderer, &buttonsRect);
-                SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
-                SDL_RenderRect(renderer, &buttonsRect);
-
-                //render textures based of faction culture instead of text
-                if (province.owner == FactionZone::Knight) {
-                    if (k == 0) SDL_RenderTexture(renderer, gameBuildingTypesGroupingMilitaryKnight, nullptr, &buttonsRect);
-                    else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitaryKnight, nullptr, &buttonsRect);
-                    else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceKnight, nullptr, &buttonsRect);
-                    else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomyKnight, nullptr, &buttonsRect);
-                    else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionKnight, nullptr, &buttonsRect);
-                }
-                else if (province.owner == FactionZone::Viking) {
-                    if (k == 0) SDL_RenderTexture(renderer, gameBuildingTypesGroupingMilitaryViking, nullptr, &buttonsRect);
-                    else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitaryViking, nullptr, &buttonsRect);
-                    else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceViking, nullptr, &buttonsRect);
-                    else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomyViking, nullptr, &buttonsRect);
-                    else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionViking, nullptr, &buttonsRect);
-                }
-                else if (province.owner == FactionZone::Samurai) {
-                    if (k == 0) SDL_RenderTexture(renderer, gameBuildingTypesGroupingMilitarySamurai, nullptr, &buttonsRect);
-                    else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitarySamurai, nullptr, &buttonsRect);
-                    else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceSamurai, nullptr, &buttonsRect);
-                    else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomySamurai, nullptr, &buttonsRect);
-                    else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionSamurai, nullptr, &buttonsRect);
-                }
-
-                // //TTF_SetTextString(gameStatUIText, categoryNames[k], 0);
-                // TTF_SetTextColor(gameStatUIText, 255, 255, 255, 255);
-                // int tw = 0, th = 0;
-                // TTF_GetTextSize(gameStatUIText, &tw, &th);
-                // TTF_DrawRendererText(gameStatUIText,buttonsRect.x + (buttonW - tw) / 2.f,buttonsRect.y + (buttonH - th) / 2.f);
+                categoryButtonsRects[k] = {buttonStartX + k * (buttonW + buttonGap), buttonY, buttonW, buttonH};
             }
         }
+        //Tier chain Popup for the BuildingTypes
+        RenderBuildingCategoryEvolution();
 
-        //TIER CHAIN POPUP
+        //TIER CHAIN POPUP (FOR THE MAIN SETTLEMENT BUILDING)
     if (hoveredSlotIndex == 0 && bButtonUIBuildingIsPressed && hoveredCardIndex >= 0) {
         const Settlement* provinceSettl = provinceSettlements[hoveredCardIndex];
     int currentTier = provinceSettl->settlementData.settlementTier;
@@ -1996,7 +2018,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         bool isNext = t == currentTier + 1 && currentTier < maxTier;
         bool isUnlocked = (t < currentTier);
 
-        // Carré du tier
+        // square of tier
         if (isCurrent) {
             SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 255);
         }
@@ -2125,6 +2147,157 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
     TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
 
 }
+    //fonction to buy a new building on a constructable square in RenderProvinceUI
+    //Same has the main building
+    void RenderBuildingCategoryEvolution() {
+    if (hoveredBuildingCategoryIndex < 0 || !bHasClickedOnASettlement || selectedSettlementIndex < 0) return;
+    if (categoryPopupCardIndex < 0 || categoryButtonsPopupRect.w <= 0) return;
+        categoryEvolutionTileRects.clear();
+
+    const Settlement& clickedSett = settlements[selectedSettlementIndex];
+    int provID = clickedSett.settlementData.provinceID;
+    const Province& prov = provinces[provID];
+    FactionZone faction = prov.owner;
+
+    std::vector<const Settlement*> provS;
+    for (const auto& s : settlements)
+        if (s.settlementData.provinceID == provID)
+            provS.push_back(&s);
+    if (categoryPopupCardIndex>= (int)provS.size()) return;
+    const Settlement* cardSett = provS[categoryPopupCardIndex];
+    int settlementTier = cardSett->settlementData.settlementTier;
+
+    // faction color
+    SDL_Color fc;
+    if (faction == FactionZone::Knight) fc = {255, 215,   0, 255};
+    else if (faction == FactionZone::Viking) fc = {255,   0,   0, 255};
+    else fc = {  0, 200, 160, 255};
+
+
+    BuildingCategory cat = (BuildingCategory)hoveredBuildingCategoryIndex;
+    std::vector<BuildingType> rootBuildings = GetBuildingsForCategory(cat, faction, 5);
+    if (rootBuildings.empty()) return;
+
+    // upgrade chain chain.tiers[0]=T1, [last]=T_max
+    struct Chain { std::vector<BuildingType> tiers; };
+    std::vector<Chain> chains;
+    for (BuildingType root : rootBuildings) {
+        Chain c;
+        BuildingType cur = root;
+        while (cur != BuildingType::None) {
+            c.tiers.push_back(cur);
+            const BuildingData* d = GetBuildingData(cur);
+            cur = (d && d->upgradesTo != BuildingType::None) ? d->upgradesTo : BuildingType::None;
+        }
+        chains.push_back(c);
+    }
+
+    // Layout
+    float tileW  = 90.f;
+    float tileH  = 55.f;
+    float arrowH = 18.f;
+    float colGap = 10.f;
+
+    int maxLen = 0;
+    for (auto& c : chains) maxLen = std::max(maxLen, (int)c.tiers.size());
+
+    float totalW = (float)chains.size() * tileW + ((float)chains.size() - 1.f) * colGap;
+    float totalH = (float)maxLen * tileH + ((float)maxLen - 1.f) * arrowH;
+
+    // Position on top
+    float popX = 400.f, popY = 300.f;
+    if (hoveredBuildingCategoryIndex < (int)categoryButtonsRects.size()) {
+        const SDL_FRect& btn = categoryButtonsRects[hoveredBuildingCategoryIndex];
+        popX = btn.x + btn.w / 2.f - totalW / 2.f;
+        popY = btn.y - totalH - 14.f;
+    }
+    if (popX < 5.f) popX = 5.f;
+    if (popX + totalW > 1915.f) popX = 1915.f - totalW;
+    if (popY < 5.f) popY = 5.f;
+
+    // Fond of the popup
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 10, 10, 10, 230);
+    SDL_FRect bg = {popX - 10.f, popY - 8.f, totalW + 20.f, totalH + 16.f};
+    SDL_RenderFillRect(renderer, &bg);
+        categoryEvolutionPopupRect = bg;
+    SDL_SetRenderDrawColor(renderer, fc.r, fc.g, fc.b, 130);
+    SDL_RenderRect(renderer, &bg);
+
+    //Render each col
+    for (int ci = 0; ci < (int)chains.size(); ci++) {
+        const Chain& chain = chains[ci];
+        int numTiers = (int)chain.tiers.size();
+        float colX = popX + ci * (tileW + colGap);
+
+        // Tier higer is 5 and lower is 1
+        for (int ti = 0; ti < numTiers; ti++) {
+            BuildingType bt = chain.tiers[numTiers - 1 - ti];
+            const BuildingData* data = GetBuildingData(bt);
+            if (!data) continue;
+
+            float tileY = popY + ti * (tileH + arrowH);
+            bool isUnlocked = (data->Tier <= settlementTier);
+
+            // Fond de la tuile
+            if (isUnlocked)
+                SDL_SetRenderDrawColor(renderer, fc.r / 3, fc.g / 3, fc.b / 3, 255);
+            else
+                SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
+            SDL_FRect tileRect = {colX, tileY, tileW, tileH};
+            SDL_RenderFillRect(renderer, &tileRect);
+
+            // Border
+            if (isUnlocked)
+                SDL_SetRenderDrawColor(renderer, fc.r, fc.g, fc.b, 200);
+            else
+                SDL_SetRenderDrawColor(renderer, 55, 55, 55, 255);
+            SDL_RenderRect(renderer, &tileRect);
+
+            categoryEvolutionTileRects.push_back({tileRect, bt});
+            // Building name
+            TTF_SetTextString(gameStatUIText, data->name.c_str(), 0);
+            Uint8 nameAlpha = isUnlocked ? 220 : 80;
+            TTF_SetTextColor(gameStatUIText, nameAlpha, nameAlpha, nameAlpha, 255);
+            TTF_DrawRendererText(gameStatUIText, colX + 4.f, tileY + 3.f);
+
+            // Cost + Icon
+            std::string costStr = std::to_string(data->cost);
+            TTF_SetTextString(gameBuildingCostUIText, costStr.c_str(), 0);
+            if (player.currentGold >= data->cost)
+                TTF_SetTextColor(gameBuildingCostUIText, 127, 255, 0, 255);
+            else
+                TTF_SetTextColor(gameBuildingCostUIText, 220, 60, 60, 255);
+            SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
+            SDL_FRect goldIcon = {colX + 4.f, tileY + tileH - 15.f, 10.f, 10.f};
+            SDL_RenderFillRect(renderer, &goldIcon);
+            TTF_DrawRendererText(gameBuildingCostUIText, colX + 17.f, tileY + tileH - 17.f);
+
+            // time construction
+            std::string turnStr = std::to_string(data->constructionTurns);
+            TTF_SetTextString(gameBuildingConstructionTimeText, turnStr.c_str(), 0);
+            TTF_SetTextColor(gameBuildingConstructionTimeText, 180, 180, 255, 255);
+            SDL_SetRenderDrawColor(renderer, 100, 100, 200, 255);
+            SDL_FRect turnIcon = {colX + tileW - 24.f, tileY + tileH - 15.f, 10.f, 10.f};
+            SDL_RenderFillRect(renderer, &turnIcon);
+            TTF_DrawRendererText(gameBuildingConstructionTimeText, colX + tileW - 12.f, tileY + tileH - 17.f);
+
+            //arrow towards next tier
+            if (ti < numTiers - 1) {
+                float cx   = colX + tileW / 2.f;
+                float tipY = tileY + tileH + 2.f;
+                float botY = tileY + tileH + arrowH - 2.f;
+                SDL_SetRenderDrawColor(renderer, 0, 180, 0, 200);
+                SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)cx,      (int)botY);
+                SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)(cx - 5),(int)(tipY + 7));
+                SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)(cx + 5),(int)(tipY + 7));
+            }
+        }
+    }
+}
+
+
+
     //The top UI bar for the money / turn area
     void RenderGeneralUI(){
     //rectangle of the top ui part
@@ -2253,7 +2426,81 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
     TTF_SetTextColor(gameStatUIText, 71, 255, 164, 255);
     TTF_DrawRendererText(gameStatUIText, tooltipX + 190.f, lineY);
 }
+void RenderCategoryBuildingInfoUI() {
+    if (hoveredCategoryBuildingType == BuildingType::None) return;
 
+    const BuildingData* data = GetBuildingData(hoveredCategoryBuildingType);
+    if (!data) return;
+
+    // Couleur de faction (même logique que les autres tooltips)
+    if (!bHasClickedOnASettlement || selectedSettlementIndex < 0) return;
+    int provID = settlements[selectedSettlementIndex].settlementData.provinceID;
+    const Province& province = provinces[provID];
+
+    SDL_Color fc;
+    if (province.owner == FactionZone::Knight)       fc = {255, 215,   0, 255};
+    else if (province.owner == FactionZone::Viking)  fc = {255,   0,   0, 255};
+    else                                              fc = {  0, 255, 215, 255};
+
+    float tooltipX = 0.f;
+    float tooltipW = 250.f;
+    float tooltipH = 175.f;
+    float tooltipY = 708.f - tooltipH - 6.f;
+
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+    // Fond
+    SDL_SetRenderDrawColor(renderer, 15, 15, 15, 220);
+    SDL_FRect bg = {tooltipX, tooltipY, tooltipW, tooltipH};
+    SDL_RenderFillRect(renderer, &bg);
+
+    // Barre titre
+    SDL_SetRenderDrawColor(renderer, fc.r, fc.g, fc.b, 180);
+    SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, 30.f};
+    SDL_RenderFillRect(renderer, &titleBar);
+
+    // Bordure
+    SDL_SetRenderDrawColor(renderer, fc.r, fc.g, fc.b, 255);
+    SDL_RenderRect(renderer, &bg);
+
+    // Nom du building
+    TTF_SetTextString(gameStatUITitleText, data->name.c_str(), 0);
+    TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
+    TTF_DrawRendererText(gameStatUITitleText, tooltipX + 8.f, tooltipY + 4.f);
+
+    float lineY = tooltipY + 36.f;
+
+    // Description
+    if (!data->description.empty()) {
+        TTF_SetTextString(gameBuildingDescriptionText, data->description.c_str(), 0);
+        TTF_SetTextColor(gameBuildingDescriptionText, 180, 230, 100, 255);
+        TTF_DrawRendererText(gameBuildingDescriptionText, tooltipX + 8.f, lineY);
+    }
+    lineY += 80.f;
+
+    // Income bonus
+    SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
+    SDL_FRect goldIcon = {tooltipX + 8.f, lineY + 3.f, 12.f, 12.f};
+    SDL_RenderFillRect(renderer, &goldIcon);
+    TTF_SetTextString(gameStatUIText, "Income:", 0);
+    TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
+    TTF_DrawRendererText(gameStatUIText, tooltipX + 26.f, lineY);
+    TTF_SetTextString(gameStatUIText, ("+" + std::to_string(data->incomeBonus)).c_str(), 0);
+    TTF_SetTextColor(gameStatUIText, 180, 230, 100, 255);
+    TTF_DrawRendererText(gameStatUIText, tooltipX + 190.f, lineY);
+    lineY += 26.f;
+
+    // Public order bonus
+    SDL_SetRenderDrawColor(renderer, 80, 200, 80, 255);
+    SDL_FRect orderIcon = {tooltipX + 8.f, lineY + 3.f, 12.f, 12.f};
+    SDL_RenderFillRect(renderer, &orderIcon);
+    TTF_SetTextString(gameStatUIText, "Public Order:", 0);
+    TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
+    TTF_DrawRendererText(gameStatUIText, tooltipX + 26.f, lineY);
+    TTF_SetTextString(gameStatUIText, ("+" + std::to_string(data->publicOrderBonus)).c_str(), 0);
+    TTF_SetTextColor(gameStatUIText, 71, 255, 164, 255);
+    TTF_DrawRendererText(gameStatUIText, tooltipX + 190.f, lineY);
+}
 
     void UpdateBackgroundTint(const float deltaTime) {
         constexpr float speed = 5.0f;
@@ -2501,6 +2748,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         RenderProvinceUI();
         RenderGeneralUI();
         RenderBuildingInfoUI();
+        RenderCategoryBuildingInfoUI();
         //fps
         TTF_DrawRendererText(fpsText, 10, 10);
         SDL_RenderPresent(renderer);
@@ -2945,9 +3193,25 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         SDL_FRect popupWithGap = app.mainBuildingPopupRect;
         popupWithGap.h += 20.f; // couvre le gap de 15px + marge
         bool onPopup = SDL_PointInRectFloat(&pt, &popupWithGap);
-        if (!onAnySlot && !onPopup) {
+        bool onCategoryPopup = app.categoryButtonsPopupRect.w > 0 && SDL_PointInRectFloat(&pt, &app.categoryButtonsPopupRect);
+        bool onEvolutionPopup = app.categoryEvolutionPopupRect.w > 0 && SDL_PointInRectFloat(&pt, &app.categoryEvolutionPopupRect);
+
+        if (!onAnySlot && !onPopup && !onCategoryPopup && !onEvolutionPopup) {
             app.hoveredSlotIndex = -1;
             app.hoveredCardIndex = -1;
+            app.hoveredCategoryBuildingType = BuildingType::None;
+            app.categoryEvolutionPopupRect = {0,0,0,0};//reset the rect
+        }
+
+        // Hover of the buttons categories ui
+        if (!onEvolutionPopup) {
+            app.hoveredBuildingCategoryIndex = -1;
+            for (int k = 0; k < (int)app.categoryButtonsRects.size(); k++) {
+                if (SDL_PointInRectFloat(&pt, &app.categoryButtonsRects[k])) {
+                    app.hoveredBuildingCategoryIndex = k;
+                    break;
+                }
+            }
         }
         //when mouse on top of the buiding
         app.hoveredTierPopupIndex = -1;
@@ -2957,6 +3221,16 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     app.hoveredTierPopupIndex = t;
                     break;
                 }
+            }
+        }
+
+
+        // Hover on the tiles of the popup of the categories
+        app.hoveredCategoryBuildingType = BuildingType::None;
+        for (auto& [rect, bt] : app.categoryEvolutionTileRects) {
+            if (SDL_PointInRectFloat(&pt, &rect)) {
+                app.hoveredCategoryBuildingType = bt;
+                break;
             }
         }
     }
