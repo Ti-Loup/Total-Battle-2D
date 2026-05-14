@@ -591,18 +591,22 @@ private://constructor
         //KNIGHT
         //CAPITAL REGION
         settlements.emplace_back(SettlementType::Capital, 0, 42, 50, FactionZone::Knight);
-        settlements.back().settlementData.cityName = "Patate";
+        settlements.back().settlementData.cityName = "CapitalName";
         settlements.emplace_back(SettlementType::Village, 0, 46, 35, FactionZone::Knight);
-        settlements.back().settlementData.cityName = "Patate2";
+        settlements.back().settlementData.cityName = "Village1Name";
         settlements.emplace_back(SettlementType::Village, 0, 52, 42, FactionZone::Knight);
-        settlements.back().settlementData.cityName = "Patate3";
+        settlements.back().settlementData.cityName = "Village2Name";
         settlements.emplace_back(SettlementType::Village, 0, 37, 61, FactionZone::Knight);
-        settlements.back().settlementData.cityName = "Patate4";
+        settlements.back().settlementData.cityName = "Village3Name";
         //NORTH REGION
         settlements.emplace_back(SettlementType::Castle, 1, 22, 28, FactionZone::Knight);
+        settlements.back().settlementData.cityName = "Castle1Name";
         settlements.emplace_back(SettlementType::Village, 1, 16, 12, FactionZone::Knight);
+        settlements.back().settlementData.cityName = "Village1Name";
         settlements.emplace_back(SettlementType::Village, 1, 29, 34, FactionZone::Knight);
+        settlements.back().settlementData.cityName = "Village2Name";
         settlements.emplace_back(SettlementType::Village, 1, 25, 46, FactionZone::Knight);
+        settlements.back().settlementData.cityName = "Village3Name";
         //SOUTH REGION
         settlements.emplace_back(SettlementType::Castle, 2, 61,56, FactionZone::Knight);
         settlements.emplace_back(SettlementType::Village, 2, 67, 50, FactionZone::Knight);
@@ -865,6 +869,38 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture stable_T3", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Stable_T3], SDL_SCALEMODE_NEAREST);
+
+        //Artillery
+        buildingTypeTextures[BuildingType::Artillery_T4] = IMG_LoadTexture(renderer, "assets/Knight/ArtilleryTier4.png");
+        if (buildingTypeTextures[BuildingType::Artillery_T4] == nullptr) {
+            SDL_LogWarn(0, "failed to load  texture Artillery_T4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Artillery_T4], SDL_SCALEMODE_NEAREST);
+
+        buildingTypeTextures[BuildingType::Artillery_T5] = IMG_LoadTexture(renderer, "assets/Knight/ArtilleryTier5.png");
+        if (buildingTypeTextures[BuildingType::Artillery_T5] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture Artillery_T5", SDL_GetError);
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Artillery_T5], SDL_SCALEMODE_NEAREST);
+
+        //Walls
+        buildingTypeTextures[BuildingType::ReinforceWalls_T3] = IMG_LoadTexture(renderer, "assets/Knight/ReinforceWallsTier3.png");
+        if (buildingTypeTextures[BuildingType::ReinforceWalls_T3]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture ReinforceWalls_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::ReinforceWalls_T3], SDL_SCALEMODE_NEAREST);
+
+        buildingTypeTextures[BuildingType::ReinforceWalls_T4] = IMG_LoadTexture(renderer, "assets/Knight/ReinforceWallsTier4.png");
+        if (buildingTypeTextures[BuildingType::ReinforceWalls_T4]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture ReinforceWalls_T4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::ReinforceWalls_T4], SDL_SCALEMODE_NEAREST);
+
+        buildingTypeTextures[BuildingType::ReinforceWalls_T5] = IMG_LoadTexture(renderer, "assets/Knight/ReinforceWallsTier5.png");
+        if (buildingTypeTextures[BuildingType::ReinforceWalls_T5]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture ReinforceWalls_T5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::ReinforceWalls_T5], SDL_SCALEMODE_NEAREST);
         //                  ! VIKING !
         //capitals
         capitalBuildingUpgrade1Viking = IMG_LoadTexture(renderer, "assets/Viking/CapitalBuildingUpgrade1Viking.png");
