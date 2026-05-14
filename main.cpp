@@ -1900,10 +1900,15 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
             SDL_FRect expandedPopup = categoryButtonsPopupRect;
             expandedPopup.h += 10.f;
 
-            if (categoryButtonsPopupRect.w > 0 && SDL_PointInRectFloat(&mousePt, &expandedPopup)) {
+            bool bInBuildingCategoryButtons = categoryButtonsPopupRect.w > 0 && SDL_PointInRectFloat(&mousePt, &expandedPopup);
+            SDL_FRect expandedEvolution = categoryEvolutionPopupRect;
+            expandedEvolution.h += 20.f; // cover the gap between evolution popup and building categoriesButtons
+            bool bInBuildingEvolitionButtons = categoryEvolutionPopupRect.w > 0 && SDL_PointInRectFloat(&mousePt, &expandedEvolution);
+            if (bInBuildingCategoryButtons || bInBuildingEvolitionButtons) {
                 hoveredAvailableSlot = 0; // garde le popup ouvert
             } else {
-                categoryButtonsPopupRect = {0.f, 0.f, 0.f, 0.f}; // ferme et reset proprement
+                categoryButtonsPopupRect = {0.f, 0.f, 0.f, 0.f}; // reset the rect
+                categoryEvolutionPopupRect = {0.f,0.f,0.f,0.f};
             }
         }
 
@@ -1927,8 +1932,9 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
 
             //The rect of the buttons category
             categoryButtonsPopupRect = {buttonStartX, buttonY, totalButtonW, buttonW};
-
-            bool mouseOnEvolutionPopup = categoryEvolutionPopupRect.w > 0 && SDL_PointInRectFloat(&mousePt, &categoryEvolutionPopupRect);
+            SDL_FRect expandedEvolCheck = categoryEvolutionPopupRect;
+            expandedEvolCheck.h += 20.f; // cover the gap that stop the buttons 
+            bool mouseOnEvolutionPopup = categoryEvolutionPopupRect.w > 0 && SDL_PointInRectFloat(&mousePt, &expandedEvolCheck);
             if (!mouseOnEvolutionPopup) {
                 hoveredBuildingCategoryIndex = -1;//reset
                 for (int k = 0; k < 5; k++) {
@@ -3194,7 +3200,9 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         popupWithGap.h += 20.f; // couvre le gap de 15px + marge
         bool onPopup = SDL_PointInRectFloat(&pt, &popupWithGap);
         bool onCategoryPopup = app.categoryButtonsPopupRect.w > 0 && SDL_PointInRectFloat(&pt, &app.categoryButtonsPopupRect);
-        bool onEvolutionPopup = app.categoryEvolutionPopupRect.w > 0 && SDL_PointInRectFloat(&pt, &app.categoryEvolutionPopupRect);
+        SDL_FRect expandedEvol = app.categoryEvolutionPopupRect;
+        expandedEvol.h += 20.f;
+        bool onEvolutionPopup = app.categoryEvolutionPopupRect.w > 0 && SDL_PointInRectFloat(&pt, &expandedEvol);
 
         if (!onAnySlot && !onPopup && !onCategoryPopup && !onEvolutionPopup) {
             app.hoveredSlotIndex = -1;
