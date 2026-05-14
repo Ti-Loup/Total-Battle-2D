@@ -253,6 +253,10 @@ public:
     SDL_Texture *provinceKnightBannerTexture = nullptr;
     SDL_Texture *provinceVikingBannerTexture = nullptr;
     SDL_Texture *provinceSamuraiBannerTexture = nullptr;
+
+    //texture of all buildings for different factions
+    std::unordered_map<BuildingType, SDL_Texture *> buildingTypeTextures;
+
     // -> CREDITS <-
     TTF_Font *creditsTitleFont = nullptr;
     TTF_Text *creditsTitleText = nullptr;
@@ -797,6 +801,45 @@ private://constructor
         }
         SDL_SetTextureScaleMode(gameBuildingTypesGroupingReligionKnight, SDL_SCALEMODE_NEAREST);
 
+        //textures for all differents buildings (KNIGHT)
+        //barracks
+        buildingTypeTextures[BuildingType::Barracks_T1] = IMG_LoadTexture(renderer, "assets/Knight/BarracksTier1.png");
+        if (buildingTypeTextures[BuildingType::Barracks_T1] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture of Barracks_T1",SDL_GetError);
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Barracks_T1], SDL_SCALEMODE_NEAREST);
+
+        buildingTypeTextures[BuildingType::Barracks_T2] = IMG_LoadTexture(renderer, "assets/Knight/BarracksTier2.png");
+        if (buildingTypeTextures[BuildingType::Barracks_T2] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture Barracks_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Barracks_T2], SDL_SCALEMODE_NEAREST);
+
+        buildingTypeTextures[BuildingType::Barracks_T3] = IMG_LoadTexture(renderer, "assets/Knight/BarracksTier3.png");
+        if (buildingTypeTextures[BuildingType::Barracks_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture Barracks_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Barracks_T3], SDL_SCALEMODE_NEAREST);
+
+        //ArcheryRange
+        buildingTypeTextures[BuildingType::ArcheryRange_T1] = IMG_LoadTexture(renderer, "assets/Knight/ArcheryRangeTier1.png");
+        if (buildingTypeTextures[BuildingType::ArcheryRange_T1] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture ArcheryRange_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::ArcheryRange_T1], SDL_SCALEMODE_NEAREST);
+
+        buildingTypeTextures[BuildingType::ArcheryRange_T2] = IMG_LoadTexture(renderer, "assets/Knight/ArcheryRangeTier2.png");
+        if (buildingTypeTextures[BuildingType::ArcheryRange_T2] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture ArcheryRange_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::ArcheryRange_T2], SDL_SCALEMODE_NEAREST);
+
+        buildingTypeTextures[BuildingType::ArcheryRange_T3] = IMG_LoadTexture(renderer, "assets/Knight/ArcheryRangeTier3.png");
+        if (buildingTypeTextures[BuildingType::ArcheryRange_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture ArcheryRange_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::ArcheryRange_T3], SDL_SCALEMODE_NEAREST);
+
         //                  ! VIKING !
         //capitals
         capitalBuildingUpgrade1Viking = IMG_LoadTexture(renderer, "assets/Viking/CapitalBuildingUpgrade1Viking.png");
@@ -1015,6 +1058,7 @@ private://constructor
         }
         SDL_SetTextureScaleMode(gameBuildingTypesGroupingReligionSamurai, SDL_SCALEMODE_NEAREST);
 
+
         // -> CREDITS <-
         creditsTitleFont = TTF_OpenFont("assets/font.ttf", 50);
         creditsRoleTitleFont = TTF_OpenFont("assets/font.ttf", 40);
@@ -1182,7 +1226,11 @@ private://constructor
     // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
-
+    // ---------------------------------
+        for (auto &[Type, texture]: buildingTypeTextures) {
+            SDL_DestroyTexture(texture);
+        }
+        buildingTypeTextures.clear();
     }
 
     BuildingType GetSettlementBuildingType(SettlementType type, FactionZone faction, int tier) {
@@ -1355,6 +1403,10 @@ private://constructor
     }
     return nullptr;
 }
+    SDL_Texture* GetBuildingTexture(BuildingType type) {
+        auto it = buildingTypeTextures.find(type);
+        return (it != buildingTypeTextures.end()) ? it->second : nullptr;
+    }
 
     //For the rendering on screen of the settlements. Texture to do
     void RenderSettlements() {
@@ -2252,18 +2304,28 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
             if (isUnlocked)
                 SDL_SetRenderDrawColor(renderer, fc.r / 3, fc.g / 3, fc.b / 3, 255);
             else
-                SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
+                SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
             SDL_FRect tileRect = {colX, tileY, tileW, tileH};
             SDL_RenderFillRect(renderer, &tileRect);
 
-            // Border
-            if (isUnlocked)
-                SDL_SetRenderDrawColor(renderer, fc.r, fc.g, fc.b, 200);
-            else
-                SDL_SetRenderDrawColor(renderer, 55, 55, 55, 255);
-            SDL_RenderRect(renderer, &tileRect);
+            //textures
+            SDL_Texture* texture = GetBuildingTexture(bt);
+            if (texture) {
+                Uint8 alpha;
+                if (bt == hoveredCategoryBuildingType) {
+                    alpha = 255; // mouse on top
+                } else if (isUnlocked) {
+                    alpha = 255;
+                } else {
+                    alpha = 120; // locked
+                }
+                SDL_SetTextureAlphaMod(texture, alpha);
+                SDL_RenderTexture(renderer, texture, nullptr, &tileRect);
+                SDL_SetTextureAlphaMod(texture, 255); // reset
+            }
 
-            categoryEvolutionTileRects.push_back({tileRect, bt});
+
+            categoryEvolutionTileRects.push_back({tileRect, bt});//detection click
             // // Building name
             // TTF_SetTextString(gameStatUIText, data->name.c_str(), 0);
             // Uint8 nameAlpha = isUnlocked ? 220 : 80;
