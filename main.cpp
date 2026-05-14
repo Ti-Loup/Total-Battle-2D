@@ -1933,7 +1933,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
             //The rect of the buttons category
             categoryButtonsPopupRect = {buttonStartX, buttonY, totalButtonW, buttonW};
             SDL_FRect expandedEvolCheck = categoryEvolutionPopupRect;
-            expandedEvolCheck.h += 20.f; // cover the gap that stop the buttons 
+            expandedEvolCheck.h += 20.f; // cover the gap that stop the buttons
             bool mouseOnEvolutionPopup = categoryEvolutionPopupRect.w > 0 && SDL_PointInRectFloat(&mousePt, &expandedEvolCheck);
             if (!mouseOnEvolutionPopup) {
                 hoveredBuildingCategoryIndex = -1;//reset
@@ -2197,10 +2197,13 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         }
         chains.push_back(c);
     }
-
+        //Main building Building W/H
+        // float buttonW = 65.f;
+        // float buttonH = 65.f;
+        // float buttonGap = 4.f;
     // Layout
-    float tileW  = 90.f;
-    float tileH  = 55.f;
+    float tileW  = 65.f;
+    float tileH  = 65.f;
     float arrowH = 18.f;
     float colGap = 10.f;
 
@@ -2261,32 +2264,33 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
             SDL_RenderRect(renderer, &tileRect);
 
             categoryEvolutionTileRects.push_back({tileRect, bt});
-            // Building name
-            TTF_SetTextString(gameStatUIText, data->name.c_str(), 0);
-            Uint8 nameAlpha = isUnlocked ? 220 : 80;
-            TTF_SetTextColor(gameStatUIText, nameAlpha, nameAlpha, nameAlpha, 255);
-            TTF_DrawRendererText(gameStatUIText, colX + 4.f, tileY + 3.f);
+            // // Building name
+            // TTF_SetTextString(gameStatUIText, data->name.c_str(), 0);
+            // Uint8 nameAlpha = isUnlocked ? 220 : 80;
+            // TTF_SetTextColor(gameStatUIText, nameAlpha, nameAlpha, nameAlpha, 255);
+            // TTF_DrawRendererText(gameStatUIText, colX + 1.f, tileY + 3.f);
 
             // Cost + Icon
             std::string costStr = std::to_string(data->cost);
             TTF_SetTextString(gameBuildingCostUIText, costStr.c_str(), 0);
+            //green
             if (player.currentGold >= data->cost)
                 TTF_SetTextColor(gameBuildingCostUIText, 127, 255, 0, 255);
-            else
+            else //red
                 TTF_SetTextColor(gameBuildingCostUIText, 220, 60, 60, 255);
             SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
-            SDL_FRect goldIcon = {colX + 4.f, tileY + tileH - 15.f, 10.f, 10.f};
+            SDL_FRect goldIcon = {colX + 63.f, tileY + tileH - 15.f, 12.f, 12.f};
             SDL_RenderFillRect(renderer, &goldIcon);
-            TTF_DrawRendererText(gameBuildingCostUIText, colX + 17.f, tileY + tileH - 17.f);
+            TTF_DrawRendererText(gameBuildingCostUIText, colX + 30.f, tileY + tileH - 19.f);
 
             // time construction
             std::string turnStr = std::to_string(data->constructionTurns);
             TTF_SetTextString(gameBuildingConstructionTimeText, turnStr.c_str(), 0);
             TTF_SetTextColor(gameBuildingConstructionTimeText, 180, 180, 255, 255);
-            SDL_SetRenderDrawColor(renderer, 100, 100, 200, 255);
-            SDL_FRect turnIcon = {colX + tileW - 24.f, tileY + tileH - 15.f, 10.f, 10.f};
+            SDL_SetRenderDrawColor(renderer, 120, 120, 120, 255);
+            SDL_FRect turnIcon = {colX + tileW - 3.f, tileY + tileH - 62.f, 12.f, 12.f};
             SDL_RenderFillRect(renderer, &turnIcon);
-            TTF_DrawRendererText(gameBuildingConstructionTimeText, colX + tileW - 12.f, tileY + tileH - 17.f);
+            TTF_DrawRendererText(gameBuildingConstructionTimeText, colX + tileW - 15.f, tileY + tileH - 65.f);
 
             //arrow towards next tier
             if (ti < numTiers - 1) {
@@ -2438,7 +2442,6 @@ void RenderCategoryBuildingInfoUI() {
     const BuildingData* data = GetBuildingData(hoveredCategoryBuildingType);
     if (!data) return;
 
-    // Couleur de faction (même logique que les autres tooltips)
     if (!bHasClickedOnASettlement || selectedSettlementIndex < 0) return;
     int provID = settlements[selectedSettlementIndex].settlementData.provinceID;
     const Province& province = provinces[provID];
