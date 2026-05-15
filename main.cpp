@@ -141,6 +141,8 @@ public:
     TTF_Text *gameBuildingCostUIText = nullptr;
     TTF_Font *gameBuildingConstructionTimeFont = nullptr;
     TTF_Text *gameBuildingConstructionTimeText = nullptr;
+    TTF_Font *gameBuildingCategoriesNameFont = nullptr;
+    TTF_Text *gameBuildingCategoriesNameText = nullptr;
     //Buttons UI
     bool bButtonUIBuildingIsPressed = true;
     bool bButtonUIGarrisonIsPressed = false;
@@ -585,6 +587,11 @@ private://constructor
         gameBuildingDescriptionText = TTF_CreateText(textEngine, gameBuildingDescriptionFont, "", 25);
         if (gameBuildingDescriptionText == nullptr) {
             SDL_LogWarn(0,"failed to create the text gameBuildingDescriptionText", SDL_GetError());
+        }
+        gameBuildingCategoriesNameFont = TTF_OpenFont("assets/Rubik.ttf", 13);
+        gameBuildingCategoriesNameText = TTF_CreateText(textEngine, gameBuildingCategoriesNameFont, "Military", 25);
+        if (gameBuildingCategoriesNameText == nullptr) {
+            SDL_LogWarn(0, "failed to load text gameBuildingCategoriesNameText" , SDL_GetError());
         }
 
         //CREATION OF THE SETTLEMENTS
@@ -1544,6 +1551,7 @@ private://constructor
         TTF_CloseFont(gameBuildingCostUIFont);
         TTF_CloseFont(gameBuildingConstructionTimeFont);
         TTF_CloseFont(gameBuildingDescriptionFont);
+        TTF_CloseFont(gameBuildingCategoriesNameFont);
     // ---------------------------------
         TTF_DestroyText(fpsText);
         TTF_DestroyText(menuText);
@@ -1577,6 +1585,7 @@ private://constructor
         TTF_DestroyText(gameBuildingCostUIText);
         TTF_DestroyText(gameBuildingConstructionTimeText);
         TTF_DestroyText(gameBuildingDescriptionText);
+        TTF_DestroyText(gameBuildingCategoriesNameText);
     // ---------------------------------
         SDL_DestroyTexture(provinceKnightBannerTexture);
         SDL_DestroyTexture(provinceVikingBannerTexture);
@@ -2385,6 +2394,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
             } else {
                 categoryButtonsPopupRect = {0.f, 0.f, 0.f, 0.f}; // reset the rect
                 categoryEvolutionPopupRect = {0.f,0.f,0.f,0.f};
+                hoveredBuildingCategoryIndex = -1;
             }
         }
 
@@ -2411,13 +2421,9 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
             SDL_FRect expandedEvolCheck = categoryEvolutionPopupRect;
             expandedEvolCheck.h += 20.f; // cover the gap that stop the buttons
             bool mouseOnEvolutionPopup = categoryEvolutionPopupRect.w > 0 && SDL_PointInRectFloat(&mousePt, &expandedEvolCheck);
-            if (!mouseOnEvolutionPopup) {
-                hoveredBuildingCategoryIndex = -1;//reset
-                for (int k = 0; k < 5; k++) {
+
+            for (int k = 0; k < 5; k++) {
                     SDL_FRect buttonsRect = {buttonStartX + k * (buttonW + buttonGap), buttonY, buttonW, buttonH};
-                    if (SDL_PointInRectFloat(&mousePt, &buttonsRect)) {
-                        hoveredBuildingCategoryIndex = k;
-                    }
                     //font de la couleur
                     SDL_SetRenderDrawColor(renderer, categoryColors[k].r, categoryColors[k].g, categoryColors[k].b, 200);
                     SDL_RenderFillRect(renderer, &buttonsRect);
@@ -2452,8 +2458,31 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                     // int tw = 0, th = 0;
                     // TTF_GetTextSize(gameStatUIText, &tw, &th);
                     // TTF_DrawRendererText(gameStatUIText,buttonsRect.x + (buttonW - tw) / 2.f,buttonsRect.y + (buttonH - th) / 2.f);
+
+
+                }
+            if (!mouseOnEvolutionPopup) {
+                hoveredBuildingCategoryIndex = -1;
+                for (int k = 0; k < 5; k++) {
+                    SDL_FRect buttonsRect = {buttonStartX + k * (buttonW + buttonGap), buttonY, buttonW, buttonH};
+                    if (SDL_PointInRectFloat(&mousePt, &buttonsRect)) {
+                        hoveredBuildingCategoryIndex = k;
+                    }
                 }
             }
+
+            if (hoveredBuildingCategoryIndex >= 0 && hoveredBuildingCategoryIndex < 5) {
+                const char* categoryNames[] = {"Military", "Adv. Military", "Defence", "Economy", "Religion"};
+                TTF_SetTextString(gameBuildingCategoriesNameText, categoryNames[hoveredBuildingCategoryIndex], 0);
+                TTF_SetTextColor(gameBuildingCategoriesNameText, 180, 180, 180, 255);
+
+                // Position
+                int tw = 0, th = 0;
+                TTF_GetTextSize(gameBuildingCategoriesNameText, &tw, &th);
+                TTF_DrawRendererText(gameBuildingCategoriesNameText,lenghtX + 15.f, lenghtY - th);
+            }
+
+
             //to stock their rectangles
             categoryButtonsRects.resize(5);
             for (int k = 0; k < 5; k++) {
@@ -2545,7 +2574,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         provinceSettl->settlementData.type, province.owner, t - 1);
             const BuildingData* tierData = GetBuildingData(buildingAtTier);
             const BuildingData* nextData = (tierData && tierData->upgradesTo != BuildingType::None)? GetBuildingData(tierData->upgradesTo) : nullptr;
-            int cost              = nextData ? nextData->cost             : 123456;
+            int cost = nextData ? nextData->cost : 123456;
             int constructionTurns = nextData ? nextData->constructionTurns : 1;
 
             std::string costString = std::to_string(cost);
@@ -2632,9 +2661,9 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
     //fonction to buy a new building on a constructable square in RenderProvinceUI
     //Same has the main building
     void RenderBuildingCategoryEvolution() {
+        categoryEvolutionTileRects.clear();
     if (hoveredBuildingCategoryIndex < 0 || !bHasClickedOnASettlement || selectedSettlementIndex < 0) return;
     if (categoryPopupCardIndex < 0 || categoryButtonsPopupRect.w <= 0) return;
-        categoryEvolutionTileRects.clear();
 
     const Settlement& clickedSett = settlements[selectedSettlementIndex];
     int provID = clickedSett.settlementData.provinceID;
@@ -2952,9 +2981,9 @@ void RenderCategoryBuildingInfoUI() {
     const Province& province = provinces[provID];
 
     SDL_Color fc;
-    if (province.owner == FactionZone::Knight)       fc = {255, 215,   0, 255};
+    if (province.owner == FactionZone::Knight) fc = {255, 215,   0, 255};
     else if (province.owner == FactionZone::Viking)  fc = {255,   0,   0, 255};
-    else                                              fc = {  0, 255, 215, 255};
+    else fc = {  0, 255, 215, 255};
 
     float tooltipX = 0.f;
     float tooltipW = 250.f;
