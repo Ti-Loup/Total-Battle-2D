@@ -1161,6 +1161,25 @@ private://constructor
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::ReinforcedDrakkar_T5], SDL_SCALEMODE_NEAREST);
 
+        //Economy
+        buildingTypeTextures[BuildingType::SlaveMarket_T1]= IMG_LoadTexture(renderer, "assets/Viking/SlaveMarketTier1.png");
+        if (buildingTypeTextures[BuildingType::SlaveMarket_T1] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SlaveMarket_T1", SDL_GetError);
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SlaveMarket_T1], SDL_SCALEMODE_NEAREST);
+
+        buildingTypeTextures[BuildingType::SlaveMarket_T2]= IMG_LoadTexture(renderer, "assets/Viking/SlaveMarketTier2.png");
+        if (buildingTypeTextures[BuildingType::SlaveMarket_T2] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SlaveMarket_T2", SDL_GetError);
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SlaveMarket_T2], SDL_SCALEMODE_NEAREST);
+
+        buildingTypeTextures[BuildingType::SlaveMarket_T3]= IMG_LoadTexture(renderer, "assets/Viking/SlaveMarketTier3.png");
+        if (buildingTypeTextures[BuildingType::SlaveMarket_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SlaveMarket_T3", SDL_GetError);
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SlaveMarket_T3], SDL_SCALEMODE_NEAREST);
+
         //Religion
         buildingTypeTextures[BuildingType::Shrine_T1] = IMG_LoadTexture(renderer, "assets/Viking/ShrineTier1.png");
         if (buildingTypeTextures[BuildingType::Shrine_T1] == nullptr) {
@@ -1883,7 +1902,7 @@ private://constructor
     int nameW = 0, nameH = 0;
     TTF_GetTextSize(gameStatUITitleText, &nameW, &nameH);
     float nameX = centerX - nameW / 2.f;
-    float nameY = barY - nameH - 2.f; // collé au-dessus de la barre
+    float nameY = barY - nameH - 2.f;
 
     SDL_SetRenderDrawColor(renderer, 10, 10, 10, 200);
     SDL_FRect nameBackground = {nameX - 4.f, nameY - 2.f, (float)nameW + 4.f, (float)nameH + 2.f};
