@@ -2807,7 +2807,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                 if (bt == hoveredCategoryBuildingType) {
                     alpha = 255; // mouse on top
                 } else if (isUnlocked) {
-                    alpha = 255;
+                    alpha = 120;
                 } else {
                     alpha = 120; // locked
                 }
@@ -3697,6 +3697,18 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         //verify the slot is not already occupy to not pay over
                         if (sel->settlementData.buildings[slotB] != BuildingType::None) {
                             SDL_Log("Slot already occupied!");
+                            return SDL_APP_CONTINUE;
+                        }
+
+                        bool alreadyBuilt = false;
+                        for (const auto& existingBt : sel->settlementData.buildings) {
+                            if (existingBt == bt) {
+                                alreadyBuilt = true;
+                                break;
+                            }
+                        }
+                        if (alreadyBuilt) {
+                            SDL_Log("Building already in settlement");
                             return SDL_APP_CONTINUE;
                         }
                         // paid buildings
