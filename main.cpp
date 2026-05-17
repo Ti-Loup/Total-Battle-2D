@@ -2352,7 +2352,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                                     }
                                 }
                             }
-                            else if (slotAvailable) {
+                            else if (slotAvailable && s->settlementData.pendingBuildings[b] == BuildingType::None) {
                                 // Show texture available
                                 if (province.owner == FactionZone::Knight)
                                     SDL_RenderTexture(renderer, gameAvailableSlotKnight, nullptr, &slot);
@@ -2363,6 +2363,21 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
 
                                 availableSlotRects.push_back(slot);
                                 availableSlotInfo.push_back({i, b});
+                            }
+                            else if (slotAvailable && s->settlementData.pendingBuildings[b] != BuildingType::None) {
+                                // Texture pending building
+                                SDL_Texture* pendingTex = GetBuildingTexture(s->settlementData.pendingBuildings[b]);
+                                if (pendingTex) SDL_RenderTexture(renderer, pendingTex, nullptr, &slot);
+
+                                // small rect to construct
+                                SDL_FRect constructionRect = {sx + 8.f, sy + 20.f, slotSize - 15.f, slotSize - 40.f};
+                                SDL_SetRenderDrawColor(renderer, 144, 238, 144, 255);
+                                SDL_RenderFillRect(renderer, &constructionRect);
+
+                                // the turn amount before completion
+                                std::string turnStr = std::to_string(s->settlementData.slotConstructionTimes[b]);
+                                TTF_SetTextString(gameBuildingConstructionTimeText, turnStr.c_str(), 0);
+                                TTF_DrawRendererText(gameBuildingConstructionTimeText, sx + 25.f, sy + 20.f);
                             }
                             else {
                                 // Not Available Slot
@@ -3434,22 +3449,37 @@ public:
     void EndTurn() {
         player.AddGold(player.nextTurnGold);
 
-        //to update the current constructions
-        for (auto &s : settlements) {
+
+        for (auto& s : settlements) {
+            //to update the current constructions (evolutive buildings)
+            for (int b = 1; b < (int)s.settlementData.pendingBuildings.size(); b++) {
+                if (s.settlementData.pendingBuildings[b] != BuildingType::None) {
+                    s.settlementData.slotConstructionTimes[b]--;
+                    if (s.settlementData.slotConstructionTimes[b] <= 0) {
+                        s.settlementData.buildings[b] = s.settlementData.pendingBuildings[b];
+                        s.settlementData.pendingBuildings[b] = BuildingType::None;
+                        SDL_Log("Building finished in slot %d of %s", b, s.settlementData.cityName.c_str());
+                    }
+                }
+            }
+            //to update the current construction (MainBuilding)
             if (s.settlementData.bBuidingUnderConstruction) {
                 s.settlementData.constructionTime--;
                 if (s.settlementData.constructionTime <= 0) {
                     s.settlementData.settlementTier = s.settlementData.pendingTier;
                     s.settlementData.bBuidingUnderConstruction = false;
                     s.settlementData.pendingTier = 0;
-                    SDL_Log("Construction finished : %s is now tier... %d",s.settlementData.cityName.c_str(),s.settlementData.settlementTier);
+                    SDL_Log("Construction finished: %s is now tier %d",
+                        s.settlementData.cityName.c_str(), s.settlementData.settlementTier);
                     FactionZone faction = provinces[s.settlementData.provinceID].owner;
-                    s.settlementData.buildings[0] = GetSettlementBuildingType(s.settlementData.type, faction, s.settlementData.settlementTier);
+                    s.settlementData.buildings[0] = GetSettlementBuildingType(
+                        s.settlementData.type, faction, s.settlementData.settlementTier);
                     const BuildingData* data = GetBuildingData(s.settlementData.buildings[0]);
                     if (data) s.settlementData.baseIncome = data->incomeBonus;
                 }
             }
         }
+
 
 
         // Order of who's playing first
@@ -3711,10 +3741,19 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                             SDL_Log("Building already in settlement");
                             return SDL_APP_CONTINUE;
                         }
+                        //a pending building is already built so no doubles
+                        for (const auto& pb : sel->settlementData.pendingBuildings) {
+                            if (pb == bt) {
+                                SDL_Log("Already being built!");
+                                return SDL_APP_CONTINUE;
+                            }
+                        }
+
                         // paid buildings
                         if (app.player.SpendGold(data->cost)) {
-                            sel->settlementData.buildings[slotB] = bt;
-                            SDL_Log("Building purchased: %s for %d gold in %d turns", data->name.c_str(), data->cost, data->constructionTurns);
+                            sel->settlementData.pendingBuildings[slotB]      = bt;
+                            sel->settlementData.slotConstructionTimes[slotB] = data->constructionTurns;
+                            SDL_Log("Construction started: %s in %d turns", data->name.c_str(), data->constructionTurns);
                         } else {
                             SDL_Log("Not enough gold! Need: %d, have: %d", data->cost, app.player.currentGold);
                         }

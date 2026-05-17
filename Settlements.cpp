@@ -19,6 +19,8 @@ Settlement::Settlement(SettlementType type, int provinceID, int col, int row, Fa
             settlementData.basePopulation = 250;
             settlementData.cityName = "Village";
             settlementData.buildings.resize(4, BuildingType::None);
+            settlementData.pendingBuildings.resize(4, BuildingType::None);
+            settlementData.slotConstructionTimes.resize(4, 0);
             if (faction == FactionZone::Knight) {
                 if (type == SettlementType::Village)  settlementData.buildings[0] = BuildingType::Settlement_Village_Knight_T1;
             }
@@ -34,6 +36,8 @@ Settlement::Settlement(SettlementType type, int provinceID, int col, int row, Fa
             settlementData.basePopulation = 1000;
             settlementData.cityName = "Castle";
             settlementData.buildings.resize(6, BuildingType::None);
+            settlementData.pendingBuildings.resize(6, BuildingType::None);
+            settlementData.slotConstructionTimes.resize(6, 0);
             if (faction == FactionZone::Knight) {
                 if (type == SettlementType::Castle)   settlementData.buildings[0] = BuildingType::Settlement_Castle_Knight_T1;
             }
@@ -49,6 +53,8 @@ Settlement::Settlement(SettlementType type, int provinceID, int col, int row, Fa
             settlementData.basePopulation = 2500;
             settlementData.cityName = "Capital";
             settlementData.buildings.resize(8, BuildingType::None);
+            settlementData.pendingBuildings.resize(8, BuildingType::None);
+            settlementData.slotConstructionTimes.resize(8, 0);
             if (faction == FactionZone::Knight) {
                 if (type == SettlementType::Capital)  settlementData.buildings[0] = BuildingType::Settlement_Capital_Knight_T1;
             }

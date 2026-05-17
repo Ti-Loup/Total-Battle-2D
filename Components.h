@@ -81,6 +81,8 @@ struct SettlementComponent {
     int pendingTier = 0;
 
     std::vector<BuildingType> buildings;
+    std::vector<BuildingType> pendingBuildings;
+    std::vector<int> slotConstructionTimes;
 
     // Totals base + all built bonuses
     int GetTotalIncome() const {
