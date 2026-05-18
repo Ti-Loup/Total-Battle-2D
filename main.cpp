@@ -3630,12 +3630,12 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         if (SDL_PointInRectFloat(&pt, &app.provinceButtonUIBuilding)) {
             app.bButtonUIBuildingIsPressed = true;
             app.bButtonUIGarrisonIsPressed = false;
-            return SDL_APP_CONTINUE; // ← stop ici, pas de reset
+            return SDL_APP_CONTINUE;
         }
         if (SDL_PointInRectFloat(&pt, &app.provinceButtonUIGarrison)) {
             app.bButtonUIGarrisonIsPressed = true;
             app.bButtonUIBuildingIsPressed = false;
-            return SDL_APP_CONTINUE; // ← stop ici, pas de reset
+            return SDL_APP_CONTINUE;
         }
     }
 
@@ -3724,6 +3724,21 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                             return SDL_APP_CONTINUE;
                         }
 
+                        //verify if the first Tier building is already upgraded and if so can build the next one
+                        {
+                            bool hasPrerequisite = false;
+                            const auto& db = GetBuildingDatabase();
+                            for (const auto& [key, val] : db) {
+                                if (val.upgradesTo == bt) {
+                                    hasPrerequisite = true;
+                                    break;
+                                }
+                            }
+                            if (hasPrerequisite) {
+                                SDL_Log("Must build prerequisite tier first!");
+                                return SDL_APP_CONTINUE;
+                            }
+                        }
                         //verify the slot is not already occupy to not pay over
                         if (sel->settlementData.buildings[slotB] != BuildingType::None) {
                             SDL_Log("Slot already occupied!");
