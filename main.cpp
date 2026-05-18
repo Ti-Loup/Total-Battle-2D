@@ -2892,18 +2892,20 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                 TTF_SetTextColor(gameBuildingCostUIText, 127, 255, 0, 255);
             else //red
                 TTF_SetTextColor(gameBuildingCostUIText, 220, 60, 60, 255);
-            SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
+            //SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
             SDL_FRect goldIcon = {colX + 63.f, tileY + tileH - 15.f, 12.f, 12.f};
-            SDL_RenderFillRect(renderer, &goldIcon);
+            //SDL_RenderFillRect(renderer, &goldIcon);
+            SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &goldIcon);
             TTF_DrawRendererText(gameBuildingCostUIText, colX + 30.f, tileY + tileH - 19.f);
 
             // time construction
             std::string turnStr = std::to_string(data->constructionTurns);
             TTF_SetTextString(gameBuildingConstructionTimeText, turnStr.c_str(), 0);
             TTF_SetTextColor(gameBuildingConstructionTimeText, 180, 180, 255, 255);
-            SDL_SetRenderDrawColor(renderer, 120, 120, 120, 255);
+            //SDL_SetRenderDrawColor(renderer, 120, 120, 120, 255);
             SDL_FRect turnIcon = {colX + tileW - 3.f, tileY + tileH - 62.f, 12.f, 12.f};
-            SDL_RenderFillRect(renderer, &turnIcon);
+            //SDL_RenderFillRect(renderer, &turnIcon);
+            SDL_RenderTexture(renderer, gameTurnAmountTexture, nullptr, &turnIcon);
             TTF_DrawRendererText(gameBuildingConstructionTimeText, colX + tileW - 15.f, tileY + tileH - 65.f);
 
             //arrow towards next tier
