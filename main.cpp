@@ -348,6 +348,7 @@ public:
     SDL_FRect mainBuildingPopupRect = {0,0,0,0};
 
     bool hoveredBuildingSlotUpgradable = false;
+    BuildingType upgradableSlotRootBuilding = BuildingType::None;
 
     //Provinces name + Faction Zone + which region is a capital
     std::vector<Province> provinces = {
@@ -2428,6 +2429,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         SDL_RenderCoordinatesFromWindow(renderer, mouseX, mouseY, &lenghtX, &lenghtY);
         SDL_FPoint mousePt = {lenghtX, lenghtY};
 
+        bool previousUpgradableState = hoveredBuildingSlotUpgradable;
         hoveredAvailableSlot = -1;
         hoveredAvailableBuilding = -1;
         hoveredBuildingSlotUpgradable = false;
@@ -2448,28 +2450,52 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                     BuildingType existing = provSCheck[hoveredCardIndex]->settlementData.buildings[buildMenuSlotIndex];
                     if (existing != BuildingType::None) {
                         hoveredBuildingSlotUpgradable = true;
-                        // Auto-sélectionne la catégorie du building existant
                         hoveredBuildingCategoryIndex = (int)GetBuildingCategory(existing);
+                        BuildingType root = existing;
+                        const auto& db = GetBuildingDatabase();
+                        bool found = true;
+                        while (found) {
+                            found = false;
+                            for (const auto& [key, val] : db) {
+                                if (val.upgradesTo == root) { root = key; found = true; break; }
+                            }
+                        }
+                        hoveredCategoryBuildingType = root;
+                        upgradableSlotRootBuilding = root;
                     }
                 }
             }
         }
+        // Si la souris est sur la popup d'évolution, conserver l'état upgradable
+        SDL_FRect expandedEvolKeep = categoryEvolutionPopupRect;
+        expandedEvolKeep.h += 20.f;
+        if (hoveredAvailableSlot < 0 && previousUpgradableState &&
+            categoryEvolutionPopupRect.w > 0 &&
+            SDL_PointInRectFloat(&mousePt, &expandedEvolKeep)) {
+            hoveredBuildingSlotUpgradable = true;
+            }
 
         // To keep the popup of the constructions
         if (hoveredAvailableSlot < 0) {
             SDL_FRect expandedPopup = categoryButtonsPopupRect;
             expandedPopup.h += 10.f;
 
-            bool bInBuildingCategoryButtons = categoryButtonsPopupRect.w > 0 && SDL_PointInRectFloat(&mousePt, &expandedPopup);
+            // Pour un slot upgradable, seule la popup d'evolution garde l'etat ouvert
+            bool bInBuildingCategoryButtons = !previousUpgradableState && categoryButtonsPopupRect.w > 0 && SDL_PointInRectFloat(&mousePt, &expandedPopup);
             SDL_FRect expandedEvolution = categoryEvolutionPopupRect;
             expandedEvolution.h += 20.f; // cover the gap between evolution popup and building categoriesButtons
             bool bInBuildingEvolitionButtons = categoryEvolutionPopupRect.w > 0 && SDL_PointInRectFloat(&mousePt, &expandedEvolution);
             if (bInBuildingCategoryButtons || bInBuildingEvolitionButtons) {
                 hoveredAvailableSlot = 0; // garde le popup ouvert
+
+                if (bInBuildingEvolitionButtons && previousUpgradableState) {
+                    hoveredBuildingSlotUpgradable = true;
+                }
             } else {
                 categoryButtonsPopupRect = {0.f, 0.f, 0.f, 0.f}; // reset the rect
                 categoryEvolutionPopupRect = {0.f,0.f,0.f,0.f};
                 hoveredBuildingCategoryIndex = -1;
+                upgradableSlotRootBuilding = BuildingType::None;
             }
         }
 
@@ -2497,46 +2523,46 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
             expandedEvolCheck.h += 20.f; // cover the gap that stop the buttons
             bool mouseOnEvolutionPopup = categoryEvolutionPopupRect.w > 0 && SDL_PointInRectFloat(&mousePt, &expandedEvolCheck);
 
+            if (!hoveredBuildingSlotUpgradable) {
             for (int k = 0; k < 5; k++) {
-                    SDL_FRect buttonsRect = {buttonStartX + k * (buttonW + buttonGap), buttonY, buttonW, buttonH};
-                    //font de la couleur
-                    SDL_SetRenderDrawColor(renderer, categoryColors[k].r, categoryColors[k].g, categoryColors[k].b, 200);
-                    SDL_RenderFillRect(renderer, &buttonsRect);
-                    SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
-                    SDL_RenderRect(renderer, &buttonsRect);
+                SDL_FRect buttonsRect = {buttonStartX + k * (buttonW + buttonGap), buttonY, buttonW, buttonH};
+                //font de la couleur
+                SDL_SetRenderDrawColor(renderer, categoryColors[k].r, categoryColors[k].g, categoryColors[k].b, 200);
+                SDL_RenderFillRect(renderer, &buttonsRect);
+                SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
+                SDL_RenderRect(renderer, &buttonsRect);
 
-                    //render textures based of faction culture instead of text
-                    if (province.owner == FactionZone::Knight) {
-                        if (k == 0) SDL_RenderTexture(renderer, gameBuildingTypesGroupingMilitaryKnight, nullptr, &buttonsRect);
-                        else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitaryKnight, nullptr, &buttonsRect);
-                        else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceKnight, nullptr, &buttonsRect);
-                        else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomyKnight, nullptr, &buttonsRect);
-                        else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionKnight, nullptr, &buttonsRect);
-                    }
-                    else if (province.owner == FactionZone::Viking) {
-                        if (k == 0) SDL_RenderTexture(renderer, gameBuildingTypesGroupingMilitaryViking, nullptr, &buttonsRect);
-                        else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitaryViking, nullptr, &buttonsRect);
-                        else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceViking, nullptr, &buttonsRect);
-                        else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomyViking, nullptr, &buttonsRect);
-                        else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionViking, nullptr, &buttonsRect);
-                    }
-                    else if (province.owner == FactionZone::Samurai) {
-                        if (k == 0) SDL_RenderTexture(renderer, gameBuildingTypesGroupingMilitarySamurai, nullptr, &buttonsRect);
-                        else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitarySamurai, nullptr, &buttonsRect);
-                        else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceSamurai, nullptr, &buttonsRect);
-                        else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomySamurai, nullptr, &buttonsRect);
-                        else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionSamurai, nullptr, &buttonsRect);
-                    }
-
-                    // //TTF_SetTextString(gameStatUIText, categoryNames[k], 0);
-                    // TTF_SetTextColor(gameStatUIText, 255, 255, 255, 255);
-                    // int tw = 0, th = 0;
-                    // TTF_GetTextSize(gameStatUIText, &tw, &th);
-                    // TTF_DrawRendererText(gameStatUIText,buttonsRect.x + (buttonW - tw) / 2.f,buttonsRect.y + (buttonH - th) / 2.f);
-
-
+                //render textures based of faction culture instead of text
+                if (province.owner == FactionZone::Knight) {
+                    if (k == 0) SDL_RenderTexture(renderer, gameBuildingTypesGroupingMilitaryKnight, nullptr, &buttonsRect);
+                    else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitaryKnight, nullptr, &buttonsRect);
+                    else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceKnight, nullptr, &buttonsRect);
+                    else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomyKnight, nullptr, &buttonsRect);
+                    else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionKnight, nullptr, &buttonsRect);
                 }
-            if (!mouseOnEvolutionPopup) {
+                else if (province.owner == FactionZone::Viking) {
+                    if (k == 0) SDL_RenderTexture(renderer, gameBuildingTypesGroupingMilitaryViking, nullptr, &buttonsRect);
+                    else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitaryViking, nullptr, &buttonsRect);
+                    else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceViking, nullptr, &buttonsRect);
+                    else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomyViking, nullptr, &buttonsRect);
+                    else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionViking, nullptr, &buttonsRect);
+                }
+                else if (province.owner == FactionZone::Samurai) {
+                    if (k == 0) SDL_RenderTexture(renderer, gameBuildingTypesGroupingMilitarySamurai, nullptr, &buttonsRect);
+                    else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitarySamurai, nullptr, &buttonsRect);
+                    else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceSamurai, nullptr, &buttonsRect);
+                    else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomySamurai, nullptr, &buttonsRect);
+                    else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionSamurai, nullptr, &buttonsRect);
+                }
+
+                // //TTF_SetTextString(gameStatUIText, categoryNames[k], 0);
+                // TTF_SetTextColor(gameStatUIText, 255, 255, 255, 255);
+                // int tw = 0, th = 0;
+                // TTF_GetTextSize(gameStatUIText, &tw, &th);
+                // TTF_DrawRendererText(gameStatUIText,buttonsRect.x + (buttonW - tw) / 2.f,buttonsRect.y + (buttonH - th) / 2.f);
+            }
+        }
+            if (!mouseOnEvolutionPopup && !hoveredBuildingSlotUpgradable) {
                 hoveredBuildingCategoryIndex = -1;
                 for (int k = 0; k < 5; k++) {
                     SDL_FRect buttonsRect = {buttonStartX + k * (buttonW + buttonGap), buttonY, buttonW, buttonH};
@@ -2546,7 +2572,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                 }
             }
             // INDICATOR ON TOP OF THE BUILDING CATEGORIES
-            if (hoveredBuildingCategoryIndex >= 0 && hoveredBuildingCategoryIndex < 5 && !mouseOnEvolutionPopup) {
+            if (hoveredBuildingCategoryIndex >= 0 && hoveredBuildingCategoryIndex < 5 && !mouseOnEvolutionPopup && !hoveredBuildingSlotUpgradable) {
                 const char* categoryNames[] = {"Military", "Adv. Military", "Defence", "Economy", "Religion"};
 
                 int tw = 0, th = 0;
@@ -2774,7 +2800,15 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
     BuildingCategory cat = (BuildingCategory)hoveredBuildingCategoryIndex;
     std::vector<BuildingType> rootBuildings = GetBuildingsForCategory(cat, faction, 5);
     if (rootBuildings.empty()) return;
-
+        // if we hovered an existing building we show its evolutions
+        if (hoveredBuildingSlotUpgradable && upgradableSlotRootBuilding != BuildingType::None) {
+            rootBuildings.erase(
+                std::remove_if(rootBuildings.begin(), rootBuildings.end(),
+                    [&](BuildingType bt) { return bt != upgradableSlotRootBuilding; }),
+                rootBuildings.end()
+            );
+            if (rootBuildings.empty()) return;
+        }
     // upgrade chain chain.tiers[0]=T1, [last]=T_max
     struct Chain { std::vector<BuildingType> tiers; };
     std::vector<Chain> chains;
@@ -2813,12 +2847,17 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
     float totalH = (float)maxTierOverall * tileH + ((float)(maxTierOverall - 1)) * arrowH;
 
     // Position on top
-    float popX = 400.f, popY = 300.f;
-    if (hoveredBuildingCategoryIndex < (int)categoryButtonsRects.size()) {
-        const SDL_FRect& btn = categoryButtonsRects[hoveredBuildingCategoryIndex];
-        popX = btn.x + btn.w / 2.f - totalW / 2.f;
-        popY = btn.y - totalH - 14.f;
-    }
+        float popX = 400.f, popY = 300.f;
+        if (hoveredBuildingSlotUpgradable) {
+            // Positionner directement au-dessus du slot hovered
+            popX = hoveredAvailableSlotRect.x + hoveredAvailableSlotRect.w / 2.f - totalW / 2.f;
+            popY = hoveredAvailableSlotRect.y - totalH - 14.f;
+        }
+        else if (hoveredBuildingCategoryIndex < (int)categoryButtonsRects.size()) {
+            const SDL_FRect& btn = categoryButtonsRects[hoveredBuildingCategoryIndex];
+            popX = btn.x + btn.w / 2.f - totalW / 2.f;
+            popY = btn.y - totalH - 14.f;
+        }
     if (popX < 5.f) popX = 5.f;
     if (popX + totalW > 1915.f) popX = 1915.f - totalW;
     if (popY < 5.f) popY = 5.f;
