@@ -159,6 +159,10 @@ public:
     //texture next turn button
     SDL_Texture  *gameNextTurnTexture = nullptr;
 
+    //Texture coin + Turn time
+    SDL_Texture *gameCoinMoneyTexture = nullptr;
+    SDL_Texture *gameTurnAmountTexture = nullptr;
+
     //Buildings Texture
     //hammer
     SDL_Texture *hammerUIBuildingUpgradeTexture = nullptr;
@@ -711,6 +715,19 @@ private://constructor
             SDL_LogWarn(0,"failed to load the texture of hammerUIBuildingUpgradeTexture",SDL_GetError());
         }
         SDL_SetTextureScaleMode(hammerUIBuildingUpgradeTexture, SDL_SCALEMODE_NEAREST);
+
+        //Texture Coin + Turn amount
+        gameCoinMoneyTexture = IMG_LoadTexture(renderer, "assets/CoinsTexture.png");
+        if (gameCoinMoneyTexture == nullptr) {
+            SDL_LogWarn(0,"failed to load the texture gameCoinMoneyTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameCoinMoneyTexture, SDL_SCALEMODE_NEAREST);
+
+        gameTurnAmountTexture = IMG_LoadTexture(renderer, "assets/TurnAmountTexture.png");
+        if (gameTurnAmountTexture == nullptr) {
+            SDL_LogWarn(0,"failed to load texture gameTurnAmountTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameTurnAmountTexture, SDL_SCALEMODE_NEAREST);
 
         // BUILDING UIS
         //                  ! KNIGHT !
@@ -1658,6 +1675,8 @@ private://constructor
         SDL_DestroyTexture(gameBuildingTypesGroupingDefenceSamurai);
         SDL_DestroyTexture(gameBuildingTypesGroupingEconomySamurai);
         SDL_DestroyTexture(gameBuildingTypesGroupingReligionSamurai);
+        SDL_DestroyTexture(gameCoinMoneyTexture);
+        SDL_DestroyTexture(gameTurnAmountTexture);
     // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
@@ -2411,7 +2430,6 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
 
         hoveredAvailableSlot = -1;
         hoveredAvailableBuilding = -1;
-        bool keepPopupOpen = SDL_PointInRectFloat(&mousePt, &categoryButtonsPopupRect);
         hoveredBuildingSlotUpgradable = false;
         for (int s = 0; s < (int)availableSlotRects.size(); s++) {
             if (SDL_PointInRectFloat(&mousePt, &availableSlotRects[s])){
@@ -2662,10 +2680,11 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
             float rowStartX = popX + (tileW - totalRowW) / 2.f;
 
             SDL_FRect goldUI = {rowStartX + 57.f, tierSquareY + 48.f, iconSize, iconSize};
-            SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
-            SDL_RenderFillRect(renderer, &goldUI);
-            SDL_SetRenderDrawColor(renderer, 180, 140, 20, 255);
-            SDL_RenderRect(renderer, &goldUI);
+            // SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
+            // SDL_RenderFillRect(renderer, &goldUI);
+            // SDL_SetRenderDrawColor(renderer, 180, 140, 20, 255);
+            // SDL_RenderRect(renderer, &goldUI);
+            SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &goldUI);
 
             //Show the amount of turn before the building is constructed.
             std::string timeConstructionAmountString = std::to_string(constructionTurns);
@@ -2679,10 +2698,11 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
             float rowTurnStartX = popX + (tileW - TotalTurnRowW) / 2.f;
 
             SDL_FRect turnUI = {rowTurnStartX + 43.f, tierSquareY + 5.f, TurnIconSize, TurnIconSize};
-            SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
-            SDL_RenderFillRect(renderer, &turnUI);
-            SDL_SetRenderDrawColor(renderer, 180, 180, 180, 255);
-            SDL_RenderFillRect(renderer, &turnUI);
+            // SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
+            // SDL_RenderFillRect(renderer, &turnUI);
+            // SDL_SetRenderDrawColor(renderer, 180, 180, 180, 255);
+            // SDL_RenderFillRect(renderer, &turnUI);
+            SDL_RenderTexture(renderer, gameTurnAmountTexture, nullptr, &turnUI);
 
         }
 
