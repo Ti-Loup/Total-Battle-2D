@@ -2342,14 +2342,18 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                                     TTF_DrawRendererText(gameStatUIText, sx + 4.f, sy + 4.f);
 
                                     // Hammer if building can be upgraded
-                                    if (bd->upgradesTo != BuildingType::None && hammerUIBuildingUpgradeTexture
-                                        && provinces[s->settlementData.provinceID].owner == player.faction) {
+                                    if (bd->upgradesTo != BuildingType::None && hammerUIBuildingUpgradeTexture && provinces[s->settlementData.provinceID].owner == player.faction) {
                                         const BuildingData* nextBd = GetBuildingData(bd->upgradesTo);
-                                        if (nextBd && player.currentGold >= nextBd->cost) {
-                                            SDL_FRect hammerRect = { sx + slotSize - 30.f, sy + 4.f, 35.f, 35.f };
-                                            SDL_RenderTexture(renderer, hammerUIBuildingUpgradeTexture, nullptr, &hammerRect);
+                                        //next building tier
+                                        if (nextBd && nextBd->Tier <= s->settlementData.settlementTier) {
+                                            if (player.currentGold >= nextBd->cost) {
+                                                SDL_FRect hammerRect = { sx + slotSize - 30.f, sy + 4.f, 35.f, 35.f };
+                                                SDL_RenderTexture(renderer, hammerUIBuildingUpgradeTexture, nullptr, &hammerRect);
+                                            }
+                                            availableSlotRects.push_back(slot);
+                                            availableSlotInfo.push_back({i, b});
                                         }
-                                    }
+    }
                                 }
                             }
                             else if (slotAvailable && s->settlementData.pendingBuildings[b] == BuildingType::None) {
@@ -3719,30 +3723,30 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         if (slotB <= 0 || slotB >= (int)sel->settlementData.buildings.size()) return SDL_APP_CONTINUE;
 
                         // Verifie if tier unlocked
+                        // Verifie if tier unlocked
                         if (data->Tier > sel->settlementData.settlementTier) {
                             SDL_Log("Tier not unlocked yet");
                             return SDL_APP_CONTINUE;
                         }
 
-                        //verify if the first Tier building is already upgraded and if so can build the next one
-                        {
+                        //verify the slot is not already occupy to not pay over
+                        BuildingType currentInSlot = sel->settlementData.buildings[slotB];
+                        if (currentInSlot == BuildingType::None) {
                             bool hasPrerequisite = false;
                             const auto& db = GetBuildingDatabase();
                             for (const auto& [key, val] : db) {
-                                if (val.upgradesTo == bt) {
-                                    hasPrerequisite = true;
-                                    break;
-                                }
+                                if (val.upgradesTo == bt) { hasPrerequisite = true; break; }
                             }
                             if (hasPrerequisite) {
-                                SDL_Log("Must build prerequisite tier first!");
+                                SDL_Log("Must build base tier first!");
                                 return SDL_APP_CONTINUE;
                             }
-                        }
-                        //verify the slot is not already occupy to not pay over
-                        if (sel->settlementData.buildings[slotB] != BuildingType::None) {
-                            SDL_Log("Slot already occupied!");
-                            return SDL_APP_CONTINUE;
+                        } else {
+                            const BuildingData* currentBd = GetBuildingData(currentInSlot);
+                            if (!currentBd || currentBd->upgradesTo != bt) {
+                                SDL_Log("Invalid upgrade path!");
+                                return SDL_APP_CONTINUE;
+                            }
                         }
 
                         bool alreadyBuilt = false;
