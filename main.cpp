@@ -343,6 +343,8 @@ public:
     std::vector<SDL_FRect> mainBuildingSlotRects;
     SDL_FRect mainBuildingPopupRect = {0,0,0,0};
 
+    bool hoveredBuildingSlotUpgradable = false;
+
     //Provinces name + Faction Zone + which region is a capital
     std::vector<Province> provinces = {
         //knight
@@ -2344,7 +2346,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                                     // Hammer if building can be upgraded
                                     if (bd->upgradesTo != BuildingType::None && hammerUIBuildingUpgradeTexture && provinces[s->settlementData.provinceID].owner == player.faction) {
                                         const BuildingData* nextBd = GetBuildingData(bd->upgradesTo);
-                                        //next building tier
+                                        // Le tier du prochain building doit être <= tier du settlement
                                         if (nextBd && nextBd->Tier <= s->settlementData.settlementTier) {
                                             if (player.currentGold >= nextBd->cost) {
                                                 SDL_FRect hammerRect = { sx + slotSize - 30.f, sy + 4.f, 35.f, 35.f };
@@ -2353,7 +2355,8 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                                             availableSlotRects.push_back(slot);
                                             availableSlotInfo.push_back({i, b});
                                         }
-    }
+                                    }
+
                                 }
                             }
                             else if (slotAvailable && s->settlementData.pendingBuildings[b] == BuildingType::None) {
@@ -2409,6 +2412,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         hoveredAvailableSlot = -1;
         hoveredAvailableBuilding = -1;
         bool keepPopupOpen = SDL_PointInRectFloat(&mousePt, &categoryButtonsPopupRect);
+        hoveredBuildingSlotUpgradable = false;
         for (int s = 0; s < (int)availableSlotRects.size(); s++) {
             if (SDL_PointInRectFloat(&mousePt, &availableSlotRects[s])){
                 hoveredAvailableBuilding = availableSlotInfo[s].first;
@@ -2417,6 +2421,19 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                 hoveredCardIndex = availableSlotInfo[s].first;
                 categoryPopupCardIndex = hoveredCardIndex;
                 buildMenuSlotIndex = hoveredAvailableSlot;
+
+                // verifie if slot with existing building
+                std::vector<const Settlement*> provSCheck;
+                for (const auto& st : settlements)
+                    if (st.settlementData.provinceID == provinceID) provSCheck.push_back(&st);
+                if (hoveredCardIndex < (int)provSCheck.size()) {
+                    BuildingType existing = provSCheck[hoveredCardIndex]->settlementData.buildings[buildMenuSlotIndex];
+                    if (existing != BuildingType::None) {
+                        hoveredBuildingSlotUpgradable = true;
+                        // Auto-sélectionne la catégorie du building existant
+                        hoveredBuildingCategoryIndex = (int)GetBuildingCategory(existing);
+                    }
+                }
             }
         }
 
@@ -2448,7 +2465,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                 {255,  255,  23, 255},
                 {0, 131, 57,  255},
                 {152, 0,  198, 255},
-        };
+            };
             float buttonW = 65.f;
             float buttonH = 65.f;
             float buttonGap = 4.f;
