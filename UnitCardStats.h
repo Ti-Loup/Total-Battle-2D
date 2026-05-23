@@ -139,6 +139,7 @@ class UnitCardKnight_Trebuchet : public Entity {
 //////////////////////////////////////////
 
 //VIKING UNITS
+//Possible Unit DLC : Big Hammer, Seer, boats
 
 //Viking LORDS :
 //todo
@@ -146,14 +147,131 @@ class UnitCardKnight_Trebuchet : public Entity {
 //Viking HEROS :
 //todo Shaman
 
+//Viking Units PEASANTS(TIER 0 / ALREADY UNLOCKED)
+class UnitCardViking_Peasant : public Entity {
+public:
+    int maxEntities = 60;
+    int currentEntities = 60;
 
+    UnitCardViking_Peasant();
+};
+
+class UnitCardViking_PeasantArchers : public Entity {
+    public:
+    int maxEntities = 60;
+    int currentEntities = 60;
+};
+
+//Military
+//WarLodge_T1
+class UnitCardViking_Axemen : public Entity {
+    public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardViking_Axemen();
+};
+//Warlodge_T2
+class UnitCardViking_SwordAndShield : public Entity {
+    public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardViking_SwordAndShield();
+};
+//Warlodge_T3
+class UnitCardViking_LongAxe : public Entity {
+    public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardViking_LongAxe();
+};
+//ShootingGround_T1
+class UnitCardViking_Archers : public Entity {
+public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardViking_Archers();
+};
+//ShootingGround_T2
+class UnitCardViking_LongbowArchers : public Entity {
+    public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardViking_LongbowArchers();
+} ;
+//ShootingGround_T3
+class UnitCardViking_EliteLongbowArchers : public Entity {
+public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardViking_EliteLongbowArchers();
+};
+//HorseTraining_T1
+class UnitCardViking_PeasantHorsemen : public Entity {
+    public:
+    int maxEntities = 30;
+    int currentEntities = 30;
+
+    UnitCardViking_PeasantHorsemen();
+};
+//HorseTraining_T2
+class UnitCardViking_LightCavalry : public Entity {
+public:
+    int maxEntities = 20;
+    int currentEntities = 20;
+
+    UnitCardViking_LightCavalry();
+};
+//HorseTraining_T3
+class UnitCardViking_HeavyCavalry : public Entity {
+    public:
+    int maxEntities = 20;
+    int currentEntities = 20;
+
+    UnitCardViking_HeavyCavalry();
+};
+
+//ADV.VMILITARY
+//ChosensOfOdin_T3
+class UnitCardViking_Berserkers : public Entity {
+public:
+    int maxEntities = 30;
+    int currentEntities = 30;
+
+    UnitCardViking_Berserkers();
+};
+//ChosensOfOdin_T4
+class UnitCardViking_ArmouredBerserkers : public Entity {
+public :
+    int maxEntities = 30;
+    int currentEntities = 30;
+
+    UnitCardViking_ArmouredBerserkers();
+};
+//ChosensOfOdin_T5 (peaux de loup) elite warriors
+class UnitCardViking_Ulfhednar : public Entity {
+    public:
+    int maxEntities = 30;
+    int currentEntities = 30;
+
+    UnitCardViking_Ulfhednar();
+};
+//Religion Future dlc
+////////////////////////////////////
 //SAMURAI Units
+//DLC IDEAS : ninjas, double sword samurai, Big Boy
 
 //Samurai LORDS
 
 //Samurai Heros
 
-
+//Samurai Tier 0 Units
+class UnitCardSamurai_
 
 
 #endif //TOTALWAR2D_UNITCARDSTATS_H
