@@ -271,7 +271,21 @@ class UnitCardViking_Ulfhednar : public Entity {
 //Samurai Heros
 
 //Samurai Tier 0 Units
-class UnitCardSamurai_
+class UnitCardSamurai_Peasants : public Entity {
+    public:
+    int maxEntities = 60;
+    int currentEntities = 60;
 
+    UnitCardSamurai_Peasants();
+};
+class UnitCardSamurai_PeasantArchers : public Entity {
+    public:
+    int maxEntities = 60;
+    int currentEntities = 60;
+
+    UnitCardSamurai_PeasantArchers();
+};
+//MILITARY
+//SwordSchool_T1
 
 #endif //TOTALWAR2D_UNITCARDSTATS_H
