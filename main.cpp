@@ -25,7 +25,7 @@
 /*
  *TODO LIST For version 0.1.0
  *
- *To DO :
+ *To DO -> PLAYABLE CAMPAIGN :
  *Buildings of a region + UI of that region
  *Money System
  *Population System
@@ -3357,6 +3357,8 @@ void RenderCategoryBuildingInfoUI() {
             camera.Movement(0, speed* deltaTime);
         }
 
+        camera.Update(deltaTime,  1920.f,1080.f);
+
         //clear everything out
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
@@ -4047,7 +4049,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
     // Zoom
     if (event->type == SDL_EVENT_MOUSE_WHEEL && app.StateActuel == State::Game) {
         float factor = (event->wheel.y > 0) ? 1.1f : 0.9f;
-        app.camera.Zoom(factor);
+        app.camera.Zoom(factor, 1920.f, 1080.f);
         }
     //When Mouse touch a edge it
 
