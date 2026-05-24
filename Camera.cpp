@@ -14,7 +14,6 @@ void Camera::Zoom(float factor, float screenW, float screenH) {
     targetZoom = std::clamp(targetZoom * factor, MIN_ZOOM, MAX_ZOOM);
 }
 
-// Update : everyframe moves there
 void Camera::Update(float dt, float screenW, float screenH) {
     // smooth
     float prevZoom = zoom;

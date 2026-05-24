@@ -13,7 +13,7 @@ float targetZoom = 1.f;
 
 static constexpr float MIN_ZOOM = 0.8f;
 static constexpr float MAX_ZOOM = 4.f;
-static constexpr float ZOOM_SPEED = 10.f;
+static constexpr float ZOOM_SPEED = 5.f;
 
 
     //Zoom multiply by the factor and his restricted between 0.5 and 4
