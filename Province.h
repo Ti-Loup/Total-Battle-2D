@@ -21,6 +21,7 @@ struct Province {
     std::string name;
     FactionZone owner;
     bool isCapital = false;
+    bool bToggleCollectIncome = true;
 
     int GetTotalIncome(const std::vector<SettlementComponent>& settlements) const;
     int GetTotalPopulation(const std::vector<SettlementComponent>& settlements) const;
