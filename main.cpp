@@ -3759,6 +3759,16 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
     int tileR = (int)(worldY / app.tileMap->tileSize);
     SDL_Log("Tile: col=%d, row=%d", tileC, tileR);
 
+
+
+            if (app.ClickInsideCircle(nouveauX, nouveauY, app.BoutonReturn)) {
+                app.bHasClickedOnASettlement = false;
+                app.bButtonUIBuildingIsPressed = true;
+                app.selectedSettlementIndex = -1;
+                app.hoveredSlotIndex = -1;
+                return SDL_APP_CONTINUE;
+            }
+
     if (app.bHasClickedOnASettlement) {
         SDL_FPoint pt = {nouveauX, nouveauY};
         if (SDL_PointInRectFloat(&pt, &app.provinceButtonUIBuilding)) {
@@ -3915,12 +3925,55 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             break;
         }
     }
-    if (!bClickedOutsideOfUI) {
+            if (!bClickedOutsideOfUI) {
+
+    // Otherwise, check if the click landed inside any UI panel
+    bool bInsideUI = false;
+
+    if (app.bHasClickedOnASettlement) {
+        SDL_FPoint pt = {nouveauX, nouveauY};
+
+        // Left panel (province stats)
+        SDL_FRect leftPanel = {0.f, 700.f, 250.f, 380.f};
+        // Bottom panel (settlement cards)
+        SDL_FRect bottomPanel = {0.f, 815.f, 1600.f, 265.f};
+        // Tab buttons (buildings / garrison)
+        SDL_FRect buttonsArea = {app.firstButton - 10.f, 1025.f, 100.f, 55.f};
+        // Top bar UI (gold / turns)
+        SDL_FRect topBar = {600.f, 0.f, 800.f, 45.f};
+
+        if (SDL_PointInRectFloat(&pt, &leftPanel)   ||
+            SDL_PointInRectFloat(&pt, &bottomPanel) ||
+            SDL_PointInRectFloat(&pt, &buttonsArea) ||
+            SDL_PointInRectFloat(&pt, &topBar))
+        {
+            bInsideUI = true;
+        }
+        // Tier popup
+        if (!bInsideUI && app.mainBuildingPopupRect.w > 0) {
+            SDL_FRect popupExpanded = app.mainBuildingPopupRect;
+            popupExpanded.h += 20.f;
+            if (SDL_PointInRectFloat(&pt, &popupExpanded)) bInsideUI = true;
+        }
+        // Category buttons popup
+        if (!bInsideUI && app.categoryButtonsPopupRect.w > 0) {
+            if (SDL_PointInRectFloat(&pt, &app.categoryButtonsPopupRect)) bInsideUI = true;
+        }
+        // Evolution popup
+        if (!bInsideUI && app.categoryEvolutionPopupRect.w > 0) {
+            SDL_FRect evolExpanded = app.categoryEvolutionPopupRect;
+            evolExpanded.h += 20.f;
+            if (SDL_PointInRectFloat(&pt, &evolExpanded)) bInsideUI = true;
+        }
+    }
+
+    if (!bInsideUI) {
         app.bHasClickedOnASettlement = false;
-        app.bButtonUIBuildingIsPressed = true;//so it always go back to the base one
+        app.bButtonUIBuildingIsPressed = true;
         app.selectedSettlementIndex = -1;
         app.hoveredSlotIndex = -1;
     }
+}
 
 
     if (app.ClickInsideCircle(nouveauX,nouveauY, app.NextTurnButton)) {
