@@ -1993,7 +1993,9 @@ private://constructor
     SDL_RenderRect(renderer, &incomeIcon);
     cursor += iconSize + 3.f;
     //the number that shows the income per settlement(baseIncome)
-    std::string incomeStr = std::to_string(s.settlementData.baseIncome);
+    //bool toggle income to show 0 if no income
+    bool collectingIncome = provinces[s.settlementData.provinceID].bToggleCollectIncome;
+    std::string incomeStr = std::to_string(collectingIncome ? s.settlementData.baseIncome : 0); // it shows 0 if the bool is true. otherwise it shows the base income for the ui settlement
     TTF_SetTextString(gameStatUIText, incomeStr.c_str(), 0);
     TTF_SetTextColor(gameStatUIText, 180, 230, 100, 255);
     TTF_DrawRendererText(gameStatUIText, cursor, textY);
@@ -2141,7 +2143,8 @@ SDL_RenderRect(renderer, &incomeIconRect);
 TTF_SetTextString(gameStatUIText, "Income", 0);
 TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
 TTF_DrawRendererText(gameStatUIText, leftX + 28.f, statY);
-TTF_SetTextString(gameStatUIText, std::to_string(incomeTotal).c_str(), 0);
+int displayedIncome = province.bToggleCollectIncome ? incomeTotal : 0;
+TTF_SetTextString(gameStatUIText, std::to_string(displayedIncome).c_str(), 0);
 TTF_SetTextColor(gameStatUIText, 180, 230, 100, 255);
 TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
 statY += 34.f;
@@ -4009,7 +4012,9 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
     //toggle the tax Collect region
     if (SDL_PointInRectFloat(&MousePT, &app.toggleTaxIncomeCollect)) {
         int provID = app.settlements[app.selectedSettlementIndex].settlementData.provinceID;
-        app.provinces[provID].bToggleCollectIncome = !app.provinces[provID].bToggleCollectIncome;//true and false can change between eachother
+        if (app.provinces[provID].owner == app.player.faction) { // if its our faction
+            app.provinces[provID].bToggleCollectIncome = !app.provinces[provID].bToggleCollectIncome;//true and false can change between eachother
+        }
         return SDL_APP_CONTINUE;
     }
 
