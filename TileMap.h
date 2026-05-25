@@ -1,4 +1,3 @@
-
 #ifndef TOTALWAR2D_TILEMAP_H
 #define TOTALWAR2D_TILEMAP_H
 
@@ -248,14 +247,14 @@ void RenderProvinceBorders(SDL_Renderer* renderer, const std::vector<Province>& 
 
     auto getBorderColor = [](FactionZone zone) -> SDL_Color {
         switch(zone) {
-            case FactionZone::Knight:  return {255, 215, 0,   255};
-            case FactionZone::Viking:  return {255,0,0,255};
-            case FactionZone::Samurai: return {0, 200, 160, 255};
-            default:                   return {100, 100, 100, 255};
+            case FactionZone::Knight: return {255, 215, 0,   255};
+            case FactionZone::Viking: return {255, 0,   0,   255};
+            case FactionZone::Samurai: return {0,   200, 160, 255};
+            default: return {100, 100, 100, 255};
         }
     };
 
-    const int BORDER_RADIUS = 1; // radius of the border between regions
+    const int BORDER_RADIUS = 1;
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
@@ -264,33 +263,54 @@ void RenderProvinceBorders(SDL_Renderer* renderer, const std::vector<Province>& 
             int pid = tiles[r][c].provinceID;
             if (pid == -1) continue;
 
-            // minimum distance for a border
-            int minDist = BORDER_RADIUS + 1;
+            int  minDist       = BORDER_RADIUS + 1;
+            bool isSameFaction = true;
+            bool hasBorder     = false;
+
             for (int dr = -BORDER_RADIUS; dr <= BORDER_RADIUS; dr++) {
                 for (int dc = -BORDER_RADIUS; dc <= BORDER_RADIUS; dc++) {
+                    if (dr == 0 && dc == 0) continue;
+
                     int nr = r + dr;
                     int nc = c + dc;
                     if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
-                   int neighborPID = tiles[nr][nc].provinceID;
-                   FactionZone neighborOwner = (neighborPID == -1) ? FactionZone::Ocean : provinces[neighborPID].owner;
-                   FactionZone owner = provinces[pid].owner;
-                   if (neighborOwner != owner) {
-                       int dist = std::abs(dr) + std::abs(dc);
-                       minDist = std::min(minDist, dist);
-                   }
+
+                    int neighborPID = tiles[nr][nc].provinceID;
+                    if (neighborPID == pid) continue;
+
+                   //to not get a double border between 2 province but instead 1 
+                    if (neighborPID != -1 && pid > neighborPID) continue;
+
+                    int dist = std::abs(dr) + std::abs(dc);
+                    if (dist < minDist) {
+                        minDist   = dist;
+                        hasBorder = true;
+                        if (neighborPID == -1 ||
+                            provinces[neighborPID].owner != provinces[pid].owner) {
+                            isSameFaction = false;
+                        }
+                    }
                 }
             }
 
-            if (minDist > BORDER_RADIUS) continue;
+            if (!hasBorder || minDist > BORDER_RADIUS) continue;
 
-            // alpha progresif
             float t = 1.0f - (float)(minDist - 1) / (float)BORDER_RADIUS;
-            Uint8 alpha = (Uint8)(t * t * 120.f); // opacity of the l
+
+            Uint8 alpha = isSameFaction
+                ? (Uint8)(t * t * 55.f)
+                : (Uint8)(t * t * 140.f);
 
             if (alpha < 5) continue;
 
             FactionZone owner = provinces[pid].owner;
-            SDL_Color col = getBorderColor(owner);
+            SDL_Color   col   = getBorderColor(owner);
+
+            if (isSameFaction) {
+                col.r = (Uint8)std::clamp(col.r + 80, 0, 255);
+                col.g = (Uint8)std::clamp(col.g + 80, 0, 255);
+                col.b = (Uint8)std::clamp(col.b + 80, 0, 255);
+            }
 
             float px = (float)(c * tileSize) * camera.zoom - camera.startX * camera.zoom;
             float py = (float)(r * tileSize) * camera.zoom - camera.startY * camera.zoom;
@@ -302,6 +322,7 @@ void RenderProvinceBorders(SDL_Renderer* renderer, const std::vector<Province>& 
         }
     }
 }
+
 //calculate the center of each provinces to render the Name of the kingdom in game
 SDL_FPoint GetProvinceCenter (int provinceID)const{
     float sumX = 0;
