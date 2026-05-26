@@ -278,7 +278,7 @@ void RenderProvinceBorders(SDL_Renderer* renderer, const std::vector<Province>& 
                     int neighborPID = tiles[nr][nc].provinceID;
                     if (neighborPID == pid) continue;
 
-                   //to not get a double border between 2 province but instead 1 
+                   //to not get a double border between 2 province but instead 1
                     if (neighborPID != -1 && pid > neighborPID) continue;
 
                     int dist = std::abs(dr) + std::abs(dc);

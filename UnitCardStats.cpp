@@ -193,8 +193,8 @@ UnitCardKnight_Archers::UnitCardKnight_Archers() {
     rangedStats.current_ammunition = 21;
     rangedStats.max_range = 140;
     rangedStats.current_range = 140;
-    rangedStats.max_missileDamage = 21;
-    rangedStats.current_missileDamage = 21;
+    rangedStats.max_missileDamage = 24;
+    rangedStats.current_missileDamage = 24;
     AddComponent(RENDER);
 }
 
