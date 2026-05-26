@@ -31,9 +31,15 @@ public:
 class HealthComponents : public Components
 {
   public:
+	//Health
 	Sint32 current_health = 0;
 	Sint32 max_health = 0;
-
+	//Armor
+	Sint32 current_Armour = 0;
+	Sint32 max_Armour = 0;
+	//Leadership
+	Sint32 current_leadership = 0;
+	Sint32 max_leadership = 0;
 	HealthComponents () = default;
 };
 
