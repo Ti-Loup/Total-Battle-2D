@@ -287,5 +287,112 @@ class UnitCardSamurai_PeasantArchers : public Entity {
 };
 //MILITARY
 //SwordSchool_T1
+class UnitCardSamurai_YariAshigaru : public Entity {
+public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardSamurai_YariAshigaru();
+};
+//SwordSchool_T2nSamurai
+class UnitCardSamurai_KatanaSamurai : public Entity {
+public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardSamurai_KatanaSamurai();
+};
+//SwordSchool_T3
+class UnitCardSamurai_NoDachiSamurai : public Entity {
+public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardSamurai_NoDachiSamurai();
+};
+//ArcheryDojo_T1
+class UnitCardSamurai_BowAshigaru : public Entity {
+public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardSamurai_BowAshigaru();
+};
+//ArcheryDojo_T2
+class UnitCardSamurai_BowSamurai : public Entity {
+public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardSamurai_BowSamurai();
+};
+//ArcheryDojo_T3
+class UnitCardSamurai_EliteBowSamurai : public Entity {
+public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardSamurai_EliteBowSamurai();
+};
+//WarhorseStable_T1
+class UnitCardSamurai_PeasantHorsemen : public Entity {
+public:
+    int maxEntities = 30;
+    int currentEntities = 30;
+
+    UnitCardSamurai_PeasantHorsemen();
+};
+//WarhorseStabe_T2
+class UnitCardSamurai_KatanaCavalry : public Entity {
+public:
+    int maxEntities = 20;
+    int currentEntities = 20;
+
+    UnitCardSamurai_KatanaCavalry();
+};
+//WarhorseStable_T3
+class UnitCardSamurai_EliteYariCavalry : public Entity {
+public:
+    int maxEntities = 20;
+    int currentEntities = 20;
+
+    UnitCardSamurai_EliteYariCavalry();
+};
+
+//ADV. MILITARY
+//SiegeEngineerWorkshop_T4
+class UnitCardSamurai_FireProjectingMangonels : public Entity {
+public:
+    int maxEntities = 4;
+    int currentEntities = 4;
+
+    UnitCardSamurai_FireProjectingMangonels();
+};
+//SiegeEngineerWorkshop_T5
+class UnitCardSamurai_EuropeanCannons : public Entity {
+public:
+    int maxEntities = 4;
+    int currentEntities = 4;
+
+    UnitCardSamurai_EuropeanCannons();
+};
+//GunSmith_T4
+class UnitCardSamurai_MatchlockSamurai : public Entity {
+public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardSamurai_MatchlockSamurai();
+};
+//GunSmith_T5
+class UnitCardSamurai_PortugueseTercos : public Entity {
+public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardSamurai_PortugueseTercos();
+};
+
+//RELIGION Troops monks(DLC)
 
 #endif //TOTALWAR2D_UNITCARDSTATS_H
