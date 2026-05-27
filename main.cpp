@@ -3059,9 +3059,10 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         SDL_RenderFillRect(renderer, &contentRect);
 
         //icon Gold
-        SDL_FRect goldIcon = {contentRect.x + 50.f, borderRect.y + 13.f,15.f,15.f};
-        SDL_SetRenderDrawColor(renderer, 255,234,90,255);
-        SDL_RenderFillRect(renderer, &goldIcon);
+        SDL_FRect goldIcon = {contentRect.x + 45.f, borderRect.y  + 10.f,20.f,20.f};
+        // SDL_SetRenderDrawColor(renderer, 255,234,90,255);
+        // SDL_RenderFillRect(renderer, &goldIcon);
+        SDL_RenderTexture(renderer,gameCoinMoneyTexture, nullptr, &goldIcon);
 
         //current Gold
         std::string goldStr = std::to_string(player.currentGold);
