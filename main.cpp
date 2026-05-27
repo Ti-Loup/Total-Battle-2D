@@ -2136,13 +2136,14 @@ statY += 35.f;
 
 // income + gold icone
 SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
-SDL_FRect incomeIconRect = {leftX + 8.f, statY + 5.f, 14.f, 14.f};
-SDL_RenderFillRect(renderer, &incomeIconRect);
-SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
-SDL_RenderRect(renderer, &incomeIconRect);
+SDL_FRect incomeIconRect = {leftX + 8.f, statY, 20.f, 20.f};
+SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &incomeIconRect);
+// SDL_RenderFillRect(renderer, &incomeIconRect);
+// SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
+// SDL_RenderRect(renderer, &incomeIconRect);
 TTF_SetTextString(gameStatUIText, "Income", 0);
 TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
-TTF_DrawRendererText(gameStatUIText, leftX + 28.f, statY);
+TTF_DrawRendererText(gameStatUIText, leftX + 35.f, statY);
 int displayedIncome = province.bToggleCollectIncome ? incomeTotal : 0;
 TTF_SetTextString(gameStatUIText, std::to_string(displayedIncome).c_str(), 0);
 TTF_SetTextColor(gameStatUIText, 180, 230, 100, 255);
@@ -2151,17 +2152,21 @@ statY += 34.f;
 
         //Toggle to tax the settlement. (collect income)
         //rect in gameapp
-toggleTaxIncomeCollect = {leftX + 8.f, statY + 5.f, 14.f, 14.f};
+toggleTaxIncomeCollect = {leftX + 8.f, statY, 20.f, 20.f};
         if (provinces[provinceID].bToggleCollectIncome) {
             SDL_SetRenderDrawColor(renderer, 80, 200, 80, 255);  //green
+            SDL_RenderFillRect(renderer, &toggleTaxIncomeCollect);
+            SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
         } else {
             SDL_SetRenderDrawColor(renderer, 160, 50, 50, 255); //red
+            SDL_RenderFillRect(renderer, &toggleTaxIncomeCollect);
+            SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
         }
-SDL_RenderFillRect(renderer, &toggleTaxIncomeCollect);
 
-TTF_SetTextString(gameStatUIText, "Toggle Collect", 0);
+
+TTF_SetTextString(gameStatUIText, "Tax Province", 0);
 TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
-TTF_DrawRendererText(gameStatUIText, leftX + 28.f, statY);
+TTF_DrawRendererText(gameStatUIText, leftX + 35.f, statY);
 
 
 statY += 34.f;
@@ -2170,13 +2175,13 @@ Uint8 poR  = publicOrderTotal > 0 ? 80  : (publicOrderTotal < 0 ? 220 : 130);
 Uint8 poG  = publicOrderTotal > 0 ? 200 : (publicOrderTotal < 0 ? 50  : 130);
 Uint8 poB2 = 80;
 SDL_SetRenderDrawColor(renderer, poR, poG, poB2, 255);
-SDL_FRect poIconRect = {leftX + 8.f, statY, 14.f, 14.f};
+SDL_FRect poIconRect = {leftX + 8.f, statY, 20.f, 20.f};
 SDL_RenderFillRect(renderer, &poIconRect);
 SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
 SDL_RenderRect(renderer, &poIconRect);
 TTF_SetTextString(gameStatUIText, "Public order", 0);
 TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
-TTF_DrawRendererText(gameStatUIText, leftX + 28.f, statY - 3.f);
+TTF_DrawRendererText(gameStatUIText, leftX + 35.f, statY - 3.f);
 TTF_SetTextString(gameStatUIText, std::to_string(publicOrderTotal).c_str(), 0);
 TTF_SetTextColor(gameStatUIText, poR, poG, poB2, 255);
 TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
