@@ -268,6 +268,25 @@ public:
     //texture of all buildings for different factions
     std::unordered_map<BuildingType, SDL_Texture *> buildingTypeTextures;
 
+    //texture of all settlements (On the Campaign map)
+    struct SettlementTextureMap {
+        FactionZone faction;
+        SettlementType settlementType;
+        int tier;
+        bool operator==(const SettlementTextureMap &texture) const {
+            return faction == texture.faction && settlementType == texture.settlementType && tier == texture.tier;
+        }
+    };
+//securing
+    struct SettlementTextureMapHash {
+        size_t operator()(const SettlementTextureMap &m) const {
+            return std::hash<int>()((int)m.faction * 100 + (int)m.settlementType * 10 + m.tier);
+        }
+    };
+   std::unordered_map<SettlementTextureMap, SDL_Texture*, SettlementTextureMapHash> settlementTextureCampaign;
+
+
+
     // -> CREDITS <-
     TTF_Font *creditsTitleFont = nullptr;
     TTF_Text *creditsTitleText = nullptr;
@@ -775,6 +794,68 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture gameToggleTaxSettlementFalse", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameToggleTaxSettlementFalse, SDL_SCALEMODE_NEAREST);
+
+        //SETTLEMENTS EVOLUTIF IN CAMPAIGN FOR EACH FACTION
+
+        /*
+         *Castle and capital Tier 1 no wall, Tier 2 wood wall, Tier 3 Stone wall, Tier 4 Better wall, Tier 5 2 layout of walls.
+         *
+         */
+//                              ~ KNIGHT ~
+// Capital -> 5 tiers Upgrade
+settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 1}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CapitalKnight_T1.png");
+settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 2}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CapitalKnight_T2.png");
+settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 3}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CapitalKnight_T3.png");
+settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 4}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CapitalKnight_T4.png");
+settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 5}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CapitalKnight_T5.png");
+// Castles -> 5 tiers Upgrade
+settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 1}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CastleKnight_T1.png");
+settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 2}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CastleKnight_T2.png");
+settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 3}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CastleKnight_T3.png");
+settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 4}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CastleKnight_T4.png");
+settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 5}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CastleKnight_T5.png");
+// Villages -> 3 tiers Upgrade
+settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village, 1}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/VillageKnight_T1.png");
+settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village, 2}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/VillageKnight_T2.png");
+settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village, 3}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/VillageKnight_T3.png");
+
+//                               ~ VIKING ~
+// Capital -> 5 tiers Upgrade
+settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 1}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CapitalViking_T1.png");
+settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 2}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CapitalViking_T2.png");
+settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 3}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CapitalViking_T3.png");
+settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 4}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CapitalViking_T4.png");
+settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 5}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CapitalViking_T5.png");
+// Castles -> 5 tiers Upgrade
+settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 1}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CastleViking_T1.png");
+settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 2}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CastleViking_T2.png");
+settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 3}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CastleViking_T3.png");
+settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 4}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CastleViking_T4.png");
+settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 5}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CastleViking_T5.png");
+// Villages -> 3 tiers Upgrade
+settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village, 1}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/VillageViking_T1.png");
+settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village, 2}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/VillageViking_T2.png");
+settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village, 3}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/VillageViking_T3.png");
+
+// ~ SAMURAI ~
+// Capital -> 5 tiers Upgrade
+settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 1}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CapitalSamurai_T1.png");
+settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 2}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CapitalSamurai_T2.png");
+settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 3}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CapitalSamurai_T3.png");
+settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 4}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CapitalSamurai_T4.png");
+settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 5}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CapitalSamurai_T5.png");
+// Castles -> 5 tiers Upgrade
+settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 1}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CastleSamurai_T1.png");
+settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 2}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CastleSamurai_T2.png");
+settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 3}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CastleSamurai_T3.png");
+settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 4}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CastleSamurai_T4.png");
+settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 5}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CastleSamurai_T5.png");
+// Villages -> 3 tiers Upgrade
+settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 1}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/VillageSamurai_T1.png");
+settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 2}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/VillageSamurai_T2.png");
+settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/VillageSamurai_T3.png");
+
+
 
         // BUILDING UIS
         //                  ! KNIGHT !
@@ -1734,7 +1815,12 @@ private://constructor
             SDL_DestroyTexture(texture);
         }
         buildingTypeTextures.clear();
+    // ---------------------------------
+        for (auto& [key, tex] : settlementTextureCampaign)
+            SDL_DestroyTexture(tex);
+        settlementTextureCampaign.clear();
     }
+
 
     BuildingType GetSettlementBuildingType(SettlementType type, FactionZone faction, int tier) {
     if (faction == FactionZone::Knight) {
@@ -1839,8 +1925,16 @@ private://constructor
         std::string percentage = std::to_string((int)(volumeSlider.value * 100)) + "%";
     }
 
-    //To not repeat the texture of settlements
+    //Settlement textures Campaign
     SDL_Texture* GetSettlementTexture(FactionZone faction, SettlementType type, int tier) {
+        auto it = settlementTextureCampaign.find({faction, type, tier});
+        if (it != settlementTextureCampaign.end()) return it->second;
+        return nullptr;
+    }
+
+
+    //To not repeat the texture of settlements
+    SDL_Texture* GetSettlementBuildingUpgradeTexture(FactionZone faction, SettlementType type, int tier) {
     if (faction == FactionZone::Knight) {
         if (type == SettlementType::Capital) {
             if (tier == 1) return capitalBuildingUpgrade1Knight;
@@ -1954,9 +2048,15 @@ private://constructor
                 displaySize
             };
 
+            //color and texture of settlements
+            //test
+             SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 100);
+             SDL_RenderFillRect(renderer, &dst);
+            //Settlement texture that changes based on tier
+            int tier = s.settlementData.settlementTier;
+            SDL_Texture* tex = GetSettlementTexture(zone, s.settlementData.type, tier);
+            if (tex) SDL_RenderTexture(renderer, tex, nullptr, &dst);
 
-            SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 255);
-            SDL_RenderFillRect(renderer, &dst);
 
             // Bordure noire
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -2365,7 +2465,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                         if (b == 0) {
                             // Texture
                             int tierToRender = s->settlementData.bBuidingUnderConstruction? s->settlementData.pendingTier: s->settlementData.settlementTier;
-                            SDL_Texture* tex = GetSettlementTexture(province.owner, s->settlementData.type, tierToRender);
+                            SDL_Texture* tex = GetSettlementBuildingUpgradeTexture(province.owner, s->settlementData.type, tierToRender);
                             if (tex) SDL_RenderTexture(renderer, tex, nullptr, &slot);
 
                             std::string tierStr = "T" + std::to_string(s->settlementData.settlementTier);
@@ -2753,7 +2853,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         SDL_RenderFillRect(renderer, &tierRect);
 
         //textures of the building
-        SDL_Texture* textureBuilding = GetSettlementTexture(province.owner,provinceSettl->settlementData.type, t );
+        SDL_Texture* textureBuilding = GetSettlementBuildingUpgradeTexture(province.owner,provinceSettl->settlementData.type, t );
         if (textureBuilding) {
             Uint8 alpha = isCurrent ? 255 : (isNext ? 180 : 60);
             SDL_SetTextureAlphaMod(textureBuilding, alpha);
@@ -4221,4 +4321,3 @@ SDL_AppIterate(void *appstate) {
 void SDL_AppQuit(void *appstate, SDL_AppResult result) {
     TTF_Quit();
 }
-
