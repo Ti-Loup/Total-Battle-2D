@@ -2005,9 +2005,10 @@ private://constructor
     // iconeIncome gold
     SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
     SDL_FRect incomeIcon = {cursor, iconY, iconSize, iconSize};
-    SDL_RenderFillRect(renderer, &incomeIcon);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
-    SDL_RenderRect(renderer, &incomeIcon);
+    // SDL_RenderFillRect(renderer, &incomeIcon);
+    // SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
+    // SDL_RenderRect(renderer, &incomeIcon);
+    SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &incomeIcon);
     cursor += iconSize + 3.f;
     //the number that shows the income per settlement(baseIncome)
     //bool toggle income to show 0 if no income
