@@ -163,6 +163,10 @@ public:
     SDL_Texture *gameCoinMoneyTexture = nullptr;
     SDL_Texture *gameTurnAmountTexture = nullptr;
 
+    //Texture Toggle Tax Settlement
+    SDL_Texture *gameToggleTaxSettlementFalse = nullptr;
+    SDL_Texture *gameToggleTaxSettlementTrue = nullptr;
+
     //Buildings Texture
     //hammer
     SDL_Texture *hammerUIBuildingUpgradeTexture = nullptr;
@@ -760,6 +764,17 @@ private://constructor
             SDL_LogWarn(0,"failed to load texture gameTurnAmountTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameTurnAmountTexture, SDL_SCALEMODE_NEAREST);
+        //Texture toggle tax settlements
+        gameToggleTaxSettlementTrue = IMG_LoadTexture(renderer, "assets/toggleTaxSettlementTrue.png");
+        if (gameToggleTaxSettlementTrue == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameToggleTaxSettlementTrue", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameToggleTaxSettlementTrue, SDL_SCALEMODE_NEAREST );
+        gameToggleTaxSettlementFalse = IMG_LoadTexture(renderer, "assets/toggleTaxSettlementFalse.png");
+        if (gameToggleTaxSettlementFalse == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameToggleTaxSettlementFalse", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameToggleTaxSettlementFalse, SDL_SCALEMODE_NEAREST);
 
         // BUILDING UIS
         //                  ! KNIGHT !
@@ -1709,6 +1724,8 @@ private://constructor
         SDL_DestroyTexture(gameBuildingTypesGroupingReligionSamurai);
         SDL_DestroyTexture(gameCoinMoneyTexture);
         SDL_DestroyTexture(gameTurnAmountTexture);
+        SDL_DestroyTexture(gameToggleTaxSettlementTrue);
+        SDL_DestroyTexture(gameToggleTaxSettlementFalse);
     // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
@@ -2154,13 +2171,15 @@ statY += 34.f;
         //rect in gameapp
 toggleTaxIncomeCollect = {leftX + 8.f, statY, 20.f, 20.f};
         if (provinces[provinceID].bToggleCollectIncome) {
-            SDL_SetRenderDrawColor(renderer, 80, 200, 80, 255);  //green
-            SDL_RenderFillRect(renderer, &toggleTaxIncomeCollect);
-            SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
+            // SDL_SetRenderDrawColor(renderer, 80, 200, 80, 255);  //green
+            // SDL_RenderFillRect(renderer, &toggleTaxIncomeCollect);
+            // SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
+            SDL_RenderTexture(renderer, gameToggleTaxSettlementTrue, nullptr, &toggleTaxIncomeCollect);
         } else {
-            SDL_SetRenderDrawColor(renderer, 160, 50, 50, 255); //red
-            SDL_RenderFillRect(renderer, &toggleTaxIncomeCollect);
-            SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
+            // SDL_SetRenderDrawColor(renderer, 160, 50, 50, 255); //red
+            // SDL_RenderFillRect(renderer, &toggleTaxIncomeCollect);
+            // SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
+            SDL_RenderTexture(renderer, gameToggleTaxSettlementFalse, nullptr, &toggleTaxIncomeCollect);
         }
 
 
