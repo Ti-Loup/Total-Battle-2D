@@ -167,9 +167,16 @@ public:
     SDL_Texture *gameToggleTaxSettlementFalse = nullptr;
     SDL_Texture *gameToggleTaxSettlementTrue = nullptr;
 
+    //Texture Public order (Green if happy, red if not, gray if 0)
+    SDL_Texture *gamePublicOrderPositifTexture = nullptr;
+    SDL_Texture *gamePublicOrderNegatifTexture = nullptr;
+    SDL_Texture *gamePublicOrderNeutralTexture = nullptr;
+
     //Buildings Texture
     //hammer
     SDL_Texture *hammerUIBuildingUpgradeTexture = nullptr;
+
+    //mains settlements buildings textures
     //                 ~ KNIGHT ~
     //capital
     SDL_Texture *capitalBuildingUpgrade1Knight = nullptr;
@@ -795,6 +802,22 @@ private://constructor
         }
         SDL_SetTextureScaleMode(gameToggleTaxSettlementFalse, SDL_SCALEMODE_NEAREST);
 
+        //Texture Public order
+        gamePublicOrderPositifTexture = IMG_LoadTexture(renderer, "assets/HappyPublicOrderIcon.png");
+        if (gamePublicOrderPositifTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gamePublicOrderPositifTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gamePublicOrderPositifTexture, SDL_SCALEMODE_NEAREST);
+        gamePublicOrderNeutralTexture = IMG_LoadTexture(renderer, "assets/NeutralPublicOrderIcon.png");
+        if (gamePublicOrderNeutralTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gamePublicOrderNeutralTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gamePublicOrderNeutralTexture, SDL_SCALEMODE_NEAREST);
+        gamePublicOrderNegatifTexture = IMG_LoadTexture(renderer, "assets/AngryPublicOrderIcon.png");
+        if (gamePublicOrderNegatifTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gamePublicOrderNegatifTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gamePublicOrderNegatifTexture, SDL_SCALEMODE_NEAREST);
         //SETTLEMENTS EVOLUTIF IN CAMPAIGN FOR EACH FACTION
 
         /*
@@ -1807,6 +1830,9 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         SDL_DestroyTexture(gameTurnAmountTexture);
         SDL_DestroyTexture(gameToggleTaxSettlementTrue);
         SDL_DestroyTexture(gameToggleTaxSettlementFalse);
+        SDL_DestroyTexture(gamePublicOrderPositifTexture);
+        SDL_DestroyTexture(gamePublicOrderNegatifTexture);
+        SDL_DestroyTexture(gamePublicOrderNeutralTexture);
     // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
@@ -2127,14 +2153,14 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
     cursor += 6.f;
 
     // public order icon
-    int publicOrder    = s.settlementData.publicOrder;
+    int publicOrder = s.settlementData.publicOrder;
     Uint8 poR = publicOrder > 0 ? 80  : (publicOrder < 0 ? 220 : 130);
     Uint8 poG = publicOrder > 0 ? 200 : (publicOrder < 0 ? 50  : 130);
-    SDL_SetRenderDrawColor(renderer, poR, poG, 80, 255);
-    SDL_FRect publicOrderIcon = {cursor, iconY, iconSize, iconSize};
-    SDL_RenderFillRect(renderer, &publicOrderIcon);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
-    SDL_RenderRect(renderer, &publicOrderIcon);
+               SDL_FRect publicOrderIcon = {cursor, iconY, iconSize, iconSize};
+               SDL_Texture* poTex = (publicOrder > 0) ? gamePublicOrderPositifTexture
+                                  : (publicOrder < 0) ? gamePublicOrderNegatifTexture
+                                                      : gamePublicOrderNeutralTexture;
+               if (poTex) SDL_RenderTexture(renderer, poTex, nullptr, &publicOrderIcon);
     cursor += iconSize + 3.f;
 
     std::string orderStr = std::to_string(publicOrder);
@@ -2294,11 +2320,11 @@ statY += 34.f;
 Uint8 poR  = publicOrderTotal > 0 ? 80  : (publicOrderTotal < 0 ? 220 : 130);
 Uint8 poG  = publicOrderTotal > 0 ? 200 : (publicOrderTotal < 0 ? 50  : 130);
 Uint8 poB2 = 80;
-SDL_SetRenderDrawColor(renderer, poR, poG, poB2, 255);
-SDL_FRect poIconRect = {leftX + 8.f, statY, 20.f, 20.f};
-SDL_RenderFillRect(renderer, &poIconRect);
-SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
-SDL_RenderRect(renderer, &poIconRect);
+        SDL_FRect poIconRect = {leftX + 8.f, statY, 20.f, 20.f};
+        SDL_Texture* poTex = (publicOrderTotal > 0) ? gamePublicOrderPositifTexture
+                           : (publicOrderTotal < 0) ? gamePublicOrderNegatifTexture
+                                                    : gamePublicOrderNeutralTexture;
+        if (poTex) SDL_RenderTexture(renderer, poTex, nullptr, &poIconRect);
 TTF_SetTextString(gameStatUIText, "Public order", 0);
 TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
 TTF_DrawRendererText(gameStatUIText, leftX + 35.f, statY - 3.f);
