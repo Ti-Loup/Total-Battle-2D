@@ -172,6 +172,12 @@ public:
     SDL_Texture *gamePublicOrderNegatifTexture = nullptr;
     SDL_Texture *gamePublicOrderNeutralTexture = nullptr;
 
+    //inizialise the rect for the publicOrder so i can use it when i put my mouse on it it shows the public order next turn
+    SDL_FRect publicOrderIcon = {0.f, 0.f, 0.f, 0.f};
+    bool bMouseOnPublicOrderIcon = false;
+    int hoveredPublicOrderSettlementIndex = -1;//when on top of Public order
+    float publicOrderTooltipX = 0.f;
+    float publicOrderTooltipY = 0.f;
     //Buildings Texture
     //hammer
     SDL_Texture *hammerUIBuildingUpgradeTexture = nullptr;
@@ -2033,6 +2039,9 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
 
     //For the rendering on screen of the settlements. Texture to do
     void RenderSettlements() {
+        //update public order bool
+        bMouseOnPublicOrderIcon = false;
+        hoveredPublicOrderSettlementIndex = -1;
         for (const auto& s : settlements) {
             float positionX = (float)(s.tileCol * tileMap->tileSize) * camera.zoom - camera.startX * camera.zoom;
             float positionY = (float)(s.tileRow * tileMap->tileSize) * camera.zoom - camera.startY * camera.zoom;
@@ -2156,18 +2165,43 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
     int publicOrder = s.settlementData.publicOrder;
     Uint8 poR = publicOrder > 0 ? 80  : (publicOrder < 0 ? 220 : 130);
     Uint8 poG = publicOrder > 0 ? 200 : (publicOrder < 0 ? 50  : 130);
-               SDL_FRect publicOrderIcon = {cursor, iconY, iconSize, iconSize};
+               float poSectionStartX = cursor;
+
+               SDL_FRect poInconRect = {cursor, iconY, iconSize, iconSize};
+               float mxPO, myPO;
+               SDL_GetMouseState(&mxPO, &myPO);
+               float lxPO, lyPO;
+               SDL_RenderCoordinatesFromWindow(renderer, mxPO, myPO, &lxPO, &lyPO);
+               SDL_FPoint msPO = {lxPO, lyPO};
+
                SDL_Texture* poTex = (publicOrder > 0) ? gamePublicOrderPositifTexture
                                   : (publicOrder < 0) ? gamePublicOrderNegatifTexture
                                                       : gamePublicOrderNeutralTexture;
-               if (poTex) SDL_RenderTexture(renderer, poTex, nullptr, &publicOrderIcon);
-    cursor += iconSize + 3.f;
+               if (poTex) SDL_RenderTexture(renderer, poTex, nullptr, &poInconRect);
+               cursor += iconSize + 3.f;
 
-    std::string orderStr = std::to_string(publicOrder);
-    TTF_SetTextString(gameStatUIText, orderStr.c_str(), 0);
-    TTF_SetTextColor(gameStatUIText, poR, poG, 80, 255);//color change in fonction if it's positive or negative. Texture to do
-    TTF_DrawRendererText(gameStatUIText, cursor, textY);
-        }
+               std::string orderStr = std::to_string(publicOrder);
+               TTF_SetTextString(gameStatUIText, orderStr.c_str(), 0);
+               TTF_SetTextColor(gameStatUIText, poR, poG, 80, 255);
+               TTF_DrawRendererText(gameStatUIText, cursor, textY);
+
+               int poTextW = 0, poTextH = 0;
+               TTF_GetTextSize(gameStatUIText, &poTextW, &poTextH);
+
+               SDL_FRect poHoverRect = {
+                   poSectionStartX,
+                   iconY,
+                   (cursor + poTextW) - poSectionStartX,
+                   iconSize
+               };
+               if (SDL_PointInRectFloat(&msPO, &poHoverRect)) {
+                   bMouseOnPublicOrderIcon = true;
+                   hoveredPublicOrderSettlementIndex = (int)(&s - &settlements[0]);
+                   publicOrderTooltipX = lxPO;
+                   publicOrderTooltipY = lyPO;
+               }
+
+             }
         }
     }
     //UI of the region with their castle/villages when you click on a settlement from that province ID
@@ -3649,6 +3683,51 @@ void RenderCategoryBuildingInfoUI() {
         RenderGeneralUI();
         RenderBuildingInfoUI();
         RenderCategoryBuildingInfoUI();
+        // Tooltip public order
+        if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
+    const Settlement& sPO = settlements[hoveredPublicOrderSettlementIndex];
+    int provID = sPO.settlementData.provinceID;
+
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_FRect infoPublicOrder = {publicOrderTooltipX + 10.f, publicOrderTooltipY - 120.f, 220.f, 110.f};
+    SDL_SetRenderDrawColor(renderer, 20, 20, 20, 220);
+    SDL_RenderFillRect(renderer, &infoPublicOrder);
+    SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+    SDL_RenderRect(renderer, &infoPublicOrder);
+
+    float lineY = infoPublicOrder.y + 8.f;
+
+    // Titre
+    TTF_SetTextString(gameStatUITitleText, "Public Order", 0);
+    TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
+    TTF_DrawRendererText(gameStatUITitleText, infoPublicOrder.x + 8.f, lineY);
+    lineY += 28.f;
+
+    // Valeur actuelle
+    int po = sPO.settlementData.publicOrder;
+    bool collecting = provinces[provID].bToggleCollectIncome;
+
+    TTF_SetTextString(gameStatUIText, ("Current: " + std::to_string(po)).c_str(), 0);
+    Uint8 poR2 = po > 0 ? 80 : (po < 0 ? 220 : 130);
+    Uint8 poG2 = po > 0 ? 200 : (po < 0 ? 50 : 130);
+    TTF_SetTextColor(gameStatUIText, poR2, poG2, 80, 255);
+    TTF_DrawRendererText(gameStatUIText, infoPublicOrder.x + 8.f, lineY);
+    lineY += 22.f;
+
+    // Debuff taxe
+    std::string taxStr = collecting ? "Tax: -4 / turn" : "Tax: 0 (paused)";
+    TTF_SetTextString(gameStatUIText, taxStr.c_str(), 0);
+    TTF_SetTextColor(gameStatUIText, collecting ? 220 : 130, collecting ? 60 : 130, 80, 255);
+    TTF_DrawRendererText(gameStatUIText, infoPublicOrder.x + 8.f, lineY);
+    lineY += 22.f;
+
+    // Next turn preview
+    int nextPO = po + (collecting ? -4 : 0);
+    nextPO = std::clamp(nextPO, -100, 100);
+    TTF_SetTextString(gameStatUIText, ("Next turn: " + std::to_string(nextPO)).c_str(), 0);
+    TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
+    TTF_DrawRendererText(gameStatUIText, infoPublicOrder.x + 8.f, lineY);
+}
         //fps
         TTF_DrawRendererText(fpsText, 10, 10);
         SDL_RenderPresent(renderer);
@@ -3761,10 +3840,18 @@ public:
     void EndTurn() {
 
         int goldEarned = 0;
-        for (const auto &s: settlements) {
+        for (auto &s: settlements) {
             if (provinces[s.settlementData.provinceID].owner == player.faction && provinces[s.settlementData.provinceID].bToggleCollectIncome) {
                 goldEarned += s.settlementData.baseIncome;
+                s.settlementData.publicOrder -= 4; //Public order gets reduce by 4 when ToggleCollectIncome is true
+                if (s.settlementData.publicOrder < -100){
+                    s.settlementData.publicOrder = -100;
+                }
+                if (s.settlementData.publicOrder >  100) {
+                    s.settlementData.publicOrder =  100;
+                }
             }
+
         }
 
         //add the gold
@@ -4297,6 +4384,15 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             }
         }
     }
+    //if mouse on the rect of the public order of the settlement it shows the positive and negative public order buff and debuff
+    if (event->type == SDL_EVENT_MOUSE_MOTION &&app.StateActuel == State::Game) {
+        float nouveauX, nouveauY;
+        SDL_RenderCoordinatesFromWindow(app.renderer, event->motion.x, event->motion.y, &nouveauX, &nouveauY);
+        app.publicOrderTooltipX = nouveauX;
+        app.publicOrderTooltipY = nouveauY;
+    }
+
+
 
     // Zoom
     if (event->type == SDL_EVENT_MOUSE_WHEEL && app.StateActuel == State::Game) {
