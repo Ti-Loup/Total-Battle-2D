@@ -2093,12 +2093,12 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
             if (tex) SDL_RenderTexture(renderer, tex, nullptr, &dst);
 
 
-            // Bordure noire
+            // black border
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
             SDL_RenderRect(renderer, &dst);
 
             //UI elements to show (Public order / Current income of this settlement / Population )
-           if (camera.zoom >= 1.1f) {
+    if (camera.zoom >= 1.1f) {
             // center of the settlement for the UI to show
     float centerX = positionX + displaySize / 2.f;
     float bottomY = positionY + displaySize;
@@ -2165,45 +2165,45 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
     int publicOrder = s.settlementData.publicOrder;
     Uint8 poR = publicOrder > 0 ? 80  : (publicOrder < 0 ? 220 : 130);
     Uint8 poG = publicOrder > 0 ? 200 : (publicOrder < 0 ? 50  : 130);
-               float poSectionStartX = cursor;
+    float poSectionStartX = cursor;
 
-               SDL_FRect poInconRect = {cursor, iconY, iconSize, iconSize};
-               float mxPO, myPO;
-               SDL_GetMouseState(&mxPO, &myPO);
-               float lxPO, lyPO;
-               SDL_RenderCoordinatesFromWindow(renderer, mxPO, myPO, &lxPO, &lyPO);
-               SDL_FPoint msPO = {lxPO, lyPO};
+    SDL_FRect poInconRect = {cursor, iconY, iconSize, iconSize};
+    float mxPO, myPO;
+    SDL_GetMouseState(&mxPO, &myPO);
+    float lxPO, lyPO;
+    SDL_RenderCoordinatesFromWindow(renderer, mxPO, myPO, &lxPO, &lyPO);
+    SDL_FPoint msPO = {lxPO, lyPO};
 
-               SDL_Texture* poTex = (publicOrder > 0) ? gamePublicOrderPositifTexture
-                                  : (publicOrder < 0) ? gamePublicOrderNegatifTexture
-                                                      : gamePublicOrderNeutralTexture;
-               if (poTex) SDL_RenderTexture(renderer, poTex, nullptr, &poInconRect);
-               cursor += iconSize + 3.f;
+    SDL_Texture* poTex = (publicOrder > 0) ? gamePublicOrderPositifTexture
+        : (publicOrder < 0) ? gamePublicOrderNegatifTexture
+        : gamePublicOrderNeutralTexture;
+    if (poTex) SDL_RenderTexture(renderer, poTex, nullptr, &poInconRect);
+    cursor += iconSize + 3.f;
 
-               std::string orderStr = std::to_string(publicOrder);
-               TTF_SetTextString(gameStatUIText, orderStr.c_str(), 0);
-               TTF_SetTextColor(gameStatUIText, poR, poG, 80, 255);
-               TTF_DrawRendererText(gameStatUIText, cursor, textY);
+    std::string orderStr = std::to_string(publicOrder);
+    TTF_SetTextString(gameStatUIText, orderStr.c_str(), 0);
+    TTF_SetTextColor(gameStatUIText, poR, poG, 80, 255);
+    TTF_DrawRendererText(gameStatUIText, cursor, textY);
 
-               int poTextW = 0, poTextH = 0;
-               TTF_GetTextSize(gameStatUIText, &poTextW, &poTextH);
+    int poTextW = 0, poTextH = 0;
+    TTF_GetTextSize(gameStatUIText, &poTextW, &poTextH);
 
-               SDL_FRect poHoverRect = {
-                   poSectionStartX,
-                   iconY,
-                   (cursor + poTextW) - poSectionStartX,
-                   iconSize
-               };
-               if (SDL_PointInRectFloat(&msPO, &poHoverRect)) {
-                   bMouseOnPublicOrderIcon = true;
-                   hoveredPublicOrderSettlementIndex = (int)(&s - &settlements[0]);
-                   publicOrderTooltipX = lxPO;
-                   publicOrderTooltipY = lyPO;
-               }
-
-             }
+    SDL_FRect poHoverRect = {
+    poSectionStartX,
+    iconY,
+    (cursor + poTextW) - poSectionStartX,
+    iconSize
+    };
+        if (SDL_PointInRectFloat(&msPO, &poHoverRect)) {
+            bMouseOnPublicOrderIcon = true;
+            hoveredPublicOrderSettlementIndex = (int)(&s - &settlements[0]);
+            publicOrderTooltipX = lxPO;
+            publicOrderTooltipY = lyPO;
         }
+
     }
+ }
+}
     //UI of the region with their castle/villages when you click on a settlement from that province ID
     void RenderProvinceUI() {
     if (!bHasClickedOnASettlement || selectedSettlementIndex < 0) return;
@@ -2243,7 +2243,7 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
     // LEFT UI PART
         //PROVINCE
     float leftW = 250.f, leftH = 380.f;//size
-    float leftX = 0.f,   leftY = 700.f;//position
+    float leftX = 0.f, leftY = 700.f;//position
 
     SDL_SetRenderDrawColor(renderer, 20, 20, 20, 210);
     SDL_FRect leftPanel = {leftX, leftY, leftW, leftH};
@@ -2581,7 +2581,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                                 slotThreshold = tier + 1; // capital start with 2 tier
                             }
                             bool slotAvailable = (b <= slotThreshold);
-                            bool hasBuilding   = (buildingType != BuildingType::None);
+                            bool hasBuilding = (buildingType != BuildingType::None);
 
                            if (hasBuilding) {
                             SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
@@ -2590,10 +2590,10 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                             bool upgradePending = (s->settlementData.pendingBuildings[b] != BuildingType::None);
 
     // Render T2 if in construction, else T1
-    SDL_Texture* texToRender = upgradePending
+    SDL_Texture* textureToRender = upgradePending
         ? GetBuildingTexture(s->settlementData.pendingBuildings[b])
         : GetBuildingTexture(buildingType);
-    if (texToRender) SDL_RenderTexture(renderer, texToRender, nullptr, &slot);
+    if (textureToRender) SDL_RenderTexture(renderer, textureToRender, nullptr, &slot);
 
     const BuildingData* bd = GetBuildingData(buildingType);
     if (bd) {
@@ -2610,7 +2610,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
             TTF_SetTextString(gameBuildingConstructionTimeText, turnStr.c_str(), 0);
             TTF_DrawRendererText(gameBuildingConstructionTimeText, sx + 25.f, sy + 20.f);
         } else {
-            // Hammer si upgradable...
+            // Hammer if upgradable...
             if (bd->upgradesTo != BuildingType::None && hammerUIBuildingUpgradeTexture && provinces[s->settlementData.provinceID].owner == player.faction) {
                 const BuildingData* nextBd = GetBuildingData(bd->upgradesTo);
                 if (nextBd && nextBd->Tier <= s->settlementData.settlementTier) {
@@ -2630,7 +2630,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         SDL_RenderCoordinatesFromWindow(renderer, mxCheck, myCheck, &lxCheck, &lyCheck);
         SDL_FPoint mpCheck = {lxCheck, lyCheck};
         if (SDL_PointInRectFloat(&mpCheck, &slot) && categoryEvolutionPopupRect.w <= 0) {
-            // Si upgrade pending, montrer le building en cours de construction
+            // if upgrade pending, show the current [ending building being constructed.
             bool upgPend = (s->settlementData.pendingBuildings[b] != BuildingType::None);
             hoveredCategoryBuildingType = upgPend
                 ? s->settlementData.pendingBuildings[b]
@@ -2725,7 +2725,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                 }
             }
         }
-        // Si la souris est sur la popup d'évolution, conserver l'état upgradable
+        //if mouse on popupEvolution, keep the current state
         SDL_FRect expandedEvolKeep = categoryEvolutionPopupRect;
         expandedEvolKeep.h += 20.f;
         if (hoveredAvailableSlot < 0 && previousUpgradableState &&
@@ -2739,13 +2739,13 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
             SDL_FRect expandedPopup = categoryButtonsPopupRect;
             expandedPopup.h += 10.f;
 
-            // Pour un slot upgradable, seule la popup d'evolution garde l'etat ouvert
+            // For an upgradable slot, only the evolution popup keep his state open
             bool bInBuildingCategoryButtons = !previousUpgradableState && categoryButtonsPopupRect.w > 0 && SDL_PointInRectFloat(&mousePt, &expandedPopup);
             SDL_FRect expandedEvolution = categoryEvolutionPopupRect;
             expandedEvolution.h += 20.f; // cover the gap between evolution popup and building categoriesButtons
             bool bInBuildingEvolitionButtons = categoryEvolutionPopupRect.w > 0 && SDL_PointInRectFloat(&mousePt, &expandedEvolution);
             if (bInBuildingCategoryButtons || bInBuildingEvolitionButtons) {
-                hoveredAvailableSlot = 0; // garde le popup ouvert
+                hoveredAvailableSlot = 0; // keep popup open
 
                 if (bInBuildingEvolitionButtons && previousUpgradableState) {
                     hoveredBuildingSlotUpgradable = true;
