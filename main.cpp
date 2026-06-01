@@ -2879,7 +2879,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
     float popY = mainBuildingSlotRects[hoveredCardIndex].y - totalH - 15.f;
     if (popY < 5.f) popY = 5.f;
 
-    // Fond du popup
+    // Background of popup
     SDL_SetRenderDrawColor(renderer, 10, 10, 10, 230);
     SDL_FRect bgRect = {popX - 12.f, popY - 8.f, tileW + 24.f, totalH + 16.f};
     SDL_RenderFillRect(renderer, &bgRect);
@@ -2887,9 +2887,9 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
     SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 120);
     SDL_RenderRect(renderer, &bgRect);
 
-    // Tier 5 en haut → Tier 1 en bas
+    // Tier 5 is UP → Tier 1 if down
     for (int t = maxTier; t >= 1; t--) {
-        int idx = maxTier - t;  // 0 = tier5(top), 4 = tier1(bas)
+        int idx = maxTier - t;  // 0 = tier5(top), 4 = tier1(down)
         float tierSquareY = popY + idx * (tileH + arrowH);
 
         bool isCurrent  = (t == currentTier);
@@ -2937,11 +2937,11 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
 
 
         if (t > currentTier && t <= maxTier) {
-            BuildingType buildingAtTier = GetSettlementBuildingType(
-        provinceSettl->settlementData.type, province.owner, t - 1);
+            BuildingType buildingAtTier = GetSettlementBuildingType(provinceSettl->settlementData.type, province.owner, t - 1);
+
             const BuildingData* tierData = GetBuildingData(buildingAtTier);
             const BuildingData* nextData = (tierData && tierData->upgradesTo != BuildingType::None)? GetBuildingData(tierData->upgradesTo) : nullptr;
-            int cost = nextData ? nextData->cost : 123456;
+            int cost = nextData ? nextData->cost : 123456; // if the cost cannot be get from the dataBuilding section it returns 123456 (error)
             int constructionTurns = nextData ? nextData->constructionTurns : 1;
 
             std::string costString = std::to_string(cost);
@@ -3000,9 +3000,9 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
             SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)(cx - 6), (int)(tipY + 8));
             SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)(cx + 6), (int)(tipY + 8));
         }
-        // Sauvegarder le rect pour la détection de clic
+        // Save the rect to detect the clic
         if ((int)tierPopupRects.size() < maxTier)
-            tierPopupRects.resize(maxTier);
+        tierPopupRects.resize(maxTier);
         tierPopupRects[t - 1] = tierRect;
         tierPopupMaxTier = maxTier;
 
@@ -3703,7 +3703,7 @@ void RenderCategoryBuildingInfoUI() {
     TTF_DrawRendererText(gameStatUITitleText, infoPublicOrder.x + 8.f, lineY);
     lineY += 28.f;
 
-    // Valeur actuelle
+    // actual value
     int po = sPO.settlementData.publicOrder;
     bool collecting = provinces[provID].bToggleCollectIncome;
 
@@ -4109,13 +4109,13 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 }
             }
 
-            // Clic sur un building du popup de catégorie
+            // clic on a popup building of category
             if (app.bHasClickedOnASettlement &&
     app.categoryEvolutionPopupRect.w > 0 &&
     !app.categoryEvolutionTileRects.empty())
 {
     SDL_FPoint pt = {nouveauX, nouveauY};
-    SDL_Log("=== CLICK CHECK: tiles=%d, popupW=%.1f ===",
+    SDL_Log("Click Check: tiles=%d, popupW=%.1f",
         (int)app.categoryEvolutionTileRects.size(),
         app.categoryEvolutionPopupRect.w);
 
@@ -4183,7 +4183,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
 
 
-    // dection if clicked a settlement
+    // detection if clicked a settlement
     bool bClickedOutsideOfUI = false;
     for (int i = 0; i < (int)app.settlements.size(); i++) {
         const auto &s = app.settlements[i];
