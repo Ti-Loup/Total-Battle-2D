@@ -833,56 +833,211 @@ private://constructor
 //                              ~ KNIGHT ~
 // Capital -> 5 tiers Upgrade
 settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 1}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CapitalKnight_T1.png");
+        if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 1}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Capital, Tier1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital,1}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 2}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CapitalKnight_T2.png");
+        if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 2}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Capital, Tier2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital,2}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 3}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CapitalKnight_T3.png");
+        if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 3}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Capital, Tier3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital,3}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 4}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CapitalKnight_T4.png");
+        if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 4}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Capital, Tier4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital,4}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 5}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CapitalKnight_T5.png");
+        if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 5}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Capital, Tier5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital,5}], SDL_SCALEMODE_NEAREST);
 // Castles -> 5 tiers Upgrade
 settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 1}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CastleKnight_T1.png");
+        if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 1}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Castle, Tier1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle,1}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 2}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CastleKnight_T2.png");
+        if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 2}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Castle, Tier2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle,2}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 3}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CastleKnight_T3.png");
+        if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 3}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Castle, Tier3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle,3}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 4}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CastleKnight_T4.png");
+        if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 4}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Castle, Tier4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle,4}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 5}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CastleKnight_T5.png");
+        if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 5}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Castle, Tier5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle,5}], SDL_SCALEMODE_NEAREST);
 // Villages -> 3 tiers Upgrade
 settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village, 1}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/VillageKnight_T1.png");
+        if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village, 1}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Village, Tier1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village,1}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village, 2}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/VillageKnight_T2.png");
+        if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village, 2}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Village, Tier2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village,2}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village, 3}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/VillageKnight_T3.png");
-
+        if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village, 3}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Village, Tier3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village,3}], SDL_SCALEMODE_NEAREST);
 //                               ~ VIKING ~
 // Capital -> 5 tiers Upgrade
 settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 1}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CapitalViking_T1.png");
+        if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 1}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Capital, Tier1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital,1}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 2}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CapitalViking_T2.png");
+        if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 2}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Capital, Tier2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital,2}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 3}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CapitalViking_T3.png");
+        if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 3}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Capital, Tier3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital,3}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 4}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CapitalViking_T4.png");
+        if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 4}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Capital, Tier4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital,4}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 5}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CapitalViking_T5.png");
+        if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 5}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Capital, Tier5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital,5}], SDL_SCALEMODE_NEAREST);
 // Castles -> 5 tiers Upgrade
 settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 1}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CastleViking_T1.png");
+        if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 1}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Castle, Tier1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle,1}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 2}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CastleViking_T2.png");
+        if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 2}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Castle, Tier2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle,2}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 3}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CastleViking_T3.png");
+        if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 3}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Castle, Tier3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle,3}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 4}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CastleViking_T4.png");
+        if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 4}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Castle, Tier4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle,4}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 5}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CastleViking_T5.png");
+        if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 5}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Castle, Tier5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle,5}], SDL_SCALEMODE_NEAREST);
 // Villages -> 3 tiers Upgrade
 settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village, 1}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/VillageViking_T1.png");
+        if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village, 1}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Village, Tier1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village,1}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village, 2}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/VillageViking_T2.png");
+        if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village, 2}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Village, Tier2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village,2}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village, 3}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/VillageViking_T3.png");
+        if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village, 3}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Village, Tier3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village,3}], SDL_SCALEMODE_NEAREST);
 
 // ~ SAMURAI ~
 // Capital -> 5 tiers Upgrade
 settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 1}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CapitalSamurai_T1.png");
+        if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 1}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Capital, Tier1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital,1}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 2}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CapitalSamurai_T2.png");
+        if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 2}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Capital, Tier2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital,2}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 3}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CapitalSamurai_T3.png");
+        if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 3}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Capital, Tier3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital,3}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 4}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CapitalSamurai_T4.png");
+        if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 4}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Capital, Tier4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital,4}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 5}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CapitalSamurai_T5.png");
+        if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 5}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Capital, Tier5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital,5}], SDL_SCALEMODE_NEAREST);
 // Castles -> 5 tiers Upgrade
 settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 1}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CastleSamurai_T1.png");
+        if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 1}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Castle, Tier1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle,1}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 2}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CastleSamurai_T2.png");
+        if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 2}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Castle, Tier2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle,2}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 3}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CastleSamurai_T3.png");
+        if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 3}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Castle, Tier3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle,3}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 4}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CastleSamurai_T4.png");
+        if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 4}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Castle, Tier4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle,4}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 5}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CastleSamurai_T5.png");
+        if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 5}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Castle, Tier5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle,5}], SDL_SCALEMODE_NEAREST);
 // Villages -> 3 tiers Upgrade
 settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 1}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/VillageSamurai_T1.png");
+        if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 1}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Village, Tier1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village,1}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 2}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/VillageSamurai_T2.png");
+        if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 2}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Village, Tier2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village,2}], SDL_SCALEMODE_NEAREST);
 settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/VillageSamurai_T3.png");
+        if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Village, Tier3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village,3}], SDL_SCALEMODE_NEAREST);
 
 
 
