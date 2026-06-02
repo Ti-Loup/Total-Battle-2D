@@ -335,9 +335,9 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::ReinforceWalls_T5, {"Castle Walls",    "Impregnable defences.",  1400, 45, 0, 12, 5, 6, BuildingType::None});
 
     // ── KNIGHT RELIGION ──
-    add(BuildingType::Church_T1, {"Chapel",    "Improves public order.",  100,  5, 0,  5, 1, 2, BuildingType::Church_T2});
-    add(BuildingType::Church_T2, {"Church",    "Strong public order.",    250, 10, 0, 10, 2, 3, BuildingType::Church_T3});
-    add(BuildingType::Church_T3, {"Cathedral", "Major public order.",     500, 15, 0, 20, 3, 4, BuildingType::None});
+    add(BuildingType::Church_T1, {"Chapel",    "Improves public order.",  100,  5, 0,  2, 1, 2, BuildingType::Church_T2});
+    add(BuildingType::Church_T2, {"Church",    "Strong public order.",    250, 10, 0, 3, 2, 3, BuildingType::Church_T3});
+    add(BuildingType::Church_T3, {"Cathedral", "Major public order.",     500, 15, 0, 4, 3, 4, BuildingType::None});
 
     // ── VIKING MILITARY ──
     add(BuildingType::WarLodge_T1,       {"War Lodge",       "Trains raiders.",         150, 10, 0, 0, 1, 2, BuildingType::WarLodge_T2});

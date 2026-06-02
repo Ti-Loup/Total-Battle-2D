@@ -11,6 +11,7 @@ enum State {
 Menu,
 ChooseCharacter,
 Game,
+Technology,
 Tutorial,
 Options,
 Credits,
