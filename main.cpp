@@ -2860,35 +2860,43 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         hoveredAvailableSlot = -1;
         hoveredAvailableBuilding = -1;
         hoveredBuildingSlotUpgradable = false;
-        for (int s = 0; s < (int)availableSlotRects.size(); s++) {
-            if (SDL_PointInRectFloat(&mousePt, &availableSlotRects[s])){
-                hoveredAvailableBuilding = availableSlotInfo[s].first;
-                hoveredAvailableSlot = availableSlotInfo[s].second;
-                hoveredAvailableSlotRect = availableSlotRects[s];
-                hoveredCardIndex = availableSlotInfo[s].first;
-                categoryPopupCardIndex = hoveredCardIndex;
-                buildMenuSlotIndex = hoveredAvailableSlot;
 
-                // verifie if slot with existing building
-                std::vector<const Settlement*> provSCheck;
-                for (const auto& st : settlements)
-                    if (st.settlementData.provinceID == provinceID) provSCheck.push_back(&st);
-                if (hoveredCardIndex < (int)provSCheck.size()) {
-                    BuildingType existing = provSCheck[hoveredCardIndex]->settlementData.buildings[buildMenuSlotIndex];
-                    if (existing != BuildingType::None) {
-                        hoveredBuildingSlotUpgradable = true;
-                        hoveredBuildingCategoryIndex = (int)GetBuildingCategory(existing);
-                        BuildingType root = existing;
-                        const auto& db = GetBuildingDatabase();
-                        bool found = true;
-                        while (found) {
-                            found = false;
-                            for (const auto& [key, val] : db) {
-                                if (val.upgradesTo == root) { root = key; found = true; break; }
+        //to not let a upgradable slot take the priority over the one building that is trying to be upgraded/constructed
+        SDL_FRect expandedCatPopup = categoryButtonsPopupRect;
+        expandedCatPopup.h += 10.f;
+        bool mouseInCategoryButtons = categoryButtonsPopupRect.w > 0
+                                      && SDL_PointInRectFloat(&mousePt, &expandedCatPopup);
+        if (!mouseInCategoryButtons) {
+            for (int s = 0; s < (int)availableSlotRects.size(); s++) {
+                if (SDL_PointInRectFloat(&mousePt, &availableSlotRects[s])){
+                    hoveredAvailableBuilding = availableSlotInfo[s].first;
+                    hoveredAvailableSlot = availableSlotInfo[s].second;
+                    hoveredAvailableSlotRect = availableSlotRects[s];
+                    hoveredCardIndex = availableSlotInfo[s].first;
+                    categoryPopupCardIndex = hoveredCardIndex;
+                    buildMenuSlotIndex = hoveredAvailableSlot;
+
+                    // verifie if slot with existing building
+                    std::vector<const Settlement*> provSCheck;
+                    for (const auto& st : settlements)
+                        if (st.settlementData.provinceID == provinceID) provSCheck.push_back(&st);
+                    if (hoveredCardIndex < (int)provSCheck.size()) {
+                        BuildingType existing = provSCheck[hoveredCardIndex]->settlementData.buildings[buildMenuSlotIndex];
+                        if (existing != BuildingType::None) {
+                            hoveredBuildingSlotUpgradable = true;
+                            hoveredBuildingCategoryIndex = (int)GetBuildingCategory(existing);
+                            BuildingType root = existing;
+                            const auto& db = GetBuildingDatabase();
+                            bool found = true;
+                            while (found) {
+                                found = false;
+                                for (const auto& [key, val] : db) {
+                                    if (val.upgradesTo == root) { root = key; found = true; break; }
+                                }
                             }
+                            hoveredCategoryBuildingType = root;
+                            upgradableSlotRootBuilding = root;
                         }
-                        hoveredCategoryBuildingType = root;
-                        upgradableSlotRootBuilding = root;
                     }
                 }
             }
@@ -3028,7 +3036,31 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         }
 
         //TIER CHAIN POPUP (FOR THE MAIN SETTLEMENT BUILDING)
-        if (hoveredSlotIndex == 0 && bButtonUIBuildingIsPressed && hoveredCardIndex >= 0 && categoryButtonsPopupRect.w <= 0 && categoryEvolutionPopupRect.w <= 0) {
+        float mxTier, myTier;
+        SDL_GetMouseState(&mxTier, &myTier);
+        float lxTier, lyTier;
+        SDL_RenderCoordinatesFromWindow(renderer, mxTier, myTier, &lxTier, &lyTier);
+        SDL_FPoint msPtTier = {lxTier, lyTier};
+
+        int mainHoveredCard = -1;
+        for (int i = 0; i < (int)mainBuildingSlotRects.size(); i++) {
+            if (SDL_PointInRectFloat(&msPtTier, &mainBuildingSlotRects[i])) {
+                mainHoveredCard = i;
+                break;
+            }
+        }
+
+        RenderBuildingCategoryEvolution();
+        SDL_FRect expandedMainPopup = mainBuildingPopupRect;
+        expandedMainPopup.h += 20.f;
+        bool mouseOnExistingPopup = mainBuildingPopupRect.w > 0 && SDL_PointInRectFloat(&msPtTier, &expandedMainPopup);
+
+        if ((mainHoveredCard >= 0 || mouseOnExistingPopup) && bButtonUIBuildingIsPressed
+            && categoryButtonsPopupRect.w <= 0 && categoryEvolutionPopupRect.w <= 0) {
+            if (mainHoveredCard >= 0) hoveredCardIndex = mainHoveredCard;
+
+            if (hoveredCardIndex >= 0 && hoveredCardIndex < (int)provinceSettlements.size()) {
+
         const Settlement* provinceSettl = provinceSettlements[hoveredCardIndex];
     int currentTier = provinceSettl->settlementData.settlementTier;
     int maxTier = 3;//for the villages
@@ -3170,10 +3202,10 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         }
         // Save the rect to detect the clic
         if ((int)tierPopupRects.size() < maxTier)
-        tierPopupRects.resize(maxTier);
+            tierPopupRects.resize(maxTier);
         tierPopupRects[t - 1] = tierRect;
         tierPopupMaxTier = maxTier;
-
+    }
     }
 }
 
@@ -3190,9 +3222,6 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         TTF_SetTextString(gameStatUITitleText, province.name.c_str(), 0);
         TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
         TTF_DrawRendererText(gameStatUITitleText, middleTitlePositionX + 50.f, middleTitlePositionY + 2.f);
-
-        //Tier chain Popup for the BuildingTypes
-        RenderBuildingCategoryEvolution();
 
     // Restore
     TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
