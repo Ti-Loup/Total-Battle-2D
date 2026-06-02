@@ -2303,7 +2303,14 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
     //the number that shows the income per settlement(baseIncome)
     //bool toggle income to show 0 if no income
     bool collectingIncome = provinces[s.settlementData.provinceID].bToggleCollectIncome;
-    std::string incomeStr = std::to_string(collectingIncome ? s.settlementData.baseIncome : 0); // it shows 0 if the bool is true. otherwise it shows the base income for the ui settlement
+        int totalSettlementIncome = s.settlementData.baseIncome;
+        for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
+            if (s.settlementData.buildings[b] != BuildingType::None) {
+                const BuildingData* bd = GetBuildingData(s.settlementData.buildings[b]);
+                if (bd) totalSettlementIncome += bd->incomeBonus;
+            }
+        }
+    std::string incomeStr = std::to_string(collectingIncome ? totalSettlementIncome : 0); // it shows 0 if the bool is true. otherwise it shows the base income for the ui settlement
     TTF_SetTextString(gameStatUIText, incomeStr.c_str(), 0);
     TTF_SetTextColor(gameStatUIText, 180, 230, 100, 255);
     TTF_DrawRendererText(gameStatUIText, cursor, textY);
@@ -2374,11 +2381,17 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
     int incomeTotal = 0;
     int populationTotal = 0;
     int publicOrderTotal = 0;
-    for (auto* s : provinceSettlements) {
-        incomeTotal += s->settlementData.baseIncome;
-        populationTotal += s->settlementData.basePopulation;
-        publicOrderTotal = s->settlementData.publicOrder;
-    }
+        for (auto* s : provinceSettlements) {
+            incomeTotal += s->settlementData.baseIncome;
+            for (int b = 1; b < (int)s->settlementData.buildings.size(); b++) {
+                if (s->settlementData.buildings[b] != BuildingType::None) {
+                    const BuildingData* bd = GetBuildingData(s->settlementData.buildings[b]);
+                    if (bd) incomeTotal += bd->incomeBonus;
+                }
+            }
+            populationTotal += s->settlementData.basePopulation;
+            publicOrderTotal = s->settlementData.publicOrder;
+        }
     //set the color
     SDL_Color factionColor;
     if(province.owner == FactionZone::Knight) {
