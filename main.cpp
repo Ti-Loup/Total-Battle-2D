@@ -3028,7 +3028,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         }
 
         //TIER CHAIN POPUP (FOR THE MAIN SETTLEMENT BUILDING)
-    if (hoveredSlotIndex == 0 && bButtonUIBuildingIsPressed && hoveredCardIndex >= 0) {
+        if (hoveredSlotIndex == 0 && bButtonUIBuildingIsPressed && hoveredCardIndex >= 0 && categoryButtonsPopupRect.w <= 0 && categoryEvolutionPopupRect.w <= 0) {
         const Settlement* provinceSettl = provinceSettlements[hoveredCardIndex];
     int currentTier = provinceSettl->settlementData.settlementTier;
     int maxTier = 3;//for the villages
@@ -4592,7 +4592,10 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             app.hoveredCategoryBuildingType = BuildingType::None;
             app.categoryEvolutionPopupRect = {0,0,0,0};//reset the rect
         }
-
+        //suppress tier popup when category popups are active
+        if (onCategoryPopup || onEvolutionPopup) {
+            app.hoveredSlotIndex = -1;
+        }
         // Hover of the buttons categories ui
         if (!onEvolutionPopup) {
             app.hoveredBuildingCategoryIndex = -1;
