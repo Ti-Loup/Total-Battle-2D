@@ -3839,49 +3839,120 @@ void RenderCategoryBuildingInfoUI() {
         RenderBuildingInfoUI();
         RenderCategoryBuildingInfoUI();
         // Tooltip public order
-        if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
+if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
     const Settlement& sPO = settlements[hoveredPublicOrderSettlementIndex];
     int provID = sPO.settlementData.provinceID;
+    bool collecting = provinces[provID].bToggleCollectIncome;
+    int po = sPO.settlementData.publicOrder;
+
+    // Calcul du bonus bâtiments de la province
+    int provinceBuildingBonus = 0;
+    for (const auto& s : settlements) {
+        if (s.settlementData.provinceID != provID) continue;
+        for (auto bt : s.settlementData.buildings) {
+            if (bt == BuildingType::None) continue;
+            const BuildingData* bd = GetBuildingData(bt);
+            if (bd && bd->publicOrderBonus != 0)
+                provinceBuildingBonus += bd->publicOrderBonus;
+        }
+    }
+
+    int taxPenalty = collecting ? -4 : 0;
+    int totalDelta = taxPenalty + provinceBuildingBonus;
+    int nextPO     = std::clamp(po + totalDelta, -100, 100);
+
+    // Dimensions du tooltip
+    float tooltipW = 260.f;
+    float tooltipH = 36.f + 30.f + 12.f; // titre + current + séparateur
+    if (provinceBuildingBonus != 0) tooltipH += 24.f;
+    if (taxPenalty != 0)            tooltipH += 24.f;
+    tooltipH += 10.f; // padding bas
+
+    float tooltipX = publicOrderTooltipX + 12.f;
+    float tooltipY = publicOrderTooltipY - tooltipH - 8.f;
+    if (tooltipX + tooltipW > 1910.f) tooltipX = publicOrderTooltipX - tooltipW - 12.f;
+    if (tooltipY < 5.f)               tooltipY = 5.f;
+
+    float rightEdge = tooltipX + tooltipW - 12.f;
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_FRect infoPublicOrder = {publicOrderTooltipX + 10.f, publicOrderTooltipY - 120.f, 220.f, 110.f};
-    SDL_SetRenderDrawColor(renderer, 20, 20, 20, 220);
-    SDL_RenderFillRect(renderer, &infoPublicOrder);
-    SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
-    SDL_RenderRect(renderer, &infoPublicOrder);
 
-    float lineY = infoPublicOrder.y + 8.f;
+    // Font
+    SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+    SDL_FRect bg = {tooltipX, tooltipY, tooltipW, tooltipH};
+    SDL_RenderFillRect(renderer, &bg);
 
-    // Titre
-    TTF_SetTextString(gameStatUITitleText, "Public Order", 0);
-    TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
-    TTF_DrawRendererText(gameStatUITitleText, infoPublicOrder.x + 8.f, lineY);
+    // Title Bar
+    SDL_SetRenderDrawColor(renderer, 55, 45, 20, 255);
+    SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, 28.f};
+    SDL_RenderFillRect(renderer, &titleBar);
+
+    // Border
+    SDL_SetRenderDrawColor(renderer, 110, 90, 40, 255);
+    SDL_RenderRect(renderer, &bg);
+
+    // Title Public Order details
+    TTF_SetTextString(gameStatUITitleText, "Public Order Details", 0);
+    TTF_SetTextColor(gameStatUITitleText, 215, 190, 130, 255);
+    int titleW, titleH;
+    TTF_GetTextSize(gameStatUITitleText, &titleW, &titleH);
+    TTF_DrawRendererText(gameStatUITitleText,
+        tooltipX + (tooltipW - titleW) / 2.f,
+        tooltipY + (28.f - titleH) / 2.f);
+
+    float lineY = tooltipY + 36.f;
+
+    TTF_SetTextString(gameStatUIText, "Current", 0);
+    TTF_SetTextColor(gameStatUIText, 210, 210, 210, 255);
+    TTF_DrawRendererText(gameStatUIText, tooltipX + 10.f, lineY);
+    // current value (White)
+    std::string poStr = std::to_string(po);
+    TTF_SetTextString(gameStatUIText, poStr.c_str(), 0);
+    int poW, poH; TTF_GetTextSize(gameStatUIText, &poW, &poH);
+
+    // Delta red or green
+    std::string deltaStr = std::string(" (") + (totalDelta >= 0 ? "+" : "") + std::to_string(totalDelta) + ")";
+    TTF_SetTextString(gameStatUIText, deltaStr.c_str(), 0);
+    int dW, dH; TTF_GetTextSize(gameStatUIText, &dW, &dH);
+
+    float poX = rightEdge - poW - dW;
+    TTF_SetTextString(gameStatUIText, poStr.c_str(), 0);
+    TTF_SetTextColor(gameStatUIText, 255, 255, 255, 255);
+    TTF_DrawRendererText(gameStatUIText, poX, lineY);
+
+    TTF_SetTextString(gameStatUIText, deltaStr.c_str(), 0);
+    TTF_SetTextColor(gameStatUIText,
+        totalDelta >= 0 ? 80  : 220,
+        totalDelta >= 0 ? 200 : 60, 80, 255);
+    TTF_DrawRendererText(gameStatUIText, poX + poW, lineY);
     lineY += 28.f;
 
-    // actual value
-    int po = sPO.settlementData.publicOrder;
-    bool collecting = provinces[provID].bToggleCollectIncome;
+    // seperation
+    SDL_SetRenderDrawColor(renderer, 80, 65, 30, 200);
+    SDL_RenderLine(renderer,
+        tooltipX + 5.f, lineY,
+        tooltipX + tooltipW - 5.f, lineY);
+    lineY += 10.f;
 
-    TTF_SetTextString(gameStatUIText, ("Current: " + std::to_string(po)).c_str(), 0);
-    Uint8 poR2 = po > 0 ? 80 : (po < 0 ? 220 : 130);
-    Uint8 poG2 = po > 0 ? 200 : (po < 0 ? 50 : 130);
-    TTF_SetTextColor(gameStatUIText, poR2, poG2, 80, 255);
-    TTF_DrawRendererText(gameStatUIText, infoPublicOrder.x + 8.f, lineY);
-    lineY += 22.f;
+    // the lampda
+    auto drawModLine = [&](const char* label, int value) {
+        TTF_SetTextString(gameStatUIText, label, 0);
+        TTF_SetTextColor(gameStatUIText, 150, 145, 130, 255);
+        TTF_DrawRendererText(gameStatUIText, tooltipX + 22.f, lineY);
 
-    // Debuff taxe
-    std::string taxStr = collecting ? "Tax: -4 / turn" : "Tax: 0 (paused)";
-    TTF_SetTextString(gameStatUIText, taxStr.c_str(), 0);
-    TTF_SetTextColor(gameStatUIText, collecting ? 220 : 130, collecting ? 60 : 130, 80, 255);
-    TTF_DrawRendererText(gameStatUIText, infoPublicOrder.x + 8.f, lineY);
-    lineY += 22.f;
+        std::string valStr = (value > 0 ? "+" : "") + std::to_string(value);
+        TTF_SetTextString(gameStatUIText, valStr.c_str(), 0);
+        TTF_SetTextColor(gameStatUIText,
+            value > 0 ? 80  : (value < 0 ? 220 : 130),
+            value > 0 ? 200 : (value < 0 ? 60  : 130),
+            80, 255);
+        int vW, vH; TTF_GetTextSize(gameStatUIText, &vW, &vH);
+        TTF_DrawRendererText(gameStatUIText, rightEdge - vW, lineY);
+        lineY += 24.f;
+    };
 
-    // Next turn preview
-    int nextPO = po + (collecting ? -4 : 0);
-    nextPO = std::clamp(nextPO, -100, 100);
-    TTF_SetTextString(gameStatUIText, ("Next turn: " + std::to_string(nextPO)).c_str(), 0);
-    TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
-    TTF_DrawRendererText(gameStatUIText, infoPublicOrder.x + 8.f, lineY);
+    if (provinceBuildingBonus != 0) drawModLine("Buildings",        provinceBuildingBonus);
+    if (taxPenalty != 0)            drawModLine("Collected income",  taxPenalty);
 }
         //fps
         TTF_DrawRendererText(fpsText, 10, 10);
@@ -3994,87 +4065,82 @@ public:
     //fonction to end a turn
     void EndTurn() {
 
-        int goldEarned = 0;
-        for (auto &s: settlements) {
-            if (provinces[s.settlementData.provinceID].owner == player.faction && provinces[s.settlementData.provinceID].bToggleCollectIncome) {
-                goldEarned += s.settlementData.baseIncome;
-                s.settlementData.publicOrder -= 4; //Public order gets reduce by 4 when ToggleCollectIncome is true
-                if (s.settlementData.publicOrder < -100){
-                    s.settlementData.publicOrder = -100;
-                }
-                if (s.settlementData.publicOrder >  100) {
-                    s.settlementData.publicOrder =  100;
-                }
-            }
-
+    //Bonus public order per province all buildings
+    std::unordered_map<int, int> provincePublicOrderBonus; // provinceID → bonus total
+    for (const auto& s : settlements) {
+        int provID = s.settlementData.provinceID;
+        for (auto building_type : s.settlementData.buildings) {
+            if (building_type == BuildingType::None) continue;
+            const BuildingData* building_data = GetBuildingData(building_type);
+            if (building_data && building_data->publicOrderBonus != 0)
+                provincePublicOrderBonus[provID] += building_data->publicOrderBonus;
         }
-
-        //add the gold
-        player.AddGold(player.nextTurnGold);
-
-
-        for (auto& s : settlements) {
-            //to update the current constructions (evolutive buildings)
-            for (int b = 1; b < (int)s.settlementData.pendingBuildings.size(); b++) {
-                if (s.settlementData.pendingBuildings[b] != BuildingType::None) {
-                    s.settlementData.slotConstructionTimes[b]--;
-                    if (s.settlementData.slotConstructionTimes[b] <= 0) {
-                        s.settlementData.buildings[b] = s.settlementData.pendingBuildings[b];
-                        s.settlementData.pendingBuildings[b] = BuildingType::None;
-                        SDL_Log("Building finished in slot %d of %s", b, s.settlementData.cityName.c_str());
-                    }
-                }
-            }
-            //to update the current construction (MainBuilding)
-            if (s.settlementData.bBuidingUnderConstruction) {
-                s.settlementData.constructionTime--;
-                if (s.settlementData.constructionTime <= 0) {
-                    s.settlementData.settlementTier = s.settlementData.pendingTier;
-                    s.settlementData.bBuidingUnderConstruction = false;
-                    s.settlementData.pendingTier = 0;
-                    SDL_Log("Construction finished: %s is now tier %d",
-                        s.settlementData.cityName.c_str(), s.settlementData.settlementTier);
-                    FactionZone faction = provinces[s.settlementData.provinceID].owner;
-                    s.settlementData.buildings[0] = GetSettlementBuildingType(
-                        s.settlementData.type, faction, s.settlementData.settlementTier);
-                    const BuildingData* data = GetBuildingData(s.settlementData.buildings[0]);
-                    if (data) s.settlementData.baseIncome = data->incomeBonus;
-                }
-            }
-        }
-
-
-
-        // Order of who's playing first
-        std::vector<FactionZone> turnOrder = {
-            FactionZone::Knight,
-            FactionZone::Viking,
-            FactionZone::Samurai
-        };
-
-        //Always start new turn with the player
-        // Player = Viking -> order = Viking, Samurai, Knight
-        // Player = Samurai -> order = Samurai, Knight, Viking
-        // Player = Knight -> order = Knight, Viking, Samurai
-        int playerIndex = 0;
-        for (int i = 0; i < (int)turnOrder.size(); i++) {
-            if (turnOrder[i] == player.faction) {
-                playerIndex = i;
-                break;
-            }
-        }
-
-        // //play the turns of the AI
-        for (int i = 1; i < (int)turnOrder.size(); i++) {
-            FactionZone aiTurn = turnOrder[(playerIndex + i) % turnOrder.size()];
-            // IA placeholder
-            SDL_Log("AI turn: faction %d", (int)aiTurn);
-            //AIPlayTurn(aiTurn);
-        }
-
-        currentTurn++;
-        SDL_Log("Turn %d || your turn (%d)", currentTurn, (int)player.faction);
     }
+
+    // money and bonus public order inside a province
+    int goldEarned = 0;
+    for (auto& s : settlements) {
+        int provID = s.settlementData.provinceID;
+
+        // tax only for player. with toggleCollectIncome
+        if (provinces[provID].owner == player.faction && provinces[provID].bToggleCollectIncome) {
+            goldEarned += s.settlementData.baseIncome;
+            s.settlementData.publicOrder -= 4; //minus 4 if collected
+        }
+
+        // applied bonus to all province
+        s.settlementData.publicOrder += provincePublicOrderBonus[provID];
+        s.settlementData.publicOrder = std::clamp(s.settlementData.publicOrder, -100, 100);
+    }
+
+    // gold added
+    player.AddGold(player.nextTurnGold);
+
+    // building constructions
+    for (auto& s : settlements) {
+        for (int b = 1; b < (int)s.settlementData.pendingBuildings.size(); b++) {
+            if (s.settlementData.pendingBuildings[b] != BuildingType::None) {
+                s.settlementData.slotConstructionTimes[b]--;
+                if (s.settlementData.slotConstructionTimes[b] <= 0) {
+                    s.settlementData.buildings[b] = s.settlementData.pendingBuildings[b];
+                    s.settlementData.pendingBuildings[b] = BuildingType::None;
+                    SDL_Log("Building finished in slot %d of %s", b, s.settlementData.cityName.c_str());
+                }
+            }
+        }
+        // main building
+        if (s.settlementData.bBuidingUnderConstruction) {
+            s.settlementData.constructionTime--;
+            if (s.settlementData.constructionTime <= 0) {
+                s.settlementData.settlementTier = s.settlementData.pendingTier;
+                s.settlementData.bBuidingUnderConstruction = false;
+                s.settlementData.pendingTier = 0;
+                SDL_Log("Construction finished: %s is now tier %d",
+                    s.settlementData.cityName.c_str(), s.settlementData.settlementTier);
+                FactionZone faction = provinces[s.settlementData.provinceID].owner;
+                s.settlementData.buildings[0] = GetSettlementBuildingType(
+                    s.settlementData.type, faction, s.settlementData.settlementTier);
+                const BuildingData* data = GetBuildingData(s.settlementData.buildings[0]);
+                if (data) s.settlementData.baseIncome = data->incomeBonus;
+            }
+        }
+    }
+
+    // AI TURNS~!
+    std::vector<FactionZone> turnOrder = { FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai };
+    int playerIndex = 0;
+    for (int i = 0; i < (int)turnOrder.size(); i++) {
+        if (turnOrder[i] == player.faction) { playerIndex = i; break; }
+    }
+    for (int i = 1; i < (int)turnOrder.size(); i++) {
+        FactionZone aiTurn = turnOrder[(playerIndex + i) % turnOrder.size()];
+        SDL_Log("AI turn: faction %d", (int)aiTurn);
+        // AIPlayTurn(aiTurn);
+    }
+
+    currentTurn++;
+    SDL_Log("Turn %d || your turn (%d)", currentTurn, (int)player.faction);
+}
 
     SDL_AppResult RunCallBacks() {
         static uint64_t lastTime = SDL_GetTicks();
