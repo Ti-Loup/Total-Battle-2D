@@ -3416,6 +3416,12 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
             if (provinces[s.settlementData.provinceID].owner == player.faction && provinces[s.settlementData.provinceID].bToggleCollectIncome) {
                 //toggle bool is in Province.h
                     player.nextTurnGold += s.settlementData.baseIncome;
+                for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
+                    if (s.settlementData.buildings[b] != BuildingType::None) {
+                        const BuildingData* bd = GetBuildingData(s.settlementData.buildings[b]);
+                        if (bd) player.nextTurnGold += bd->incomeBonus;
+                    }
+                }
             }
         }
         //Gold Next turn + (green) - (red)
@@ -3863,7 +3869,7 @@ if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
 
     // Dimensions du tooltip
     float tooltipW = 260.f;
-    float tooltipH = 36.f + 30.f + 12.f; // titre + current + séparateur
+    float tooltipH = 36.f + 30.f + 12.f; // titre + current + separator
     if (provinceBuildingBonus != 0) tooltipH += 24.f;
     if (taxPenalty != 0)            tooltipH += 24.f;
     tooltipH += 10.f; // padding bas
