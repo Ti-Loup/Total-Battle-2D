@@ -3978,6 +3978,18 @@ if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
         SDL_RenderPresent(renderer);
     }
 
+    //Technology tree
+    void TechnologyTree(float deltaTime) {
+
+        UpdateBackgroundTint(deltaTime);
+        //Clear everything
+        SDL_SetRenderDrawColor(renderer, 0,0,0,255);
+        SDL_RenderClear(renderer);
+
+
+        SDL_RenderPresent(renderer);
+    }
+
     //Tutorial
     void Tutorial (float deltaTime) {
         UpdateBackgroundTint(deltaTime);
