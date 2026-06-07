@@ -43,9 +43,12 @@ ReinforceWalls_T5,
 Economy_T1,
 Economy_T2,
 Economy_T3,
-Growth_T1,
-Growth_T2,
-Growth_T3,
+PeasantryGrowth_T1,//peasants growth
+PeasantryGrowth_T2,
+PeasantryGrowth_T3,
+NobilityEstate_T1,//noble growth
+NobilityEstate_T2,
+NobilityEstate_T3,
 Church_T1,
 Church_T2,
 Church_T3,
@@ -208,9 +211,12 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::Economy_T1:
     case BuildingType::Economy_T2:
     case BuildingType::Economy_T3:
-    case BuildingType::Growth_T1:
-    case BuildingType::Growth_T2:
-    case BuildingType::Growth_T3:
+    case BuildingType::PeasantryGrowth_T1:
+    case BuildingType::PeasantryGrowth_T2:
+    case BuildingType::PeasantryGrowth_T3:
+    case BuildingType::NobilityEstate_T1:
+    case BuildingType::NobilityEstate_T2:
+    case BuildingType::NobilityEstate_T3:
     case BuildingType::SlaveMarket_T1:
     case BuildingType::SlaveMarket_T2:
     case BuildingType::SlaveMarket_T3:
@@ -310,10 +316,12 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::Economy_T1, {"Peasant Fields",    "Basic farmland.",         100,  0,  25,  0, 1, 2, BuildingType::Economy_T2});
     add(BuildingType::Economy_T2, {"Manor Fields",      "Established farmland.",   250,  5,  60,  0, 2, 3, BuildingType::Economy_T3});
     add(BuildingType::Economy_T3, {"Prosperous Estate", "Rich agricultural land.", 500, 10, 120,  0, 3, 4, BuildingType::None});
-    add(BuildingType::Growth_T1,  {"Village Market",    "Grows population.",        80,  0,  10,  2, 1, 2, BuildingType::Growth_T2});
-    add(BuildingType::Growth_T2,  {"Town Market",       "Grows population faster.", 200, 5,  20,  4, 2, 3, BuildingType::Growth_T3});
-    add(BuildingType::Growth_T3,  {"Grand Market",      "Major growth bonus.",      400, 10, 40,  6, 3, 4, BuildingType::None});
-
+    add(BuildingType::PeasantryGrowth_T1,  {"Village Market",    "Grows peasant population.", 80,  0,  10,  2, 1, 2, BuildingType::PeasantryGrowth_T2});
+    add(BuildingType::PeasantryGrowth_T2,  {"Town Market",       "Grows population faster.", 200, 5,  20,  4, 2, 3, BuildingType::PeasantryGrowth_T3});
+    add(BuildingType::PeasantryGrowth_T3,  {"Grand Market",      "Major growth bonus.",      400, 10, 40,  6, 3, 4, BuildingType::None});
+    add(BuildingType::NobilityEstate_T1,  {"Village Market",    "Grows population.",        80,  0,  10,  2, 1, 2, BuildingType::NobilityEstate_T2});
+    add(BuildingType::NobilityEstate_T2,  {"Town Market",       "Grows population faster.", 200, 5,  20,  4, 2, 3, BuildingType::NobilityEstate_T3});
+    add(BuildingType::NobilityEstate_T3,  {"Grand Market",      "Major growth bonus.",      400, 10, 40,  6, 3, 4, BuildingType::None});
     // ── KNIGHT MILITARY ──
     add(BuildingType::Barracks_T1,     {"Militia Grounds",  "Trains basic infantry.",   150, 10, 0, 0, 1, 2, BuildingType::Barracks_T2});
     add(BuildingType::Barracks_T2,     {"Training Grounds", "Trains medium infantry.",  300, 20, 0, 0, 2, 3, BuildingType::Barracks_T3});
@@ -396,7 +404,7 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::FortifiedCastle_T5, {"Impregnable Keep", "Unbreachable walls.",  1400, 45, 0, 12, 5, 6, BuildingType::None});
 
     // ── SAMURAI ECONOMY ──
-    add(BuildingType::Market_T1, {"Village Market", "Basic trade.",        100,  0,  25, 0, 1, 2, BuildingType::Market_T2});
+    add(BuildingType::Market_T1, {"Samurai Village Market", "Basic trade.",        100,  0,  25, 0, 1, 2, BuildingType::Market_T2});
     add(BuildingType::Market_T2, {"Town Market",    "Established trade.",  250,  5,  60, 0, 2, 3, BuildingType::Market_T3});
     add(BuildingType::Market_T3, {"Grand Market",   "Rich trade routes.",  500, 10, 120, 0, 3, 4, BuildingType::None});
 
@@ -452,11 +460,11 @@ inline std::vector<BuildingType> GetBuildingsForCategory(BuildingCategory catego
 
         case BuildingCategory::Economy:
             if (faction == FactionZone::Knight)
-                results = {BuildingType::Economy_T1, BuildingType::Growth_T1};
+                results = {BuildingType::Economy_T1, BuildingType::PeasantryGrowth_T1, BuildingType::NobilityEstate_T1};
             else if (faction == FactionZone::Viking)
-                results = {BuildingType::SlaveMarket_T1, BuildingType::Growth_T1};
+                results = {BuildingType::SlaveMarket_T1};
             else if (faction == FactionZone::Samurai)
-                results = {BuildingType::Market_T1, BuildingType::Growth_T1};
+                results = {BuildingType::Market_T1};
             break;
 
         case BuildingCategory::Religion:
