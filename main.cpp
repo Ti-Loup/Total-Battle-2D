@@ -3540,21 +3540,26 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         //calculate gold next turn
         player.nextTurnGold = 0;
         for (const auto& s: settlements) {
-            if (provinces[s.settlementData.provinceID].owner == player.faction && provinces[s.settlementData.provinceID].bToggleCollectIncome) {
-                //toggle bool is in Province.h
+            if (provinces[s.settlementData.provinceID].owner == player.faction) {
+                // Upkeep du main building toujours déduit (même sans collecte de taxe)
+                const BuildingData* mainBd = GetBuildingData(s.settlementData.buildings[0]);
+                if (mainBd) player.nextTurnGold -= mainBd->upkeep;
+
+                if (provinces[s.settlementData.provinceID].bToggleCollectIncome) {
                     player.nextTurnGold += s.settlementData.baseIncome;
-                for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
-                    if (s.settlementData.buildings[b] != BuildingType::None) {
-                        const BuildingData* bd = GetBuildingData(s.settlementData.buildings[b]);
-                        if (bd) player.nextTurnGold += bd->incomeBonus;
+                    for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
+                        if (s.settlementData.buildings[b] != BuildingType::None) {
+                            const BuildingData* bd = GetBuildingData(s.settlementData.buildings[b]);
+                            if (bd) player.nextTurnGold += bd->incomeBonus;
+                        }
                     }
                 }
             }
         }
         //Gold Next turn + (green) - (red)
-        std::string nextTurnStr = "(+" + std::to_string(player.nextTurnGold) + ")";
+        std::string nextTurnStr = "(" + (player.nextTurnGold >= 0 ? std::string("+") : std::string("")) + std::to_string(player.nextTurnGold) + ")";
         TTF_SetTextString(gameAnticipatedMoneyUiText, nextTurnStr.c_str(), 0);
-        TTF_SetTextColor(gameAnticipatedMoneyUiText, 127, 255, 0, 255);
+        TTF_SetTextColor(gameAnticipatedMoneyUiText, player.nextTurnGold >= 0 ? 127 : 220, player.nextTurnGold >= 0 ? 255 : 60, 0, 255);
         TTF_DrawRendererText(gameAnticipatedMoneyUiText,contentRect.x + 125.f, contentRect.y + 4.f);
 
 

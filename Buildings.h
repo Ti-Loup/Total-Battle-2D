@@ -296,14 +296,14 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::Settlement_Village_Knight_T2, {"Village", "The villagers has improved\nfarms and lands.", 250, 0, 25, 0, 2, 4, BuildingType::Settlement_Village_Knight_T3});
     add(BuildingType::Settlement_Village_Knight_T3, {"Large Village", "The farms are at their fullest\n potencial.", 1000, 0, 50, 0, 3, 6, BuildingType::None});
     add(BuildingType::Settlement_Castle_Knight_T1,  {"Small Fort", "A Wodden fort protecting\nthe nearby lands.", 900, 0, 0, 0, 1, 1, BuildingType::Settlement_Castle_Knight_T2});
-    add(BuildingType::Settlement_Castle_Knight_T2,  {"Fort", "Stone walls and trained guards\nsecure the Castle.", 1100, 50, 0, 1, 2, 8, BuildingType::Settlement_Castle_Knight_T3});
-    add(BuildingType::Settlement_Castle_Knight_T3,  {"Castle", "A strong castle housing nobles\nand military forces.", 2000, 120, 0, 1, 3, 10, BuildingType::Settlement_Castle_Knight_T4});
-    add(BuildingType::Settlement_Castle_Knight_T4,  {"Large Castle", "Massive walls and towers dominate\nthe surrounding region.", 3100, 190, 0, 2, 4, 11, BuildingType::Settlement_Castle_Knight_T5});
+    add(BuildingType::Settlement_Castle_Knight_T2,  {"Fort", "Stone walls and trained guards\nsecure the Castle.", 1100, 50, 0, 1, 2, 6, BuildingType::Settlement_Castle_Knight_T3});
+    add(BuildingType::Settlement_Castle_Knight_T3,  {"Castle", "A strong castle housing nobles\nand military forces.", 2000, 120, 0, 1, 3, 8, BuildingType::Settlement_Castle_Knight_T4});
+    add(BuildingType::Settlement_Castle_Knight_T4,  {"Large Castle", "Massive walls and towers dominate\nthe surrounding region.", 3100, 190, 0, 2, 4, 10, BuildingType::Settlement_Castle_Knight_T5});
     add(BuildingType::Settlement_Castle_Knight_T5,  {"Citadel",  "An impregnable stronghold and\nthe heart of military power.", 4000, 260, 0, 3, 5, 12, BuildingType::None});
     add(BuildingType::Settlement_Capital_Knight_T1, {"Small Town Capital", "A growing capital where merchants\nand nobles gather.", 1500, 0, 0,  0, 1, 0, BuildingType::Settlement_Capital_Knight_T2});
-    add(BuildingType::Settlement_Capital_Knight_T2, {"Town Capital", "Busting streets and markets\nexpand the local economy.", 3100, 65, 0,  1, 2, 8, BuildingType::Settlement_Capital_Knight_T3});
-    add(BuildingType::Settlement_Capital_Knight_T3, {"City Capital", "A wealthy city filled with trader,\ncraftsmen and influence.", 4000, 140, 0,  1, 3, 10, BuildingType::Settlement_Capital_Knight_T4});
-    add(BuildingType::Settlement_Capital_Knight_T4, {"Large Capital", "Great districts and stone roads\nshape the mighty capital.", 6900, 220, 0,  2, 4, 11, BuildingType::Settlement_Capital_Knight_T5});
+    add(BuildingType::Settlement_Capital_Knight_T2, {"Town Capital", "Busting streets and markets\nexpand the local economy.", 3100, 65, 0,  1, 2, 6, BuildingType::Settlement_Capital_Knight_T3});
+    add(BuildingType::Settlement_Capital_Knight_T3, {"City Capital", "A wealthy city filled with trader,\ncraftsmen and influence.", 4000, 140, 0,  1, 3, 8, BuildingType::Settlement_Capital_Knight_T4});
+    add(BuildingType::Settlement_Capital_Knight_T4, {"Large Capital", "Great districts and stone roads\nshape the mighty capital.", 6900, 220, 0,  2, 4, 10, BuildingType::Settlement_Capital_Knight_T5});
     add(BuildingType::Settlement_Capital_Knight_T5, {"Royal Capital", "The glorious center of the kingdom,\nruled by powerful lords and nobility. ", 8000, 300, 0, 3, 5, 12, BuildingType::None});
 
     // ── VIKING SETTLEMENTS ──
@@ -337,15 +337,15 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::Settlement_Capital_Samurai_T5, {"Shogun's Capital", "The glorious seat of the Shogun,\nruling the empire with honor.", 0, 0, 1100, 0, 5, 1, BuildingType::None});
 
     // ── KNIGHT ECONOMY ──
-    add(BuildingType::Economy_T1, {"Peasant Fields",    "Basic farmland.",         100,  0,  25,  0, 1, 2, BuildingType::Economy_T2});
-    add(BuildingType::Economy_T2, {"Manor Fields",      "Established farmland.",   250,  5,  60,  0, 2, 3, BuildingType::Economy_T3});
-    add(BuildingType::Economy_T3, {"Prosperous Estate", "Rich agricultural land.", 500, 10, 120,  0, 3, 4, BuildingType::None});
-    add(BuildingType::PeasantryGrowth_T1,  {"Village Market",    "Grows peasant population.", 80,  0,  10,  2, 1, 2, BuildingType::PeasantryGrowth_T2});
-    add(BuildingType::PeasantryGrowth_T2,  {"Town Market",       "Grows population faster.", 200, 5,  20,  4, 2, 3, BuildingType::PeasantryGrowth_T3});
-    add(BuildingType::PeasantryGrowth_T3,  {"Grand Market",      "Major growth bonus.",      400, 10, 40,  6, 3, 4, BuildingType::None});
-    add(BuildingType::NobilityEstate_T1,  {"Village Market",    "Grows population.",        80,  0,  10,  2, 1, 2, BuildingType::NobilityEstate_T2});
-    add(BuildingType::NobilityEstate_T2,  {"Town Market",       "Grows population faster.", 200, 5,  20,  4, 2, 3, BuildingType::NobilityEstate_T3});
-    add(BuildingType::NobilityEstate_T3,  {"Grand Market",      "Major growth bonus.",      400, 10, 40,  6, 3, 4, BuildingType::None});
+    add(BuildingType::Economy_T1, {"Small Farm shop",    "Basic farmland.",         100,  0,  25,  0, 1, 2, BuildingType::Economy_T2});
+    add(BuildingType::Economy_T2, {"Village market",      "Established farmland.",   250,  5,  60,  0, 2, 3, BuildingType::Economy_T3});
+    add(BuildingType::Economy_T3, {"Strong market", "Rich agricultural land.", 500, 10, 120,  0, 3, 4, BuildingType::None});
+    add(BuildingType::PeasantryGrowth_T1,  {"Small community farms",    "Grows peasant population.", 80,  0,  10,  2, 1, 2, BuildingType::PeasantryGrowth_T2});
+    add(BuildingType::PeasantryGrowth_T2,  {"Open field farms",       "Grows population faster.", 200, 5,  20,  4, 2, 3, BuildingType::PeasantryGrowth_T3});
+    add(BuildingType::PeasantryGrowth_T3,  {"Commons",      "Major peasantrygrowth bonus.",      400, 10, 40,  6, 3, 4, BuildingType::None});
+    add(BuildingType::NobilityEstate_T1,  {"Small private farm",    "Grows population.",        80,  0,  10,  2, 1, 2, BuildingType::NobilityEstate_T2});
+    add(BuildingType::NobilityEstate_T2,  {"Lord's Fields",       "Grows population faster.", 200, 5,  20,  4, 2, 3, BuildingType::NobilityEstate_T3});
+    add(BuildingType::NobilityEstate_T3,  {"Grand Manor Farm",      "Major growth bonus.",      400, 10, 40,  6, 3, 4, BuildingType::None});
     // ── KNIGHT MILITARY ──
     add(BuildingType::Barracks_T1,     {"Militia Grounds",  "Trains basic infantry.",   150, 10, 0, 0, 1, 2, BuildingType::Barracks_T2});
     add(BuildingType::Barracks_T2,     {"Training Grounds", "Trains medium infantry.",  300, 20, 0, 0, 2, 3, BuildingType::Barracks_T3});
