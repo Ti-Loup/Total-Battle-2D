@@ -85,6 +85,12 @@ ReinforcedDrakkar_T5,
 SlaveMarket_T1,
 SlaveMarket_T2,
 SlaveMarket_T3,
+PeasantryVikingGrowth_T1,
+PeasantryVikingGrowth_T2,
+PeasantryVikingGrowth_T3,
+NobilityVikingEstate_T1,
+NobilityVikingEstate_T2,
+NobilityVikingEstate_T3,
 Shrine_T1,
 Shrine_T2,
 Shrine_T3,
@@ -125,6 +131,12 @@ FortifiedCastle_T5,
 Market_T1,
 Market_T2,
 Market_T3,
+PeasantrySamuraiGrowth_T1,
+PeasantrySamuraiGrowth_T2,
+PeasantrySamuraiGrowth_T3,
+NobilitySamuraiEstate_T1,
+NobilitySamuraiEstate_T2,
+NobilitySamuraiEstate_T3,
 Hospital_T1,
 Hospital_T2,
 Hospital_T3,
@@ -220,9 +232,21 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::SlaveMarket_T1:
     case BuildingType::SlaveMarket_T2:
     case BuildingType::SlaveMarket_T3:
+    case BuildingType::PeasantryVikingGrowth_T1:
+    case BuildingType::PeasantryVikingGrowth_T2:
+    case BuildingType::PeasantryVikingGrowth_T3:
+    case BuildingType::NobilityVikingEstate_T1:
+    case BuildingType::NobilityVikingEstate_T2:
+    case BuildingType::NobilityVikingEstate_T3:
     case BuildingType::Market_T1:
     case BuildingType::Market_T2:
     case BuildingType::Market_T3:
+    case BuildingType::PeasantrySamuraiGrowth_T1:
+    case BuildingType::PeasantrySamuraiGrowth_T2:
+    case BuildingType::PeasantrySamuraiGrowth_T3:
+    case BuildingType::NobilitySamuraiEstate_T1:
+    case BuildingType::NobilitySamuraiEstate_T2:
+    case BuildingType::NobilitySamuraiEstate_T3:
         return BuildingCategory::Economy;
 
     case BuildingType::Church_T1:
@@ -268,19 +292,19 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     auto add = [&](BuildingType key, BuildingData data) { db[key] = data; };
 //{"Nom", "Desc", COST, upkeep, income, publicOrder, Tier, constructionTurns, upgradesTo}
     // ── KNIGHT SETTLEMENTS ──
-    add(BuildingType::Settlement_Village_Knight_T1, {"Hamlet",        "A small town where farmers\ngrowth their lands", 0, 0, 25,  0, 1, 1, BuildingType::Settlement_Village_Knight_T2});
-    add(BuildingType::Settlement_Village_Knight_T2, {"Village",       "The villagers has improved\nfarms and lands.", 500, 0, 50, 0, 2, 3, BuildingType::Settlement_Village_Knight_T3});
-    add(BuildingType::Settlement_Village_Knight_T3, {"Large Village", "The farms are at their fullest\n potencial.", 1000, 0, 100, 0, 3, 4, BuildingType::None});
-    add(BuildingType::Settlement_Castle_Knight_T1,  {"Small Fort",    "A Wodden fort protecting\nthe nearby lands.", 1000, 0, 100, 0, 1, 1, BuildingType::Settlement_Castle_Knight_T2});
-    add(BuildingType::Settlement_Castle_Knight_T2,  {"Fort",          "Stone walls and trained guards\nsecure the Castle.", 1500, 0, 150, 0, 2, 1, BuildingType::Settlement_Castle_Knight_T3});
-    add(BuildingType::Settlement_Castle_Knight_T3,  {"Castle",        "A strong castle housing nobles\nand military forces.", 2500, 0, 225, 0, 3, 1, BuildingType::Settlement_Castle_Knight_T4});
-    add(BuildingType::Settlement_Castle_Knight_T4,  {"Large Castle",  "Massive walls and towers dominate\nthe surrounding region.", 4000, 0, 300, 0, 4, 1, BuildingType::Settlement_Castle_Knight_T5});
-    add(BuildingType::Settlement_Castle_Knight_T5,  {"Citadel",       "An impregnable stronghold and\nthe heart of military power.", 8000, 0, 500, 0, 5, 1, BuildingType::None});
-    add(BuildingType::Settlement_Capital_Knight_T1, {"Small Town Capital",    "A growing capital where merchants\nand nobles gather.", 1500, 0, 150,  0, 1, 0, BuildingType::Settlement_Capital_Knight_T2});
-    add(BuildingType::Settlement_Capital_Knight_T2, {"Town Capital",          "Busting streets and markets\nexpand the local economy.", 2500, 0, 200,  0, 2, 3, BuildingType::Settlement_Capital_Knight_T3});
-    add(BuildingType::Settlement_Capital_Knight_T3, {"City Capital",          "A wealthy city filled with trader,\ncraftsmen and influence.", 4000, 0, 300,  0, 3, 5, BuildingType::Settlement_Capital_Knight_T4});
-    add(BuildingType::Settlement_Capital_Knight_T4, {"Large Capital",    "Great districts and stone roads\nshape the mighty capital.", 8000, 0, 400,  0, 4, 7, BuildingType::Settlement_Capital_Knight_T5});
-    add(BuildingType::Settlement_Capital_Knight_T5, {"Royal Capital", "The glorious center of the kingdom,\nruled by powerful lords and nobility. ", 10000, 0, 600, 0, 5, 10, BuildingType::None});
+    add(BuildingType::Settlement_Village_Knight_T1, {"Hamlet", "A small town where farmers\ngrowth their lands", 0, 0, 10,  0, 1, 1, BuildingType::Settlement_Village_Knight_T2});
+    add(BuildingType::Settlement_Village_Knight_T2, {"Village", "The villagers has improved\nfarms and lands.", 250, 0, 25, 0, 2, 4, BuildingType::Settlement_Village_Knight_T3});
+    add(BuildingType::Settlement_Village_Knight_T3, {"Large Village", "The farms are at their fullest\n potencial.", 1000, 0, 50, 0, 3, 6, BuildingType::None});
+    add(BuildingType::Settlement_Castle_Knight_T1,  {"Small Fort", "A Wodden fort protecting\nthe nearby lands.", 900, 0, 0, 0, 1, 1, BuildingType::Settlement_Castle_Knight_T2});
+    add(BuildingType::Settlement_Castle_Knight_T2,  {"Fort", "Stone walls and trained guards\nsecure the Castle.", 1100, 50, 0, 1, 2, 8, BuildingType::Settlement_Castle_Knight_T3});
+    add(BuildingType::Settlement_Castle_Knight_T3,  {"Castle", "A strong castle housing nobles\nand military forces.", 2000, 120, 0, 1, 3, 10, BuildingType::Settlement_Castle_Knight_T4});
+    add(BuildingType::Settlement_Castle_Knight_T4,  {"Large Castle", "Massive walls and towers dominate\nthe surrounding region.", 3100, 190, 0, 2, 4, 11, BuildingType::Settlement_Castle_Knight_T5});
+    add(BuildingType::Settlement_Castle_Knight_T5,  {"Citadel",  "An impregnable stronghold and\nthe heart of military power.", 4000, 260, 0, 3, 5, 12, BuildingType::None});
+    add(BuildingType::Settlement_Capital_Knight_T1, {"Small Town Capital", "A growing capital where merchants\nand nobles gather.", 1500, 0, 0,  0, 1, 0, BuildingType::Settlement_Capital_Knight_T2});
+    add(BuildingType::Settlement_Capital_Knight_T2, {"Town Capital", "Busting streets and markets\nexpand the local economy.", 3100, 65, 0,  1, 2, 8, BuildingType::Settlement_Capital_Knight_T3});
+    add(BuildingType::Settlement_Capital_Knight_T3, {"City Capital", "A wealthy city filled with trader,\ncraftsmen and influence.", 4000, 140, 0,  1, 3, 10, BuildingType::Settlement_Capital_Knight_T4});
+    add(BuildingType::Settlement_Capital_Knight_T4, {"Large Capital", "Great districts and stone roads\nshape the mighty capital.", 6900, 220, 0,  2, 4, 11, BuildingType::Settlement_Capital_Knight_T5});
+    add(BuildingType::Settlement_Capital_Knight_T5, {"Royal Capital", "The glorious center of the kingdom,\nruled by powerful lords and nobility. ", 8000, 300, 0, 3, 5, 12, BuildingType::None});
 
     // ── VIKING SETTLEMENTS ──
     add(BuildingType::Settlement_Village_Viking_T1, {"Small Settlement", "A small farm built by\nhardworking northern clans.", 0, 0, 25,  0, 1, 1, BuildingType::Settlement_Village_Viking_T2});
@@ -372,7 +396,12 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::SlaveMarket_T1, {"Slave Market",       "Income from raids.",    100,  0,  30, -2, 1, 2, BuildingType::SlaveMarket_T2});
     add(BuildingType::SlaveMarket_T2, {"Slave Port",         "More raid income.",     250,  5,  65, -3, 2, 3, BuildingType::SlaveMarket_T3});
     add(BuildingType::SlaveMarket_T3, {"Grand Slave Market", "Major raid income.",    500, 10, 130, -5, 3, 4, BuildingType::None});
-
+    add(BuildingType::PeasantryVikingGrowth_T1,  {"Viking Village Market",    "Grows peasant population.", 80,  0,  10,  2, 1, 2, BuildingType::PeasantryVikingGrowth_T2});
+    add(BuildingType::PeasantryVikingGrowth_T2,  {"Town Market",       "Grows population faster.", 200, 5,  20,  4, 2, 3, BuildingType::PeasantryVikingGrowth_T3});
+    add(BuildingType::PeasantryVikingGrowth_T3,  {"Grand Market",      "Major growth bonus.",      400, 10, 40,  6, 3, 4, BuildingType::None});
+    add(BuildingType::NobilityVikingEstate_T1,  {"Viking Village Market",    "Grows population.",        80,  0,  10,  2, 1, 2, BuildingType::NobilityVikingEstate_T2});
+    add(BuildingType::NobilityVikingEstate_T2,  {"Town Market",       "Grows population faster.", 200, 5,  20,  4, 2, 3, BuildingType::NobilityVikingEstate_T3});
+    add(BuildingType::NobilityVikingEstate_T3,  {"Grand Market",      "Major growth bonus.",      400, 10, 40,  6, 3, 4, BuildingType::None});
     // ── VIKING RELIGION ──
     add(BuildingType::Shrine_T1,          {"Shrine",          "Pleases the gods.",        100,  5, 0,  5, 1, 2, BuildingType::Shrine_T2});
     add(BuildingType::Shrine_T2,          {"Temple",          "Greater divine favor.",    250, 10, 0, 10, 2, 3, BuildingType::Shrine_T3});
@@ -407,7 +436,12 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::Market_T1, {"Samurai Village Market", "Basic trade.",        100,  0,  25, 0, 1, 2, BuildingType::Market_T2});
     add(BuildingType::Market_T2, {"Town Market",    "Established trade.",  250,  5,  60, 0, 2, 3, BuildingType::Market_T3});
     add(BuildingType::Market_T3, {"Grand Market",   "Rich trade routes.",  500, 10, 120, 0, 3, 4, BuildingType::None});
-
+    add(BuildingType::PeasantrySamuraiGrowth_T1,  {"samurai Village Market",    "Grows peasant population.", 80,  0,  10,  2, 1, 2, BuildingType::PeasantrySamuraiGrowth_T2});
+    add(BuildingType::PeasantrySamuraiGrowth_T2,  {"Town Market",       "Grows population faster.", 200, 5,  20,  4, 2, 3, BuildingType::PeasantrySamuraiGrowth_T3});
+    add(BuildingType::PeasantrySamuraiGrowth_T3,  {"Grand Market",      "Major growth bonus.",      400, 10, 40,  6, 3, 4, BuildingType::None});
+    add(BuildingType::NobilitySamuraiEstate_T1,  {"Samurai Village Market",    "Grows population.",        80,  0,  10,  2, 1, 2, BuildingType::NobilitySamuraiEstate_T2});
+    add(BuildingType::NobilitySamuraiEstate_T2,  {"Town Market",       "Grows population faster.", 200, 5,  20,  4, 2, 3, BuildingType::NobilitySamuraiEstate_T3});
+    add(BuildingType::NobilitySamuraiEstate_T3,  {"Grand Market",      "Major growth bonus.",      400, 10, 40,  6, 3, 4, BuildingType::None});
     // ── SAMURAI RELIGION ──
     add(BuildingType::Hospital_T1, {"Field Hospital", "Heals troops.",       100,  5, 0,  5, 1, 2, BuildingType::Hospital_T2});
     add(BuildingType::Hospital_T2, {"Hospital",       "Better healing.",     250, 10, 0, 10, 2, 3, BuildingType::Hospital_T3});
@@ -462,9 +496,9 @@ inline std::vector<BuildingType> GetBuildingsForCategory(BuildingCategory catego
             if (faction == FactionZone::Knight)
                 results = {BuildingType::Economy_T1, BuildingType::PeasantryGrowth_T1, BuildingType::NobilityEstate_T1};
             else if (faction == FactionZone::Viking)
-                results = {BuildingType::SlaveMarket_T1};
+                results = {BuildingType::SlaveMarket_T1, BuildingType::PeasantryVikingGrowth_T1, BuildingType::NobilityVikingEstate_T1};
             else if (faction == FactionZone::Samurai)
-                results = {BuildingType::Market_T1};
+                results = {BuildingType::Market_T1, BuildingType::PeasantrySamuraiGrowth_T1, BuildingType::NobilitySamuraiEstate_T1};
             break;
 
         case BuildingCategory::Religion:
