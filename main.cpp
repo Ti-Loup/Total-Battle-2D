@@ -265,6 +265,9 @@ public:
     SDL_Texture *gameBuildingTypesGroupingDefenceSamurai= nullptr;
     SDL_Texture *gameBuildingTypesGroupingEconomySamurai = nullptr;
     SDL_Texture *gameBuildingTypesGroupingReligionSamurai = nullptr;
+    //food icon Texture
+    SDL_Texture *gameFoodIconUi = nullptr;
+
     //UI TextFont
     TTF_Font *gameStatUITitleFont = nullptr;
 
@@ -802,6 +805,14 @@ private://constructor
             SDL_LogWarn(0,"failed to load texture gameTurnAmountTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameTurnAmountTexture, SDL_SCALEMODE_NEAREST);
+
+        //Texture Food UI
+        gameFoodIconUi = IMG_LoadTexture(renderer, "assets/FoodIcon.png");
+        if (gameTurnAmountTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameFoodIconUi", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameFoodIconUi, SDL_SCALEMODE_NEAREST);
+
         //Texture toggle tax settlements
         gameToggleTaxSettlementTrue = IMG_LoadTexture(renderer, "assets/toggleTaxSettlementTrue.png");
         if (gameToggleTaxSettlementTrue == nullptr) {
@@ -2086,6 +2097,7 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         SDL_DestroyTexture(gamePublicOrderPositifTexture);
         SDL_DestroyTexture(gamePublicOrderNegatifTexture);
         SDL_DestroyTexture(gamePublicOrderNeutralTexture);
+        SDL_DestroyTexture(gameFoodIconUi);
     // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
@@ -3584,9 +3596,10 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
 
         }
         //Food texture
-        SDL_FRect foodIconUIRect = {contentRect.x + 230.f, contentRect.y + 4.f, 20.f,20.f};
-        SDL_SetRenderDrawColor(renderer, 120,255,255,255);
-        SDL_RenderFillRect(renderer, &foodIconUIRect);
+        SDL_FRect foodIconUIRect = {contentRect.x + 230.f, contentRect.y, 30.f,30.f};
+        // SDL_SetRenderDrawColor(renderer, 120,255,255,255);
+        // SDL_RenderFillRect(renderer, &foodIconUIRect);
+        SDL_RenderTexture(renderer, gameFoodIconUi, nullptr, &foodIconUIRect);
         //food amount
         std::string foodAmountStr = std::to_string(player.currentFood);
         TTF_SetTextString(gameCurrentFoodUiText, foodAmountStr.c_str(), 0);
