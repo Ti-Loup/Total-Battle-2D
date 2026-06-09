@@ -136,6 +136,7 @@ public:
     TTF_Font *gameGeneralFont = nullptr;
     TTF_Text *gameCurrentMoneyUiText = nullptr;
     TTF_Text *gameAnticipatedMoneyUiText = nullptr;
+    TTF_Text *gameCurrentFoodUiText = nullptr;
     TTF_Text *gameNumberOfTurnText = nullptr;
     TTF_Font *gameBuildingCostUIFont = nullptr;
     TTF_Text *gameBuildingCostUIText = nullptr;
@@ -619,6 +620,11 @@ private://constructor
         gameAnticipatedMoneyUiText = TTF_CreateText(textEngine, gameGeneralFont, "(0)", 25);
         if (gameAnticipatedMoneyUiText == nullptr) {
             SDL_LogWarn(0,"failed to create the text gameAnticipatedMoneyUiText", SDL_GetError());
+        }
+        //same font has AnticipatedMoneyUiText
+        gameCurrentFoodUiText = TTF_CreateText(textEngine, gameGeneralFont, "", 25);
+        if (gameCurrentFoodUiText == nullptr) {
+            SDL_LogWarn(0, "failed to create the text for gameAnticipatedFoodUiText", SDL_GetError());
         }
         gameNumberOfTurnText = TTF_CreateText(textEngine, gameGeneralFont, "0", 25);
         if (gameNumberOfTurnText == nullptr) {
@@ -1997,6 +2003,7 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         TTF_DestroyText(gameStatUIText);
         TTF_DestroyText(gameCurrentMoneyUiText);
         TTF_DestroyText(gameAnticipatedMoneyUiText);
+        TTF_DestroyText(gameCurrentFoodUiText);
         TTF_DestroyText(gameNumberOfTurnText);
         TTF_DestroyText(gameBuildingCostUIText);
         TTF_DestroyText(gameBuildingConstructionTimeText);
@@ -3562,6 +3569,62 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         TTF_SetTextColor(gameAnticipatedMoneyUiText, player.nextTurnGold >= 0 ? 127 : 220, player.nextTurnGold >= 0 ? 255 : 60, 0, 255);
         TTF_DrawRendererText(gameAnticipatedMoneyUiText,contentRect.x + 125.f, contentRect.y + 4.f);
 
+        //FOOD SECTION
+        player.nextTurnFood = 0;
+        for (const auto &s : settlements) {
+            if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
+
+            for (BuildingType building_type : s.settlementData.buildings) {
+                if (building_type == BuildingType::None) continue;
+                const BuildingData *building_data = GetBuildingData(building_type);
+                if (!building_data)continue;
+                player.nextTurnFood += building_data->foodProduced;
+                player.nextTurnFood -= building_data->foodUpkeep;
+            }
+
+        }
+        //Food texture
+        SDL_FRect foodIconUIRect = {contentRect.x + 230.f, contentRect.y + 4.f, 20.f,20.f};
+        SDL_SetRenderDrawColor(renderer, 120,255,255,255);
+        SDL_RenderFillRect(renderer, &foodIconUIRect);
+        //food amount
+        std::string foodAmountStr = std::to_string(player.currentFood);
+        TTF_SetTextString(gameCurrentFoodUiText, foodAmountStr.c_str(), 0);
+        TTF_SetTextColor(gameCurrentFoodUiText, 255,255,255,255);
+        TTF_DrawRendererText(gameCurrentFoodUiText, contentRect.x + 256.f, contentRect.y + 4.f);
+
+        //Segment bar
+        //food
+        const int foodRange = 500;
+        const float ratio      = (float)(std::clamp(player.currentFood, -foodRange, foodRange) + foodRange) / (float)(2 * foodRange);  // 0.0 → 1.0
+        int filledSegs = std::clamp((int)(ratio * 6.f + 0.5f), 0, 6);
+        SDL_Color segColors[6] = {
+            {190,  30,  30, 255},   // deep red
+            {210,  80,  30, 255},   // orange-red
+            {220, 160,  30, 255},   // orange-yellow
+            {160, 210,  30, 255},   // yellow-green
+            { 80, 200,  50, 255},   // green
+            { 30, 170,  30, 255},   // deep green
+        };
+        const float segW   = 20.f;
+        const float segH   = 14.f;
+        const float segGap =  1.f;
+        const float barX   = contentRect.x + 280.f;
+        const float barY   = borderRect.y  +  13.f;
+
+        for (int seg = 0; seg < 6; seg++) {
+            SDL_FRect segRect = {barX + seg * (segW + segGap), barY, segW, segH};
+
+            if (seg < filledSegs)
+                SDL_SetRenderDrawColor(renderer, segColors[seg].r, segColors[seg].g, segColors[seg].b, 255);
+            else
+                SDL_SetRenderDrawColor(renderer, 25, 25, 25, 255);
+
+            SDL_RenderFillRect(renderer, &segRect);
+            SDL_SetRenderDrawColor(renderer, 70, 70, 70, 200);
+            SDL_RenderRect(renderer, &segRect);
+        }
+
 
         //circle  button for the NextTurn Button
         SDL_SetRenderDrawColor(renderer, 0,80,255,0);
@@ -3571,7 +3634,6 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         TTF_SetTextString(gameNumberOfTurnText, endTurn.c_str(), 0);
         TTF_SetTextColor(gameNumberOfTurnText, 255, 255, 255, 255);
         TTF_DrawRendererText(gameNumberOfTurnText, NextTurnButton.circleX+45.f, NextTurnButton.circleY+35.f);
-
     }
 
         //for the information about a specific Building when mouse on it
@@ -4245,6 +4307,9 @@ public:
 
     // gold added
     player.AddGold(player.nextTurnGold);
+    //food added
+    player.currentFood += player.nextTurnFood;
+        SDL_Log("Food: %d (%+d next turn)", player.currentFood, player.nextTurnFood);
 
     // building constructions
     for (auto& s : settlements) {

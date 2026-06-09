@@ -12,7 +12,9 @@ class Player : public Entity {
 public :
     int currentGold = 2500;
     int nextTurnGold = 0;//next turn money
-
+    //food
+    int currentFood = 0;
+    int nextTurnFood = 0;
     FactionZone faction = FactionZone::Knight;
 
     int GetUpgradeCost(int fromBuildingTier, BuildingType type);
