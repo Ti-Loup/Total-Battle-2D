@@ -152,7 +152,12 @@ public:
     SDL_FRect provinceButtonUIGarrison = {firstButton + 50.f,1030.f,40.f,40.f};
     SDL_Texture *provinceTextureUIBuilding = nullptr;
     SDL_Texture *provinceTextureUIGarrison = nullptr;
+    //Circle next turn button
     Circle NextTurnButton = {1825.f, 1000.f, 55};
+    //Circle for technologies
+    Circle TechnologyPannel = {1725.f, 900.f, 35};
+    //Circle to return to game when in technology section
+    Circle TechnologyReturnGame = {900.f, 1000.f, 35};
 
     //End Turn
     int currentTurn = 1;
@@ -3642,6 +3647,10 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         //circle  button for the NextTurn Button
         SDL_SetRenderDrawColor(renderer, 0,80,255,0);
         RenderBoutonCercle(NextTurnButton, nullptr, gameNextTurnTexture,180, 180, 180);
+
+        //Circle for the Technology Button
+        SDL_SetRenderDrawColor(renderer, 0, 144,144,255);
+        RenderBoutonCercle(TechnologyPannel, nullptr, nullptr, 180, 180, 180);
         //text to show the current Turn
         std::string endTurn = std::to_string(currentTurn);
         TTF_SetTextString(gameNumberOfTurnText, endTurn.c_str(), 0);
@@ -4180,6 +4189,11 @@ if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
         SDL_SetRenderDrawColor(renderer, 0,0,0,255);
         SDL_RenderClear(renderer);
 
+        //Render Return Button
+        SDL_SetRenderDrawColor(renderer, 255,255,255,255);
+        RenderBoutonCercle(TechnologyReturnGame,nullptr, nullptr, 255,255,255);
+
+
 
         SDL_RenderPresent(renderer);
     }
@@ -4401,6 +4415,9 @@ public:
             case State::Credits:
                 Credits(deltaTime);
                 break;
+            case State::Technology:
+                TechnologyTree(deltaTime);
+                break;
             case State::Quit:
                 return SDL_APP_SUCCESS;
         }
@@ -4472,6 +4489,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             if (app.ClickInsideCircle(nouveauX, nouveauY, app.BoutonReturn)) {
                 app.StateActuel = State::Menu;
             }
+
         }
         //IF IN GAME
         //When pressded it shows the position of 1 tile
@@ -4710,13 +4728,28 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
 }
 
-
+//When End turn button is pressed it call the EnTurn fonction
     if (app.ClickInsideCircle(nouveauX,nouveauY, app.NextTurnButton)) {
         app.EndTurn();
         return SDL_APP_CONTINUE;
     }
+    //When button Technology is pressed it goes to the Technology State
+    if (app.ClickInsideCircle(nouveauX, nouveauY, app.TechnologyPannel)) {
+        app.StateActuel = State::Technology;
+        return SDL_APP_CONTINUE;
+    }
 
 }
+        //TECHNOLOGYTREE SECTION
+        if (app.StateActuel == State::Technology) {
+            if (app.ClickInsideCircle(nouveauX, nouveauY, app.TechnologyReturnGame)) {
+                app.StateActuel = State::Game;
+                return SDL_APP_CONTINUE;
+            }
+        }
+
+
+
         //TUTORIAL
         if (app.StateActuel == State::Tutorial) {
             if (app.ClickInsideCircle(nouveauX, nouveauY, app.BoutonReturn)) {
