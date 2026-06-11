@@ -3637,7 +3637,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
 
         //food added because it is the production it increase only based on building not each turns with endturns
         player.currentFood = player.nextTurnFood;
-        SDL_Log("Food: %d ", player.currentFood, player.nextTurnFood);
+        //SDL_Log("Food: %d ", player.currentFood, player.nextTurnFood);
 
         //Segment bar
         //food
