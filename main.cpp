@@ -396,6 +396,12 @@ public:
     bool hoveredBuildingSlotUpgradable = false;
     BuildingType upgradableSlotRootBuilding = BuildingType::None;
 
+    //Food Mouse Hovered New UI
+    bool bMouseOnFoodIcon = false;
+    float foodTooltipX = 0.0f;
+    float foodTooltipY = 0.0f;
+
+
 
     //toggle tax province
     //bool bToggleCollectIncome = true; is global and for each settlement i need to use Province.h
@@ -3614,6 +3620,23 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         TTF_SetTextColor(gameCurrentFoodUiText, 255,255,255,255);
         TTF_DrawRendererText(gameCurrentFoodUiText, contentRect.x + 256.f, contentRect.y + 4.f);
 
+        //hovered food Zone
+        SDL_FRect foodHoveredZone = {contentRect.x + 228.f, borderRect.y, 110.f, 40.f};
+        float mouseXFood;
+        float mouseYFood;
+        SDL_GetMouseState(&mouseXFood, &mouseYFood);
+        float lenghtXFood;
+        float lenghtYFood;
+        SDL_RenderCoordinatesFromWindow(renderer, mouseXFood, mouseYFood, &lenghtXFood, &lenghtYFood);
+        SDL_FPoint mousePointFood = {lenghtXFood,lenghtYFood};
+        //true if
+        bMouseOnFoodIcon = SDL_PointInRectFloat(&mousePointFood, &foodHoveredZone);
+        foodTooltipX = lenghtXFood;
+        foodTooltipY = lenghtYFood;
+
+
+
+
         //Segment bar
         //food
         int filledSegs;
@@ -3694,6 +3717,15 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         TTF_SetTextColor(gameNumberOfTurnText, 255, 255, 255, 255);
         TTF_DrawRendererText(gameNumberOfTurnText, NextTurnButton.circleX+45.f, NextTurnButton.circleY+35.f);
     }
+    //FOOD HOVERED UI
+    void RenderFoodTooltip() {
+    if (!bMouseOnFoodIcon) return;
+
+
+    //Food hoved Rectangle
+        
+
+}
 
         //for the information about a specific Building when mouse on it
    void RenderBuildingInfoUI() {
@@ -4095,6 +4127,7 @@ void RenderCategoryBuildingInfoUI() {
         //Render the UI of provinces
         RenderProvinceUI();
         RenderGeneralUI();
+        RenderFoodTooltip();
         RenderBuildingInfoUI();
         RenderCategoryBuildingInfoUI();
         // Tooltip public order

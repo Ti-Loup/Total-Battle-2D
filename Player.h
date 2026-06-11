@@ -15,6 +15,9 @@ public :
     //food
     int currentFood = 0;
     int nextTurnFood = 0;
+    //Food Storage
+    int foodStorage = 0;// 50 base storage per Capital Main settlement and 25 for Castle Main settlement.
+
     FactionZone faction = FactionZone::Knight;
 
     int GetUpgradeCost(int fromBuildingTier, BuildingType type);
