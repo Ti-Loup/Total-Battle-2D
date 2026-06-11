@@ -3635,7 +3635,9 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         foodTooltipY = lenghtYFood;
 
 
-
+        //food added because it is the production it increase only based on building not each turns with endturns
+        player.currentFood = player.nextTurnFood;
+        SDL_Log("Food: %d ", player.currentFood, player.nextTurnFood);
 
         //Segment bar
         //food
@@ -3723,7 +3725,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
 
 
     //Food hoved Rectangle
-        
+
 
 }
 
@@ -4404,9 +4406,9 @@ public:
 
     // gold added
     player.AddGold(player.nextTurnGold);
-    //food added
-    player.currentFood += player.nextTurnFood;
-        SDL_Log("Food: %d (%+d next turn)", player.currentFood, player.nextTurnFood);
+    // //food added
+    // player.currentFood = player.nextTurnFood;
+    //     SDL_Log("Food: %d ", player.currentFood, player.nextTurnFood);
 
     // building constructions
     for (auto& s : settlements) {
