@@ -1,6 +1,7 @@
 //
 // Created by Louis-Philippe on 4/24/2026.
 //
+
 #pragma once
 #ifndef TOTALWAR2D_BUILDINGS_H
 #define TOTALWAR2D_BUILDINGS_H
@@ -49,6 +50,9 @@ PeasantryGrowth_T3,
 NobilityEstate_T1,//noble growth
 NobilityEstate_T2,
 NobilityEstate_T3,
+KnightWareHouse_T1,
+KnightWareHouse_T2,
+KnightWareHouse_T3,
 Church_T1,
 Church_T2,
 Church_T3,
@@ -91,6 +95,9 @@ PeasantryVikingGrowth_T3,
 NobilityVikingEstate_T1,
 NobilityVikingEstate_T2,
 NobilityVikingEstate_T3,
+VikingWareHouse_T1,
+VikingWareHouse_T2,
+VikingWareHouse_T3,
 Shrine_T1,
 Shrine_T2,
 Shrine_T3,
@@ -137,6 +144,9 @@ PeasantrySamuraiGrowth_T3,
 NobilitySamuraiEstate_T1,
 NobilitySamuraiEstate_T2,
 NobilitySamuraiEstate_T3,
+SamuraiWareHouse_T1,
+SamuraiWareHouse_T2,
+SamuraiWareHouse_T3,
 Hospital_T1,
 Hospital_T2,
 Hospital_T3,
@@ -229,6 +239,9 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::NobilityEstate_T1:
     case BuildingType::NobilityEstate_T2:
     case BuildingType::NobilityEstate_T3:
+    case BuildingType::KnightWareHouse_T1:
+    case BuildingType::KnightWareHouse_T2:
+    case BuildingType::KnightWareHouse_T3:
     case BuildingType::SlaveMarket_T1:
     case BuildingType::SlaveMarket_T2:
     case BuildingType::SlaveMarket_T3:
@@ -238,6 +251,9 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::NobilityVikingEstate_T1:
     case BuildingType::NobilityVikingEstate_T2:
     case BuildingType::NobilityVikingEstate_T3:
+    case BuildingType::VikingWareHouse_T1:
+    case BuildingType::VikingWareHouse_T2:
+    case BuildingType::VikingWareHouse_T3:
     case BuildingType::Market_T1:
     case BuildingType::Market_T2:
     case BuildingType::Market_T3:
@@ -247,6 +263,9 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::NobilitySamuraiEstate_T1:
     case BuildingType::NobilitySamuraiEstate_T2:
     case BuildingType::NobilitySamuraiEstate_T3:
+    case BuildingType::SamuraiWareHouse_T1:
+    case BuildingType::SamuraiWareHouse_T2:
+    case BuildingType::SamuraiWareHouse_T3:
         return BuildingCategory::Economy;
 
     case BuildingType::Church_T1:
@@ -282,6 +301,7 @@ struct BuildingData {
     int constructionTurns;
     int foodUpkeep;
     int foodProduced;
+    int foodStorage;
     BuildingType upgradesTo;
 };
 
@@ -291,165 +311,174 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
 
     // Helper lambda to insert cleanly
     auto add = [&](BuildingType key, BuildingData data) { db[key] = data; };
-//{"Nom", "Desc", COST, upkeep, income, publicOrder, Tier, constructionTurns, Food Upkeep, Food Produced,upgradesTo}
+//{"Nom", "Desc", COST, upkeep, income, publicOrder, Tier, constructionTurns, Food Upkeep, Food Produced, foodStorage, upgradesTo}
     // ── KNIGHT SETTLEMENTS ──
-    add(BuildingType::Settlement_Village_Knight_T1, {"Hamlet", "A small town where farmers\ngrowth their lands", 0, 0, 10,  0, 1, 1, 0, 5, BuildingType::Settlement_Village_Knight_T2});
-    add(BuildingType::Settlement_Village_Knight_T2, {"Village", "The villagers has improved\nfarms and lands.", 250, 0, 25, 0, 2, 4, 0, 10, BuildingType::Settlement_Village_Knight_T3});
-    add(BuildingType::Settlement_Village_Knight_T3, {"Large Village", "The farms are at their fullest\n potencial.", 1000, 0, 50, 0, 3, 6, 0, 15, BuildingType::None});
-    add(BuildingType::Settlement_Castle_Knight_T1,  {"Small Fort", "A Wodden fort protecting\nthe nearby lands.", 900, 0, 0, 0, 1, 1, 5, 0, BuildingType::Settlement_Castle_Knight_T2});
-    add(BuildingType::Settlement_Castle_Knight_T2,  {"Fort", "Stone walls and trained guards\nsecure the Castle.", 1100, 50, 0, 1, 2, 6, 10, 0, BuildingType::Settlement_Castle_Knight_T3});
-    add(BuildingType::Settlement_Castle_Knight_T3,  {"Castle", "A strong castle housing nobles\nand military forces.", 2000, 120, 0, 1, 3, 8, 15, 0, BuildingType::Settlement_Castle_Knight_T4});
-    add(BuildingType::Settlement_Castle_Knight_T4,  {"Large Castle", "Massive walls and towers dominate\nthe surrounding region.", 3100, 190, 0, 2, 4, 10, 20, 0, BuildingType::Settlement_Castle_Knight_T5});
-    add(BuildingType::Settlement_Castle_Knight_T5,  {"Citadel",  "An impregnable stronghold and\nthe heart of military power.", 4000, 260, 0, 3, 5, 12, 25, 0, BuildingType::None});
-    add(BuildingType::Settlement_Capital_Knight_T1, {"Small Town Capital", "A growing capital where merchants\nand nobles gather.", 1500, 0, 0,  0, 1, 0, 5, 0, BuildingType::Settlement_Capital_Knight_T2});
-    add(BuildingType::Settlement_Capital_Knight_T2, {"Town Capital", "Busting streets and markets\nexpand the local economy.", 3100, 65, 0,  1, 2, 6, 10, 0, BuildingType::Settlement_Capital_Knight_T3});
-    add(BuildingType::Settlement_Capital_Knight_T3, {"City Capital", "A wealthy city filled with trader,\ncraftsmen and influence.", 4000, 140, 0,  1, 3, 8, 15, 0, BuildingType::Settlement_Capital_Knight_T4});
-    add(BuildingType::Settlement_Capital_Knight_T4, {"Large Capital", "Great districts and stone roads\nshape the mighty capital.", 6900, 220, 0,  2, 4, 10, 20, 0, BuildingType::Settlement_Capital_Knight_T5});
-    add(BuildingType::Settlement_Capital_Knight_T5, {"Royal Capital", "The glorious center of the kingdom,\nruled by powerful lords and nobility. ", 8000, 300, 0, 3, 5, 12, 40, 0, BuildingType::None});
+    add(BuildingType::Settlement_Village_Knight_T1, {"Hamlet", "A small town where farmers\ngrowth their lands", 0, 0, 10,  0, 1, 1, 0, 5, 0, BuildingType::Settlement_Village_Knight_T2});
+    add(BuildingType::Settlement_Village_Knight_T2, {"Village", "The villagers has improved\nfarms and lands.", 250, 0, 25, 0, 2, 4, 0, 10, 0, BuildingType::Settlement_Village_Knight_T3});
+    add(BuildingType::Settlement_Village_Knight_T3, {"Large Village", "The farms are at their fullest\n potencial.", 1000, 0, 50, 0, 3, 6, 0, 15, 0, BuildingType::None});
+    add(BuildingType::Settlement_Castle_Knight_T1,  {"Small Fort", "A Wodden fort protecting\nthe nearby lands.", 900, 0, 0, 0, 1, 1, 5, 0, 25,BuildingType::Settlement_Castle_Knight_T2});
+    add(BuildingType::Settlement_Castle_Knight_T2,  {"Fort", "Stone walls and trained guards\nsecure the Castle.", 1100, 50, 0, 1, 2, 6, 10, 0, 25,BuildingType::Settlement_Castle_Knight_T3});
+    add(BuildingType::Settlement_Castle_Knight_T3,  {"Castle", "A strong castle housing nobles\nand military forces.", 2000, 120, 0, 1, 3, 8, 15, 0, 25, BuildingType::Settlement_Castle_Knight_T4});
+    add(BuildingType::Settlement_Castle_Knight_T4,  {"Large Castle", "Massive walls and towers dominate\nthe surrounding region.", 3100, 190, 0, 2, 4, 10, 20, 0, 25, BuildingType::Settlement_Castle_Knight_T5});
+    add(BuildingType::Settlement_Castle_Knight_T5,  {"Citadel",  "An impregnable stronghold and\nthe heart of military power.", 4000, 260, 0, 3, 5, 12, 25, 0, 25, BuildingType::None});
+    add(BuildingType::Settlement_Capital_Knight_T1, {"Small Town Capital", "A growing capital where merchants\nand nobles gather.", 1500, 0, 0,  0, 1, 0, 5, 0, 50, BuildingType::Settlement_Capital_Knight_T2});
+    add(BuildingType::Settlement_Capital_Knight_T2, {"Town Capital", "Busting streets and markets\nexpand the local economy.", 3100, 65, 0,  1, 2, 6, 10, 0, 50, BuildingType::Settlement_Capital_Knight_T3});
+    add(BuildingType::Settlement_Capital_Knight_T3, {"City Capital", "A wealthy city filled with trader,\ncraftsmen and influence.", 4000, 140, 0,  1, 3, 8, 15, 0, 50, BuildingType::Settlement_Capital_Knight_T4});
+    add(BuildingType::Settlement_Capital_Knight_T4, {"Large Capital", "Great districts and stone roads\nshape the mighty capital.", 6900, 220, 0,  2, 4, 10, 20, 0, 50, BuildingType::Settlement_Capital_Knight_T5});
+    add(BuildingType::Settlement_Capital_Knight_T5, {"Royal Capital", "The glorious center of the kingdom,\nruled by powerful lords and nobility. ", 8000, 300, 0, 3, 5, 12, 40, 0, 50, BuildingType::None});
 
     // ── VIKING SETTLEMENTS ──
-    add(BuildingType::Settlement_Village_Viking_T1, {"Small Settlement", "A small farm built by\nhardworking northern clans.", 0, 0, 25,  0, 1, 1, 0, 5, BuildingType::Settlement_Village_Viking_T2});
-    add(BuildingType::Settlement_Village_Viking_T2, {"Settlement",       "Wooden homes and fishing docks\nsupport the growing community.", 0, 0, 50,  0, 2, 1, 0, 10, BuildingType::Settlement_Village_Viking_T3});
-    add(BuildingType::Settlement_Village_Viking_T3, {"Large Settlement", "Thriving farms and busy harbors\nbring wealth to the village", 0, 0, 100, 0, 3, 1, 0, 15, BuildingType::None});
-    add(BuildingType::Settlement_Castle_Viking_T1,  {"Small Longfort",   "A defensive camp protecting\nraiders and nearby villages.", 0, 0, 100, 0, 1, 1, 5, 0, BuildingType::Settlement_Castle_Viking_T2});
-    add(BuildingType::Settlement_Castle_Viking_T2,  {"Longfort",         "Strong wooden palisades guard\nthe warriors of the clan.", 0, 0, 175, 0, 2, 1, 10, 0, BuildingType::Settlement_Castle_Viking_T3});
-    add(BuildingType::Settlement_Castle_Viking_T3,  {"Great Longfort",   "A mighty stronghold where fierce\nvikings prepare for war.", 0, 0, 275, 0, 3, 1, 15, 0, BuildingType::Settlement_Castle_Viking_T4});
-    add(BuildingType::Settlement_Castle_Viking_T4,  {"Viking Fortress",  "Towering defenses and war camps\ndominate the northern lands.", 0, 0, 400, 0, 4, 1, 20, 0, BuildingType::Settlement_Castle_Viking_T5});
-    add(BuildingType::Settlement_Castle_Viking_T5,  {"Jarl's Keep",      "the seat of a powerful Jarl\nfeared across the seas.", 0, 0, 550, 0, 5, 1, 25, 0, BuildingType::None});
-    add(BuildingType::Settlement_Capital_Viking_T1, {"Small Longhouse Capital",  "A modest hall where the clan\nleaders gather and feast.", 0, 0, 200,  0, 1, 1, 5, 0, BuildingType::Settlement_Capital_Viking_T2});
-    add(BuildingType::Settlement_Capital_Viking_T2, {"Longhouse Capital",        "A great wooden hall filled with\nwarriors, merchants and skalds.", 0, 0, 350,  0, 2, 1, 10, 0, BuildingType::Settlement_Capital_Viking_T3});
-    add(BuildingType::Settlement_Capital_Viking_T3, {"Great Longhouse Capital",  "Large feasts and proud warriors\nstrength the clan's influence.", 0, 0, 550,  0, 3, 1, 15, 0, BuildingType::Settlement_Capital_Viking_T4});
-    add(BuildingType::Settlement_Capital_Viking_T4, {"Viking City Capital", "A prosperous northern city built\nthrough trade and conquest.", 0, 0, 800,  0, 4, 1, 20, 0, BuildingType::Settlement_Capital_Viking_T5});
-    add(BuildingType::Settlement_Capital_Viking_T5, {"Jarl's Capital",   "The glorious capital of the Jarls,\nruling the northern kingdoms.", 0, 0, 1100, 0, 5, 1, 40, 0, BuildingType::None});
+    add(BuildingType::Settlement_Village_Viking_T1, {"Small Settlement", "A small farm built by\nhardworking northern clans.", 0, 0, 25,  0, 1, 1, 0, 5, 0, BuildingType::Settlement_Village_Viking_T2});
+    add(BuildingType::Settlement_Village_Viking_T2, {"Settlement",       "Wooden homes and fishing docks\nsupport the growing community.", 0, 0, 50,  0, 2, 1, 0, 10, 0, BuildingType::Settlement_Village_Viking_T3});
+    add(BuildingType::Settlement_Village_Viking_T3, {"Large Settlement", "Thriving farms and busy harbors\nbring wealth to the village", 0, 0, 100, 0, 3, 1, 0, 15, 0, BuildingType::None});
+    add(BuildingType::Settlement_Castle_Viking_T1,  {"Small Longfort",   "A defensive camp protecting\nraiders and nearby villages.", 0, 0, 100, 0, 1, 1, 5, 0, 25, BuildingType::Settlement_Castle_Viking_T2});
+    add(BuildingType::Settlement_Castle_Viking_T2,  {"Longfort",         "Strong wooden palisades guard\nthe warriors of the clan.", 0, 0, 175, 0, 2, 1, 10, 0, 25, BuildingType::Settlement_Castle_Viking_T3});
+    add(BuildingType::Settlement_Castle_Viking_T3,  {"Great Longfort",   "A mighty stronghold where fierce\nvikings prepare for war.", 0, 0, 275, 0, 3, 1, 15, 0, 25, BuildingType::Settlement_Castle_Viking_T4});
+    add(BuildingType::Settlement_Castle_Viking_T4,  {"Viking Fortress",  "Towering defenses and war camps\ndominate the northern lands.", 0, 0, 400, 0, 4, 1, 20, 0, 25, BuildingType::Settlement_Castle_Viking_T5});
+    add(BuildingType::Settlement_Castle_Viking_T5,  {"Jarl's Keep",      "the seat of a powerful Jarl\nfeared across the seas.", 0, 0, 550, 0, 5, 1, 25, 0, 25, BuildingType::None});
+    add(BuildingType::Settlement_Capital_Viking_T1, {"Small Longhouse Capital",  "A modest hall where the clan\nleaders gather and feast.", 0, 0, 200,  0, 1, 1, 5, 0, 50, BuildingType::Settlement_Capital_Viking_T2});
+    add(BuildingType::Settlement_Capital_Viking_T2, {"Longhouse Capital",        "A great wooden hall filled with\nwarriors, merchants and skalds.", 0, 0, 350,  0, 2, 1, 10, 0, 50, BuildingType::Settlement_Capital_Viking_T3});
+    add(BuildingType::Settlement_Capital_Viking_T3, {"Great Longhouse Capital",  "Large feasts and proud warriors\nstrength the clan's influence.", 0, 0, 550,  0, 3, 1, 15, 0, 50, BuildingType::Settlement_Capital_Viking_T4});
+    add(BuildingType::Settlement_Capital_Viking_T4, {"Viking City Capital", "A prosperous northern city built\nthrough trade and conquest.", 0, 0, 800,  0, 4, 1, 20, 0, 50, BuildingType::Settlement_Capital_Viking_T5});
+    add(BuildingType::Settlement_Capital_Viking_T5, {"Jarl's Capital",   "The glorious capital of the Jarls,\nruling the northern kingdoms.", 0, 0, 1100, 0, 5, 1, 40, 0, 50, BuildingType::None});
 
     // ── SAMURAI SETTLEMENTS ──
-    add(BuildingType::Settlement_Village_Samurai_T1, {"Small Village", "A peaceful village surrounded\nby rice flields and farmers.", 0, 0, 25,  0, 1, 1, 0, 5, BuildingType::Settlement_Village_Samurai_T2});
-    add(BuildingType::Settlement_Village_Samurai_T2, {"Village",       "Growing farms and skilled workers\nsupport the local clan.", 0, 0, 50,  0, 2, 1, 0, 10, BuildingType::Settlement_Village_Samurai_T3});
-    add(BuildingType::Settlement_Village_Samurai_T3, {"Large Village", "Prosperous lands and busy markets\nbring honor to the Shogun", 0, 0, 100, 0, 3, 1, 0, 15, BuildingType::None});
-    add(BuildingType::Settlement_Castle_Samurai_T1,  {"Small Yashiro", "A modest stronghold guardgin\nthe nearby population", 0, 0, 100, 0, 1, 1, 5, 0, BuildingType::Settlement_Castle_Samurai_T2});
-    add(BuildingType::Settlement_Castle_Samurai_T2,  {"Yashiro",       "Samurai warriors defend the clan\nfrom behind sturdy walls.", 0, 0, 175, 0, 2, 1, 10, 0, BuildingType::Settlement_Castle_Samurai_T3});
-    add(BuildingType::Settlement_Castle_Samurai_T3,  {"Castle",        "A respected castle housing\nwhere study and tradition meet protection.", 0, 0, 275, 0, 3, 1, 15, 0, BuildingType::Settlement_Castle_Samurai_T4});
-    add(BuildingType::Settlement_Castle_Samurai_T4,  {"Large Castle",  "Tall towers and fortified gates\nprotect the province.", 0, 0, 400, 0, 4, 1, 20, 0, BuildingType::Settlement_Castle_Samurai_T5});
-    add(BuildingType::Settlement_Castle_Samurai_T5,  {"Fortress",      "An immense fortress symbolizing\nthe power of the daimyo.", 0, 0, 550, 0, 5, 1, 25, 0,BuildingType::None});
-    add(BuildingType::Settlement_Capital_Samurai_T1, {"Small Town Capital",       "A growing Capital where merchants\nand farmers gather", 0, 0, 200,  0, 1, 1, 5, 0, BuildingType::Settlement_Capital_Samurai_T2});
-    add(BuildingType::Settlement_Capital_Samurai_T2, {"Town Capital",      "Bustling streets and temples\nculture and military power.", 0, 0, 350,  0, 2, 1, 10, 0, BuildingType::Settlement_Capital_Samurai_T3});
-    add(BuildingType::Settlement_Capital_Samurai_T3, {"City Capital",      "A wealthy Capital known for trade,\nculture and military power.", 0, 0, 550,  0, 3, 1, 15, 0, BuildingType::Settlement_Capital_Samurai_T4});
-    add(BuildingType::Settlement_Capital_Samurai_T4, {"Large City Capital",       "Great districts and noble estates\nshape the mighty city", 0, 0, 800,  0, 4, 1, 20, 0,BuildingType::Settlement_Capital_Samurai_T2});
-    add(BuildingType::Settlement_Capital_Samurai_T5, {"Shogun's Capital", "The glorious seat of the Shogun,\nruling the empire with honor.", 0, 0, 1100, 0, 5, 1, 40, 0, BuildingType::None});
+    add(BuildingType::Settlement_Village_Samurai_T1, {"Small Village", "A peaceful village surrounded\nby rice flields and farmers.", 0, 0, 25,  0, 1, 1, 0, 5, 0, BuildingType::Settlement_Village_Samurai_T2});
+    add(BuildingType::Settlement_Village_Samurai_T2, {"Village",       "Growing farms and skilled workers\nsupport the local clan.", 0, 0, 50,  0, 2, 1, 0, 10, 0, BuildingType::Settlement_Village_Samurai_T3});
+    add(BuildingType::Settlement_Village_Samurai_T3, {"Large Village", "Prosperous lands and busy markets\nbring honor to the Shogun", 0, 0, 100, 0, 3, 1, 0, 15, 0, BuildingType::None});
+    add(BuildingType::Settlement_Castle_Samurai_T1,  {"Small Yashiro", "A modest stronghold guardgin\nthe nearby population", 0, 0, 100, 0, 1, 1, 5, 0, 25, BuildingType::Settlement_Castle_Samurai_T2});
+    add(BuildingType::Settlement_Castle_Samurai_T2,  {"Yashiro",       "Samurai warriors defend the clan\nfrom behind sturdy walls.", 0, 0, 175, 0, 2, 1, 10, 0, 25, BuildingType::Settlement_Castle_Samurai_T3});
+    add(BuildingType::Settlement_Castle_Samurai_T3,  {"Castle",        "A respected castle housing\nwhere study and tradition meet protection.", 0, 0, 275, 0, 3, 1, 15, 0, 25, BuildingType::Settlement_Castle_Samurai_T4});
+    add(BuildingType::Settlement_Castle_Samurai_T4,  {"Large Castle",  "Tall towers and fortified gates\nprotect the province.", 0, 0, 400, 0, 4, 1, 20, 0, 25, BuildingType::Settlement_Castle_Samurai_T5});
+    add(BuildingType::Settlement_Castle_Samurai_T5,  {"Fortress",      "An immense fortress symbolizing\nthe power of the daimyo.", 0, 0, 550, 0, 5, 1, 25, 0, 25, BuildingType::None});
+    add(BuildingType::Settlement_Capital_Samurai_T1, {"Small Town Capital",       "A growing Capital where merchants\nand farmers gather", 0, 0, 200,  0, 1, 1, 5, 0, 50, BuildingType::Settlement_Capital_Samurai_T2});
+    add(BuildingType::Settlement_Capital_Samurai_T2, {"Town Capital",      "Bustling streets and temples\nculture and military power.", 0, 0, 350,  0, 2, 1, 10, 0, 50, BuildingType::Settlement_Capital_Samurai_T3});
+    add(BuildingType::Settlement_Capital_Samurai_T3, {"City Capital",      "A wealthy Capital known for trade,\nculture and military power.", 0, 0, 550,  0, 3, 1, 15, 0, 50, BuildingType::Settlement_Capital_Samurai_T4});
+    add(BuildingType::Settlement_Capital_Samurai_T4, {"Large City Capital",       "Great districts and noble estates\nshape the mighty city", 0, 0, 800,  0, 4, 1, 20, 0, 50, BuildingType::Settlement_Capital_Samurai_T2});
+    add(BuildingType::Settlement_Capital_Samurai_T5, {"Shogun's Capital", "The glorious seat of the Shogun,\nruling the empire with honor.", 0, 0, 1100, 0, 5, 1, 40, 0, 50, BuildingType::None});
 
     // ── KNIGHT ECONOMY ──
-    add(BuildingType::Economy_T1, {"Small Farm shop", "Basic farmland.",        100,  0,  20,  0, 1, 2, 0, 0, BuildingType::Economy_T2});
-    add(BuildingType::Economy_T2, {"Village market", "Established farmland.",   250,  0,  35,  0, 2, 3, 0, 0, BuildingType::Economy_T3});
-    add(BuildingType::Economy_T3, {"Strong market", "Rich agricultural land.", 500, 0, 50,  0, 3, 4, 0, 0, BuildingType::None});
-    add(BuildingType::PeasantryGrowth_T1,  {"Small community farms", "Grows peasant population.", 195,  0,  15,  2, 1, 2, 0, 13, BuildingType::PeasantryGrowth_T2});//Peasantry generate more food
-    add(BuildingType::PeasantryGrowth_T2,  {"Open field farms", "Grows population faster.", 225, 0,  20,  4, 2, 3, 0, 20, BuildingType::PeasantryGrowth_T3});
-    add(BuildingType::PeasantryGrowth_T3,  {"Commons", "Major peasantrygrowth bonus.",  270, 0, 25,  6, 3, 4, 0, 26, BuildingType::None});
-    add(BuildingType::NobilityEstate_T1,  {"Small private farm", "Grows population.", 80,  0,  15,  2, 1, 2, 0, 6, BuildingType::NobilityEstate_T2});//Nobility generate less food but more money
-    add(BuildingType::NobilityEstate_T2,  {"Lord's Fields", "Grows population faster.", 200, 0,  30,  4, 2, 3, 0, 10, BuildingType::NobilityEstate_T3});
-    add(BuildingType::NobilityEstate_T3,  {"Grand Manor Farm", "Major growth bonus.", 400, 0, 45,  6, 3, 4, 0, 14, BuildingType::None});
+    add(BuildingType::Economy_T1, {"Small Farm shop", "Basic farmland.",        100,  0,  20,  0, 1, 2, 0, 0, 0, BuildingType::Economy_T2});
+    add(BuildingType::Economy_T2, {"Village market", "Established farmland.",   250,  0,  35,  0, 2, 3, 0, 0, 0, BuildingType::Economy_T3});
+    add(BuildingType::Economy_T3, {"Strong market", "Rich agricultural land.", 500, 0, 50,  0, 3, 4, 0, 0, 0, BuildingType::None});
+    add(BuildingType::PeasantryGrowth_T1,  {"Small community farms", "Grows peasant population.", 195,  0,  15,  2, 1, 2, 0, 13, 0, BuildingType::PeasantryGrowth_T2});//Peasantry generate more food
+    add(BuildingType::PeasantryGrowth_T2,  {"Open field farms", "Grows population faster.", 225, 0,  20,  4, 2, 3, 0, 20, 0, BuildingType::PeasantryGrowth_T3});
+    add(BuildingType::PeasantryGrowth_T3,  {"Commons", "Major peasantrygrowth bonus.",  270, 0, 25,  6, 3, 4, 0, 26, 0, BuildingType::None});
+    add(BuildingType::NobilityEstate_T1,  {"Small private farm", "Grows population.", 80,  0,  15,  2, 1, 2, 0, 6, 0, BuildingType::NobilityEstate_T2});//Nobility generate less food but more money
+    add(BuildingType::NobilityEstate_T2,  {"Lord's Fields", "Grows population faster.", 200, 0,  30,  4, 2, 3, 0, 10, 0, BuildingType::NobilityEstate_T3});
+    add(BuildingType::NobilityEstate_T3,  {"Grand Manor Farm", "Major growth bonus.", 400, 0, 45,  6, 3, 4, 0, 14, 0, BuildingType::None});
+    add(BuildingType::KnightWareHouse_T1, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 1, 5, 0, 0, 25, BuildingType::KnightWareHouse_T2}); //store 25 food
+    add(BuildingType::KnightWareHouse_T2, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 2, 5, 0, 0, 50, BuildingType::KnightWareHouse_T3}); // store 50 food
+    add(BuildingType::KnightWareHouse_T3, {"Great Warehouse", "All goods can be stored,\nsafe from the weather", 1000, 80, 0, 0, 3, 7, 0, 0, 75, BuildingType::None}); // store 75 food
     // ── KNIGHT MILITARY ──
-    add(BuildingType::Barracks_T1,     {"Militia Grounds",  "Trains basic infantry.",   150, 10, 0, 0, 1, 2, 0, 0, BuildingType::Barracks_T2});
-    add(BuildingType::Barracks_T2,     {"Training Grounds", "Trains medium infantry.",  300, 20, 0, 0, 2, 3, 0, 0, BuildingType::Barracks_T3});
-    add(BuildingType::Barracks_T3,     {"War Academy",      "Trains elite infantry.",   600, 35, 0, 0, 3, 4, 0, 0, BuildingType::None});
-    add(BuildingType::ArcheryRange_T1, {"Archery Range",    "Trains archers.",          150, 10, 0, 0, 1, 2, 0, 0, BuildingType::ArcheryRange_T2});
-    add(BuildingType::ArcheryRange_T2, {"Fletchers Guild",  "Trains longbowmen.",       300, 20, 0, 0, 2, 3, 0, 0, BuildingType::ArcheryRange_T3});
-    add(BuildingType::ArcheryRange_T3, {"Royal Archery",    "Trains elite archers.",    600, 35, 0, 0, 3, 4, 0, 0, BuildingType::None});
-    add(BuildingType::Stable_T1,       {"Stable",           "Trains light cavalry.",    150, 10, 0, 0, 1, 2, 0, 0, BuildingType::Stable_T2});
-    add(BuildingType::Stable_T2,       {"Knight Stable",    "Trains heavy cavalry.",    300, 20, 0, 0, 2, 3, 0, 0, BuildingType::Stable_T3});
-    add(BuildingType::Stable_T3,       {"Royal Stable",     "Trains elite cavalry.",    600, 35, 0, 0, 3, 4, 0, 0, BuildingType::None});
+    add(BuildingType::Barracks_T1,     {"Militia Grounds",  "Trains basic infantry.",   150, 10, 0, 0, 1, 2, 0, 0, 0, BuildingType::Barracks_T2});
+    add(BuildingType::Barracks_T2,     {"Training Grounds", "Trains medium infantry.",  300, 20, 0, 0, 2, 3, 0, 0, 0, BuildingType::Barracks_T3});
+    add(BuildingType::Barracks_T3,     {"War Academy",      "Trains elite infantry.",   600, 35, 0, 0, 3, 4, 0, 0, 0, BuildingType::None});
+    add(BuildingType::ArcheryRange_T1, {"Archery Range",    "Trains archers.",          150, 10, 0, 0, 1, 2, 0, 0, 0, BuildingType::ArcheryRange_T2});
+    add(BuildingType::ArcheryRange_T2, {"Fletchers Guild",  "Trains longbowmen.",       300, 20, 0, 0, 2, 3, 0, 0, 0, BuildingType::ArcheryRange_T3});
+    add(BuildingType::ArcheryRange_T3, {"Royal Archery",    "Trains elite archers.",    600, 35, 0, 0, 3, 4, 0, 0, 0, BuildingType::None});
+    add(BuildingType::Stable_T1,       {"Stable",           "Trains light cavalry.",    150, 10, 0, 0, 1, 2, 0, 0, 0, BuildingType::Stable_T2});
+    add(BuildingType::Stable_T2,       {"Knight Stable",    "Trains heavy cavalry.",    300, 20, 0, 0, 2, 3, 0, 0, 0, BuildingType::Stable_T3});
+    add(BuildingType::Stable_T3,       {"Royal Stable",     "Trains elite cavalry.",    600, 35, 0, 0, 3, 4, 0, 0, 0, BuildingType::None});
 
     // ── KNIGHT ADVANCED MILITARY ──
-    add(BuildingType::Artillery_T4, {"Siege Workshop",  "Builds catapults.",   800,  40, 0, 0, 4, 5, 0, 0, BuildingType::Artillery_T5});
-    add(BuildingType::Artillery_T5, {"Royal Artillery", "Builds trebuchets.", 1200,  60, 0, 0, 5, 6, 0, 0, BuildingType::None});
+    add(BuildingType::Artillery_T4, {"Siege Workshop",  "Builds catapults.",   800,  40, 0, 0, 4, 5, 0, 0, 0, BuildingType::Artillery_T5});
+    add(BuildingType::Artillery_T5, {"Royal Artillery", "Builds trebuchets.", 1200,  60, 0, 0, 5, 6, 0, 0, 0, BuildingType::None});
 
     // ── KNIGHT DEFENCE ──
-    add(BuildingType::ReinforceWalls_T3, {"Stone Walls",     "Reinforces defences.",    600, 20, 0,  5, 3, 4, 10, 0, BuildingType::ReinforceWalls_T4});
-    add(BuildingType::ReinforceWalls_T4, {"Fortified Walls", "Strong stone walls.",     900, 30, 0,  8, 4, 5, 15, 0, BuildingType::ReinforceWalls_T5});
-    add(BuildingType::ReinforceWalls_T5, {"Castle Walls",    "Impregnable defences.",  1400, 45, 0, 12, 5, 6, 25, 0, BuildingType::None});
+    add(BuildingType::ReinforceWalls_T3, {"Stone Walls",     "Reinforces defences.",    600, 20, 0,  5, 3, 4, 10, 0, 0, BuildingType::ReinforceWalls_T4});
+    add(BuildingType::ReinforceWalls_T4, {"Fortified Walls", "Strong stone walls.",     900, 30, 0,  8, 4, 5, 15, 0, 0, BuildingType::ReinforceWalls_T5});
+    add(BuildingType::ReinforceWalls_T5, {"Castle Walls",    "Impregnable defences.",  1400, 45, 0, 12, 5, 6, 25, 0, 0, BuildingType::None});
 
     // ── KNIGHT RELIGION ──
-    add(BuildingType::Church_T1, {"Chapel",    "Improves public order.",  100,  5, 0,  2, 1, 2, 0, 0, BuildingType::Church_T2});
-    add(BuildingType::Church_T2, {"Church",    "Strong public order.",    250, 10, 0, 3, 2, 3, 0, 0, BuildingType::Church_T3});
-    add(BuildingType::Church_T3, {"Cathedral", "Major public order.",     500, 15, 0, 4, 3, 4, 0, 0, BuildingType::None});
+    add(BuildingType::Church_T1, {"Chapel",    "Improves public order.",  100,  5, 0,  2, 1, 2, 0, 0, 0, BuildingType::Church_T2});
+    add(BuildingType::Church_T2, {"Church",    "Strong public order.",    250, 10, 0, 3, 2, 3, 0, 0, 0, BuildingType::Church_T3});
+    add(BuildingType::Church_T3, {"Cathedral", "Major public order.",     500, 15, 0, 4, 3, 4, 0, 0, 0, BuildingType::None});
 
     // ── VIKING MILITARY ──
-    add(BuildingType::WarLodge_T1,       {"War Lodge",       "Trains raiders.",         150, 10, 0, 0, 1, 2, 0, 0, BuildingType::WarLodge_T2});
-    add(BuildingType::WarLodge_T2,       {"Warrior Hall",    "Trains berserkers.",      300, 20, 0, 0, 2, 3, 0, 0, BuildingType::WarLodge_T3});
-    add(BuildingType::WarLodge_T3,       {"Jarl's War Hall", "Trains elite warriors.",  600, 35, 0, 0, 3, 4, 0, 0, BuildingType::None});
-    add(BuildingType::ShootingGround_T1, {"Shooting Ground", "Trains skirmishers.",     150, 10, 0, 0, 1, 2, 0, 0, BuildingType::ShootingGround_T2});
-    add(BuildingType::ShootingGround_T2, {"Hunting Lodge",   "Trains hunters.",         300, 20, 0, 0, 2, 3, 0, 0, BuildingType::ShootingGround_T3});
-    add(BuildingType::ShootingGround_T3, {"Elite Marksmen",  "Trains elite archers.",   600, 35, 0, 0, 3, 4, 0, 0, BuildingType::None});
-    add(BuildingType::HorseTraining_T1,  {"Horse Training",  "Trains light cavalry.",   150, 10, 0, 0, 1, 2, 0, 0, BuildingType::HorseTraining_T2});
-    add(BuildingType::HorseTraining_T2,  {"Cavalry Grounds", "Trains heavy cavalry.",   300, 20, 0, 0, 2, 3, 0, 0, BuildingType::HorseTraining_T3});
-    add(BuildingType::HorseTraining_T3,  {"Elite Horsemen",  "Trains elite cavalry.",   600, 35, 0, 0, 3, 4, 0, 0, BuildingType::None});
+    add(BuildingType::WarLodge_T1,       {"War Lodge",       "Trains raiders.",         150, 10, 0, 0, 1, 2, 0, 0, 0, BuildingType::WarLodge_T2});
+    add(BuildingType::WarLodge_T2,       {"Warrior Hall",    "Trains berserkers.",      300, 20, 0, 0, 2, 3, 0, 0, 0, BuildingType::WarLodge_T3});
+    add(BuildingType::WarLodge_T3,       {"Jarl's War Hall", "Trains elite warriors.",  600, 35, 0, 0, 3, 4, 0, 0, 0, BuildingType::None});
+    add(BuildingType::ShootingGround_T1, {"Shooting Ground", "Trains skirmishers.",     150, 10, 0, 0, 1, 2, 0, 0, 0, BuildingType::ShootingGround_T2});
+    add(BuildingType::ShootingGround_T2, {"Hunting Lodge",   "Trains hunters.",         300, 20, 0, 0, 2, 3, 0, 0, 0, BuildingType::ShootingGround_T3});
+    add(BuildingType::ShootingGround_T3, {"Elite Marksmen",  "Trains elite archers.",   600, 35, 0, 0, 3, 4, 0, 0, 0, BuildingType::None});
+    add(BuildingType::HorseTraining_T1,  {"Horse Training",  "Trains light cavalry.",   150, 10, 0, 0, 1, 2, 0, 0, 0, BuildingType::HorseTraining_T2});
+    add(BuildingType::HorseTraining_T2,  {"Cavalry Grounds", "Trains heavy cavalry.",   300, 20, 0, 0, 2, 3, 0, 0, 0, BuildingType::HorseTraining_T3});
+    add(BuildingType::HorseTraining_T3,  {"Elite Horsemen",  "Trains elite cavalry.",   600, 35, 0, 0, 3, 4, 0, 0, 0, BuildingType::None});
 
     // ── VIKING ADVANCED MILITARY ──
-    add(BuildingType::ChosensOfOdin_T3, {"Chosen of Odin",  "Elite berserker unit.",   800,  40, 0, 0, 3, 4, 0, 0, BuildingType::ChosensOfOdin_T4});
-    add(BuildingType::ChosensOfOdin_T4, {"Odin's Warriors", "Legendary berserkers.",  1200,  60, 0, 0, 4, 5, 0, 0, BuildingType::ChosensOfOdin_T5});
-    add(BuildingType::ChosensOfOdin_T5, {"Einherjar",       "Mythical warriors.",     1800,  80, 0, 0, 5, 6, 0, 0, BuildingType::None});
+    add(BuildingType::ChosensOfOdin_T3, {"Chosen of Odin",  "Elite berserker unit.",   800,  40, 0, 0, 3, 4, 0, 0, 0, BuildingType::ChosensOfOdin_T4});
+    add(BuildingType::ChosensOfOdin_T4, {"Odin's Warriors", "Legendary berserkers.",  1200,  60, 0, 0, 4, 5, 0, 0, 0, BuildingType::ChosensOfOdin_T5});
+    add(BuildingType::ChosensOfOdin_T5, {"Einherjar",       "Mythical warriors.",     1800,  80, 0, 0, 5, 6, 0, 0, 0, BuildingType::None});
 
     // ── VIKING DEFENCE ──
-    add(BuildingType::ReinforcedDrakkar_T3, {"Drakkar Docks",     "Reinforced ships.",    600, 20, 0,  5, 3, 4, 10, 0, BuildingType::ReinforcedDrakkar_T4});
-    add(BuildingType::ReinforcedDrakkar_T4, {"War Drakkar",       "Heavy warships.",      900, 30, 0,  8, 4, 5, 15, 0, BuildingType::ReinforcedDrakkar_T5});
-    add(BuildingType::ReinforcedDrakkar_T5, {"Legendary Drakkar", "Unstoppable fleet.",  1400, 45, 0, 12, 5, 6, 25, 0, BuildingType::None});
+    add(BuildingType::ReinforcedDrakkar_T3, {"Drakkar Docks",     "Reinforced ships.",    600, 20, 0,  5, 3, 4, 10, 0, 0, BuildingType::ReinforcedDrakkar_T4});
+    add(BuildingType::ReinforcedDrakkar_T4, {"War Drakkar",       "Heavy warships.",      900, 30, 0,  8, 4, 5, 15, 0, 0, BuildingType::ReinforcedDrakkar_T5});
+    add(BuildingType::ReinforcedDrakkar_T5, {"Legendary Drakkar", "Unstoppable fleet.",  1400, 45, 0, 12, 5, 6, 25, 0, 0, BuildingType::None});
 
     // ── VIKING ECONOMY ──
-    add(BuildingType::SlaveMarket_T1, {"Slave Market", "Income from raids.", 100,  0,  20,  0, 1, 2, 0, 0, BuildingType::SlaveMarket_T2});
-    add(BuildingType::SlaveMarket_T2, {"Slave Port", "More raid income.", 250,  0,  35,  0, 2, 3, 0, 0, BuildingType::SlaveMarket_T3});
-    add(BuildingType::SlaveMarket_T3, {"Grand Slave Market", "Major raid income.", 500, 0, 50,  0, 3, 4, 0, 0, BuildingType::None});
-    add(BuildingType::PeasantryVikingGrowth_T1,  {"Viking Village Market",    "Grows peasant population.", 195,  0,  15,  2, 1, 2, 0, 13, BuildingType::PeasantryVikingGrowth_T2});
-    add(BuildingType::PeasantryVikingGrowth_T2,  {"Town Market",       "Grows population faster.", 225, 0,  20,  4, 2, 3, 0, 20, BuildingType::PeasantryVikingGrowth_T3});
-    add(BuildingType::PeasantryVikingGrowth_T3,  {"Grand Market",      "Major growth bonus.", 270, 0, 25,  6, 3, 4, 0, 26, BuildingType::None});
-    add(BuildingType::NobilityVikingEstate_T1,  {"Viking Village Market",    "Grows population.", 80,  0,  15,  2, 1, 2, 0, 6, BuildingType::NobilityVikingEstate_T2});
-    add(BuildingType::NobilityVikingEstate_T2,  {"Town Market",       "Grows population faster.", 200, 0,  30,  4, 2, 3, 0, 10, BuildingType::NobilityVikingEstate_T3});
-    add(BuildingType::NobilityVikingEstate_T3,  {"Grand Market",      "Major growth bonus.", 400, 0, 45,  6, 3, 4, 0, 14, BuildingType::None});
+    add(BuildingType::SlaveMarket_T1, {"Slave Market", "Income from raids.", 100,  0,  20,  0, 1, 2, 0, 0, 0, BuildingType::SlaveMarket_T2});
+    add(BuildingType::SlaveMarket_T2, {"Slave Port", "More raid income.", 250,  0,  35,  0, 2, 3, 0, 0, 0, BuildingType::SlaveMarket_T3});
+    add(BuildingType::SlaveMarket_T3, {"Grand Slave Market", "Major raid income.", 500, 0, 50,  0, 3, 4, 0, 0, 0, BuildingType::None});
+    add(BuildingType::PeasantryVikingGrowth_T1,  {"Viking Village Market",    "Grows peasant population.", 195,  0,  15,  2, 1, 2, 0, 13, 0, BuildingType::PeasantryVikingGrowth_T2});
+    add(BuildingType::PeasantryVikingGrowth_T2,  {"Town Market",       "Grows population faster.", 225, 0,  20,  4, 2, 3, 0, 20, 0, BuildingType::PeasantryVikingGrowth_T3});
+    add(BuildingType::PeasantryVikingGrowth_T3,  {"Grand Market",      "Major growth bonus.", 270, 0, 25,  6, 3, 4, 0, 26, 0, BuildingType::None});
+    add(BuildingType::NobilityVikingEstate_T1,  {"Viking Village Market",    "Grows population.", 80,  0,  15,  2, 1, 2, 0, 6, 0, BuildingType::NobilityVikingEstate_T2});
+    add(BuildingType::NobilityVikingEstate_T2,  {"Town Market",       "Grows population faster.", 200, 0,  30,  4, 2, 3, 0, 10, 0,  BuildingType::NobilityVikingEstate_T3});
+    add(BuildingType::NobilityVikingEstate_T3,  {"Grand Market",      "Major growth bonus.", 400, 0, 45,  6, 3, 4, 0, 14, 0, BuildingType::None});
+    add(BuildingType::VikingWareHouse_T1, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 1, 5, 0, 0, 25, BuildingType::VikingWareHouse_T2}); //store 25 food
+    add(BuildingType::VikingWareHouse_T2, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 2, 5, 0, 0, 50, BuildingType::VikingWareHouse_T3}); // store 50 food
+    add(BuildingType::VikingWareHouse_T3, {"Great Warehouse", "All goods can be stored,\nsafe from the weather", 1000, 80, 0, 0, 3, 7, 0, 0, 75, BuildingType::None}); // store 75 food
     // ── VIKING RELIGION ──
-    add(BuildingType::Shrine_T1,          {"Shrine",          "Pleases the gods.",        100,  5, 0,  5, 1, 2, 0, 0, BuildingType::Shrine_T2});
-    add(BuildingType::Shrine_T2,          {"Temple",          "Greater divine favor.",    250, 10, 0, 10, 2, 3, 0, 0, BuildingType::Shrine_T3});
-    add(BuildingType::Shrine_T3,          {"Great Temple",    "Odin smiles upon you.",    500, 15, 0, 20, 3, 4, 0, 0, BuildingType::None});
-    add(BuildingType::SacrificeRitual_T1, {"Ritual Ground",   "Blood for Odin.",          150,  5, 0,  8, 1, 2, 0, 0, BuildingType::SacrificeRitual_T2});
-    add(BuildingType::SacrificeRitual_T2, {"Sacrifice Altar", "Greater blood offering.",  300, 10, 0, 15, 2, 3, 0, 0, BuildingType::SacrificeRitual_T3});
-    add(BuildingType::SacrificeRitual_T3, {"Grand Sacrifice", "Odin's full blessing.",    600, 15, 0, 25, 3, 4, 0, 0, BuildingType::None});
+    add(BuildingType::Shrine_T1,          {"Shrine",          "Pleases the gods.",        100,  5, 0,  5, 1, 2, 0, 0, 0, BuildingType::Shrine_T2});
+    add(BuildingType::Shrine_T2,          {"Temple",          "Greater divine favor.",    250, 10, 0, 10, 2, 3, 0, 0, 0, BuildingType::Shrine_T3});
+    add(BuildingType::Shrine_T3,          {"Great Temple",    "Odin smiles upon you.",    500, 15, 0, 20, 3, 4, 0, 0, 0, BuildingType::None});
+    add(BuildingType::SacrificeRitual_T1, {"Ritual Ground",   "Blood for Odin.",          150,  5, 0,  8, 1, 2, 0, 0, 0, BuildingType::SacrificeRitual_T2});
+    add(BuildingType::SacrificeRitual_T2, {"Sacrifice Altar", "Greater blood offering.",  300, 10, 0, 15, 2, 3, 0, 0, 0, BuildingType::SacrificeRitual_T3});
+    add(BuildingType::SacrificeRitual_T3, {"Grand Sacrifice", "Odin's full blessing.",    600, 15, 0, 25, 3, 4, 0, 0, 0, BuildingType::None});
 
     // ── SAMURAI MILITARY ──
-    add(BuildingType::SwordSchool_T1,    {"Sword School",    "Trains katana units.",     150, 10, 0, 0, 1, 2, 0, 0, BuildingType::SwordSchool_T2});
-    add(BuildingType::SwordSchool_T2,    {"Kenjutsu Dojo",   "Trains elite swordsmen.",  300, 20, 0, 0, 2, 3, 0, 0, BuildingType::SwordSchool_T3});
-    add(BuildingType::SwordSchool_T3,    {"Bushido Academy", "Trains master swordsmen.", 600, 35, 0, 0, 3, 4, 0, 0, BuildingType::None});
-    add(BuildingType::ArcheryDojo_T1,    {"Archery Dojo",    "Trains bowmen.",           150, 10, 0, 0, 1, 2, 0, 0, BuildingType::ArcheryDojo_T2});
-    add(BuildingType::ArcheryDojo_T2,    {"Kyudo School",    "Trains expert archers.",   300, 20, 0, 0, 2, 3, 0, 0, BuildingType::ArcheryDojo_T3});
-    add(BuildingType::ArcheryDojo_T3,    {"Master Kyudo",    "Trains elite archers.",    600, 35, 0, 0, 3, 4, 0, 0, BuildingType::None});
-    add(BuildingType::WarhorseStable_T1, {"Warhorse Stable", "Trains light cavalry.",    150, 10, 0, 0, 1, 2, 0, 0, BuildingType::WarhorseStable_T2});
-    add(BuildingType::WarhorseStable_T2, {"Samurai Stable",  "Trains heavy cavalry.",    300, 20, 0, 0, 2, 3, 0, 0, BuildingType::WarhorseStable_T3});
-    add(BuildingType::WarhorseStable_T3, {"Elite Warhorse",  "Trains elite cavalry.",    600, 35, 0, 0, 3, 4, 0, 0, BuildingType::None});
+    add(BuildingType::SwordSchool_T1,    {"Sword School",    "Trains katana units.",     150, 10, 0, 0, 1, 2, 0, 0, 0, BuildingType::SwordSchool_T2});
+    add(BuildingType::SwordSchool_T2,    {"Kenjutsu Dojo",   "Trains elite swordsmen.",  300, 20, 0, 0, 2, 3, 0, 0, 0, BuildingType::SwordSchool_T3});
+    add(BuildingType::SwordSchool_T3,    {"Bushido Academy", "Trains master swordsmen.", 600, 35, 0, 0, 3, 4, 0, 0, 0, BuildingType::None});
+    add(BuildingType::ArcheryDojo_T1,    {"Archery Dojo",    "Trains bowmen.",           150, 10, 0, 0, 1, 2, 0, 0, 0, BuildingType::ArcheryDojo_T2});
+    add(BuildingType::ArcheryDojo_T2,    {"Kyudo School",    "Trains expert archers.",   300, 20, 0, 0, 2, 3, 0, 0, 0, BuildingType::ArcheryDojo_T3});
+    add(BuildingType::ArcheryDojo_T3,    {"Master Kyudo",    "Trains elite archers.",    600, 35, 0, 0, 3, 4, 0, 0, 0, BuildingType::None});
+    add(BuildingType::WarhorseStable_T1, {"Warhorse Stable", "Trains light cavalry.",    150, 10, 0, 0, 1, 2, 0, 0, 0, BuildingType::WarhorseStable_T2});
+    add(BuildingType::WarhorseStable_T2, {"Samurai Stable",  "Trains heavy cavalry.",    300, 20, 0, 0, 2, 3, 0, 0, 0, BuildingType::WarhorseStable_T3});
+    add(BuildingType::WarhorseStable_T3, {"Elite Warhorse",  "Trains elite cavalry.",    600, 35, 0, 0, 3, 4, 0, 0, 0, BuildingType::None});
 
     // ── SAMURAI ADVANCED MILITARY ──
-    add(BuildingType::SiegeEngineerWorkshop_T4, {"Siege Workshop", "Builds siege engines.",  800,  40, 0, 0, 4, 5, 0, 0,BuildingType::SiegeEngineerWorkshop_T5});
-    add(BuildingType::SiegeEngineerWorkshop_T5, {"Master Siege",   "Elite siege engines.",  1200,  60, 0, 0, 5, 6, 0, 0, BuildingType::None});
-    add(BuildingType::GunSmith_T4,              {"Gunsmith",        "Builds firearms.",       800,  40, 0, 0, 4, 5, 0, 0, BuildingType::GunSmith_T5});
-    add(BuildingType::GunSmith_T5,              {"Master Gunsmith", "Elite firearms.",        1200, 60, 0, 0, 5, 6, 0, 0, BuildingType::None});
+    add(BuildingType::SiegeEngineerWorkshop_T4, {"Siege Workshop", "Builds siege engines.",  800,  40, 0, 0, 4, 5, 0, 0, 0, BuildingType::SiegeEngineerWorkshop_T5});
+    add(BuildingType::SiegeEngineerWorkshop_T5, {"Master Siege",   "Elite siege engines.",  1200,  60, 0, 0, 5, 6, 0, 0, 0, BuildingType::None});
+    add(BuildingType::GunSmith_T4,              {"Gunsmith",        "Builds firearms.",       800,  40, 0, 0, 4, 5, 0, 0, 0, BuildingType::GunSmith_T5});
+    add(BuildingType::GunSmith_T5,              {"Master Gunsmith", "Elite firearms.",        1200, 60, 0, 0, 5, 6, 0, 0, 0, BuildingType::None});
 
     // ── SAMURAI DEFENCE ──
-    add(BuildingType::FortifiedCastle_T3, {"Stone Castle",     "Reinforced castle.",    600, 20, 0,  5, 3, 4, 10, 0, BuildingType::FortifiedCastle_T4});
-    add(BuildingType::FortifiedCastle_T4, {"Fortified Castle", "Strong defences.",      900, 30, 0,  8, 4, 5, 15, 0, BuildingType::FortifiedCastle_T5});
-    add(BuildingType::FortifiedCastle_T5, {"Impregnable Keep", "Unbreachable walls.",  1400, 45, 0, 12, 5, 6, 25, 0, BuildingType::None});
+    add(BuildingType::FortifiedCastle_T3, {"Stone Castle",     "Reinforced castle.",    600, 20, 0,  5, 3, 4, 10, 0, 0, BuildingType::FortifiedCastle_T4});
+    add(BuildingType::FortifiedCastle_T4, {"Fortified Castle", "Strong defences.",      900, 30, 0,  8, 4, 5, 15, 0, 0, BuildingType::FortifiedCastle_T5});
+    add(BuildingType::FortifiedCastle_T5, {"Impregnable Keep", "Unbreachable walls.",  1400, 45, 0, 12, 5, 6, 25, 0, 0, BuildingType::None});
 
     // ── SAMURAI ECONOMY ──
-    add(BuildingType::Market_T1, {"Samurai Village Market", "Basic trade.", 100,  0,  20,  0, 1, 2, 0, 0, BuildingType::Market_T2});
-    add(BuildingType::Market_T2, {"Town Market",    "Established trade.",  250,  0,  35,  0, 2, 3, 0, 0, BuildingType::Market_T3});
-    add(BuildingType::Market_T3, {"Grand Market",   "Rich trade routes.", 500, 0, 50,  0, 3, 4, 0, 0, BuildingType::None});
-    add(BuildingType::PeasantrySamuraiGrowth_T1,  {"samurai Village Market",    "Grows peasant population.", 195,  0,  15,  2, 1, 2, 0, 13, BuildingType::PeasantrySamuraiGrowth_T2});
-    add(BuildingType::PeasantrySamuraiGrowth_T2,  {"Town Market",       "Grows population faster.", 225, 0,  20,  4, 2, 3, 0, 20, BuildingType::PeasantrySamuraiGrowth_T3});
-    add(BuildingType::PeasantrySamuraiGrowth_T3,  {"Grand Market",      "Major growth bonus.", 270, 0, 25,  6, 3, 4, 0, 26, BuildingType::None});
-    add(BuildingType::NobilitySamuraiEstate_T1,  {"Samurai Village Market",    "Grows population.", 80,  0,  15,  2, 1, 2, 0, 6, BuildingType::NobilitySamuraiEstate_T2});
-    add(BuildingType::NobilitySamuraiEstate_T2,  {"Town Market",       "Grows population faster.", 200, 0,  30,  4, 2, 3, 0, 10, BuildingType::NobilitySamuraiEstate_T3});
-    add(BuildingType::NobilitySamuraiEstate_T3,  {"Grand Market",      "Major growth bonus.", 400, 0, 45,  6, 3, 4, 0, 14, BuildingType::None});
+    add(BuildingType::Market_T1, {"Samurai Village Market", "Basic trade.", 100,  0,  20,  0, 1, 2, 0, 0, 0, BuildingType::Market_T2});
+    add(BuildingType::Market_T2, {"Town Market",    "Established trade.",  250,  0,  35,  0, 2, 3, 0, 0, 0, BuildingType::Market_T3});
+    add(BuildingType::Market_T3, {"Grand Market",   "Rich trade routes.", 500, 0, 50,  0, 3, 4, 0, 0, 0, BuildingType::None});
+    add(BuildingType::PeasantrySamuraiGrowth_T1,  {"samurai Village Market",    "Grows peasant population.", 195,  0,  15,  2, 1, 2, 0, 13, 0, BuildingType::PeasantrySamuraiGrowth_T2});
+    add(BuildingType::PeasantrySamuraiGrowth_T2,  {"Town Market",       "Grows population faster.", 225, 0,  20,  4, 2, 3, 0, 20, 0, BuildingType::PeasantrySamuraiGrowth_T3});
+    add(BuildingType::PeasantrySamuraiGrowth_T3,  {"Grand Market",      "Major growth bonus.", 270, 0, 25,  6, 3, 4, 0, 26, 0, BuildingType::None});
+    add(BuildingType::NobilitySamuraiEstate_T1,  {"Samurai Village Market",    "Grows population.", 80,  0,  15,  2, 1, 2, 0, 6, 0, BuildingType::NobilitySamuraiEstate_T2});
+    add(BuildingType::NobilitySamuraiEstate_T2,  {"Town Market",       "Grows population faster.", 200, 0,  30,  4, 2, 3, 0, 10, 0, BuildingType::NobilitySamuraiEstate_T3});
+    add(BuildingType::NobilitySamuraiEstate_T3,  {"Grand Market",      "Major growth bonus.", 400, 0, 45,  6, 3, 4, 0, 14, 0, BuildingType::None});
+    add(BuildingType::SamuraiWareHouse_T1, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 1, 5, 0, 0, 25, BuildingType::SamuraiWareHouse_T2}); //store 25 food
+    add(BuildingType::SamuraiWareHouse_T2, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 2, 5, 0, 0, 50, BuildingType::SamuraiWareHouse_T3}); // store 50 food
+    add(BuildingType::SamuraiWareHouse_T3, {"Great Warehouse", "All goods can be stored,\nsafe from the weather", 1000, 80, 0, 0, 3, 7, 0, 0, 75, BuildingType::None}); // store 75 food
     // ── SAMURAI RELIGION ──
-    add(BuildingType::Hospital_T1, {"Field Hospital", "Heals troops.",       100,  5, 0,  5, 1, 2, 0, 0, BuildingType::Hospital_T2});
-    add(BuildingType::Hospital_T2, {"Hospital",       "Better healing.",     250, 10, 0, 10, 2, 3, 0, 0, BuildingType::Hospital_T3});
-    add(BuildingType::Hospital_T3, {"Grand Hospital", "Full medical care.",  500, 15, 0, 15, 3, 4, 0, 0, BuildingType::None});
-    add(BuildingType::Chapel_T1,   {"Shinto Shrine",  "Basic worship.",      100,  5, 0,  5, 1, 2, 0, 0, BuildingType::Chapel_T2});
-    add(BuildingType::Chapel_T2,   {"Shinto Temple",  "Greater worship.",    250, 10, 0, 10, 2, 3, 0, 0, BuildingType::Chapel_T3});
-    add(BuildingType::Chapel_T3,   {"Grand Shrine",   "Divine blessing.",    500, 15, 0, 20, 3, 4, 0, 0, BuildingType::None});
+    add(BuildingType::Hospital_T1, {"Field Hospital", "Heals troops.",       100,  5, 0,  5, 1, 2, 0, 0, 0, BuildingType::Hospital_T2});
+    add(BuildingType::Hospital_T2, {"Hospital",       "Better healing.",     250, 10, 0, 10, 2, 3, 0, 0, 0, BuildingType::Hospital_T3});
+    add(BuildingType::Hospital_T3, {"Grand Hospital", "Full medical care.",  500, 15, 0, 15, 3, 4, 0, 0, 0, BuildingType::None});
+    add(BuildingType::Chapel_T1,   {"Shinto Shrine",  "Basic worship.",      100,  5, 0,  5, 1, 2, 0, 0, 0, BuildingType::Chapel_T2});
+    add(BuildingType::Chapel_T2,   {"Shinto Temple",  "Greater worship.",    250, 10, 0, 10, 2, 3, 0, 0, 0, BuildingType::Chapel_T3});
+    add(BuildingType::Chapel_T3,   {"Grand Shrine",   "Divine blessing.",    500, 15, 0, 20, 3, 4, 0, 0, 0, BuildingType::None});
 
     return db;
 }
@@ -495,11 +524,11 @@ inline std::vector<BuildingType> GetBuildingsForCategory(BuildingCategory catego
 
         case BuildingCategory::Economy:
             if (faction == FactionZone::Knight)
-                results = {BuildingType::Economy_T1, BuildingType::PeasantryGrowth_T1, BuildingType::NobilityEstate_T1};
+                results = {BuildingType::KnightWareHouse_T1, BuildingType::Economy_T1, BuildingType::PeasantryGrowth_T1, BuildingType::NobilityEstate_T1};
             else if (faction == FactionZone::Viking)
-                results = {BuildingType::SlaveMarket_T1, BuildingType::PeasantryVikingGrowth_T1, BuildingType::NobilityVikingEstate_T1};
+                results = {BuildingType::VikingWareHouse_T1, BuildingType::SlaveMarket_T1, BuildingType::PeasantryVikingGrowth_T1, BuildingType::NobilityVikingEstate_T1};
             else if (faction == FactionZone::Samurai)
-                results = {BuildingType::Market_T1, BuildingType::PeasantrySamuraiGrowth_T1, BuildingType::NobilitySamuraiEstate_T1};
+                results = {BuildingType::SamuraiWareHouse_T1, BuildingType::Market_T1, BuildingType::PeasantrySamuraiGrowth_T1, BuildingType::NobilitySamuraiEstate_T1};
             break;
 
         case BuildingCategory::Religion:
