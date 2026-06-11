@@ -136,6 +136,7 @@ public:
     TTF_Font *gameGeneralFont = nullptr;
     TTF_Text *gameCurrentMoneyUiText = nullptr;
     TTF_Text *gameAnticipatedMoneyUiText = nullptr;
+    TTF_Font *gameCurrentFoodUiFont = nullptr;
     TTF_Text *gameCurrentFoodUiText = nullptr;
     TTF_Text *gameNumberOfTurnText = nullptr;
     TTF_Font *gameBuildingCostUIFont = nullptr;
@@ -629,8 +630,9 @@ private://constructor
         if (gameAnticipatedMoneyUiText == nullptr) {
             SDL_LogWarn(0,"failed to create the text gameAnticipatedMoneyUiText", SDL_GetError());
         }
+        gameCurrentFoodUiFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         //same font has AnticipatedMoneyUiText
-        gameCurrentFoodUiText = TTF_CreateText(textEngine, gameGeneralFont, "", 25);
+        gameCurrentFoodUiText = TTF_CreateText(textEngine, gameCurrentFoodUiFont, "", 25);
         if (gameCurrentFoodUiText == nullptr) {
             SDL_LogWarn(0, "failed to create the text for gameAnticipatedFoodUiText", SDL_GetError());
         }
@@ -1990,6 +1992,7 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         TTF_CloseFont(gameBuildingConstructionTimeFont);
         TTF_CloseFont(gameBuildingDescriptionFont);
         TTF_CloseFont(gameBuildingCategoriesNameFont);
+        TTF_CloseFont(gameCurrentFoodUiFont);
     // ---------------------------------
         TTF_DestroyText(fpsText);
         TTF_DestroyText(menuText);
@@ -3613,34 +3616,68 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
 
         //Segment bar
         //food
-        const int foodRange = 500;
-        const float ratio      = (float)(std::clamp(player.currentFood, -foodRange, foodRange) + foodRange) / (float)(2 * foodRange);  // 0.0 → 1.0
-        int filledSegs = std::clamp((int)(ratio * 6.f + 0.5f), 0, 6);
+        int filledSegs;
+        if (player.currentFood >=  300) {
+            filledSegs = 6;
+        }
+        else if (player.currentFood >= 150 && player.currentFood <300) {
+            filledSegs = 5;
+        }
+        else if (player.currentFood >= 0 && player.currentFood < 150) {
+            filledSegs = 4;
+        }
+        else if (player.currentFood < 0 && player.currentFood > -150) {
+            filledSegs = 3;
+        }
+        else if (player.currentFood >= -150 && player.currentFood > -300) {
+            filledSegs = 2;
+        }
+        else if (player.currentFood >= -300) {
+            filledSegs = 1;
+        }
+
+
         SDL_Color segColors[6] = {
             {190,  30,  30, 255},   // deep red
             {210,  80,  30, 255},   // orange-red
             {220, 160,  30, 255},   // orange-yellow
-            {160, 210,  30, 255},   // yellow-green
+            {210, 210,  30, 255},   // yellow-green
             { 80, 200,  50, 255},   // green
             { 30, 170,  30, 255},   // deep green
         };
-        const float segW   = 20.f;
-        const float segH   = 14.f;
+        const float segW = 20.f;
+        const float segH = 14.f;
         const float segGap =  1.f;
-        const float barX   = contentRect.x + 280.f;
-        const float barY   = borderRect.y  +  13.f;
+        const float barX = contentRect.x + 280.f;
+        const float barY = borderRect.y  +  13.f;
 
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         for (int seg = 0; seg < 6; seg++) {
             SDL_FRect segRect = {barX + seg * (segW + segGap), barY, segW, segH};
 
-            if (seg < filledSegs)
-                SDL_SetRenderDrawColor(renderer, segColors[seg].r, segColors[seg].g, segColors[seg].b, 255);
-            else
-                SDL_SetRenderDrawColor(renderer, 25, 25, 25, 255);
+            bool isActive = (seg < filledSegs);
+            Uint8 segAlpha = 255;
 
+            SDL_SetRenderDrawColor(renderer,
+                segColors[seg].r, segColors[seg].g, segColors[seg].b, segAlpha);
             SDL_RenderFillRect(renderer, &segRect);
             SDL_SetRenderDrawColor(renderer, 70, 70, 70, 200);
             SDL_RenderRect(renderer, &segRect);
+        }
+
+        // Arrow indicator
+        int indicatorSeg = std::clamp(filledSegs - 1, 0, 5);
+        float arrowCX = barX + indicatorSeg * (segW + segGap) + segW / 2.f;
+        float tipY = barY + segH + 2.f;   // points up towards the bar
+        float arrowH = 6.f;
+
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 220);
+        for (int dy = 0; dy <= (int)arrowH; dy++) {
+            float t     = (float)dy / arrowH;
+            float halfW = t * 5.f;   // widens as it goes down → ▼ shape
+            SDL_RenderLine(renderer,
+                (int)(arrowCX - halfW), (int)(tipY + dy),
+                (int)(arrowCX + halfW), (int)(tipY + dy));
         }
 
 
