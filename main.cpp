@@ -23,21 +23,34 @@
 #include "Player.h"
 
 /*
- *TODO LIST For version 0.1.0
+ *TODO LIST For version 0.1.5 (FOOD STORAGE SYSTEM)
  *
- *To DO -> PLAYABLE CAMPAIGN :
- *Buildings of a region + UI of that region
- *Money System
+ *food storage System
+ *public order works with it
+ *population is affected by it
+ * Money UI mouse hovered -> to describe the different money income and upkeep
+ * fix Textures errors
+ * Fix a bug when a building is pending you can buy an other one
+ *
+ *----------------------------------------------
+ *
+ *TO GET A PLAYABLE CAMPAIGN :
  *Population System
- *Turn base system
  *Roads
+ *Technology
+ * 1 Special mechanic per factio
+ * Introduction narrator
+ * camera movement at the start (cinematic vibe, black rect under and top)
+ *
  *----------------------------------------------
  *Character +Movement Maximum per turn
  *
  *Finished:
  *TileMap
  *Camera (missing mouse touch edge)
- *
+ * Buildings of a region + UI of that region
+ * Money System
+ * Turn base system
  */
 
 
@@ -165,6 +178,10 @@ public:
     FactionZone currentFactionTurn = FactionZone::Knight;//start with player
     //texture next turn button
     SDL_Texture  *gameNextTurnTexture = nullptr;
+
+    //filled Segment of food -> each segment change the food stored per turn
+    int filledSegs;
+
 
     //Texture coin + Turn time
     SDL_Texture *gameCoinMoneyTexture = nullptr;
@@ -3671,7 +3688,6 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
 
         //Segment bar
         //food
-        int filledSegs;
         if (player.currentFood >=  300) {
             filledSegs = 6;
         }
@@ -4469,6 +4485,43 @@ public:
             }
         }
     }
+
+    //Food
+        /*
+         * if in segs 1,2,3 means produce less food than they consume.
+         * foodStore gets negative. If reach 0, attrition, negative order, etc etc
+         */
+        if (filledSegs == 1) {//consume food in storage before having famine
+            if (player.foodStored > 0) {
+                player.foodStored -= 9;
+            }
+        }
+        else if (filledSegs == 2) {//consume food in storage
+            if (player.foodStored > 0) {
+                player.foodStored -= 6;
+            }
+        }
+        else if (filledSegs == 3) {//consume food in storage
+            if (player.foodStored > 0) {
+                player.foodStored -=3;
+            }
+        }
+        else if (filledSegs == 4) { // increase food in storage
+           if ( player.foodStored <= player.foodStorage){ //can't go higher than foodStorage limit
+               player.foodStored += 3; // 3 food stored per turn
+           }
+        }
+        else if (filledSegs == 5) {// increase food in storage
+            if (player.foodStored <= player.foodStorage) {
+                player.foodStored += 6; // 6 food stored per turn
+            }
+        }
+        else if (filledSegs == 6) { // increase food in storage
+            if (player.foodStored <= player.foodStorage) {
+                player.foodStored += 9;
+            }
+        }
+
 
     // AI TURNS~!
     std::vector<FactionZone> turnOrder = { FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai };
