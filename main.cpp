@@ -1322,8 +1322,22 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
             SDL_LogWarn(0, "failed to load texture NobilityEstate_T3", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::NobilityEstate_T3], SDL_SCALEMODE_NEAREST);
-
-
+        //warehouse
+        buildingTypeTextures[BuildingType::KnightWareHouse_T5] = IMG_LoadTexture(renderer, "assets/Knight/WareHouseTier3.png");
+        if (buildingTypeTextures[BuildingType::KnightWareHouse_T5]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightWareHouse_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightWareHouse_T5], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightWareHouse_T4] = IMG_LoadTexture(renderer, "assets/Knight/WareHouseTier4.png");
+        if (buildingTypeTextures[BuildingType::KnightWareHouse_T4]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightWareHouse_T4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightWareHouse_T4], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightWareHouse_T5] = IMG_LoadTexture(renderer, "assets/Knight/WareHouseTier5.png");
+        if (buildingTypeTextures[BuildingType::KnightWareHouse_T5]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightWareHouse_T5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightWareHouse_T5], SDL_SCALEMODE_NEAREST);
         //Religion
         buildingTypeTextures[BuildingType::Church_T1] = IMG_LoadTexture(renderer, "assets/Knight/ChurchTier1.png");
         if (buildingTypeTextures[BuildingType::Church_T1] == nullptr) {
@@ -1598,6 +1612,22 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
             SDL_LogWarn(0, "failed to load texture NobilityVikingEstate_T3", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::NobilityVikingEstate_T3], SDL_SCALEMODE_NEAREST);
+        //warehouse
+        buildingTypeTextures[BuildingType::VikingWareHouse_T5] = IMG_LoadTexture(renderer, "assets/Viking/WareHouseTier3.png");
+        if (buildingTypeTextures[BuildingType::VikingWareHouse_T5]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingWareHouse_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingWareHouse_T5], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingWareHouse_T4] = IMG_LoadTexture(renderer, "assets/Viking/WareHouseTier4.png");
+        if (buildingTypeTextures[BuildingType::VikingWareHouse_T4]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingWareHouse_T4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingWareHouse_T4], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingWareHouse_T5] = IMG_LoadTexture(renderer, "assets/Viking/WareHouseTier5.png");
+        if (buildingTypeTextures[BuildingType::VikingWareHouse_T5]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingWareHouse_T5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingWareHouse_T5], SDL_SCALEMODE_NEAREST);
 
         //Religion
         buildingTypeTextures[BuildingType::Shrine_T1] = IMG_LoadTexture(renderer, "assets/Viking/ShrineTier1.png");

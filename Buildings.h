@@ -50,9 +50,9 @@ PeasantryGrowth_T3,
 NobilityEstate_T1,//noble growth
 NobilityEstate_T2,
 NobilityEstate_T3,
-KnightWareHouse_T1,
-KnightWareHouse_T2,
 KnightWareHouse_T3,
+KnightWareHouse_T4,
+KnightWareHouse_T5,
 Church_T1,
 Church_T2,
 Church_T3,
@@ -95,9 +95,9 @@ PeasantryVikingGrowth_T3,
 NobilityVikingEstate_T1,
 NobilityVikingEstate_T2,
 NobilityVikingEstate_T3,
-VikingWareHouse_T1,
-VikingWareHouse_T2,
 VikingWareHouse_T3,
+VikingWareHouse_T4,
+VikingWareHouse_T5,
 Shrine_T1,
 Shrine_T2,
 Shrine_T3,
@@ -144,9 +144,9 @@ PeasantrySamuraiGrowth_T3,
 NobilitySamuraiEstate_T1,
 NobilitySamuraiEstate_T2,
 NobilitySamuraiEstate_T3,
-SamuraiWareHouse_T1,
-SamuraiWareHouse_T2,
 SamuraiWareHouse_T3,
+SamuraiWareHouse_T4,
+SamuraiWareHouse_T5,
 Hospital_T1,
 Hospital_T2,
 Hospital_T3,
@@ -239,9 +239,9 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::NobilityEstate_T1:
     case BuildingType::NobilityEstate_T2:
     case BuildingType::NobilityEstate_T3:
-    case BuildingType::KnightWareHouse_T1:
-    case BuildingType::KnightWareHouse_T2:
     case BuildingType::KnightWareHouse_T3:
+    case BuildingType::KnightWareHouse_T4:
+    case BuildingType::KnightWareHouse_T5:
     case BuildingType::SlaveMarket_T1:
     case BuildingType::SlaveMarket_T2:
     case BuildingType::SlaveMarket_T3:
@@ -251,9 +251,9 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::NobilityVikingEstate_T1:
     case BuildingType::NobilityVikingEstate_T2:
     case BuildingType::NobilityVikingEstate_T3:
-    case BuildingType::VikingWareHouse_T1:
-    case BuildingType::VikingWareHouse_T2:
     case BuildingType::VikingWareHouse_T3:
+    case BuildingType::VikingWareHouse_T4:
+    case BuildingType::VikingWareHouse_T5:
     case BuildingType::Market_T1:
     case BuildingType::Market_T2:
     case BuildingType::Market_T3:
@@ -263,9 +263,9 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::NobilitySamuraiEstate_T1:
     case BuildingType::NobilitySamuraiEstate_T2:
     case BuildingType::NobilitySamuraiEstate_T3:
-    case BuildingType::SamuraiWareHouse_T1:
-    case BuildingType::SamuraiWareHouse_T2:
     case BuildingType::SamuraiWareHouse_T3:
+    case BuildingType::SamuraiWareHouse_T4:
+    case BuildingType::SamuraiWareHouse_T5:
         return BuildingCategory::Economy;
 
     case BuildingType::Church_T1:
@@ -367,9 +367,9 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::NobilityEstate_T1,  {"Small private farm", "Grows population.", 80,  0,  15,  2, 1, 2, 0, 6, 0, BuildingType::NobilityEstate_T2});//Nobility generate less food but more money
     add(BuildingType::NobilityEstate_T2,  {"Lord's Fields", "Grows population faster.", 200, 0,  30,  4, 2, 3, 0, 10, 0, BuildingType::NobilityEstate_T3});
     add(BuildingType::NobilityEstate_T3,  {"Grand Manor Farm", "Major growth bonus.", 400, 0, 45,  6, 3, 4, 0, 14, 0, BuildingType::None});
-    add(BuildingType::KnightWareHouse_T1, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 1, 5, 0, 0, 25, BuildingType::KnightWareHouse_T2}); //store 25 food
-    add(BuildingType::KnightWareHouse_T2, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 2, 5, 0, 0, 50, BuildingType::KnightWareHouse_T3}); // store 50 food
-    add(BuildingType::KnightWareHouse_T3, {"Great Warehouse", "All goods can be stored,\nsafe from the weather", 1000, 80, 0, 0, 3, 7, 0, 0, 75, BuildingType::None}); // store 75 food
+    add(BuildingType::KnightWareHouse_T3, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 3, 5, 0, 0, 25, BuildingType::KnightWareHouse_T4}); //store 25 food
+    add(BuildingType::KnightWareHouse_T4, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 4, 5, 0, 0, 50, BuildingType::KnightWareHouse_T5}); // store 50 food
+    add(BuildingType::KnightWareHouse_T5, {"Great Warehouse", "All goods can be stored,\nsafe from the weather", 1000, 80, 0, 0, 5, 7, 0, 0, 75, BuildingType::None}); // store 75 food
     // ── KNIGHT MILITARY ──
     add(BuildingType::Barracks_T1,     {"Militia Grounds",  "Trains basic infantry.",   150, 10, 0, 0, 1, 2, 0, 0, 0, BuildingType::Barracks_T2});
     add(BuildingType::Barracks_T2,     {"Training Grounds", "Trains medium infantry.",  300, 20, 0, 0, 2, 3, 0, 0, 0, BuildingType::Barracks_T3});
@@ -426,9 +426,9 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::NobilityVikingEstate_T1,  {"Viking Village Market",    "Grows population.", 80,  0,  15,  2, 1, 2, 0, 6, 0, BuildingType::NobilityVikingEstate_T2});
     add(BuildingType::NobilityVikingEstate_T2,  {"Town Market",       "Grows population faster.", 200, 0,  30,  4, 2, 3, 0, 10, 0,  BuildingType::NobilityVikingEstate_T3});
     add(BuildingType::NobilityVikingEstate_T3,  {"Grand Market",      "Major growth bonus.", 400, 0, 45,  6, 3, 4, 0, 14, 0, BuildingType::None});
-    add(BuildingType::VikingWareHouse_T1, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 1, 5, 0, 0, 25, BuildingType::VikingWareHouse_T2}); //store 25 food
-    add(BuildingType::VikingWareHouse_T2, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 2, 5, 0, 0, 50, BuildingType::VikingWareHouse_T3}); // store 50 food
-    add(BuildingType::VikingWareHouse_T3, {"Great Warehouse", "All goods can be stored,\nsafe from the weather", 1000, 80, 0, 0, 3, 7, 0, 0, 75, BuildingType::None}); // store 75 food
+    add(BuildingType::VikingWareHouse_T3, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 3, 5, 0, 0, 25, BuildingType::VikingWareHouse_T4}); //store 25 food
+    add(BuildingType::VikingWareHouse_T4, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 4, 5, 0, 0, 50, BuildingType::VikingWareHouse_T5}); // store 50 food
+    add(BuildingType::VikingWareHouse_T5, {"Great Warehouse", "All goods can be stored,\nsafe from the weather", 1000, 80, 0, 0, 5, 7, 0, 0, 75, BuildingType::None}); // store 75 food
     // ── VIKING RELIGION ──
     add(BuildingType::Shrine_T1,          {"Shrine",          "Pleases the gods.",        100,  5, 0,  5, 1, 2, 0, 0, 0, BuildingType::Shrine_T2});
     add(BuildingType::Shrine_T2,          {"Temple",          "Greater divine favor.",    250, 10, 0, 10, 2, 3, 0, 0, 0, BuildingType::Shrine_T3});
@@ -469,9 +469,9 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::NobilitySamuraiEstate_T1,  {"Samurai Village Market",    "Grows population.", 80,  0,  15,  2, 1, 2, 0, 6, 0, BuildingType::NobilitySamuraiEstate_T2});
     add(BuildingType::NobilitySamuraiEstate_T2,  {"Town Market",       "Grows population faster.", 200, 0,  30,  4, 2, 3, 0, 10, 0, BuildingType::NobilitySamuraiEstate_T3});
     add(BuildingType::NobilitySamuraiEstate_T3,  {"Grand Market",      "Major growth bonus.", 400, 0, 45,  6, 3, 4, 0, 14, 0, BuildingType::None});
-    add(BuildingType::SamuraiWareHouse_T1, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 1, 5, 0, 0, 25, BuildingType::SamuraiWareHouse_T2}); //store 25 food
-    add(BuildingType::SamuraiWareHouse_T2, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 2, 5, 0, 0, 50, BuildingType::SamuraiWareHouse_T3}); // store 50 food
-    add(BuildingType::SamuraiWareHouse_T3, {"Great Warehouse", "All goods can be stored,\nsafe from the weather", 1000, 80, 0, 0, 3, 7, 0, 0, 75, BuildingType::None}); // store 75 food
+    add(BuildingType::SamuraiWareHouse_T3, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 3, 5, 0, 0, 25, BuildingType::SamuraiWareHouse_T4}); //store 25 food
+    add(BuildingType::SamuraiWareHouse_T4, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 4, 5, 0, 0, 50, BuildingType::SamuraiWareHouse_T5}); // store 50 food
+    add(BuildingType::SamuraiWareHouse_T5, {"Great Warehouse", "All goods can be stored,\nsafe from the weather", 1000, 80, 0, 0, 5, 7, 0, 0, 75, BuildingType::None}); // store 75 food
     // ── SAMURAI RELIGION ──
     add(BuildingType::Hospital_T1, {"Field Hospital", "Heals troops.",       100,  5, 0,  5, 1, 2, 0, 0, 0, BuildingType::Hospital_T2});
     add(BuildingType::Hospital_T2, {"Hospital",       "Better healing.",     250, 10, 0, 10, 2, 3, 0, 0, 0, BuildingType::Hospital_T3});
@@ -524,11 +524,11 @@ inline std::vector<BuildingType> GetBuildingsForCategory(BuildingCategory catego
 
         case BuildingCategory::Economy:
             if (faction == FactionZone::Knight)
-                results = {BuildingType::KnightWareHouse_T1, BuildingType::Economy_T1, BuildingType::PeasantryGrowth_T1, BuildingType::NobilityEstate_T1};
+                results = {BuildingType::KnightWareHouse_T3, BuildingType::Economy_T1, BuildingType::PeasantryGrowth_T1, BuildingType::NobilityEstate_T1};
             else if (faction == FactionZone::Viking)
-                results = {BuildingType::VikingWareHouse_T1, BuildingType::SlaveMarket_T1, BuildingType::PeasantryVikingGrowth_T1, BuildingType::NobilityVikingEstate_T1};
+                results = {BuildingType::VikingWareHouse_T3, BuildingType::SlaveMarket_T1, BuildingType::PeasantryVikingGrowth_T1, BuildingType::NobilityVikingEstate_T1};
             else if (faction == FactionZone::Samurai)
-                results = {BuildingType::SamuraiWareHouse_T1, BuildingType::Market_T1, BuildingType::PeasantrySamuraiGrowth_T1, BuildingType::NobilitySamuraiEstate_T1};
+                results = {BuildingType::SamuraiWareHouse_T3, BuildingType::Market_T1, BuildingType::PeasantrySamuraiGrowth_T1, BuildingType::NobilitySamuraiEstate_T1};
             break;
 
         case BuildingCategory::Religion:
