@@ -3771,7 +3771,31 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
 
 
     //Food hoved Rectangle
+        float tooltipW = 260.f;
+        float tooltipH = 100.f;
 
+        float tooltipX = foodTooltipX + 12.f;
+        float tooltipY = foodTooltipY - tooltipH + 120.f;
+        if (tooltipX + tooltipW > 1910.f) tooltipX = foodTooltipX - tooltipW - 12.f;
+        if (tooltipY < 5.f) tooltipY = 5.f;
+
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+        // Background
+        SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+        SDL_FRect bg = {tooltipX, tooltipY, tooltipW, tooltipH};
+        SDL_RenderFillRect(renderer, &bg);
+
+        // Title bar
+        SDL_SetRenderDrawColor(renderer, 25, 65, 55, 255);
+        SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, 28.f};
+        SDL_RenderFillRect(renderer, &titleBar);
+        //Text Title
+
+
+        // Border
+        SDL_SetRenderDrawColor(renderer, 90, 170, 140, 255);
+        SDL_RenderRect(renderer, &bg);
 
 }
 
