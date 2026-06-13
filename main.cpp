@@ -3774,8 +3774,8 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         float tooltipW = 260.f;
         float tooltipH = 100.f;
 
-        float tooltipX = foodTooltipX + 12.f;
-        float tooltipY = foodTooltipY - tooltipH + 120.f;
+        float tooltipX = foodTooltipX + 70.f;
+        float tooltipY = foodTooltipY - tooltipH + 130.f;
         if (tooltipX + tooltipW > 1910.f) tooltipX = foodTooltipX - tooltipW - 12.f;
         if (tooltipY < 5.f) tooltipY = 5.f;
 
@@ -3791,6 +3791,17 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, 28.f};
         SDL_RenderFillRect(renderer, &titleBar);
         //Text Title
+        std::string currentFoodString = std::to_string(player.currentFood);
+        TTF_SetTextString(gameCurrentFoodUiText, currentFoodString.c_str() , 0);
+        //color red/Green
+        if (player.currentFood > 0) {
+            TTF_SetTextColor(gameCurrentFoodUiText, 0, 255, 0, 255); //Green positif
+        }
+        else {
+            TTF_SetTextColor (gameCurrentFoodUiText, 255, 0, 0, 255); //red if negatif
+        }
+        TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 25.f, tooltipY + 7.f);
+
 
 
         // Border
