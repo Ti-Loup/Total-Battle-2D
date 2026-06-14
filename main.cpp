@@ -26,13 +26,12 @@
  *TODO LIST For version 0.1.5 (FOOD STORAGE SYSTEM) -> June 19
  *
  *
- *public order works with food storage system
- *0.2.0 (population is affected by food storage system)
+ *
  * Money UI mouse hovered -> to describe the different money income and upkeep
  * fix Textures errors
  * Fix a bug when a building is pending you can buy an other one + if clicked its refounded and removed when pending
  *
- *
+ *0.2.0 (population is affected by food storage system)
  *----------------------------------------------
  *
  *TO GET A PLAYABLE CAMPAIGN :
@@ -53,6 +52,7 @@
  * Money System
  * Turn base system
  * food storage System
+ * public order works with food storage system
  */
 
 
@@ -3779,14 +3779,17 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         TTF_DrawRendererText(gameNumberOfTurnText, NextTurnButton.circleX+45.f, NextTurnButton.circleY+35.f);
     }
     //public order based on food (FILLEDS SEGS 1,2,3,4,5,6)
+    /*
+     * The famine arrives only when the foodStored reach 0. Otherwise theres no penalty
+     */
     int GetFoodPublicOrderModifier() {
         switch (filledSegs) {
             case 1:
-                return -3;
+                return (player.foodStored > 0) ? 0 : -3;
             case 2:
-                return -2;
+                return (player.foodStored > 0) ? 0 : -2;
             case 3:
-                return -1;
+                return (player.foodStored > 0) ? 0 : -1;
             case 4: 
                 return 1;
             case 5:
