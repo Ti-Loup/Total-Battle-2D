@@ -151,6 +151,8 @@ public:
     TTF_Text *gameAnticipatedMoneyUiText = nullptr;
     TTF_Font *gameCurrentFoodUiFont = nullptr;
     TTF_Text *gameCurrentFoodUiText = nullptr;
+    TTF_Font *gameFoodIndicatorUiFont = nullptr;
+    TTF_Text *gameFoodIndicatorUiText = nullptr;
     TTF_Text *gameNumberOfTurnText = nullptr;
     TTF_Font *gameBuildingCostUIFont = nullptr;
     TTF_Text *gameBuildingCostUIText = nullptr;
@@ -654,10 +656,15 @@ private://constructor
             SDL_LogWarn(0,"failed to create the text gameAnticipatedMoneyUiText", SDL_GetError());
         }
         gameCurrentFoodUiFont = TTF_OpenFont("assets/Rubik.ttf", 15);
+        gameFoodIndicatorUiFont = TTF_OpenFont ("assets/Rubik.ttf", 19);
         //same font has AnticipatedMoneyUiText
         gameCurrentFoodUiText = TTF_CreateText(textEngine, gameCurrentFoodUiFont, "", 25);
         if (gameCurrentFoodUiText == nullptr) {
             SDL_LogWarn(0, "failed to create the text for gameAnticipatedFoodUiText", SDL_GetError());
+        }
+        gameFoodIndicatorUiText = TTF_CreateText (textEngine, gameFoodIndicatorUiFont, "", 25);
+        if (gameFoodIndicatorUiText == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameFoodIndicatorUiText", SDL_GetError());
         }
         gameNumberOfTurnText = TTF_CreateText(textEngine, gameGeneralFont, "0", 25);
         if (gameNumberOfTurnText == nullptr) {
@@ -2046,6 +2053,7 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         TTF_CloseFont(gameBuildingDescriptionFont);
         TTF_CloseFont(gameBuildingCategoriesNameFont);
         TTF_CloseFont(gameCurrentFoodUiFont);
+        TTF_CloseFont(gameFoodIndicatorUiFont);
     // ---------------------------------
         TTF_DestroyText(fpsText);
         TTF_DestroyText(menuText);
@@ -2076,6 +2084,7 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         TTF_DestroyText(gameCurrentMoneyUiText);
         TTF_DestroyText(gameAnticipatedMoneyUiText);
         TTF_DestroyText(gameCurrentFoodUiText);
+        TTF_DestroyText(gameFoodIndicatorUiText);
         TTF_DestroyText(gameNumberOfTurnText);
         TTF_DestroyText(gameBuildingCostUIText);
         TTF_DestroyText(gameBuildingConstructionTimeText);
@@ -3644,6 +3653,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
 
         //FOOD SECTION
         player.nextTurnFood = 0;
+        player.foodStorage = 0;
         for (const auto &s : settlements) {
             if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
 
@@ -3653,6 +3663,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                 if (!building_data)continue;
                 player.nextTurnFood += building_data->foodProduced;
                 player.nextTurnFood -= building_data->foodUpkeep;
+                player.foodStorage += building_data->foodStorage;
             }
 
         }
@@ -3668,7 +3679,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         TTF_DrawRendererText(gameCurrentFoodUiText, contentRect.x + 256.f, contentRect.y + 4.f);
 
         //hovered food Zone
-        SDL_FRect foodHoveredZone = {contentRect.x + 228.f, borderRect.y, 110.f, 40.f};
+        SDL_FRect foodHoveredZone = {contentRect.x + 235.f, borderRect.y, 40.f, 40.f};
         float mouseXFood;
         float mouseYFood;
         SDL_GetMouseState(&mouseXFood, &mouseYFood);
@@ -3792,17 +3803,24 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         SDL_RenderFillRect(renderer, &titleBar);
         //Text Title
         std::string currentFoodString = std::to_string(player.currentFood);
-        TTF_SetTextString(gameCurrentFoodUiText, currentFoodString.c_str() , 0);
+        TTF_SetTextString(gameFoodIndicatorUiText, currentFoodString.c_str() , 0);
         //color red/Green
         if (player.currentFood > 0) {
-            TTF_SetTextColor(gameCurrentFoodUiText, 0, 255, 0, 255); //Green positif
+            TTF_SetTextColor(gameFoodIndicatorUiText, 0, 255, 0, 255); //Green positif
         }
         else {
-            TTF_SetTextColor (gameCurrentFoodUiText, 255, 0, 0, 255); //red if negatif
+            TTF_SetTextColor (gameFoodIndicatorUiText, 255, 0, 0, 255); //red if negatif
         }
-        TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 25.f, tooltipY + 7.f);
+        TTF_DrawRendererText(gameFoodIndicatorUiText, tooltipX + 25.f, tooltipY + 3.f);
+        TTF_SetTextString (gameFoodIndicatorUiText, "Net Food This Turn", 0);
+        TTF_SetTextColor (gameFoodIndicatorUiText, 255,255,255,255);
+        TTF_DrawRendererText(gameFoodIndicatorUiText, tooltipX + 50.f, tooltipY + 3.f);
 
-
+        //food stored amount
+        std::string foodStoredString = "You have " + std::to_string (player.foodStored) + "/" + std::to_string (player.foodStorage) + " Food Stores.";
+        TTF_SetTextString(gameCurrentFoodUiText,  foodStoredString.c_str(), 0);
+        TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, tooltipY + 40.f);
+        //surplus
 
         // Border
         SDL_SetRenderDrawColor(renderer, 90, 170, 140, 255);
@@ -4542,19 +4560,13 @@ public:
             }
         }
         else if (filledSegs == 4) { // increase food in storage
-           if ( player.foodStored <= player.foodStorage){ //can't go higher than foodStorage limit
-               player.foodStored += 3; // 3 food stored per turn
-           }
+           player.foodStored = std::min(player.foodStored+3, player.foodStorage);
         }
         else if (filledSegs == 5) {// increase food in storage
-            if (player.foodStored <= player.foodStorage) {
-                player.foodStored += 6; // 6 food stored per turn
-            }
+            player.foodStored = std::min(player.foodStored+6, player.foodStorage);
         }
         else if (filledSegs == 6) { // increase food in storage
-            if (player.foodStored <= player.foodStorage) {
-                player.foodStored += 9;
-            }
+            player.foodStored = std::min(player.foodStored+9, player.foodStorage);
         }
 
 
