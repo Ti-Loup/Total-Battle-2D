@@ -3821,7 +3821,24 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         TTF_SetTextString(gameCurrentFoodUiText,  foodStoredString.c_str(), 0);
         TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, tooltipY + 40.f);
         //surplus
-
+        int foodSurplus = 0;
+        switch (filledSegs) {
+            case 1: foodSurplus = -9; break;
+            case 2: foodSurplus = -6; break;
+            case 3: foodSurplus = -3; break;
+            case 4: foodSurplus =  3; break;
+            case 5: foodSurplus =  6; break;
+            case 6: foodSurplus =  9; break;
+        }
+        std::string foodSurplusString = "Surplus: " + (foodSurplus >= 0 ? std::string("+") : std::string("")) + std::to_string(foodSurplus);
+        TTF_SetTextString(gameCurrentFoodUiText, foodSurplusString.c_str(), 0);
+        TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, tooltipY + 60.f);
+        if (foodSurplus >= 0) {
+            TTF_SetTextColor(gameCurrentFoodUiText, 0, 255, 0, 255);
+        }
+        else {
+            TTF_SetTextColor (gameCurrentFoodUiText, 255, 0, 0, 255);
+        }
         // Border
         SDL_SetRenderDrawColor(renderer, 90, 170, 140, 255);
         SDL_RenderRect(renderer, &bg);
