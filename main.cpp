@@ -31,7 +31,7 @@
  * Money UI mouse hovered -> to describe the different money income and upkeep
  * fix Textures errors
  * Fix a bug when a building is pending you can buy an other one + if clicked its refounded and removed when pending
- * 
+ *
  *
  *----------------------------------------------
  *
