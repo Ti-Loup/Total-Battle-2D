@@ -23,14 +23,15 @@
 #include "Player.h"
 
 /*
- *TODO LIST For version 0.1.5 (FOOD STORAGE SYSTEM)
+ *TODO LIST For version 0.1.5 (FOOD STORAGE SYSTEM) -> June 19
  *
- *food storage System
- *public order works with it
- *population is affected by it
+ *
+ *public order works with food storage system
+ *0.2.0 (population is affected by food storage system)
  * Money UI mouse hovered -> to describe the different money income and upkeep
  * fix Textures errors
- * Fix a bug when a building is pending you can buy an other one
+ * Fix a bug when a building is pending you can buy an other one + if clicked its refounded and removed when pending
+ * 
  *
  *----------------------------------------------
  *
@@ -51,6 +52,7 @@
  * Buildings of a region + UI of that region
  * Money System
  * Turn base system
+ * food storage System
  */
 
 
