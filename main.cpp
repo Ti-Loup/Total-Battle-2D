@@ -3700,7 +3700,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         //SDL_Log("Food: %d ", player.currentFood, player.nextTurnFood);
 
         //Segment bar
-        //food
+        //food + bonus public order bonus
         if (player.currentFood >=  300) {
             filledSegs = 6;
         }
@@ -3777,6 +3777,25 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         TTF_SetTextString(gameNumberOfTurnText, endTurn.c_str(), 0);
         TTF_SetTextColor(gameNumberOfTurnText, 255, 255, 255, 255);
         TTF_DrawRendererText(gameNumberOfTurnText, NextTurnButton.circleX+45.f, NextTurnButton.circleY+35.f);
+    }
+    //public order based on food (FILLEDS SEGS 1,2,3,4,5,6)
+    int GetFoodPublicOrderModifier() {
+        switch (filledSegs) {
+            case 1:
+                return -3;
+            case 2:
+                return -2;
+            case 3:
+                return -1;
+            case 4: 
+                return 1;
+            case 5:
+                return 2;
+            case 6:
+                return 3;
+
+            default: return 0;
+        }
     }
     //FOOD HOVERED UI
     void RenderFoodTooltip() {
