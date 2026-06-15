@@ -81,6 +81,10 @@ public:
 
     //TEXT ET FONT
     // -> MENU <-
+    TTF_Font *gameVersionFont = nullptr;
+    TTF_Text *gameVersionText = nullptr;
+    TTF_Font *gameInProgressFont = nullptr;
+    TTF_Text * gameInProgressText = nullptr;
     TTF_Font *menuFont = nullptr;
     TTF_Text *menuText = nullptr;
 
@@ -527,6 +531,24 @@ private://constructor
 
 
         // -> MENU <-
+        gameInProgressFont = TTF_OpenFont("assets/KnightFont.ttf", 40);
+        gameVersionFont = TTF_OpenFont("assets/Rubik.ttf", 35);
+        gameVersionText = TTF_CreateText (textEngine, gameVersionFont, "Version (0.1.5)", 16);
+        if (gameVersionText == nullptr) {
+            SDL_LogWarn(0,"failed to create text for gameVersionText", SDL_GetError());
+        }
+        gameInProgressText = TTF_CreateText(textEngine, gameInProgressFont, "WORK IN PROGRESS", 16);
+        if (gameInProgressText == nullptr) {
+            SDL_LogWarn(0,"failed to create text for gameInProgressText", SDL_GetError());
+        }
+        if (TTF_SetTextColor(gameInProgressText, 255,255,255,222)==false) {
+            SDL_LogWarn(1,"failed to set the color of gameInProgressText", SDL_GetError());
+        }
+
+        // GAME VERSION
+
+        //WORK IN PROGRESS TEXT
+
         menuFont = TTF_OpenFont("assets/KnightFont.ttf",108);
         if (menuFont == nullptr) {
             SDL_LogCritical(1, "Failed to load font: %s", SDL_GetError());
@@ -2056,6 +2078,8 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         TTF_CloseFont(gameBuildingCategoriesNameFont);
         TTF_CloseFont(gameCurrentFoodUiFont);
         TTF_CloseFont(gameFoodIndicatorUiFont);
+        TTF_CloseFont(gameInProgressFont);
+        TTF_CloseFont(gameVersionFont);
     // ---------------------------------
         TTF_DestroyText(fpsText);
         TTF_DestroyText(menuText);
@@ -2092,6 +2116,8 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         TTF_DestroyText(gameBuildingConstructionTimeText);
         TTF_DestroyText(gameBuildingDescriptionText);
         TTF_DestroyText(gameBuildingCategoriesNameText);
+        TTF_DestroyText(gameInProgressText);
+        TTF_DestroyText(gameVersionText);
     // ---------------------------------
         SDL_DestroyTexture(provinceKnightBannerTexture);
         SDL_DestroyTexture(provinceVikingBannerTexture);
@@ -4080,6 +4106,7 @@ void RenderCategoryBuildingInfoUI() {
 
         TTF_DrawRendererText(menuText, 700,150);
         TTF_DrawRendererText(fpsText, 1800, 10);
+        TTF_DrawRendererText(gameVersionText, 10,10);
         SDL_RenderPresent(renderer);
     }
 
@@ -4402,6 +4429,10 @@ if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
 }
         //fps
         TTF_DrawRendererText(fpsText, 10, 10);
+
+
+        //Work in progress Text
+        TTF_DrawRendererText(gameInProgressText, 10, 30);
         SDL_RenderPresent(renderer);
     }
 
