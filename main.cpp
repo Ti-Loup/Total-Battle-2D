@@ -31,7 +31,10 @@
  * fix Textures errors
  * Fix a bug when a building is pending you can buy an other one + if clicked its refounded and removed when pending
  *
- *0.2.0 (population is affected by food storage system)
+ *0.2.0
+ * POPULATION SYSTEM
+ *(population is affected by food storage system)
+ *Update Buildings info in UI +/-
  *----------------------------------------------
  *
  *TO GET A PLAYABLE CAMPAIGN :
