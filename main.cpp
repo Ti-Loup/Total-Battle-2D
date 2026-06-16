@@ -24,10 +24,6 @@
 
 /*
  *TODO LIST For version 0.1.5 (FOOD STORAGE SYSTEM) -> June 19
- *
- *
- *
- * Money UI mouse hovered -> to describe the different money income and upkeep
  * fix Textures errors
  * Fix a bug when a building is pending you can buy an other one + if clicked its refounded and removed when pending
  *
@@ -45,6 +41,7 @@
  * Introduction narrator
  * camera movement at the start (cinematic vibe, black rect under and top)
  *
+ *
  *----------------------------------------------
  *Character +Movement Maximum per turn
  *
@@ -56,6 +53,7 @@
  * Turn base system
  * food storage System
  * public order works with food storage system
+ * Money UI mouse hovered -> to describe the different money income and upkeep
  */
 
 
@@ -3860,30 +3858,188 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
     }
     //MONEY HOVERED UI FR DETAILS OF INCOME/UPKEEP
     void RenderMoneyTooltip() {
-        if (!bMouseOnMoneyIcon) return;
+    if (!bMouseOnMoneyIcon) return;
 
-        //money hovered rect
-        float tooltipW = 260.f;
-        float tooltipH = 100.f;
-        float tooltipX = moneyTooltipX + 70.f;//Position
-        float tooltipY = moneyTooltipY - tooltipH + 130.f;
+    int taxIncome = 0;
+    int buildingIncome = 0;
+    int mainUpkeep = 0;
+    int buildingMaintenance = 0;
 
-        if (tooltipX + tooltipW > 1910.f) tooltipX = moneyTooltipX - tooltipW - 12.f;
-        if (tooltipY < 5.f) tooltipY = 5.f;
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    for (const auto& s : settlements) {
+        if (provinces[s.settlementData.provinceID].owner != player.faction) continue; //must be the playerfaction
 
-        //BLACKGROUND
-        SDL_SetRenderDrawColor(renderer, 12,10,8,240);
-        SDL_FRect moneyBackGround = {tooltipX, tooltipY, tooltipW, tooltipH};
-        SDL_RenderFillRect(renderer, &moneyBackGround);
-        //Title bar + Text
-        SDL_SetRenderDrawColor(renderer, 153,153,0, 255);
-        SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, 28.f};
-        SDL_RenderFillRect(renderer, &titleBar);
-        TTF_SetTextString (gameMoneyIndicatorUiText, "Money This Turn", 0);
-        TTF_SetTextColor (gameMoneyIndicatorUiText, 255,255,255,255);
-        TTF_DrawRendererText(gameMoneyIndicatorUiText, tooltipX + 50.f, tooltipY + 3.f);
+        //mainBuilding
+        const BuildingData* mainBuilding = GetBuildingData(s.settlementData.buildings[0]);
+        if (mainBuilding) mainUpkeep += mainBuilding->upkeep;
+        //income
+        if (provinces[s.settlementData.provinceID].bToggleCollectIncome) {
+            taxIncome += s.settlementData.baseIncome;
+            for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
+                if (s.settlementData.buildings[b] != BuildingType::None) {
+                    const BuildingData* building_data = GetBuildingData(s.settlementData.buildings[b]);
+                    if (building_data) {
+                        buildingIncome += building_data->incomeBonus;
+                        buildingMaintenance += building_data->upkeep;
+                    }
+                }
+            }
+        }
     }
+    //income total + Expense total
+    int totalIncome  = taxIncome + buildingIncome;
+    int totalExpense = mainUpkeep + buildingMaintenance;
+    int goldNextTurn = totalIncome - totalExpense;
+
+    // Calcul dynamique de la hauteur
+    float rowH   = 24.f;
+    float titleH = 30.f;
+    float sepH   = 10.f;
+    float padTop =  4.f;
+    float padBot =  8.f;
+
+    //The Row shows if its not 0 and has a value
+    int incomeRows = 0;
+    if (taxIncome != 0) incomeRows++;
+    if (buildingIncome != 0) incomeRows++;
+
+    int expenseRows = 0;
+    if (mainUpkeep != 0) expenseRows++;
+    if (buildingMaintenance != 0) expenseRows++;
+
+    float incomeSepH  = 0.f;
+    if (incomeRows  > 0) incomeSepH  = sepH;
+
+    float expenseSepH = 0.f;
+    if (expenseRows > 0) expenseSepH = sepH;
+
+
+    float tooltipW = 270.f;
+    float tooltipH = titleH + padTop + incomeRows  * rowH + incomeSepH + expenseRows * rowH + expenseSepH + 2 * rowH; // Total Income + Total Expense+ sepH+ rowH   // Gold Next Turn+ padBot;
+
+    float tooltipX = moneyTooltipX - tooltipW / 2.f;
+    float tooltipY = 48.f;
+    if (tooltipX < 5.f) tooltipX = 5.f;
+    if (tooltipX + tooltipW > 1915.f) tooltipX = 1915.f - tooltipW;
+
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+    // Background
+    SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+    SDL_FRect background = {tooltipX, tooltipY, tooltipW, tooltipH};
+    SDL_RenderFillRect(renderer, &background);
+
+    // Title bar
+    SDL_SetRenderDrawColor(renderer, 130, 100, 0, 255);
+    SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, titleH};
+    SDL_RenderFillRect(renderer, &titleBar);
+
+    // Border
+    SDL_SetRenderDrawColor(renderer, 180, 150, 30, 220);
+    SDL_RenderRect(renderer, &background);
+
+    // Title
+    TTF_SetTextString(gameMoneyIndicatorUiText, "Income", 0);
+    TTF_SetTextColor(gameMoneyIndicatorUiText, 255, 230, 150, 255);
+    int textW, textH;
+    TTF_GetTextSize(gameMoneyIndicatorUiText, &textW, &textH);
+    TTF_DrawRendererText(gameMoneyIndicatorUiText,tooltipX + (tooltipW - textW) / 2.f, tooltipY + (titleH - textH) / 2.f);
+
+    float lineY  = tooltipY + titleH + padTop;
+    float labelX = tooltipX + 10.f;
+    float rightX = tooltipX + tooltipW - 10.f;
+
+    // Lambda row it skip if value is 0
+    auto drawRow = [&](const char* label, int value, bool isExpense) {
+        if (value == 0) return;
+
+        TTF_SetTextString(gameMoneyIndicatorUiText, label, 0);
+        TTF_SetTextColor(gameMoneyIndicatorUiText, 175, 170, 150, 255);
+        TTF_DrawRendererText(gameMoneyIndicatorUiText, labelX, lineY);
+
+        std::string operatorString = "";
+        if (isExpense) {
+            operatorString = "-" + std::to_string(std::abs(value));
+        } else {
+            operatorString = "+" + std::to_string(value);
+        }
+        TTF_SetTextString(gameMoneyIndicatorUiText, operatorString.c_str(), 0);
+        if (isExpense) {
+            TTF_SetTextColor(gameMoneyIndicatorUiText, 220, 60, 60, 255);
+        } else {
+            TTF_SetTextColor(gameMoneyIndicatorUiText, 100, 220, 60, 255);
+        }
+        int operatorStringW, operatorStringH;
+        TTF_GetTextSize(gameMoneyIndicatorUiText, &operatorStringW, &operatorStringH);
+        TTF_DrawRendererText(gameMoneyIndicatorUiText, rightX - operatorStringW, lineY);
+        lineY += rowH;
+    };
+
+    // Lambda to separate de different types ----------------
+    auto drawSep = [&]() {
+        SDL_SetRenderDrawColor(renderer, 80, 70, 20, 200);
+        SDL_RenderLine(renderer,tooltipX + 6.f,  lineY + 2.f,tooltipX + tooltipW - 6.f, lineY + 2.f);
+        lineY += sepH;
+    };
+
+    // Lambda total This one is always shown to show total income and total upkeep
+    auto drawTotal = [&](const char* label, int value, bool isExpense) {
+        TTF_SetTextString(gameMoneyIndicatorUiText, label, 0);
+        TTF_SetTextColor(gameMoneyIndicatorUiText, 215, 215, 215, 255);
+        TTF_DrawRendererText(gameMoneyIndicatorUiText, labelX, lineY);
+
+        std::string operatorString = "";
+        if (isExpense) {
+            operatorString = "-" + std::to_string(std::abs(value));
+        } else {
+            operatorString = "+" + std::to_string(value);
+        }
+        TTF_SetTextString(gameMoneyIndicatorUiText, operatorString.c_str(), 0);
+        if (isExpense) {
+            TTF_SetTextColor(gameMoneyIndicatorUiText, 220, 60, 60, 255);
+        } else {
+            TTF_SetTextColor(gameMoneyIndicatorUiText, 127, 255, 0, 255);
+        }
+        int operatorStringW, operatorStringH;
+        TTF_GetTextSize(gameMoneyIndicatorUiText, &operatorStringW, &operatorStringH);
+        TTF_DrawRendererText(gameMoneyIndicatorUiText, rightX - operatorStringW, lineY);
+        lineY += rowH;
+    };
+
+    // Incomes
+    drawRow("Taxes",           taxIncome,      false);
+    drawRow("Building Income", buildingIncome, false);
+    if (incomeRows > 0) drawSep();
+
+    // Expenses
+    drawRow("Army Upkeep",     mainUpkeep,          true);
+    drawRow("Building Maint.", buildingMaintenance, true);
+    if (expenseRows > 0) drawSep();
+
+    // Totals
+    drawTotal("Total Income",  totalIncome,  false);
+    drawTotal("Total Expense", totalExpense, true);
+    drawSep();
+
+    // Gold Next Turn
+    TTF_SetTextString(gameMoneyIndicatorUiText, "Gold Next Turn", 0);
+    TTF_SetTextColor(gameMoneyIndicatorUiText, 255, 230, 100, 255);
+    TTF_DrawRendererText(gameMoneyIndicatorUiText, labelX, lineY);
+    {
+        std::string operatorString = "";
+        if (goldNextTurn >= 0) {
+            operatorString = "+" + std::to_string(goldNextTurn);
+            TTF_SetTextString(gameMoneyIndicatorUiText, operatorString.c_str(), 0);
+            TTF_SetTextColor(gameMoneyIndicatorUiText, 127, 255, 0, 255);
+        } else {
+            operatorString = std::to_string(goldNextTurn);
+            TTF_SetTextString(gameMoneyIndicatorUiText, operatorString.c_str(), 0);
+            TTF_SetTextColor(gameMoneyIndicatorUiText, 220, 60, 60, 255);
+        }
+        int operatorStringW, operatorStringH;
+        TTF_GetTextSize(gameMoneyIndicatorUiText, &operatorStringW, &operatorStringH);
+        TTF_DrawRendererText(gameMoneyIndicatorUiText, rightX - operatorStringW, lineY);
+    }
+}
 
     //FOOD HOVERED UI
     void RenderFoodTooltip() {
