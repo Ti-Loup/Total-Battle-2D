@@ -3914,12 +3914,12 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
 
 
     float tooltipW = 270.f;
-    float tooltipH = titleH + padTop + incomeRows  * rowH + incomeSepH + expenseRows * rowH + expenseSepH + 2 * rowH; // Total Income + Total Expense+ sepH+ rowH   // Gold Next Turn+ padBot;
+        float tooltipH = titleH + padTop + incomeRows * rowH + incomeSepH + expenseRows * rowH + expenseSepH + 2 * rowH + sepH + rowH + padBot;
 
-    float tooltipX = moneyTooltipX - tooltipW / 2.f;
-    float tooltipY = 48.f;
-    if (tooltipX < 5.f) tooltipX = 5.f;
-    if (tooltipX + tooltipW > 1915.f) tooltipX = 1915.f - tooltipW;
+        float tooltipX = moneyTooltipX + 30.f;
+        float tooltipY = moneyTooltipY + 30.f;
+        if (tooltipX + tooltipW > 1910.f) tooltipX = moneyTooltipX - tooltipW - 12.f;
+        if (tooltipY < 5.f) tooltipY = 5.f;
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
@@ -3938,11 +3938,11 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
     SDL_RenderRect(renderer, &background);
 
     // Title
-    TTF_SetTextString(gameMoneyIndicatorUiText, "Income", 0);
-    TTF_SetTextColor(gameMoneyIndicatorUiText, 255, 230, 150, 255);
+    TTF_SetTextString(gameCurrentMoneyUiText, "Income", 0);
+    TTF_SetTextColor(gameCurrentMoneyUiText, 255, 255, 255, 255);
     int textW, textH;
-    TTF_GetTextSize(gameMoneyIndicatorUiText, &textW, &textH);
-    TTF_DrawRendererText(gameMoneyIndicatorUiText,tooltipX + (tooltipW - textW) / 2.f, tooltipY + (titleH - textH) / 2.f);
+    TTF_GetTextSize(gameCurrentMoneyUiText, &textW, &textH);
+    TTF_DrawRendererText(gameCurrentMoneyUiText,tooltipX + 100.f, tooltipY + 3.f);
 
     float lineY  = tooltipY + titleH + padTop;
     float labelX = tooltipX + 10.f;
@@ -4050,7 +4050,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         float tooltipW = 260.f;
         float tooltipH = 100.f;
 
-        float tooltipX = foodTooltipX + 70.f;
+        float tooltipX = foodTooltipX + 30.f;
         float tooltipY = foodTooltipY - tooltipH + 130.f;
         if (tooltipX + tooltipW > 1910.f) tooltipX = foodTooltipX - tooltipW - 12.f;
         if (tooltipY < 5.f) tooltipY = 5.f;
