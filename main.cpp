@@ -160,6 +160,8 @@ public:
     TTF_Text *gameAnticipatedMoneyUiText = nullptr;
     TTF_Font *gameCurrentFoodUiFont = nullptr;
     TTF_Text *gameCurrentFoodUiText = nullptr;
+    TTF_Font *gameMoneyIndicatorUiFont = nullptr;
+    TTF_Text *gameMoneyIndicatorUiText = nullptr;
     TTF_Font *gameFoodIndicatorUiFont = nullptr;
     TTF_Text *gameFoodIndicatorUiText = nullptr;
     TTF_Text *gameNumberOfTurnText = nullptr;
@@ -689,10 +691,15 @@ private://constructor
         }
         gameCurrentFoodUiFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         gameFoodIndicatorUiFont = TTF_OpenFont ("assets/Rubik.ttf", 19);
+        gameMoneyIndicatorUiFont = TTF_OpenFont("assets/Rubik.ttf", 19);
         //same font has AnticipatedMoneyUiText
         gameCurrentFoodUiText = TTF_CreateText(textEngine, gameCurrentFoodUiFont, "", 25);
         if (gameCurrentFoodUiText == nullptr) {
             SDL_LogWarn(0, "failed to create the text for gameAnticipatedFoodUiText", SDL_GetError());
+        }
+        gameMoneyIndicatorUiText = TTF_CreateText(textEngine, gameMoneyIndicatorUiFont, "", 25);
+        if (gameMoneyIndicatorUiText == nullptr) {
+            SDL_LogWarn(0, "failed to create texte gameMoneyIndicatorUiText", SDL_GetError());
         }
         gameFoodIndicatorUiText = TTF_CreateText (textEngine, gameFoodIndicatorUiFont, "", 25);
         if (gameFoodIndicatorUiText == nullptr) {
@@ -2085,6 +2092,7 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         TTF_CloseFont(gameBuildingDescriptionFont);
         TTF_CloseFont(gameBuildingCategoriesNameFont);
         TTF_CloseFont(gameCurrentFoodUiFont);
+        TTF_CloseFont(gameMoneyIndicatorUiFont);
         TTF_CloseFont(gameFoodIndicatorUiFont);
         TTF_CloseFont(gameInProgressFont);
         TTF_CloseFont(gameVersionFont);
@@ -2118,6 +2126,7 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         TTF_DestroyText(gameCurrentMoneyUiText);
         TTF_DestroyText(gameAnticipatedMoneyUiText);
         TTF_DestroyText(gameCurrentFoodUiText);
+        TTF_DestroyText(gameMoneyIndicatorUiText);
         TTF_DestroyText(gameFoodIndicatorUiText);
         TTF_DestroyText(gameNumberOfTurnText);
         TTF_DestroyText(gameBuildingCostUIText);
@@ -3867,6 +3876,13 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         SDL_SetRenderDrawColor(renderer, 12,10,8,240);
         SDL_FRect moneyBackGround = {tooltipX, tooltipY, tooltipW, tooltipH};
         SDL_RenderFillRect(renderer, &moneyBackGround);
+        //Title bar + Text
+        SDL_SetRenderDrawColor(renderer, 153,153,0, 255);
+        SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, 28.f};
+        SDL_RenderFillRect(renderer, &titleBar);
+        TTF_SetTextString (gameMoneyIndicatorUiText, "Money This Turn", 0);
+        TTF_SetTextColor (gameMoneyIndicatorUiText, 255,255,255,255);
+        TTF_DrawRendererText(gameMoneyIndicatorUiText, tooltipX + 50.f, tooltipY + 3.f);
     }
 
     //FOOD HOVERED UI
