@@ -424,6 +424,11 @@ public:
     bool hoveredBuildingSlotUpgradable = false;
     BuildingType upgradableSlotRootBuilding = BuildingType::None;
 
+    //Money Mouse Hovered UI
+    bool bMouseOnMoneyIcon = false;
+    float moneyTooltipX = 0.0f;
+    float moneyTooltipY = 0.0f;
+
     //Food Mouse Hovered New UI
     bool bMouseOnFoodIcon = false;
     float foodTooltipX = 0.0f;
@@ -3632,15 +3637,15 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
 
 
     //The top UI bar for the money / turn area
-    void RenderGeneralUI(){
-    //rectangle of the top ui part
+    void RenderGeneralUI() {
+        //rectangle of the top ui part
         // Bordure
         float thickness = 5.0f;
         SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
         SDL_FRect borderRect = {600, 0, 800, 40};
         SDL_RenderFillRect(renderer, &borderRect);
 
-       //inner UI rectangle
+        //inner UI rectangle
         SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
         SDL_FRect contentRect = {600 + thickness,0 + thickness,800 - (thickness * 2),40 - (thickness * 2)};
         SDL_RenderFillRect(renderer, &contentRect);
@@ -3681,6 +3686,21 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         TTF_SetTextString(gameAnticipatedMoneyUiText, nextTurnStr.c_str(), 0);
         TTF_SetTextColor(gameAnticipatedMoneyUiText, player.nextTurnGold >= 0 ? 127 : 220, player.nextTurnGold >= 0 ? 255 : 60, 0, 255);
         TTF_DrawRendererText(gameAnticipatedMoneyUiText,contentRect.x + 125.f, contentRect.y + 4.f);
+
+        //hovered Money Hoved Zone
+        SDL_FRect moneyHoveredZone = {contentRect.x + 125.f, contentRect.y - 5.f, 50.f, 40.f };
+        float mouseXMoney;
+        float mouseYMoney;
+        SDL_GetMouseState(&mouseXMoney, &mouseYMoney);
+        float lenghtXMoney;
+        float lenghtYMoney;
+        SDL_RenderCoordinatesFromWindow(renderer, mouseXMoney, mouseYMoney, &lenghtXMoney, &lenghtYMoney);
+        SDL_FPoint mousePointMoney = {lenghtXMoney, lenghtYMoney};
+        //when bool true
+        bMouseOnMoneyIcon = SDL_PointInRectFloat (&mousePointMoney, &moneyHoveredZone);
+        moneyTooltipX = lenghtXMoney;
+        moneyTooltipY = lenghtYMoney;
+
 
         //FOOD SECTION
         player.nextTurnFood = 0;
@@ -3787,7 +3807,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 220);
         for (int dy = 0; dy <= (int)arrowH; dy++) {
             float t     = (float)dy / arrowH;
-            float halfW = t * 5.f;   // widens as it goes down → ▼ shape
+            float halfW = t * 5.f;   // widens as it goes down
             SDL_RenderLine(renderer,
                 (int)(arrowCX - halfW), (int)(tipY + dy),
                 (int)(arrowCX + halfW), (int)(tipY + dy));
@@ -3829,6 +3849,26 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
             default: return 0;
         }
     }
+    //MONEY HOVERED UI FR DETAILS OF INCOME/UPKEEP
+    void RenderMoneyTooltip() {
+        if (!bMouseOnMoneyIcon) return;
+
+        //money hovered rect
+        float tooltipW = 260.f;
+        float tooltipH = 100.f;
+        float tooltipX = moneyTooltipX + 70.f;//Position
+        float tooltipY = moneyTooltipY - tooltipH + 130.f;
+
+        if (tooltipX + tooltipW > 1910.f) tooltipX = moneyTooltipX - tooltipW - 12.f;
+        if (tooltipY < 5.f) tooltipY = 5.f;
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+        //BLACKGROUND
+        SDL_SetRenderDrawColor(renderer, 12,10,8,240);
+        SDL_FRect moneyBackGround = {tooltipX, tooltipY, tooltipW, tooltipH};
+        SDL_RenderFillRect(renderer, &moneyBackGround);
+    }
+
     //FOOD HOVERED UI
     void RenderFoodTooltip() {
     if (!bMouseOnFoodIcon) return;
@@ -4305,6 +4345,7 @@ void RenderCategoryBuildingInfoUI() {
         //Render the UI of provinces
         RenderProvinceUI();
         RenderGeneralUI();
+        RenderMoneyTooltip();
         RenderFoodTooltip();
         RenderBuildingInfoUI();
         RenderCategoryBuildingInfoUI();
