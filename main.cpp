@@ -3001,6 +3001,8 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
             std::string turnStr = std::to_string(s->settlementData.slotConstructionTimes[b]);
             TTF_SetTextString(gameBuildingConstructionTimeText, turnStr.c_str(), 0);
             TTF_DrawRendererText(gameBuildingConstructionTimeText, sx + 25.f, sy + 20.f);
+            pendingSlotRects.push_back(slot);
+            pendingSlotInfo.push_back({i, b});
         } else {
             // Hammer if upgradable...
             if (bd->upgradesTo != BuildingType::None && hammerUIBuildingUpgradeTexture && provinces[s->settlementData.provinceID].owner == player.faction) {
@@ -3056,6 +3058,9 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                                 std::string turnStr = std::to_string(s->settlementData.slotConstructionTimes[b]);
                                 TTF_SetTextString(gameBuildingConstructionTimeText, turnStr.c_str(), 0);
                                 TTF_DrawRendererText(gameBuildingConstructionTimeText, sx + 25.f, sy + 20.f);
+                                //to fix the pending bug
+                                pendingSlotRects.push_back(slot);
+                                pendingSlotInfo.push_back({i, b});
                             }
                             else {
                                 // Not Available Slot
@@ -5114,6 +5119,38 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 }
             }
 
+            // click on a pending building -> cancel and refund
+            if (app.bHasClickedOnASettlement && app.bButtonUIBuildingIsPressed &&
+                !app.pendingSlotRects.empty())
+            {
+                SDL_FPoint pt = {nouveauX, nouveauY};
+                for (int p = 0; p < (int)app.pendingSlotRects.size(); p++) {
+                    if (SDL_PointInRectFloat(&pt, &app.pendingSlotRects[p])) {
+                        auto [cardIdx, slotIdx] = app.pendingSlotInfo[p];
+                        const Settlement& clicked = app.settlements[app.selectedSettlementIndex];
+                        int provID = clicked.settlementData.provinceID;
+
+                        std::vector<Settlement*> provS;
+                        for (auto& s : app.settlements)
+                            if (s.settlementData.provinceID == provID) provS.push_back(&s);
+
+                        if (cardIdx < (int)provS.size()) {
+                            Settlement* sel = provS[cardIdx];
+                            BuildingType pendingBt = sel->settlementData.pendingBuildings[slotIdx];
+                            if (pendingBt != BuildingType::None) {
+                                const BuildingData* data = GetBuildingData(pendingBt);
+                                if (data) app.player.AddGold(data->cost);
+                                sel->settlementData.pendingBuildings[slotIdx] = BuildingType::None;
+                                sel->settlementData.slotConstructionTimes[slotIdx] = 0;
+                            }
+                        }
+                        return SDL_APP_CONTINUE;
+                    }
+                }
+            }
+
+            // clic on a popup building of category
+
             // clic on a popup building of category
             if (app.bHasClickedOnASettlement &&
     app.categoryEvolutionPopupRect.w > 0 &&
@@ -5171,6 +5208,10 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
             for (const auto& pb : sel->settlementData.pendingBuildings) {
                 if (pb == bt) { SDL_Log("EXIT: already being built"); return SDL_APP_CONTINUE; }
+            }
+            if (sel->settlementData.pendingBuildings[slotB] != BuildingType::None) {
+                SDL_Log("EXIT: slot already has a pending building");
+                return SDL_APP_CONTINUE;
             }
 
             if (app.player.SpendGold(data->cost)) {
