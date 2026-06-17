@@ -414,6 +414,10 @@ public:
     SDL_FRect categoryEvolutionPopupRect = {0,0,0,0};
     std::vector<SDL_FRect> availableSlotRects;
     std::vector<std::pair<int,int>> availableSlotInfo;
+    //For the pending fix
+    std::vector<SDL_FRect> pendingSlotRects;
+    std::vector<std::pair<int,int>> pendingSlotInfo;
+
     // 0=Military 1=AdvMilitary 2=Defence 3=Economy 4=Religion
     BuildingType hoveredBuilding = BuildingType::None;
     std::vector<SDL_FRect> categoryButtonsRects;//5 rects for the buildings categories UI
@@ -2770,6 +2774,8 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
 
     availableSlotRects.clear();
     availableSlotInfo.clear();
+    pendingSlotInfo.clear();
+    pendingSlotRects.clear();
 
     //-> BOTTOM UI PANNEL <-
             int   count = (int)provinceSettlements.size();
@@ -2863,6 +2869,7 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                     float slotStartX = cx + (cardW - gridW) / 2.f;
                     float row0Y      = panelY + cardH - (slotSize * 2 + slotGap) - 12.f;
                     float row1Y      = row0Y + slotSize + slotGap;
+
 
                     for (int b = 0; b < (int)s->settlementData.buildings.size(); b++) {
                         BuildingType buildingType = s->settlementData.buildings[b];
@@ -3833,6 +3840,27 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         TTF_SetTextString(gameNumberOfTurnText, endTurn.c_str(), 0);
         TTF_SetTextColor(gameNumberOfTurnText, 255, 255, 255, 255);
         TTF_DrawRendererText(gameNumberOfTurnText, NextTurnButton.circleX+45.f, NextTurnButton.circleY+35.f);
+        // --------------------------------
+        // UI under the contentRect for The growth of the farmers, nobility and church prest.
+        //thickness 5.f
+        //border
+
+        SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
+        SDL_FRect growthBorderRect = {800.f, 40.f, 400, 40};
+        SDL_RenderFillRect(renderer, &growthBorderRect);
+        //Background
+        SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
+        SDL_FRect growthContentRect = {800.f + thickness, 40.f + thickness , 400 - (thickness * 2),40 - (thickness * 2)};
+        SDL_RenderFillRect(renderer, &growthContentRect);
+        //inter lines to seperate the 3 types of population
+        SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
+        SDL_FRect growthFirstLine = {928.33f + thickness, 40.f + thickness, 10 - thickness , 40 - (thickness * 2)};
+        SDL_RenderFillRect(renderer, &growthFirstLine);
+        SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
+        SDL_FRect growthSecondLine = {1061.66f + thickness, 40.f + thickness, 10 - thickness, 40 - (thickness * 2)};
+        SDL_RenderFillRect(renderer, &growthSecondLine);
+        //The rect of the different paysant type. Texture has well
+
     }
     //public order based on food (FILLEDS SEGS 1,2,3,4,5,6)
     /*
