@@ -1384,11 +1384,11 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::NobilityEstate_T3], SDL_SCALEMODE_NEAREST);
         //warehouse
-        buildingTypeTextures[BuildingType::KnightWareHouse_T5] = IMG_LoadTexture(renderer, "assets/Knight/WareHouseTier3.png");
-        if (buildingTypeTextures[BuildingType::KnightWareHouse_T5]  == nullptr) {
+        buildingTypeTextures[BuildingType::KnightWareHouse_T3] = IMG_LoadTexture(renderer, "assets/Knight/WareHouseTier3.png");
+        if (buildingTypeTextures[BuildingType::KnightWareHouse_T3]  == nullptr) {
             SDL_LogWarn(0, "failed to load texture KnightWareHouse_T3", SDL_GetError());
         }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightWareHouse_T5], SDL_SCALEMODE_NEAREST);
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightWareHouse_T3], SDL_SCALEMODE_NEAREST);
         buildingTypeTextures[BuildingType::KnightWareHouse_T4] = IMG_LoadTexture(renderer, "assets/Knight/WareHouseTier4.png");
         if (buildingTypeTextures[BuildingType::KnightWareHouse_T4]  == nullptr) {
             SDL_LogWarn(0, "failed to load texture KnightWareHouse_T4", SDL_GetError());
