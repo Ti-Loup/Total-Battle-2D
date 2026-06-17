@@ -2952,6 +2952,10 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
                                 std::string turnRemainingString = std::to_string(s->settlementData.constructionTime);
                                 TTF_SetTextString(gameBuildingConstructionTimeText, turnRemainingString.c_str(), 0);
                                 TTF_DrawRendererText(gameBuildingConstructionTimeText, sx + 25.f, sy + 20.f);
+
+                                //for main buildings beeing able to refound a pending upgrade
+                                pendingSlotRects.push_back(slot);
+                                pendingSlotInfo.push_back({i,0});
                             }
 
                                 mainBuildingSlotRects[i] = slot;
@@ -5134,14 +5138,29 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         for (auto& s : app.settlements)
                             if (s.settlementData.provinceID == provID) provS.push_back(&s);
 
+                        //to refound a pending building for the main settlement
                         if (cardIdx < (int)provS.size()) {
                             Settlement* sel = provS[cardIdx];
-                            BuildingType pendingBt = sel->settlementData.pendingBuildings[slotIdx];
-                            if (pendingBt != BuildingType::None) {
-                                const BuildingData* data = GetBuildingData(pendingBt);
-                                if (data) app.player.AddGold(data->cost);
-                                sel->settlementData.pendingBuildings[slotIdx] = BuildingType::None;
-                                sel->settlementData.slotConstructionTimes[slotIdx] = 0;
+                            if (slotIdx == 0) {
+                                if (sel->settlementData.bBuidingUnderConstruction) {
+                                    BuildingType currentBuilding = sel->settlementData.buildings[0];
+                                    const BuildingData* currentData = GetBuildingData(currentBuilding);
+                                    if (currentData && currentData->upgradesTo != BuildingType::None) {
+                                        const BuildingData* nextData = GetBuildingData(currentData->upgradesTo);
+                                        if (nextData) app.player.AddGold(nextData->cost);
+                                    }
+                                    sel->settlementData.bBuidingUnderConstruction = false;
+                                    sel->settlementData.pendingTier = 0;
+                                    sel->settlementData.constructionTime = 0;
+                                }
+                            } else {
+                                BuildingType pendingBt = sel->settlementData.pendingBuildings[slotIdx];
+                                if (pendingBt != BuildingType::None) {
+                                    const BuildingData* data = GetBuildingData(pendingBt);
+                                    if (data) app.player.AddGold(data->cost);
+                                    sel->settlementData.pendingBuildings[slotIdx] = BuildingType::None;
+                                    sel->settlementData.slotConstructionTimes[slotIdx] = 0;
+                                }
                             }
                         }
                         return SDL_APP_CONTINUE;
