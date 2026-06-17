@@ -25,7 +25,7 @@
 /*
  *TODO LIST For version 0.1.5 (FOOD STORAGE SYSTEM) -> June 19
  * fix Textures errors
- * Fix a bug when a building is pending you can buy an other one + if clicked its refounded and removed when pending
+ * Fix a bug when a building is pending you can buy an other one + if a pending building is clicked on->its refounded and removed when pending
  *
  *0.2.0
  * POPULATION SYSTEM
