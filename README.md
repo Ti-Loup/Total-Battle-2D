@@ -135,9 +135,9 @@ Open Total Battle 2D, Go to cmake-build-release, find the .exe
 
 Total-Battle-2D/<br>
 assets/               # Textures, fonts, audio, tilemaps<br>
- Knight               # Knight faction textures<br>
- Viking               # Viking faction textures<br>
- Samurai              # Samurai faction textures<br>
+-Knight               # Knight faction textures<br>
+-Viking               # Viking faction textures<br>
+-Samurai              # Samurai faction textures<br>
 
 ---
 
@@ -154,7 +154,7 @@ assets/               # Textures, fonts, audio, tilemaps<br>
 ---
 
 <p align="center">
-  Built with ❤️ and C++ by <a href="https://github.com/Ti-Loup">Ti-Loup</a>
+  Built with C++ by <a href="https://github.com/Ti-Loup">Louis-Philippe Gauvin</a>
 </p>
 
 
