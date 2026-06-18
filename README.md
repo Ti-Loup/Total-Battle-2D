@@ -143,13 +143,13 @@ assets/               # Textures, fonts, audio, tilemaps<br>
 
 ## Roadmap
 
-| Version | Target | Status |
+| Version | Target | Status | Date | 
 |---------|--------|--------|
-| **v0.1.0** | Campaign map, buildings, economy, | Released |
-| **v0.1.5** | Food storage polish, texture fixes | Released |
-| **v0.2.0** | Population system(farmers, nobility) | In Progress |
-| **v0.2.5** | World Events + Climate (affect food production) | Planned |
-| **Future** | Roads, playable technology tree, faction Unique mechanic, cinematic intro | Vision |
+| **v0.1.0** | Campaign map, buildings, economy, | Released | May |
+| **v0.1.5** | Food storage polish, texture fixes | Released | June |
+| **v0.2.0** | Population system(farmers, nobility) | In Progress | July |
+| **v0.2.5** | World Events + Climate (affect food production) | Planned | August |
+| **Future** | Roads, playable technology tree, faction Unique mechanic, cinematic intro | Vision | one year |
 
 ---
 
