@@ -41,16 +41,16 @@ The game features a full turn-based campaign layer with real-time rendering with
 
 ## Features
 
--  **Three playable Cultures** — Knights, Vikings, and Samurai — each with unique buildings, lore, and bonuses
--  **Province & settlement management** — Capitals, Castles, and Villages, each upgradable across multiple tiers
--  **Five building categories** — Military, Advanced Military, Defence, Economy, and Religion
--  **Economy system** — Money income, building upkeep, per-turn balance, and anticipated income UI
--  **Food storage system** — Food is produced, stored, and consumed, affecting public order
--  **Public order** — Per-province happiness tracked with visual indicators and tooltips
--  **Turn-based campaign** — End-turn button advances game state, triggering income, food, and AI turns
--  **Technology tree** — Dedicated tech panel accessible from the campaign map
--  **Audio** — Background music via SDL3_mixer with volume slider in options
--  **Custom UI** — Settlement panels, building slot popups, category selectors, cost tooltips
+-  **Three playable Cultures** : Knights, Vikings, and Samurai each with unique buildings, lore, and bonuses
+-  **Province & settlement management** : Capitals, Castles, and Villages, each upgradable across multiple tiers
+-  **Five building categories** : Military, Advanced Military, Defence, Economy, and Religion
+-  **Economy system** : Money income, building upkeep, per-turn balance, and anticipated income UI
+-  **Food storage system** : Food is produced, stored, and consumed, affecting public order
+-  **Public order** : Per-province happiness tracked with visual indicators and tooltips
+-  **Turn-based campaign** : End-turn button advances game state, triggering income, food, and AI turns
+-  **Technology tree** : Dedicated tech panel accessible from the campaign map
+-  **Audio** : Background music via SDL3_mixer with volume slider in options
+-  **Custom UI** : Settlement panels, building slot popups, category selectors, cost tooltips
 
 ---
 
@@ -77,11 +77,11 @@ The campaign map is divided into **9 provinces** (3 per faction), each containin
 
 Buildings are organized into five categories, each with 2–5 upgrade levels:
 
-- **Military** — Train infantry, archers, and cavalry (Tier 1+)
-- **Advanced Military** — Siege engines, elite warriors, and gunpowder units (Tier 4+)
-- **Defence** — Reinforce walls, drakkars, or castle fortifications (Tier 3+)
-- **Economy** — Markets, farms, estates, and warehouses for food storage (Tier 1+)
-- **Religion** — Churches, Shrines, Hospitals, and Shinto Chapels that improve public order (Tier 1+)
+- **Military** : Train infantry, archers, and cavalry (Tier 1+)
+- **Advanced Military** : Siege engines, elite warriors, and gunpowder units (Tier 4+)
+- **Defence** : Reinforce walls, drakkars, or castle fortifications (Tier 3+)
+- **Economy** : Markets, farms, estates, and warehouses for food storage (Tier 1+)
+- **Religion** : Churches, Shrines, Hospitals, and Shinto Chapels that improve public order (Tier 1+)
 
 ### Economy & Food
 
