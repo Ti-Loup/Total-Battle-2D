@@ -94,19 +94,19 @@ Each faction has fully independent settlement textures across all tiers (T1–T5
 
 ## Architecture
 
->GameApp (main.cpp)       — SDL3 init, game loop, rendering, input<hr>
->State (.h/.cpp)          — Game state enum (Menu, Game, Options, Credits, Tech)<hr>
->TileMap (.h/.cpp)        — To create the TileMap from a png.<hr>
->Camera (.h/.cpp)         — Pan and zoom logic<hr>
->Province (.h/.cpp)       — Province data and faction zone definitions<hr>
->Settlements (.h/.cpp)    — Settlement types, tiers, and city data<hr>
->Buildings (.h/.cpp)      — BuildingType enum, BuildingData struct, full database with all stats<hr>
->TechnologyTree (.h/.cpp) — Technology research panel and tree<hr>
->Player (.h/.cpp)         — Player state and resources<hr>
->Entity (.h/.cpp)         — Base entity system<hr>
->Components (.h/.cpp)     — ECS-style component data<hr>
->UnitCardStats (.h/.cpp)  — Unit card statistics<hr>
->FastNoiseLite.h          — Third-party header-only noise library<hr>
+>GameApp (main.cpp)       — SDL3 init, game loop, rendering, input<br>
+>State (.h/.cpp)          — Game state enum (Menu, Game, Options, Credits, Tech)<br>
+>TileMap (.h/.cpp)        — To create the TileMap from a png.<br>
+>Camera (.h/.cpp)         — Pan and zoom logic<br>
+>Province (.h/.cpp)       — Province data and faction zone definitions<br>
+>Settlements (.h/.cpp)    — Settlement types, tiers, and city data<br>
+>Buildings (.h/.cpp)      — BuildingType enum, BuildingData struct, full database with all stats<br>
+>TechnologyTree (.h/.cpp) — Technology research panel and tree<br>
+>Player (.h/.cpp)         — Player state and resources<br>
+>Entity (.h/.cpp)         — Base entity system<br>
+>Components (.h/.cpp)     — ECS-style component data<br>
+>UnitCardStats (.h/.cpp)  — Unit card statistics<br>
+>FastNoiseLite.h          — Third-party header-only noise library
 
 ---
 
@@ -143,10 +143,11 @@ Each faction has fully independent settlement textures across all tiers (T1–T5
 
 ## Roadmap
 
-> ~ Future ~
->| **v0.1.0** | Campaign map, buildings, economy,               | Released |
->| **v0.1.5** | Food storage polish, texture fixes              | Released |
->| **v0.2.0** | Population system(farmers, nobility)            | In Progress |
+>| Version | Target | Status |
+>|---------|--------|--------|
+>| **v0.1.0** | Campaign map, buildings, economy, | Released |
+>| **v0.1.5** | Food storage polish, texture fixes | Released |
+>| **v0.2.0** | Population system(farmers, nobility) | In Progress |
 >| **v0.2.5** | World Events + Climate (affect food production) | Planned |
 >| **Future** | Roads, playable technology tree, faction Unique mechanic, cinematic intro | Vision |
 
