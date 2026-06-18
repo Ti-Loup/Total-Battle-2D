@@ -33,9 +33,9 @@
 
 ## Overview
 
->**Total Battle 2D** is a self-made grand strategy game inspired by titles like *Total War* and *For Honor*, built entirely in C++ using the SDL3 library. Players choose to play the Knights, Vikings or samurai, manage a campaign map divided into provinces and settlements, construct faction-specific buildings, and work toward dominating the others with economic and military strenght.
+**Total Battle 2D** is a self-made grand strategy game inspired by titles like *Total War* and *For Honor*, built entirely in C++ using the SDL3 library. Players choose to play the Knights, Vikings or samurai, manage a campaign map divided into provinces and settlements, construct faction-specific buildings, and work toward dominating the others with economic and military strenght.
 
->The game features a full turn-based campaign layer with real-time rendering with SDL3, and a rich building system inspired by Total War.
+The game features a full turn-based campaign layer with real-time rendering with SDL3, and a rich building system inspired by Total War.
 
 ---
 
@@ -69,26 +69,26 @@ Each faction has fully independent settlement textures across all tiers (T1–T5
 
 ## Game Systems
 
->### Settlements & Provinces
+### Settlements & Provinces
 
->>The campaign map is divided into **9 provinces** (3 per faction), each containing one main settlement (Capital or Castle) and up to three Villages. Settlements upgrade through tiers, visually evolving on the map and unlocking higher-tier ?>>buildings.
+The campaign map is divided into **9 provinces** (3 per faction), each containing one main settlement (Capital or Castle) and up to three Villages. Settlements upgrade through tiers, visually evolving on the map and unlocking higher-tier ?>>buildings.
 
->### Building System
+### Building System
 
->>Buildings are organized into five categories, each with 2–5 upgrade levels:
+Buildings are organized into five categories, each with 2–5 upgrade levels:
 
->>- **Military** — Train infantry, archers, and cavalry (Tier 1+)
->>- **Advanced Military** — Siege engines, elite warriors, and gunpowder units (Tier 4+)
->>- **Defence** — Reinforce walls, drakkars, or castle fortifications (Tier 3+)
->>- **Economy** — Markets, farms, estates, and warehouses for food storage (Tier 1+)
->>- **Religion** — Churches, Shrines, Hospitals, and Shinto Chapels that improve public order (Tier 1+)
+- **Military** — Train infantry, archers, and cavalry (Tier 1+)
+- **Advanced Military** — Siege engines, elite warriors, and gunpowder units (Tier 4+)
+- **Defence** — Reinforce walls, drakkars, or castle fortifications (Tier 3+)
+- **Economy** — Markets, farms, estates, and warehouses for food storage (Tier 1+)
+- **Religion** — Churches, Shrines, Hospitals, and Shinto Chapels that improve public order (Tier 1+)
 
->### Economy & Food
+### Economy & Food
 
->>- Each turn calculates total income minus upkeep for the player's treasury
->>- Food is produced by farm-type buildings and consumed by military and structures.
->>- A **food storage bar** tracks stored food; low food reduces public order
->>- An **anticipated income Ui** shows the projected change before ending the turn
+- Each turn calculates total income minus upkeep for the player's treasury
+- Food is produced by farm-type buildings and consumed by military and structures.
+- A **food storage bar** tracks stored food; low food reduces public order
+- An **anticipated income Ui** shows the projected change before ending the turn
 
 ---
 
@@ -112,44 +112,44 @@ Each faction has fully independent settlement textures across all tiers (T1–T5
 
 ## Getting Started
 
->### Prerequisites
+### Prerequisites
 
->>- **CMake** ≥ 3.12
->>- **C++20** compatible compiler (GCC / MinGW recommended for Windows)
->>- **SDL3** (core, SDL3_image, SDL3_ttf) installed and accessible by CMake
->>- **SDL3_mixer 3.2.0** — bundled in `libs/SDL3_mixer-3.2.0/x86_64-w64-mingw32`
->>- **SQLite3** — linked via system or bundled library
+- **CMake** ≥ 3.12
+- **C++20** compatible compiler (GCC / MinGW recommended for Windows)
+- **SDL3** (core, SDL3_image, SDL3_ttf) installed and accessible by CMake
+- **SDL3_mixer 3.2.0** — bundled in `libs/SDL3_mixer-3.2.0/x86_64-w64-mingw32`
+- **SQLite3** — linked via system or bundled library
 
->### Building
->
->>git clone https://github.com/Ti-Loup/Total-Battle-2D.git
->>cmake: ninja
+### Building
 
->### Running
+git clone https://github.com/Ti-Loup/Total-Battle-2D.git
+cmake: ninja
 
->>Open Total Battle 2D, Go to cmake-build-release, find the .exe
+### Running
+
+Open Total Battle 2D, Go to cmake-build-release, find the .exe
 
 ---
 
 ## Project Files
 
->Total-Battle-2D/
->assets/               # Textures, fonts, audio, tilemaps
->> Knight              # Knight faction textures
->> Viking              # Viking faction textures
->>Samurai              # Samurai faction textures
+Total-Battle-2D/<br>
+assets/               # Textures, fonts, audio, tilemaps<br>
+ Knight               # Knight faction textures<br>
+ Viking               # Viking faction textures<br>
+ Samurai              # Samurai faction textures<br>
 
 ---
 
 ## Roadmap
 
->| Version | Target | Status |
->|---------|--------|--------|
->| **v0.1.0** | Campaign map, buildings, economy, | Released |
->| **v0.1.5** | Food storage polish, texture fixes | Released |
->| **v0.2.0** | Population system(farmers, nobility) | In Progress |
->| **v0.2.5** | World Events + Climate (affect food production) | Planned |
->| **Future** | Roads, playable technology tree, faction Unique mechanic, cinematic intro | Vision |
+| Version | Target | Status |
+|---------|--------|--------|
+| **v0.1.0** | Campaign map, buildings, economy, | Released |
+| **v0.1.5** | Food storage polish, texture fixes | Released |
+| **v0.2.0** | Population system(farmers, nobility) | In Progress |
+| **v0.2.5** | World Events + Climate (affect food production) | Planned |
+| **Future** | Roads, playable technology tree, faction Unique mechanic, cinematic intro | Vision |
 
 ---
 
