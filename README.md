@@ -144,7 +144,7 @@ assets/               # Textures, fonts, audio, tilemaps<br>
 ## Roadmap
 
 | Version | Target | Status | Date | 
-|---------|--------|--------|
+|---------|--------|--------|--------|
 | **v0.1.0** | Campaign map, buildings, economy, | Released | May |
 | **v0.1.5** | Food storage polish, texture fixes | Released | June |
 | **v0.2.0** | Population system(farmers, nobility) | In Progress | July |
