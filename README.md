@@ -26,14 +26,14 @@
 - [Game Systems](#game-systems)
 - [Architecture](#architecture)
 - [Getting Started](#getting-started)
-- [Project Structure](#project-structure)
+- [Project Files](#project-Files)
 - [Roadmap](#roadmap)
 
 ---
 
 ## Overview
 
->**Total Battle 2D** is a self-made grand strategy game inspired by titles like *Total War* and *For Honor*, built entirely in C++ using the SDL3 library. Players choose to play the Knights, Vikings or samurai, manage a campaign map divided >into provinces and settlements, construct faction-specific buildings, and work toward dominating the others with economic and military strenght.
+>**Total Battle 2D** is a self-made grand strategy game inspired by titles like *Total War* and *For Honor*, built entirely in C++ using the SDL3 library. Players choose to play the Knights, Vikings or samurai, manage a campaign map divided into provinces and settlements, construct faction-specific buildings, and work toward dominating the others with economic and military strenght.
 
 >The game features a full turn-based campaign layer with real-time rendering with SDL3, and a rich building system inspired by Total War.
 
@@ -62,20 +62,20 @@
 | 🪓 **Vikings** | Aggressive raiders, powerful melee | Raiding bonuses, Berserkers, Odin's Chosen |
 | 🏯 **Samurai** | Ambush specialists, gunpowder access | Religion bonuses, powder units, siege engineering |
 
->Each faction has fully independent settlement textures across all tiers (T1–T5 for Capitals and Castles, T1–T3 for Villages) to bring more immersion for the player.
+Each faction has fully independent settlement textures across all tiers (T1–T5 for Capitals and Castles, T1–T3 for Villages) to bring more immersion for the player.
 
 
 ---
 
 ## Game Systems
 
-### Settlements & Provinces
+>### Settlements & Provinces
 
->The campaign map is divided into **9 provinces** (3 per faction), each containing one main settlement (Capital or Castle) and up to three Villages. Settlements upgrade through tiers, visually evolving on the map and unlocking higher-tier >buildings.
+>>The campaign map is divided into **9 provinces** (3 per faction), each containing one main settlement (Capital or Castle) and up to three Villages. Settlements upgrade through tiers, visually evolving on the map and unlocking higher-tier ?>>buildings.
 
-### Building System
+>### Building System
 
->Buildings are organized into five categories, each with 2–5 upgrade levels:
+>>Buildings are organized into five categories, each with 2–5 upgrade levels:
 
 >>- **Military** — Train infantry, archers, and cavalry (Tier 1+)
 >>- **Advanced Military** — Siege engines, elite warriors, and gunpowder units (Tier 4+)
@@ -83,27 +83,78 @@
 >>- **Economy** — Markets, farms, estates, and warehouses for food storage (Tier 1+)
 >>- **Religion** — Churches, Shrines, Hospitals, and Shinto Chapels that improve public order (Tier 1+)
 
-### Economy & Food
+>### Economy & Food
 
->- Each turn calculates total income minus upkeep for the player's treasury
->- Food is produced by farm-type buildings and consumed by military and structures.
->- A **food storage bar** tracks stored food; low food reduces public order
->- An **anticipated income Ui** shows the projected change before ending the turn
+>>- Each turn calculates total income minus upkeep for the player's treasury
+>>- Food is produced by farm-type buildings and consumed by military and structures.
+>>- A **food storage bar** tracks stored food; low food reduces public order
+>>- An **anticipated income Ui** shows the projected change before ending the turn
 
 ---
 
 ## Architecture
 
->GameApp (main.cpp)       — SDL3 init, game loop, rendering, input
->State (.h/.cpp)          — Game state enum (Menu, Game, Options, Credits, Tech)
->TileMap (.h/.cpp)        — To create the TileMap from a png.
->Camera (.h/.cpp)         — Pan and zoom logic
->Province (.h/.cpp)       — Province data and faction zone definitions
->Settlements (.h/.cpp)    — Settlement types, tiers, and city data
->Buildings (.h/.cpp)      — BuildingType enum, BuildingData struct, full database with all stats
->TechnologyTree (.h/.cpp) — Technology research panel and tree
->Player (.h/.cpp)         — Player state and resources
->Entity (.h/.cpp)         — Base entity system
->Components (.h/.cpp)     — ECS-style component data
->UnitCardStats (.h/.cpp)  — Unit card statistics
->FastNoiseLite.h          — Third-party header-only noise library
+>GameApp (main.cpp)       — SDL3 init, game loop, rendering, input<hr>
+>State (.h/.cpp)          — Game state enum (Menu, Game, Options, Credits, Tech)<hr>
+>TileMap (.h/.cpp)        — To create the TileMap from a png.<hr>
+>Camera (.h/.cpp)         — Pan and zoom logic<hr>
+>Province (.h/.cpp)       — Province data and faction zone definitions<hr>
+>Settlements (.h/.cpp)    — Settlement types, tiers, and city data<hr>
+>Buildings (.h/.cpp)      — BuildingType enum, BuildingData struct, full database with all stats<hr>
+>TechnologyTree (.h/.cpp) — Technology research panel and tree<hr>
+>Player (.h/.cpp)         — Player state and resources<hr>
+>Entity (.h/.cpp)         — Base entity system<hr>
+>Components (.h/.cpp)     — ECS-style component data<hr>
+>UnitCardStats (.h/.cpp)  — Unit card statistics<hr>
+>FastNoiseLite.h          — Third-party header-only noise library<hr>
+
+---
+
+## Getting Started
+
+>### Prerequisites
+
+>>- **CMake** ≥ 3.12
+>>- **C++20** compatible compiler (GCC / MinGW recommended for Windows)
+>>- **SDL3** (core, SDL3_image, SDL3_ttf) installed and accessible by CMake
+>>- **SDL3_mixer 3.2.0** — bundled in `libs/SDL3_mixer-3.2.0/x86_64-w64-mingw32`
+>>- **SQLite3** — linked via system or bundled library
+
+>### Building
+>
+>>git clone https://github.com/Ti-Loup/Total-Battle-2D.git
+>>cmake: ninja
+
+>### Running
+
+>>Open Total Battle 2D, Go to cmake-build-release, find the .exe
+
+---
+
+## Project Files
+
+>Total-Battle-2D/
+>assets/               # Textures, fonts, audio, tilemaps
+>> Knight              # Knight faction textures
+>> Viking              # Viking faction textures
+>>Samurai              # Samurai faction textures
+
+---
+
+## Roadmap
+
+> ~ Future ~
+>| **v0.1.0** | Campaign map, buildings, economy,               | Released |
+>| **v0.1.5** | Food storage polish, texture fixes              | Released |
+>| **v0.2.0** | Population system(farmers, nobility)            | In Progress |
+>| **v0.2.5** | World Events + Climate (affect food production) | Planned |
+>| **Future** | Roads, playable technology tree, faction Unique mechanic, cinematic intro | Vision |
+
+---
+
+<p align="center">
+  Built with ❤️ and C++ by <a href="https://github.com/Ti-Loup">Ti-Loup</a>
+</p>
+
+
+
