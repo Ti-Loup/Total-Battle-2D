@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.12)
-project(TotalWar2D)
+project(TotalBattle2D)
 
 set(CMAKE_CXX_STANDARD 20)
 set(MIXER_PATH "${CMAKE_SOURCE_DIR}/libs/SDL3_mixer-3.2.0/x86_64-w64-mingw32")
 
-add_executable(TotalWar2D main.cpp
+add_executable(TotalBattle2D main.cpp
         Components.cpp
         Components.h
         State.cpp
@@ -30,11 +30,11 @@ add_executable(TotalWar2D main.cpp
         TechnologyTree.h
 )
 
-target_include_directories(TotalWar2D PRIVATE "${MIXER_PATH}/include")
+target_include_directories(TotalBattle2D PRIVATE "${MIXER_PATH}/include")
 
 find_library(MIXER_LIBRARY NAMES SDL3_mixer PATHS "${MIXER_PATH}/lib" NO_DEFAULT_PATH)
 
-target_link_libraries(TotalWar2D PRIVATE
+target_link_libraries(TotalBattle2D PRIVATE
         SDL3
         SDL3_image
         SDL3_ttf
@@ -52,8 +52,8 @@ add_custom_target(
 )
 add_dependencies(${PROJECT_NAME} assets)
 
-add_custom_command(TARGET TotalWar2D POST_BUILD
+add_custom_command(TARGET TotalBattle2D POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${MIXER_PATH}/bin/SDL3_mixer.dll"
-        $<TARGET_FILE_DIR:TotalWar2D>
+        $<TARGET_FILE_DIR:TotalBattle2D>
 )
