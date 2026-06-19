@@ -23,11 +23,7 @@
 #include "Player.h"
 
 /*
- *TODO LIST For version 0.1.5 (FOOD STORAGE SYSTEM) -> June 19
- * fix Textures errors
- * ReadMe -> Github
- *
- *0.2.0
+ * 0.2.0
  * POPULATION SYSTEM
  *(population is affected by food storage system)
  *Update Buildings info in UI +/-
@@ -55,7 +51,8 @@
  * public order works with food storage system
  * Money UI mouse hovered -> to describe the different money income and upkeep
  * Fix a bug when a building is pending you can buy an other one + if a pending building is clicked on->its refounded and removed when pending
-
+* fix Textures errors
+* ReadMe -> Github
  */
 
 
@@ -1356,19 +1353,19 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Economy_T3], SDL_SCALEMODE_NEAREST);
 
-        buildingTypeTextures[BuildingType::PeasantryGrowth_T1] = IMG_LoadTexture(renderer, "assets/Knight/GrowthTier1.png");
+        buildingTypeTextures[BuildingType::PeasantryGrowth_T1] = IMG_LoadTexture(renderer, "assets/Knight/PeasantryGrowthTier1.png");
         if (buildingTypeTextures[BuildingType::PeasantryGrowth_T1]  == nullptr) {
             SDL_LogWarn(0, "failed to load texture Growth_T1", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::PeasantryGrowth_T1], SDL_SCALEMODE_NEAREST);
 
-        buildingTypeTextures[BuildingType::PeasantryGrowth_T2] = IMG_LoadTexture(renderer, "assets/Knight/GrowthTier2.png");
+        buildingTypeTextures[BuildingType::PeasantryGrowth_T2] = IMG_LoadTexture(renderer, "assets/Knight/PeasantryGrowthTier2.png");
         if (buildingTypeTextures[BuildingType::PeasantryGrowth_T2]  == nullptr) {
             SDL_LogWarn(0, "failed to load texture Growth_T2", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::PeasantryGrowth_T2], SDL_SCALEMODE_NEAREST);
 
-        buildingTypeTextures[BuildingType::PeasantryGrowth_T3] = IMG_LoadTexture(renderer, "assets/Knight/GrowthTier3.png");
+        buildingTypeTextures[BuildingType::PeasantryGrowth_T3] = IMG_LoadTexture(renderer, "assets/Knight/PeasantryGrowthTier3.png");
         if (buildingTypeTextures[BuildingType::PeasantryGrowth_T3]  == nullptr) {
             SDL_LogWarn(0, "failed to load texture Growth_T3", SDL_GetError());
         }
@@ -1646,35 +1643,35 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SlaveMarket_T3], SDL_SCALEMODE_NEAREST);
 
-        buildingTypeTextures[BuildingType::PeasantryVikingGrowth_T1] = IMG_LoadTexture(renderer, "assets/Viking/PeasantryVikingGrowthTier1.png");
+        buildingTypeTextures[BuildingType::PeasantryVikingGrowth_T1] = IMG_LoadTexture(renderer, "assets/Viking/PeasantryGrowthTier1.png");
         if (buildingTypeTextures[BuildingType::PeasantryVikingGrowth_T1] == nullptr) {
             SDL_LogWarn(0, "failed to load texture PeasantryVikingGrowth_T1", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::PeasantryVikingGrowth_T1], SDL_SCALEMODE_NEAREST);
-        buildingTypeTextures[BuildingType::PeasantryVikingGrowth_T2] = IMG_LoadTexture(renderer, "assets/Viking/PeasantryVikingGrowthTier2.png");
+        buildingTypeTextures[BuildingType::PeasantryVikingGrowth_T2] = IMG_LoadTexture(renderer, "assets/Viking/PeasantryGrowthTier2.png");
         if (buildingTypeTextures[BuildingType::PeasantryVikingGrowth_T2] == nullptr) {
             SDL_LogWarn(0, "failed to load texture PeasantryVikingGrowth_T2", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::PeasantryVikingGrowth_T2], SDL_SCALEMODE_NEAREST);
-        buildingTypeTextures[BuildingType::PeasantryVikingGrowth_T3] = IMG_LoadTexture(renderer, "assets/Viking/PeasantryVikingGrowthTier3.png");
+        buildingTypeTextures[BuildingType::PeasantryVikingGrowth_T3] = IMG_LoadTexture(renderer, "assets/Viking/PeasantryGrowthTier3.png");
         if (buildingTypeTextures[BuildingType::PeasantryVikingGrowth_T3] == nullptr) {
             SDL_LogWarn(0, "failed to load texture PeasantryVikingGrowth_T3", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::PeasantryVikingGrowth_T3], SDL_SCALEMODE_NEAREST);
 
-        buildingTypeTextures[BuildingType::NobilityVikingEstate_T1] = IMG_LoadTexture(renderer, "assets/Viking/NobilityVikingGrowthTier1.png");
+        buildingTypeTextures[BuildingType::NobilityVikingEstate_T1] = IMG_LoadTexture(renderer, "assets/Viking/NobilityGrowthTier1.png");
         if (buildingTypeTextures[BuildingType::NobilityVikingEstate_T1] == nullptr) {
             SDL_LogWarn(0, "failed to load texture NobilityVikingEstate_T1", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::NobilityVikingEstate_T1], SDL_SCALEMODE_NEAREST);
 
-        buildingTypeTextures[BuildingType::NobilityVikingEstate_T2] = IMG_LoadTexture(renderer, "assets/Viking/NobilityVikingGrowthTier2.png");
+        buildingTypeTextures[BuildingType::NobilityVikingEstate_T2] = IMG_LoadTexture(renderer, "assets/Viking/NobilityGrowthTier2.png");
         if (buildingTypeTextures[BuildingType::NobilityVikingEstate_T2] == nullptr) {
             SDL_LogWarn(0, "failed to load texture NobilityVikingEstate_T2", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::NobilityVikingEstate_T2], SDL_SCALEMODE_NEAREST);
 
-        buildingTypeTextures[BuildingType::NobilityVikingEstate_T3] = IMG_LoadTexture(renderer, "assets/Viking/NobilityVikingGrowthTier3.png");
+        buildingTypeTextures[BuildingType::NobilityVikingEstate_T3] = IMG_LoadTexture(renderer, "assets/Viking/NobilityGrowthTier3.png");
         if (buildingTypeTextures[BuildingType::NobilityVikingEstate_T3] == nullptr) {
             SDL_LogWarn(0, "failed to load texture NobilityVikingEstate_T3", SDL_GetError());
         }
@@ -1961,35 +1958,35 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Market_T3], SDL_SCALEMODE_NEAREST);
 
-        buildingTypeTextures[BuildingType::PeasantrySamuraiGrowth_T1] = IMG_LoadTexture(renderer, "assets/Samurai/PeasantrySamuraiGrowthTier1.png");
+        buildingTypeTextures[BuildingType::PeasantrySamuraiGrowth_T1] = IMG_LoadTexture(renderer, "assets/Samurai/PeasantryGrowthTier1.png");
         if (buildingTypeTextures[BuildingType::PeasantrySamuraiGrowth_T1] == nullptr) {
             SDL_LogWarn(0, "failed to load texture PeasantrySamuraiGrowth_T1", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::PeasantrySamuraiGrowth_T1], SDL_SCALEMODE_NEAREST);
-        buildingTypeTextures[BuildingType::PeasantrySamuraiGrowth_T2] = IMG_LoadTexture(renderer, "assets/Samurai/PeasantrySamuraiGrowthTier2.png");
+        buildingTypeTextures[BuildingType::PeasantrySamuraiGrowth_T2] = IMG_LoadTexture(renderer, "assets/Samurai/PeasantryGrowthTier2.png");
         if (buildingTypeTextures[BuildingType::PeasantrySamuraiGrowth_T2] == nullptr) {
             SDL_LogWarn(0, "failed to load texture PeasantrySamuraiGrowth_T2", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::PeasantrySamuraiGrowth_T2], SDL_SCALEMODE_NEAREST);
-        buildingTypeTextures[BuildingType::PeasantrySamuraiGrowth_T3] = IMG_LoadTexture(renderer, "assets/Samurai/PeasantrySamuraiGrowthTier3.png");
+        buildingTypeTextures[BuildingType::PeasantrySamuraiGrowth_T3] = IMG_LoadTexture(renderer, "assets/Samurai/PeasantryGrowthTier3.png");
         if (buildingTypeTextures[BuildingType::PeasantrySamuraiGrowth_T3] == nullptr) {
             SDL_LogWarn(0, "failed to load texture PeasantrySamuraiGrowth_T3", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::PeasantrySamuraiGrowth_T3], SDL_SCALEMODE_NEAREST);
 
-        buildingTypeTextures[BuildingType::NobilitySamuraiEstate_T1] = IMG_LoadTexture(renderer, "assets/Samurai/NobilitySamuraiGrowthTier1.png");
+        buildingTypeTextures[BuildingType::NobilitySamuraiEstate_T1] = IMG_LoadTexture(renderer, "assets/Samurai/NobilityGrowthTier1.png");
         if (buildingTypeTextures[BuildingType::NobilitySamuraiEstate_T1] == nullptr) {
             SDL_LogWarn(0, "failed to load texture NobilitySamuraiEstate_T1", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::NobilitySamuraiEstate_T1], SDL_SCALEMODE_NEAREST);
 
-        buildingTypeTextures[BuildingType::NobilitySamuraiEstate_T2] = IMG_LoadTexture(renderer, "assets/Samurai/NobilitySamuraiGrowthTier2.png");
+        buildingTypeTextures[BuildingType::NobilitySamuraiEstate_T2] = IMG_LoadTexture(renderer, "assets/Samurai/NobilityGrowthTier2.png");
         if (buildingTypeTextures[BuildingType::NobilitySamuraiEstate_T2] == nullptr) {
             SDL_LogWarn(0, "failed to load texture NobilitySamuraiEstate_T2", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::NobilitySamuraiEstate_T2], SDL_SCALEMODE_NEAREST);
 
-        buildingTypeTextures[BuildingType::NobilitySamuraiEstate_T3] = IMG_LoadTexture(renderer, "assets/Samurai/NobilitySamuraiGrowthTier3.png");
+        buildingTypeTextures[BuildingType::NobilitySamuraiEstate_T3] = IMG_LoadTexture(renderer, "assets/Samurai/NobilityGrowthTier3.png");
         if (buildingTypeTextures[BuildingType::NobilitySamuraiEstate_T3] == nullptr) {
             SDL_LogWarn(0, "failed to load texture NobilitySamuraiEstate_T3", SDL_GetError());
         }
