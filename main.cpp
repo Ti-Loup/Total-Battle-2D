@@ -27,6 +27,23 @@
  * POPULATION SYSTEM
  *(population is affected by food storage system)
  *Update Buildings info in UI +/-
+ *
+ *---------------------------------------------
+ * 0.2.5
+ * WORLD EVENTS (plague, exceed food production, thunder) + SEASONS + DATE (12 turns a year) 3 turn per season
+ * --------------------------------------------
+ * 0.3.0
+ * DIPLOMACY + RESSOURCE SETTLEMENTS/BUILDINGS
+ * MINE, SPICE, FISH, medicine plants, hunting meat,
+ * THE RESSOURCES ARE STORED IN
+ * --------------------------------------------
+ * 0.3.5
+ * TRADE/MILITARY PORTS, COMMERCE , EXCHANGE FOR DIPLOMACY
+ * EXANGE MONEY OR RESSOURCES FOR FOOD. IN TRADE.
+ * If a main settlement or village is close to the sea it has a port. For villages/Fishing port, and Main settlements military port.
+ * --------------------------------------------
+ * 0.5.0
+ * REAL TIME BATTLES FOCUS + NAVAL BATTLES
  *----------------------------------------------
  *
  *TO GET A PLAYABLE CAMPAIGN :
@@ -544,7 +561,7 @@ private://constructor
         // -> MENU <-
         gameInProgressFont = TTF_OpenFont("assets/KnightFont.ttf", 40);
         gameVersionFont = TTF_OpenFont("assets/Rubik.ttf", 35);
-        gameVersionText = TTF_CreateText (textEngine, gameVersionFont, "Version (0.1.5)", 16);
+        gameVersionText = TTF_CreateText (textEngine, gameVersionFont, "Version (0.2.0)", 16);
         if (gameVersionText == nullptr) {
             SDL_LogWarn(0,"failed to create text for gameVersionText", SDL_GetError());
         }
@@ -3854,21 +3871,32 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         //border
 
         SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
-        SDL_FRect growthBorderRect = {800.f, 40.f, 400, 40};
+        SDL_FRect growthBorderRect = {825.f, 40.f, 350, 35};
         SDL_RenderFillRect(renderer, &growthBorderRect);
         //Background
         SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
-        SDL_FRect growthContentRect = {800.f + thickness, 40.f + thickness , 400 - (thickness * 2),40 - (thickness * 2)};
+        SDL_FRect growthContentRect = {825.f + thickness, 35.f + thickness , 350 - (thickness * 2),40 - (thickness * 2)};
         SDL_RenderFillRect(renderer, &growthContentRect);
         //inter lines to seperate the 3 types of population
         SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
-        SDL_FRect growthFirstLine = {928.33f + thickness, 40.f + thickness, 10 - thickness , 40 - (thickness * 2)};
+        SDL_FRect growthFirstLine = {935.f + thickness, 35.f + thickness, 10 - thickness , 40 - (thickness * 2)};
         SDL_RenderFillRect(renderer, &growthFirstLine);
         SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
-        SDL_FRect growthSecondLine = {1061.66f + thickness, 40.f + thickness, 10 - thickness, 40 - (thickness * 2)};
+        SDL_FRect growthSecondLine = {1055.f + thickness, 35.f + thickness, 10 - thickness, 40 - (thickness * 2)};
         SDL_RenderFillRect(renderer, &growthSecondLine);
         //The rect of the different paysant type. Texture has well
-
+        //paysantry
+        SDL_FRect paysantryGrowthLogoRect = {835.f + thickness, 38.f + thickness, 28 - thickness, 28 - thickness };
+        SDL_SetRenderDrawColor(renderer, 60, 255, 60, 255);
+        SDL_RenderFillRect(renderer, &paysantryGrowthLogoRect);
+        //Nobility
+        SDL_FRect nobilityGrowthLogoRect = {950.f + thickness, 38.f + thickness, 28 - thickness, 28 - thickness };
+        SDL_SetRenderDrawColor(renderer,255,60,60,255);
+        SDL_RenderFillRect(renderer, &nobilityGrowthLogoRect);
+        //Church Clergy
+        SDL_FRect clergyGrowthLogoRect = {1070.f + thickness, 38.f + thickness, 28 - thickness, 28 - thickness};
+        SDL_SetRenderDrawColor(renderer,148,0,211,255);
+        SDL_RenderFillRect(renderer, &clergyGrowthLogoRect);
     }
     //public order based on food (FILLEDS SEGS 1,2,3,4,5,6)
     /*

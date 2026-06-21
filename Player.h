@@ -18,6 +18,23 @@ public :
     //Food Storage
     int foodStorage = 0;// 50 base storage per Capital Main settlement and 25 for Castle Main settlement.
     int foodStored = 0; // for stored each turn. Cant go higher than the food Storage available
+    //Improved Growth
+    //peasantry
+    int basePeasantryBirth = 75;
+    int basePeasantryDeath = 28;
+    int buildingPeasantryBonus = 0;
+    int nextTurnPeasantry = 0;
+    //nobility
+    int baseNobilityBirth = 12;
+    int baseNobilityDeath = 4;
+    int buildingNobilityBonus = 0;
+    int nextTurnNobility = 0;
+    //clergy
+    int baseClergyGrowth = 3;
+    int baseClergyDeath = 1;
+    int buildingClergy = 0;
+    int nextTurnClergy = 0;
+    //default faction played by user
     FactionZone faction = FactionZone::Knight;
 
     int GetUpgradeCost(int fromBuildingTier, BuildingType type);
