@@ -178,6 +178,8 @@ public:
     TTF_Text *gameMoneyIndicatorUiText = nullptr;
     TTF_Font *gameFoodIndicatorUiFont = nullptr;
     TTF_Text *gameFoodIndicatorUiText = nullptr;
+    TTF_Font *gamePopulationIndicatorUiFont = nullptr;
+    TTF_Text *gamePopulationIndicatorUiText = nullptr;
     TTF_Text *gameNumberOfTurnText = nullptr;
     TTF_Font *gameBuildingCostUIFont = nullptr;
     TTF_Text *gameBuildingCostUIText = nullptr;
@@ -317,7 +319,10 @@ public:
     SDL_Texture *gameBuildingTypesGroupingReligionSamurai = nullptr;
     //food icon Texture
     SDL_Texture *gameFoodIconUi = nullptr;
-
+    //Growth textures
+    SDL_Texture *gamePeasantryIconUi = nullptr;
+    SDL_Texture *gameNobilityIconUi = nullptr;
+    SDL_Texture *gameClergyIconUi = nullptr;
     //UI TextFont
     TTF_Font *gameStatUITitleFont = nullptr;
 
@@ -476,6 +481,9 @@ public:
         {7, "NameRegion2", FactionZone::Samurai,false},//est
         {8, "NameRegion3", FactionZone::Samurai,false},//west
     };
+
+
+
 
     std::vector<SDL_FRect> tierPopupRects; // 1 rect per building
     int tierPopupMaxTier = 0;
@@ -710,6 +718,7 @@ private://constructor
         gameCurrentFoodUiFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         gameFoodIndicatorUiFont = TTF_OpenFont ("assets/Rubik.ttf", 19);
         gameMoneyIndicatorUiFont = TTF_OpenFont("assets/Rubik.ttf", 19);
+        gamePopulationIndicatorUiFont = TTF_OpenFont("assets/Rubik.ttf", 19);
         //same font has AnticipatedMoneyUiText
         gameCurrentFoodUiText = TTF_CreateText(textEngine, gameCurrentFoodUiFont, "", 25);
         if (gameCurrentFoodUiText == nullptr) {
@@ -717,12 +726,17 @@ private://constructor
         }
         gameMoneyIndicatorUiText = TTF_CreateText(textEngine, gameMoneyIndicatorUiFont, "", 25);
         if (gameMoneyIndicatorUiText == nullptr) {
-            SDL_LogWarn(0, "failed to create texte gameMoneyIndicatorUiText", SDL_GetError());
+            SDL_LogWarn(0, "failed to create text gameMoneyIndicatorUiText", SDL_GetError());
         }
         gameFoodIndicatorUiText = TTF_CreateText (textEngine, gameFoodIndicatorUiFont, "", 25);
         if (gameFoodIndicatorUiText == nullptr) {
-            SDL_LogWarn(0, "failed to load texture gameFoodIndicatorUiText", SDL_GetError());
+            SDL_LogWarn(0, "failed to create tex of gameFoodIndicatorUiText", SDL_GetError());
         }
+        gamePopulationIndicatorUiText = TTF_CreateText (textEngine, gamePopulationIndicatorUiFont, "", 25);
+        if (gamePopulationIndicatorUiText == nullptr) {
+            SDL_LogWarn(0, "failed to create text of gamePopulationIndicatorUiText ", SDL_GetError());
+        }
+
         gameNumberOfTurnText = TTF_CreateText(textEngine, gameGeneralFont, "0", 25);
         if (gameNumberOfTurnText == nullptr) {
             SDL_LogWarn(0,"failed to create the text gameNumberOfTurn",SDL_GetError());
@@ -902,10 +916,26 @@ private://constructor
 
         //Texture Food UI
         gameFoodIconUi = IMG_LoadTexture(renderer, "assets/FoodIcon.png");
-        if (gameTurnAmountTexture == nullptr) {
+        if (gameFoodIconUi == nullptr) {
             SDL_LogWarn(0, "failed to load texture gameFoodIconUi", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameFoodIconUi, SDL_SCALEMODE_NEAREST);
+        //Texture Growth UI
+        gamePeasantryIconUi = IMG_LoadTexture(renderer, "assets/PeasantryIcon.png");
+        if (gamePeasantryIconUi == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gamePeasantryIconUi", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gamePeasantryIconUi, SDL_SCALEMODE_NEAREST);
+        gameNobilityIconUi = IMG_LoadTexture(renderer, "assets/NobilityIcon.png");
+        if (gameNobilityIconUi == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameNobilityIconUi", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameNobilityIconUi, SDL_SCALEMODE_NEAREST);
+        gameClergyIconUi = IMG_LoadTexture(renderer, "assets/ClergyIcon.png");
+        if (gameClergyIconUi == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameClergyIconUi", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameClergyIconUi, SDL_SCALEMODE_NEAREST);
 
         //Texture toggle tax settlements
         gameToggleTaxSettlementTrue = IMG_LoadTexture(renderer, "assets/toggleTaxSettlementTrue.png");
@@ -2059,6 +2089,7 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         if (creditsRoleTitleText == nullptr) {
             SDL_LogWarn(0,"failed to load the text of creditsRoleTitleText");
         }
+
         creditsRoleNameText = TTF_CreateText(textEngine, creditsRoleNameFont, "Louis-Philippe Gauvin", 25);
         if (creditsRoleNameText == nullptr) {
             SDL_LogWarn(0,"failed to load the text of creditsRoleNameText");
@@ -2074,6 +2105,11 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         }
         fpsTimerID = SDL_AddTimer(250, TimerCallback, &shouldUpdateText);
 
+
+        //calcul current population / Need Bonus from buildings
+        player.currentPeasantryAmount = player.basePeasantryBirth - player.basePeasantryDeath;
+        player.currentNobilityAmount = player.baseNobilityBirth - player.baseNobilityDeath;
+        player.currentClergyAmount = player.baseClergyGrowth - player.baseClergyDeath;
     }
 
     //DESTRUCTEUR
@@ -2112,6 +2148,7 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         TTF_CloseFont(gameCurrentFoodUiFont);
         TTF_CloseFont(gameMoneyIndicatorUiFont);
         TTF_CloseFont(gameFoodIndicatorUiFont);
+        TTF_CloseFont(gamePopulationIndicatorUiFont);
         TTF_CloseFont(gameInProgressFont);
         TTF_CloseFont(gameVersionFont);
     // ---------------------------------
@@ -2153,6 +2190,7 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         TTF_DestroyText(gameBuildingCategoriesNameText);
         TTF_DestroyText(gameInProgressText);
         TTF_DestroyText(gameVersionText);
+        TTF_DestroyText(gamePopulationIndicatorUiText);
     // ---------------------------------
         SDL_DestroyTexture(provinceKnightBannerTexture);
         SDL_DestroyTexture(provinceVikingBannerTexture);
@@ -2231,6 +2269,9 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         SDL_DestroyTexture(gamePublicOrderNegatifTexture);
         SDL_DestroyTexture(gamePublicOrderNeutralTexture);
         SDL_DestroyTexture(gameFoodIconUi);
+        SDL_DestroyTexture(gamePeasantryIconUi);
+        SDL_DestroyTexture(gameNobilityIconUi);
+        SDL_DestroyTexture(gameClergyIconUi);
     // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
@@ -3886,17 +3927,35 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         SDL_RenderFillRect(renderer, &growthSecondLine);
         //The rect of the different paysant type. Texture has well
         //paysantry
-        SDL_FRect paysantryGrowthLogoRect = {835.f + thickness, 38.f + thickness, 28 - thickness, 28 - thickness };
+        //texture
+        SDL_FRect peasantryGrowthLogoRect = {835.f + thickness, 38.f + thickness, 28 - thickness, 28 - thickness };
         SDL_SetRenderDrawColor(renderer, 60, 255, 60, 255);
-        SDL_RenderFillRect(renderer, &paysantryGrowthLogoRect);
+        SDL_RenderFillRect(renderer, &peasantryGrowthLogoRect);
+        //population amount
+        std::string peasantryAmountStr = std::to_string(player.currentPeasantryAmount);
+        TTF_SetTextString(gamePopulationIndicatorUiText, peasantryAmountStr.c_str(), 0);//convert to string
+        TTF_SetTextColor(gamePopulationIndicatorUiText, 255,255,255,255);
+        TTF_DrawRendererText(gamePopulationIndicatorUiText, 865.f + thickness, 38.f + thickness); // 30 from logo
         //Nobility
+        //texture
         SDL_FRect nobilityGrowthLogoRect = {950.f + thickness, 38.f + thickness, 28 - thickness, 28 - thickness };
         SDL_SetRenderDrawColor(renderer,255,60,60,255);
         SDL_RenderFillRect(renderer, &nobilityGrowthLogoRect);
+        //Population Amount
+        std::string nobilityAmountStr = std::to_string(player.currentNobilityAmount);
+        TTF_SetTextString(gamePopulationIndicatorUiText, nobilityAmountStr.c_str(), 0);
+        TTF_SetTextColor(gamePopulationIndicatorUiText, 255,255,255,255);
+        TTF_DrawRendererText(gamePopulationIndicatorUiText, 980.f + thickness, 38.f + thickness);
         //Church Clergy
+        //texture
         SDL_FRect clergyGrowthLogoRect = {1070.f + thickness, 38.f + thickness, 28 - thickness, 28 - thickness};
         SDL_SetRenderDrawColor(renderer,148,0,211,255);
         SDL_RenderFillRect(renderer, &clergyGrowthLogoRect);
+        //Population Amount
+        std::string clergyAmountStr = std::to_string(player.currentClergyAmount);
+        TTF_SetTextString(gamePopulationIndicatorUiText, clergyAmountStr.c_str(), 0);
+        TTF_SetTextColor(gamePopulationIndicatorUiText, 255,255,255,255);
+        TTF_DrawRendererText(gamePopulationIndicatorUiText, 1100.f + thickness,38.f + thickness);
     }
     //public order based on food (FILLEDS SEGS 1,2,3,4,5,6)
     /*
@@ -4941,7 +5000,13 @@ public:
             player.foodStored = std::min(player.foodStored+9, player.foodStorage);
         }
 
-
+        //population increase each turn
+        //peasantry
+        player.currentPeasantryAmount += player.basePeasantryBirth - player.basePeasantryDeath;
+        //nobility
+        player.currentNobilityAmount += player.baseNobilityBirth - player.baseNobilityDeath;
+        //clergy
+        player.currentClergyAmount += player.baseClergyGrowth - player.baseClergyDeath;
     // AI TURNS~!
     std::vector<FactionZone> turnOrder = { FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai };
     int playerIndex = 0;

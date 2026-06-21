@@ -22,18 +22,18 @@ public :
     //peasantry
     int basePeasantryBirth = 75;
     int basePeasantryDeath = 28;
-    int buildingPeasantryBonus = 0;
+    int currentPeasantryAmount = 0;
     int nextTurnPeasantry = 0;
     //nobility
     int baseNobilityBirth = 12;
     int baseNobilityDeath = 4;
-    int buildingNobilityBonus = 0;
+    int currentNobilityAmount = 0;
     int nextTurnNobility = 0;
     //clergy
     int baseClergyGrowth = 3;
     int baseClergyDeath = 1;
-    int buildingClergy = 0;
-    int nextTurnClergy = 0;
+    int currentClergyAmount = 0;
+    int nextTurnClergyBonus = 0;
     //default faction played by user
     FactionZone faction = FactionZone::Knight;
 
