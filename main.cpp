@@ -25,8 +25,10 @@
 /*
  * 0.2.0
  * POPULATION SYSTEM
- *(population is affected by food storage system)
- *Update Buildings info in UI +/-
+ * (population is affected by food storage system)
+ * Having population texture positive and negative
+ * Having money and food texture positive and negative
+ * Update Buildings info in UI +/-
  *
  *---------------------------------------------
  * 0.2.5
