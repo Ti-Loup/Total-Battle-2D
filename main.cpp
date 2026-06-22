@@ -25,6 +25,7 @@
 /*
  * 0.2.0
  * POPULATION SYSTEM
+ * Hovered Population
  * (population is affected by food storage system)
  * Having population texture positive and negative
  * Having money and food texture positive and negative
@@ -351,13 +352,13 @@ public:
             return faction == texture.faction && settlementType == texture.settlementType && tier == texture.tier;
         }
     };
-//securing
+    //securing
     struct SettlementTextureMapHash {
         size_t operator()(const SettlementTextureMap &m) const {
             return std::hash<int>()((int)m.faction * 100 + (int)m.settlementType * 10 + m.tier);
         }
     };
-   std::unordered_map<SettlementTextureMap, SDL_Texture*, SettlementTextureMapHash> settlementTextureCampaign;
+    std::unordered_map<SettlementTextureMap, SDL_Texture*, SettlementTextureMapHash> settlementTextureCampaign;
 
 
 
@@ -461,7 +462,10 @@ public:
     float foodTooltipX = 0.0f;
     float foodTooltipY = 0.0f;
 
-
+    //Population Mouse Hovered UI
+    bool bMouseOnPopulationIcon = false;
+    float populationTooltipX = 0.0f;
+    float populationTooltipY = 0.0f;
 
     //toggle tax province
     //bool bToggleCollectIncome = true; is global and for each settlement i need to use Province.h
@@ -973,210 +977,210 @@ private://constructor
          *Castle and capital Tier 1 no wall, Tier 2 wood wall, Tier 3 Stone wall, Tier 4 Better wall, Tier 5 2 layout of walls.
          *
          */
-//                              ~ KNIGHT ~
-// Capital -> 5 tiers Upgrade
-settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 1}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CapitalKnight_T1.png");
+        //                              ~ KNIGHT ~
+        // Capital -> 5 tiers Upgrade
+        settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 1}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CapitalKnight_T1.png");
         if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 1}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Capital, Tier1", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital,1}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 2}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CapitalKnight_T2.png");
+        settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 2}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CapitalKnight_T2.png");
         if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 2}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Capital, Tier2", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital,2}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 3}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CapitalKnight_T3.png");
+        settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 3}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CapitalKnight_T3.png");
         if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 3}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Capital, Tier3", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital,3}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 4}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CapitalKnight_T4.png");
+        settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 4}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CapitalKnight_T4.png");
         if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 4}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Capital, Tier4", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital,4}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 5}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CapitalKnight_T5.png");
+        settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 5}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CapitalKnight_T5.png");
         if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital, 5}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Capital, Tier5", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Capital,5}], SDL_SCALEMODE_NEAREST);
-// Castles -> 5 tiers Upgrade
-settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 1}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CastleKnight_T1.png");
+        // Castles -> 5 tiers Upgrade
+        settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 1}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CastleKnight_T1.png");
         if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 1}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Castle, Tier1", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle,1}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 2}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CastleKnight_T2.png");
+        settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 2}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CastleKnight_T2.png");
         if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 2}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Castle, Tier2", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle,2}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 3}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CastleKnight_T3.png");
+        settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 3}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CastleKnight_T3.png");
         if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 3}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Castle, Tier3", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle,3}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 4}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CastleKnight_T4.png");
+        settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 4}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CastleKnight_T4.png");
         if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 4}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Castle, Tier4", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle,4}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 5}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CastleKnight_T5.png");
+        settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 5}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/CastleKnight_T5.png");
         if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle, 5}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Castle, Tier5", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Castle,5}], SDL_SCALEMODE_NEAREST);
-// Villages -> 3 tiers Upgrade
-settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village, 1}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/VillageKnight_T1.png");
+        // Villages -> 3 tiers Upgrade
+        settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village, 1}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/VillageKnight_T1.png");
         if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village, 1}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Village, Tier1", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village,1}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village, 2}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/VillageKnight_T2.png");
+        settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village, 2}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/VillageKnight_T2.png");
         if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village, 2}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Village, Tier2", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village,2}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village, 3}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/VillageKnight_T3.png");
+        settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village, 3}] = IMG_LoadTexture(renderer, "assets/Knight/Settlement/VillageKnight_T3.png");
         if (settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village, 3}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Knight, Village, Tier3", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Knight, SettlementType::Village,3}], SDL_SCALEMODE_NEAREST);
-//                               ~ VIKING ~
-// Capital -> 5 tiers Upgrade
-settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 1}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CapitalViking_T1.png");
+        //                               ~ VIKING ~
+        // Capital -> 5 tiers Upgrade
+        settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 1}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CapitalViking_T1.png");
         if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 1}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Capital, Tier1", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital,1}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 2}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CapitalViking_T2.png");
+        settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 2}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CapitalViking_T2.png");
         if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 2}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Capital, Tier2", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital,2}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 3}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CapitalViking_T3.png");
+        settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 3}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CapitalViking_T3.png");
         if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 3}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Capital, Tier3", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital,3}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 4}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CapitalViking_T4.png");
+        settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 4}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CapitalViking_T4.png");
         if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 4}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Capital, Tier4", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital,4}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 5}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CapitalViking_T5.png");
+        settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 5}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CapitalViking_T5.png");
         if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital, 5}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Capital, Tier5", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Capital,5}], SDL_SCALEMODE_NEAREST);
-// Castles -> 5 tiers Upgrade
-settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 1}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CastleViking_T1.png");
+        // Castles -> 5 tiers Upgrade
+        settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 1}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CastleViking_T1.png");
         if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 1}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Castle, Tier1", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle,1}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 2}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CastleViking_T2.png");
+        settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 2}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CastleViking_T2.png");
         if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 2}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Castle, Tier2", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle,2}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 3}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CastleViking_T3.png");
+        settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 3}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CastleViking_T3.png");
         if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 3}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Castle, Tier3", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle,3}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 4}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CastleViking_T4.png");
+        settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 4}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CastleViking_T4.png");
         if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 4}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Castle, Tier4", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle,4}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 5}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CastleViking_T5.png");
+        settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 5}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/CastleViking_T5.png");
         if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle, 5}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Castle, Tier5", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Castle,5}], SDL_SCALEMODE_NEAREST);
-// Villages -> 3 tiers Upgrade
-settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village, 1}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/VillageViking_T1.png");
+        // Villages -> 3 tiers Upgrade
+        settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village, 1}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/VillageViking_T1.png");
         if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village, 1}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Village, Tier1", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village,1}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village, 2}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/VillageViking_T2.png");
+        settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village, 2}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/VillageViking_T2.png");
         if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village, 2}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Village, Tier2", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village,2}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village, 3}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/VillageViking_T3.png");
+        settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village, 3}] = IMG_LoadTexture(renderer, "assets/Viking/Settlement/VillageViking_T3.png");
         if (settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village, 3}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Viking, Village, Tier3", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Viking, SettlementType::Village,3}], SDL_SCALEMODE_NEAREST);
 
-// ~ SAMURAI ~
-// Capital -> 5 tiers Upgrade
-settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 1}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CapitalSamurai_T1.png");
+        // ~ SAMURAI ~
+        // Capital -> 5 tiers Upgrade
+        settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 1}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CapitalSamurai_T1.png");
         if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 1}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Capital, Tier1", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital,1}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 2}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CapitalSamurai_T2.png");
+        settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 2}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CapitalSamurai_T2.png");
         if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 2}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Capital, Tier2", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital,2}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 3}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CapitalSamurai_T3.png");
+        settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 3}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CapitalSamurai_T3.png");
         if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 3}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Capital, Tier3", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital,3}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 4}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CapitalSamurai_T4.png");
+        settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 4}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CapitalSamurai_T4.png");
         if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 4}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Capital, Tier4", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital,4}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 5}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CapitalSamurai_T5.png");
+        settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 5}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CapitalSamurai_T5.png");
         if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital, 5}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Capital, Tier5", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Capital,5}], SDL_SCALEMODE_NEAREST);
-// Castles -> 5 tiers Upgrade
-settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 1}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CastleSamurai_T1.png");
+        // Castles -> 5 tiers Upgrade
+        settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 1}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CastleSamurai_T1.png");
         if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 1}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Castle, Tier1", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle,1}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 2}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CastleSamurai_T2.png");
+        settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 2}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CastleSamurai_T2.png");
         if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 2}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Castle, Tier2", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle,2}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 3}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CastleSamurai_T3.png");
+        settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 3}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CastleSamurai_T3.png");
         if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 3}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Castle, Tier3", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle,3}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 4}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CastleSamurai_T4.png");
+        settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 4}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CastleSamurai_T4.png");
         if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 4}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Castle, Tier4", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle,4}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 5}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CastleSamurai_T5.png");
+        settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 5}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/CastleSamurai_T5.png");
         if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle, 5}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Castle, Tier5", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Castle,5}], SDL_SCALEMODE_NEAREST);
-// Villages -> 3 tiers Upgrade
-settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 1}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/VillageSamurai_T1.png");
+        // Villages -> 3 tiers Upgrade
+        settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 1}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/VillageSamurai_T1.png");
         if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 1}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Village, Tier1", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village,1}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 2}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/VillageSamurai_T2.png");
+        settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 2}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/VillageSamurai_T2.png");
         if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 2}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Village, Tier2", SDL_GetError());
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village,2}], SDL_SCALEMODE_NEAREST);
-settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/VillageSamurai_T3.png");
+        settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = IMG_LoadTexture(renderer, "assets/Samurai/Settlement/VillageSamurai_T3.png");
         if (settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] == nullptr) {
             SDL_LogWarn(0,"failed to load texture settlementTextureCampaign ->Samurai, Village, Tier3", SDL_GetError());
         }
@@ -2121,7 +2125,7 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         SDL_DestroyWindow(window);
         // Timer
         SDL_RemoveTimer(fpsTimerID);
-    // ---------------------------------
+        // ---------------------------------
         TTF_CloseFont(fpsFont);
         TTF_CloseFont(menuFont);
         TTF_CloseFont(StartFont);
@@ -2153,7 +2157,7 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         TTF_CloseFont(gamePopulationIndicatorUiFont);
         TTF_CloseFont(gameInProgressFont);
         TTF_CloseFont(gameVersionFont);
-    // ---------------------------------
+        // ---------------------------------
         TTF_DestroyText(fpsText);
         TTF_DestroyText(menuText);
         TTF_DestroyText(textStart);
@@ -2193,7 +2197,7 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         TTF_DestroyText(gameInProgressText);
         TTF_DestroyText(gameVersionText);
         TTF_DestroyText(gamePopulationIndicatorUiText);
-    // ---------------------------------
+        // ---------------------------------
         SDL_DestroyTexture(provinceKnightBannerTexture);
         SDL_DestroyTexture(provinceVikingBannerTexture);
         SDL_DestroyTexture(provinceSamuraiBannerTexture);
@@ -2274,15 +2278,15 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         SDL_DestroyTexture(gamePeasantryIconUi);
         SDL_DestroyTexture(gameNobilityIconUi);
         SDL_DestroyTexture(gameClergyIconUi);
-    // ---------------------------------
+        // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
-    // ---------------------------------
+        // ---------------------------------
         for (auto &[Type, texture]: buildingTypeTextures) {
             SDL_DestroyTexture(texture);
         }
         buildingTypeTextures.clear();
-    // ---------------------------------
+        // ---------------------------------
         for (auto& [key, tex] : settlementTextureCampaign)
             SDL_DestroyTexture(tex);
         settlementTextureCampaign.clear();
@@ -2290,71 +2294,71 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
 
 
     BuildingType GetSettlementBuildingType(SettlementType type, FactionZone faction, int tier) {
-    if (faction == FactionZone::Knight) {
-        if (type == SettlementType::Village) {
-            if (tier == 1) return BuildingType::Settlement_Village_Knight_T1;
-            if (tier == 2) return BuildingType::Settlement_Village_Knight_T2;
-            if (tier == 3) return BuildingType::Settlement_Village_Knight_T3;
+        if (faction == FactionZone::Knight) {
+            if (type == SettlementType::Village) {
+                if (tier == 1) return BuildingType::Settlement_Village_Knight_T1;
+                if (tier == 2) return BuildingType::Settlement_Village_Knight_T2;
+                if (tier == 3) return BuildingType::Settlement_Village_Knight_T3;
+            }
+            else if (type == SettlementType::Castle) {
+                if (tier == 1) return BuildingType::Settlement_Castle_Knight_T1;
+                if (tier == 2) return BuildingType::Settlement_Castle_Knight_T2;
+                if (tier == 3) return BuildingType::Settlement_Castle_Knight_T3;
+                if (tier == 4) return BuildingType::Settlement_Castle_Knight_T4;
+                if (tier == 5) return BuildingType::Settlement_Castle_Knight_T5;
+            }
+            else if (type == SettlementType::Capital) {
+                if (tier == 1) return BuildingType::Settlement_Capital_Knight_T1;
+                if (tier == 2) return BuildingType::Settlement_Capital_Knight_T2;
+                if (tier == 3) return BuildingType::Settlement_Capital_Knight_T3;
+                if (tier == 4) return BuildingType::Settlement_Capital_Knight_T4;
+                if (tier == 5) return BuildingType::Settlement_Capital_Knight_T5;
+            }
         }
-        else if (type == SettlementType::Castle) {
-            if (tier == 1) return BuildingType::Settlement_Castle_Knight_T1;
-            if (tier == 2) return BuildingType::Settlement_Castle_Knight_T2;
-            if (tier == 3) return BuildingType::Settlement_Castle_Knight_T3;
-            if (tier == 4) return BuildingType::Settlement_Castle_Knight_T4;
-            if (tier == 5) return BuildingType::Settlement_Castle_Knight_T5;
+        else if (faction == FactionZone::Viking) {
+            if (type == SettlementType::Village) {
+                if (tier == 1) return BuildingType::Settlement_Village_Viking_T1;
+                if (tier == 2) return BuildingType::Settlement_Village_Viking_T2;
+                if (tier == 3) return BuildingType::Settlement_Village_Viking_T3;
+            }
+            else if (type == SettlementType::Castle) {
+                if (tier == 1) return BuildingType::Settlement_Castle_Viking_T1;
+                if (tier == 2) return BuildingType::Settlement_Castle_Viking_T2;
+                if (tier == 3) return BuildingType::Settlement_Castle_Viking_T3;
+                if (tier == 4) return BuildingType::Settlement_Castle_Viking_T4;
+                if (tier == 5) return BuildingType::Settlement_Castle_Viking_T5;
+            }
+            else if (type == SettlementType::Capital) {
+                if (tier == 1) return BuildingType::Settlement_Capital_Viking_T1;
+                if (tier == 2) return BuildingType::Settlement_Capital_Viking_T2;
+                if (tier == 3) return BuildingType::Settlement_Capital_Viking_T3;
+                if (tier == 4) return BuildingType::Settlement_Capital_Viking_T4;
+                if (tier == 5) return BuildingType::Settlement_Capital_Viking_T5;
+            }
         }
-        else if (type == SettlementType::Capital) {
-            if (tier == 1) return BuildingType::Settlement_Capital_Knight_T1;
-            if (tier == 2) return BuildingType::Settlement_Capital_Knight_T2;
-            if (tier == 3) return BuildingType::Settlement_Capital_Knight_T3;
-            if (tier == 4) return BuildingType::Settlement_Capital_Knight_T4;
-            if (tier == 5) return BuildingType::Settlement_Capital_Knight_T5;
+        else if (faction == FactionZone::Samurai) {
+            if (type == SettlementType::Village) {
+                if (tier == 1) return BuildingType::Settlement_Village_Samurai_T1;
+                if (tier == 2) return BuildingType::Settlement_Village_Samurai_T2;
+                if (tier == 3) return BuildingType::Settlement_Village_Samurai_T3;
+            }
+            else if (type == SettlementType::Castle) {
+                if (tier == 1) return BuildingType::Settlement_Castle_Samurai_T1;
+                if (tier == 2) return BuildingType::Settlement_Castle_Samurai_T2;
+                if (tier == 3) return BuildingType::Settlement_Castle_Samurai_T3;
+                if (tier == 4) return BuildingType::Settlement_Castle_Samurai_T4;
+                if (tier == 5) return BuildingType::Settlement_Castle_Samurai_T5;
+            }
+            else if (type == SettlementType::Capital) {
+                if (tier == 1) return BuildingType::Settlement_Capital_Samurai_T1;
+                if (tier == 2) return BuildingType::Settlement_Capital_Samurai_T2;
+                if (tier == 3) return BuildingType::Settlement_Capital_Samurai_T3;
+                if (tier == 4) return BuildingType::Settlement_Capital_Samurai_T4;
+                if (tier == 5) return BuildingType::Settlement_Capital_Samurai_T5;
+            }
         }
+        return BuildingType::None;
     }
-    else if (faction == FactionZone::Viking) {
-        if (type == SettlementType::Village) {
-            if (tier == 1) return BuildingType::Settlement_Village_Viking_T1;
-            if (tier == 2) return BuildingType::Settlement_Village_Viking_T2;
-            if (tier == 3) return BuildingType::Settlement_Village_Viking_T3;
-        }
-        else if (type == SettlementType::Castle) {
-            if (tier == 1) return BuildingType::Settlement_Castle_Viking_T1;
-            if (tier == 2) return BuildingType::Settlement_Castle_Viking_T2;
-            if (tier == 3) return BuildingType::Settlement_Castle_Viking_T3;
-            if (tier == 4) return BuildingType::Settlement_Castle_Viking_T4;
-            if (tier == 5) return BuildingType::Settlement_Castle_Viking_T5;
-        }
-        else if (type == SettlementType::Capital) {
-            if (tier == 1) return BuildingType::Settlement_Capital_Viking_T1;
-            if (tier == 2) return BuildingType::Settlement_Capital_Viking_T2;
-            if (tier == 3) return BuildingType::Settlement_Capital_Viking_T3;
-            if (tier == 4) return BuildingType::Settlement_Capital_Viking_T4;
-            if (tier == 5) return BuildingType::Settlement_Capital_Viking_T5;
-        }
-    }
-    else if (faction == FactionZone::Samurai) {
-        if (type == SettlementType::Village) {
-            if (tier == 1) return BuildingType::Settlement_Village_Samurai_T1;
-            if (tier == 2) return BuildingType::Settlement_Village_Samurai_T2;
-            if (tier == 3) return BuildingType::Settlement_Village_Samurai_T3;
-        }
-        else if (type == SettlementType::Castle) {
-            if (tier == 1) return BuildingType::Settlement_Castle_Samurai_T1;
-            if (tier == 2) return BuildingType::Settlement_Castle_Samurai_T2;
-            if (tier == 3) return BuildingType::Settlement_Castle_Samurai_T3;
-            if (tier == 4) return BuildingType::Settlement_Castle_Samurai_T4;
-            if (tier == 5) return BuildingType::Settlement_Castle_Samurai_T5;
-        }
-        else if (type == SettlementType::Capital) {
-            if (tier == 1) return BuildingType::Settlement_Capital_Samurai_T1;
-            if (tier == 2) return BuildingType::Settlement_Capital_Samurai_T2;
-            if (tier == 3) return BuildingType::Settlement_Capital_Samurai_T3;
-            if (tier == 4) return BuildingType::Settlement_Capital_Samurai_T4;
-            if (tier == 5) return BuildingType::Settlement_Capital_Samurai_T5;
-        }
-    }
-    return BuildingType::None;
-}
 
     //to render the Buttons
     void RenderBoutons(const SDL_FRect &rect, TTF_Text *buttonText, Uint8 buttonr, Uint8 buttong, Uint8 buttonb, Uint8 buttona) {
@@ -2402,71 +2406,71 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
 
     //To not repeat the texture of settlements
     SDL_Texture* GetSettlementBuildingUpgradeTexture(FactionZone faction, SettlementType type, int tier) {
-    if (faction == FactionZone::Knight) {
-        if (type == SettlementType::Capital) {
-            if (tier == 1) return capitalBuildingUpgrade1Knight;
-            if (tier == 2) return capitalBuildingUpgrade2Knight;
-            if (tier == 3) return capitalBuildingUpgrade3Knight;
-            if (tier == 4) return capitalBuildingUpgrade4Knight;
-            if (tier == 5) return capitalBuildingUpgrade5Knight;
+        if (faction == FactionZone::Knight) {
+            if (type == SettlementType::Capital) {
+                if (tier == 1) return capitalBuildingUpgrade1Knight;
+                if (tier == 2) return capitalBuildingUpgrade2Knight;
+                if (tier == 3) return capitalBuildingUpgrade3Knight;
+                if (tier == 4) return capitalBuildingUpgrade4Knight;
+                if (tier == 5) return capitalBuildingUpgrade5Knight;
+            }
+            else if (type == SettlementType::Castle) {
+                if (tier == 1) return castleBuildingUpgrade1Knight;
+                if (tier == 2) return castleBuildingUpgrade2Knight;
+                if (tier == 3) return castleBuildingUpgrade3Knight;
+                if (tier == 4) return castleBuildingUpgrade4Knight;
+                if (tier == 5) return castleBuildingUpgrade5Knight;
+            }
+            else if (type == SettlementType::Village) {
+                if (tier == 1) return villageBuildingUpgrade1Knight;
+                if (tier == 2) return villageBuildingUpgrade2Knight;
+                if (tier == 3) return villageBuildingUpgrade3Knight;
+            }
         }
-        else if (type == SettlementType::Castle) {
-            if (tier == 1) return castleBuildingUpgrade1Knight;
-            if (tier == 2) return castleBuildingUpgrade2Knight;
-            if (tier == 3) return castleBuildingUpgrade3Knight;
-            if (tier == 4) return castleBuildingUpgrade4Knight;
-            if (tier == 5) return castleBuildingUpgrade5Knight;
+        else if (faction == FactionZone::Viking) {
+            if (type == SettlementType::Capital) {
+                if (tier == 1) return capitalBuildingUpgrade1Viking;
+                if (tier == 2) return capitalBuildingUpgrade2Viking;
+                if (tier == 3) return capitalBuildingUpgrade3Viking;
+                if (tier == 4) return capitalBuildingUpgrade4Viking;
+                if (tier == 5) return capitalBuildingUpgrade5Viking;
+            }
+            else if (type == SettlementType::Castle) {
+                if (tier == 1) return castleBuildingUpgrade1Viking;
+                if (tier == 2) return castleBuildingUpgrade2Viking;
+                if (tier == 3) return castleBuildingUpgrade3Viking;
+                if (tier == 4) return castleBuildingUpgrade4Viking;
+                if (tier == 5) return castleBuildingUpgrade5Viking;
+            }
+            else if (type == SettlementType::Village) {
+                if (tier == 1) return villageBuildingUpgrade1Viking;
+                if (tier == 2) return villageBuildingUpgrade2Viking;
+                if (tier == 3) return villageBuildingUpgrade3Viking;
+            }
         }
-        else if (type == SettlementType::Village) {
-            if (tier == 1) return villageBuildingUpgrade1Knight;
-            if (tier == 2) return villageBuildingUpgrade2Knight;
-            if (tier == 3) return villageBuildingUpgrade3Knight;
+        else if (faction == FactionZone::Samurai) {
+            if (type == SettlementType::Capital) {
+                if (tier == 1) return capitalBuildingUpgrade1Samurai;
+                if (tier == 2) return capitalBuildingUpgrade2Samurai;
+                if (tier == 3) return capitalBuildingUpgrade3Samurai;
+                if (tier == 4) return capitalBuildingUpgrade4Samurai;
+                if (tier == 5) return capitalBuildingUpgrade5Samurai;
+            }
+            else if (type == SettlementType::Castle) {
+                if (tier == 1) return castleBuildingUpgrade1Samurai;
+                if (tier == 2) return castleBuildingUpgrade2Samurai;
+                if (tier == 3) return castleBuildingUpgrade3Samurai;
+                if (tier == 4) return castleBuildingUpgrade4Samurai;
+                if (tier == 5) return castleBuildingUpgrade5Samurai;
+            }
+            else if (type == SettlementType::Village) {
+                if (tier == 1) return villageBuildingUpgrade1Samurai;
+                if (tier == 2) return villageBuildingUpgrade2Samurai;
+                if (tier == 3) return villageBuildingUpgrade3Samurai;
+            }
         }
+        return nullptr;
     }
-    else if (faction == FactionZone::Viking) {
-        if (type == SettlementType::Capital) {
-            if (tier == 1) return capitalBuildingUpgrade1Viking;
-            if (tier == 2) return capitalBuildingUpgrade2Viking;
-            if (tier == 3) return capitalBuildingUpgrade3Viking;
-            if (tier == 4) return capitalBuildingUpgrade4Viking;
-            if (tier == 5) return capitalBuildingUpgrade5Viking;
-        }
-        else if (type == SettlementType::Castle) {
-            if (tier == 1) return castleBuildingUpgrade1Viking;
-            if (tier == 2) return castleBuildingUpgrade2Viking;
-            if (tier == 3) return castleBuildingUpgrade3Viking;
-            if (tier == 4) return castleBuildingUpgrade4Viking;
-            if (tier == 5) return castleBuildingUpgrade5Viking;
-        }
-        else if (type == SettlementType::Village) {
-            if (tier == 1) return villageBuildingUpgrade1Viking;
-            if (tier == 2) return villageBuildingUpgrade2Viking;
-            if (tier == 3) return villageBuildingUpgrade3Viking;
-        }
-    }
-    else if (faction == FactionZone::Samurai) {
-        if (type == SettlementType::Capital) {
-            if (tier == 1) return capitalBuildingUpgrade1Samurai;
-            if (tier == 2) return capitalBuildingUpgrade2Samurai;
-            if (tier == 3) return capitalBuildingUpgrade3Samurai;
-            if (tier == 4) return capitalBuildingUpgrade4Samurai;
-            if (tier == 5) return capitalBuildingUpgrade5Samurai;
-        }
-        else if (type == SettlementType::Castle) {
-            if (tier == 1) return castleBuildingUpgrade1Samurai;
-            if (tier == 2) return castleBuildingUpgrade2Samurai;
-            if (tier == 3) return castleBuildingUpgrade3Samurai;
-            if (tier == 4) return castleBuildingUpgrade4Samurai;
-            if (tier == 5) return castleBuildingUpgrade5Samurai;
-        }
-        else if (type == SettlementType::Village) {
-            if (tier == 1) return villageBuildingUpgrade1Samurai;
-            if (tier == 2) return villageBuildingUpgrade2Samurai;
-            if (tier == 3) return villageBuildingUpgrade3Samurai;
-        }
-    }
-    return nullptr;
-}
     SDL_Texture* GetBuildingTexture(BuildingType type) {
         auto it = buildingTypeTextures.find(type);
         return (it != buildingTypeTextures.end()) ? it->second : nullptr;
@@ -2520,8 +2524,8 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
 
             //color and texture of settlements
             //test
-             SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 100);
-             SDL_RenderFillRect(renderer, &dst);
+            SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 100);
+            SDL_RenderFillRect(renderer, &dst);
             //Settlement texture that changes based on tier
             int tier = s.settlementData.settlementTier;
             SDL_Texture* tex = GetSettlementTexture(zone, s.settlementData.type, tier);
@@ -2533,134 +2537,134 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
             SDL_RenderRect(renderer, &dst);
 
             //UI elements to show (Public order / Current income of this settlement / Population )
-    if (camera.zoom >= 1.1f) {
-            // center of the settlement for the UI to show
-    float centerX = positionX + displaySize / 2.f;
-    float bottomY = positionY + displaySize;
+            if (camera.zoom >= 1.1f) {
+                // center of the settlement for the UI to show
+                float centerX = positionX + displaySize / 2.f;
+                float bottomY = positionY + displaySize;
 
-    // size of all UI elements
-    float barW   = 110.f;
-    float barH   = 20.f;
-    float barGap = 3.f;
-    float barX   = centerX - barW / 2.f;
-    float barY   = bottomY + barGap;
+                // size of all UI elements
+                float barW   = 110.f;
+                float barH   = 20.f;
+                float barGap = 3.f;
+                float barX   = centerX - barW / 2.f;
+                float barY   = bottomY + barGap;
 
-    // the name of the settlement
-    TTF_SetTextString(gameStatUITitleText, s.settlementData.cityName.c_str(), 0);
-    TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
-    int nameW = 0, nameH = 0;
-    TTF_GetTextSize(gameStatUITitleText, &nameW, &nameH);
-    float nameX = centerX - nameW / 2.f;
-    float nameY = barY - nameH - 2.f;
+                // the name of the settlement
+                TTF_SetTextString(gameStatUITitleText, s.settlementData.cityName.c_str(), 0);
+                TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
+                int nameW = 0, nameH = 0;
+                TTF_GetTextSize(gameStatUITitleText, &nameW, &nameH);
+                float nameX = centerX - nameW / 2.f;
+                float nameY = barY - nameH - 2.f;
 
-    SDL_SetRenderDrawColor(renderer, 10, 10, 10, 200);
-    SDL_FRect nameBackground = {nameX - 4.f, nameY - 2.f, (float)nameW + 4.f, (float)nameH + 2.f};
-    SDL_RenderFillRect(renderer, &nameBackground);
-    SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 160);
-    SDL_RenderRect(renderer, &nameBackground);
-    TTF_DrawRendererText(gameStatUITitleText, nameX, nameY);
+                SDL_SetRenderDrawColor(renderer, 10, 10, 10, 200);
+                SDL_FRect nameBackground = {nameX - 4.f, nameY - 2.f, (float)nameW + 4.f, (float)nameH + 2.f};
+                SDL_RenderFillRect(renderer, &nameBackground);
+                SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 160);
+                SDL_RenderRect(renderer, &nameBackground);
+                TTF_DrawRendererText(gameStatUITitleText, nameX, nameY);
 
-    // INFO BAR
-    SDL_SetRenderDrawColor(renderer, 10, 10, 10, 210);
-    SDL_FRect infoBar = {barX, barY, barW, barH};
-    SDL_RenderFillRect(renderer, &infoBar);
-    SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 180);
-    SDL_RenderRect(renderer, &infoBar);
+                // INFO BAR
+                SDL_SetRenderDrawColor(renderer, 10, 10, 10, 210);
+                SDL_FRect infoBar = {barX, barY, barW, barH};
+                SDL_RenderFillRect(renderer, &infoBar);
+                SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 180);
+                SDL_RenderRect(renderer, &infoBar);
 
-    float iconSize = 11.f;
-    float cursor = barX + 5.f;
-    float iconY = barY + (barH - iconSize) / 2.f;
-    float textY = barY - 2.f;
+                float iconSize = 11.f;
+                float cursor = barX + 5.f;
+                float iconY = barY + (barH - iconSize) / 2.f;
+                float textY = barY - 2.f;
 
-    // iconeIncome gold
-    SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
-    SDL_FRect incomeIcon = {cursor, iconY, iconSize, iconSize};
-    // SDL_RenderFillRect(renderer, &incomeIcon);
-    // SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
-    // SDL_RenderRect(renderer, &incomeIcon);
-    SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &incomeIcon);
-    cursor += iconSize + 3.f;
-    //the number that shows the income per settlement(baseIncome)
-    //bool toggle income to show 0 if no income
-    bool collectingIncome = provinces[s.settlementData.provinceID].bToggleCollectIncome;
-        int totalSettlementIncome = s.settlementData.baseIncome;
-        for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
-            if (s.settlementData.buildings[b] != BuildingType::None) {
-                const BuildingData* bd = GetBuildingData(s.settlementData.buildings[b]);
-                if (bd) totalSettlementIncome += bd->incomeBonus;
+                // iconeIncome gold
+                SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
+                SDL_FRect incomeIcon = {cursor, iconY, iconSize, iconSize};
+                // SDL_RenderFillRect(renderer, &incomeIcon);
+                // SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
+                // SDL_RenderRect(renderer, &incomeIcon);
+                SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &incomeIcon);
+                cursor += iconSize + 3.f;
+                //the number that shows the income per settlement(baseIncome)
+                //bool toggle income to show 0 if no income
+                bool collectingIncome = provinces[s.settlementData.provinceID].bToggleCollectIncome;
+                int totalSettlementIncome = s.settlementData.baseIncome;
+                for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
+                    if (s.settlementData.buildings[b] != BuildingType::None) {
+                        const BuildingData* bd = GetBuildingData(s.settlementData.buildings[b]);
+                        if (bd) totalSettlementIncome += bd->incomeBonus;
+                    }
+                }
+                std::string incomeStr = std::to_string(collectingIncome ? totalSettlementIncome : 0); // it shows 0 if the bool is true. otherwise it shows the base income for the ui settlement
+                TTF_SetTextString(gameStatUIText, incomeStr.c_str(), 0);
+                TTF_SetTextColor(gameStatUIText, 180, 230, 100, 255);
+                TTF_DrawRendererText(gameStatUIText, cursor, textY);
+                int incW = 0, incH = 0;
+                TTF_GetTextSize(gameStatUIText, &incW, &incH);
+                cursor += incW + 7.f;
+
+
+                SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
+                SDL_RenderLine(renderer, cursor, barY + 3.f, cursor, barY + barH - 3.f);
+                cursor += 6.f;
+
+                // public order icon
+                int publicOrder = s.settlementData.publicOrder;
+                Uint8 poR = publicOrder > 0 ? 80  : (publicOrder < 0 ? 220 : 130);
+                Uint8 poG = publicOrder > 0 ? 200 : (publicOrder < 0 ? 50  : 130);
+                float poSectionStartX = cursor;
+
+                SDL_FRect poInconRect = {cursor, iconY, iconSize, iconSize};
+                float mxPO, myPO;
+                SDL_GetMouseState(&mxPO, &myPO);
+                float lxPO, lyPO;
+                SDL_RenderCoordinatesFromWindow(renderer, mxPO, myPO, &lxPO, &lyPO);
+                SDL_FPoint msPO = {lxPO, lyPO};
+
+                SDL_Texture* poTex = (publicOrder > 0) ? gamePublicOrderPositifTexture
+                    : (publicOrder < 0) ? gamePublicOrderNegatifTexture
+                    : gamePublicOrderNeutralTexture;
+                if (poTex) SDL_RenderTexture(renderer, poTex, nullptr, &poInconRect);
+                cursor += iconSize + 3.f;
+
+                std::string orderStr = std::to_string(publicOrder);
+                TTF_SetTextString(gameStatUIText, orderStr.c_str(), 0);
+                TTF_SetTextColor(gameStatUIText, poR, poG, 80, 255);
+                TTF_DrawRendererText(gameStatUIText, cursor, textY);
+
+                int poTextW = 0, poTextH = 0;
+                TTF_GetTextSize(gameStatUIText, &poTextW, &poTextH);
+
+                SDL_FRect poHoverRect = {
+                    poSectionStartX,
+                    iconY,
+                    (cursor + poTextW) - poSectionStartX,
+                    iconSize
+                    };
+                if (SDL_PointInRectFloat(&msPO, &poHoverRect)) {
+                    bMouseOnPublicOrderIcon = true;
+                    hoveredPublicOrderSettlementIndex = (int)(&s - &settlements[0]);
+                    publicOrderTooltipX = lxPO;
+                    publicOrderTooltipY = lyPO;
+                }
+
             }
         }
-    std::string incomeStr = std::to_string(collectingIncome ? totalSettlementIncome : 0); // it shows 0 if the bool is true. otherwise it shows the base income for the ui settlement
-    TTF_SetTextString(gameStatUIText, incomeStr.c_str(), 0);
-    TTF_SetTextColor(gameStatUIText, 180, 230, 100, 255);
-    TTF_DrawRendererText(gameStatUIText, cursor, textY);
-    int incW = 0, incH = 0;
-    TTF_GetTextSize(gameStatUIText, &incW, &incH);
-    cursor += incW + 7.f;
-
-
-    SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
-    SDL_RenderLine(renderer, cursor, barY + 3.f, cursor, barY + barH - 3.f);
-    cursor += 6.f;
-
-    // public order icon
-    int publicOrder = s.settlementData.publicOrder;
-    Uint8 poR = publicOrder > 0 ? 80  : (publicOrder < 0 ? 220 : 130);
-    Uint8 poG = publicOrder > 0 ? 200 : (publicOrder < 0 ? 50  : 130);
-    float poSectionStartX = cursor;
-
-    SDL_FRect poInconRect = {cursor, iconY, iconSize, iconSize};
-    float mxPO, myPO;
-    SDL_GetMouseState(&mxPO, &myPO);
-    float lxPO, lyPO;
-    SDL_RenderCoordinatesFromWindow(renderer, mxPO, myPO, &lxPO, &lyPO);
-    SDL_FPoint msPO = {lxPO, lyPO};
-
-    SDL_Texture* poTex = (publicOrder > 0) ? gamePublicOrderPositifTexture
-        : (publicOrder < 0) ? gamePublicOrderNegatifTexture
-        : gamePublicOrderNeutralTexture;
-    if (poTex) SDL_RenderTexture(renderer, poTex, nullptr, &poInconRect);
-    cursor += iconSize + 3.f;
-
-    std::string orderStr = std::to_string(publicOrder);
-    TTF_SetTextString(gameStatUIText, orderStr.c_str(), 0);
-    TTF_SetTextColor(gameStatUIText, poR, poG, 80, 255);
-    TTF_DrawRendererText(gameStatUIText, cursor, textY);
-
-    int poTextW = 0, poTextH = 0;
-    TTF_GetTextSize(gameStatUIText, &poTextW, &poTextH);
-
-    SDL_FRect poHoverRect = {
-    poSectionStartX,
-    iconY,
-    (cursor + poTextW) - poSectionStartX,
-    iconSize
-    };
-        if (SDL_PointInRectFloat(&msPO, &poHoverRect)) {
-            bMouseOnPublicOrderIcon = true;
-            hoveredPublicOrderSettlementIndex = (int)(&s - &settlements[0]);
-            publicOrderTooltipX = lxPO;
-            publicOrderTooltipY = lyPO;
-        }
-
     }
- }
-}
     //UI of the region with their castle/villages when you click on a settlement from that province ID
     void RenderProvinceUI() {
-    if (!bHasClickedOnASettlement || selectedSettlementIndex < 0) return;
+        if (!bHasClickedOnASettlement || selectedSettlementIndex < 0) return;
 
-    const Settlement& clickedSettlement = settlements[selectedSettlementIndex];
-    int provinceID = clickedSettlement.settlementData.provinceID;//name of the province
-    const Province& province = provinces[provinceID];
+        const Settlement& clickedSettlement = settlements[selectedSettlementIndex];
+        int provinceID = clickedSettlement.settlementData.provinceID;//name of the province
+        const Province& province = provinces[provinceID];
 
-    std::vector<const Settlement*> provinceSettlements;
-    for (const auto& s : settlements)
-        if (s.settlementData.provinceID == provinceID)provinceSettlements.push_back(&s);
+        std::vector<const Settlement*> provinceSettlements;
+        for (const auto& s : settlements)
+            if (s.settlementData.provinceID == provinceID)provinceSettlements.push_back(&s);
 
-    int incomeTotal = 0;
-    int populationTotal = 0;
-    int publicOrderTotal = 0;
+        int incomeTotal = 0;
+        int populationTotal = 0;
+        int publicOrderTotal = 0;
         for (auto* s : provinceSettlements) {
             incomeTotal += s->settlementData.baseIncome;
             for (int b = 1; b < (int)s->settlementData.buildings.size(); b++) {
@@ -2672,47 +2676,47 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
             populationTotal += s->settlementData.basePopulation;
             publicOrderTotal = s->settlementData.publicOrder;
         }
-    //set the color
-    SDL_Color factionColor;
-    if(province.owner == FactionZone::Knight) {
-        factionColor = {255, 215, 0,   255};
-    }
-    else if (province.owner == FactionZone::Viking) {
-        factionColor = {255,0,0,255};
-    }
-    else if (province.owner == FactionZone::Samurai) {
-        factionColor = {0,255, 215,255};
-    }
-    else {
-        factionColor = {150, 150, 150, 255};
-    }
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        //set the color
+        SDL_Color factionColor;
+        if(province.owner == FactionZone::Knight) {
+            factionColor = {255, 215, 0,   255};
+        }
+        else if (province.owner == FactionZone::Viking) {
+            factionColor = {255,0,0,255};
+        }
+        else if (province.owner == FactionZone::Samurai) {
+            factionColor = {0,255, 215,255};
+        }
+        else {
+            factionColor = {150, 150, 150, 255};
+        }
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-    // LEFT UI PART
+        // LEFT UI PART
         //PROVINCE
-    float leftW = 250.f, leftH = 380.f;//size
-    float leftX = 0.f, leftY = 700.f;//position
+        float leftW = 250.f, leftH = 380.f;//size
+        float leftX = 0.f, leftY = 700.f;//position
 
-    SDL_SetRenderDrawColor(renderer, 20, 20, 20, 210);
-    SDL_FRect leftPanel = {leftX, leftY, leftW, leftH};
-    SDL_RenderFillRect(renderer, &leftPanel);
+        SDL_SetRenderDrawColor(renderer, 20, 20, 20, 210);
+        SDL_FRect leftPanel = {leftX, leftY, leftW, leftH};
+        SDL_RenderFillRect(renderer, &leftPanel);
 
-    // Title Province Name
-    SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 180);
-    SDL_FRect titleBar = {leftX, leftY, leftW, 40.f};
-    SDL_RenderFillRect(renderer, &titleBar);
-    SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 255);
-    SDL_RenderRect(renderer, &leftPanel);
+        // Title Province Name
+        SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 180);
+        SDL_FRect titleBar = {leftX, leftY, leftW, 40.f};
+        SDL_RenderFillRect(renderer, &titleBar);
+        SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 255);
+        SDL_RenderRect(renderer, &leftPanel);
 
-    // Name province
-    TTF_SetTextString(gameStatUITitleText, province.name.c_str(), 0);
-    TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
-    TTF_DrawRendererText(gameStatUITitleText, leftX + 10.f, leftY + 8.f);
+        // Name province
+        TTF_SetTextString(gameStatUITitleText, province.name.c_str(), 0);
+        TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
+        TTF_DrawRendererText(gameStatUITitleText, leftX + 10.f, leftY + 8.f);
 
-    // Stats
-    float statY = leftY + 55.f;
+        // Stats
+        float statY = leftY + 55.f;
 
-// GROWTH TITLE SELECTION
+        // GROWTH TITLE SELECTION
         if (province.owner == FactionZone::Knight) {
             SDL_SetRenderDrawColor(renderer, 60, 40, 20, 200);
         }
@@ -2722,28 +2726,28 @@ settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village, 3}] = 
         else if (province.owner == FactionZone::Samurai) {
             SDL_SetRenderDrawColor(renderer, 20, 60, 45, 200);
         }
-SDL_FRect growthBar = {leftX + 5.f, statY, leftW - 10.f, 28.f};
-SDL_RenderFillRect(renderer, &growthBar);
-TTF_SetTextString(gameStatUITitleText, "Growth", 0);
-TTF_SetTextColor(gameStatUITitleText, 71, 255, 164, 255);
-TTF_DrawRendererText(gameStatUITitleText, leftX + 10.f, statY + 2.f);
-statY += 35.f;
+        SDL_FRect growthBar = {leftX + 5.f, statY, leftW - 10.f, 28.f};
+        SDL_RenderFillRect(renderer, &growthBar);
+        TTF_SetTextString(gameStatUITitleText, "Growth", 0);
+        TTF_SetTextColor(gameStatUITitleText, 71, 255, 164, 255);
+        TTF_DrawRendererText(gameStatUITitleText, leftX + 10.f, statY + 2.f);
+        statY += 35.f;
 
-// Green Icone + growth amount
-SDL_SetRenderDrawColor(renderer, 80, 200, 80, 255);
-SDL_FRect popIcon = {leftX + 8.f, statY + 3.f, 14.f, 14.f};
-SDL_RenderFillRect(renderer, &popIcon);
-SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
-SDL_RenderRect(renderer, &popIcon);
-TTF_SetTextString(gameStatUIText, "Growth:", 0);
-TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
-TTF_DrawRendererText(gameStatUIText, leftX + 28.f, statY);
-TTF_SetTextString(gameStatUIText, std::to_string(populationTotal).c_str(), 0);
-TTF_SetTextColor(gameStatUIText, 180, 230, 100, 255);
-TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
-statY += 34.f;
+        // Green Icone + growth amount
+        SDL_SetRenderDrawColor(renderer, 80, 200, 80, 255);
+        SDL_FRect popIcon = {leftX + 8.f, statY + 3.f, 14.f, 14.f};
+        SDL_RenderFillRect(renderer, &popIcon);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
+        SDL_RenderRect(renderer, &popIcon);
+        TTF_SetTextString(gameStatUIText, "Growth:", 0);
+        TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
+        TTF_DrawRendererText(gameStatUIText, leftX + 28.f, statY);
+        TTF_SetTextString(gameStatUIText, std::to_string(populationTotal).c_str(), 0);
+        TTF_SetTextColor(gameStatUIText, 180, 230, 100, 255);
+        TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
+        statY += 34.f;
 
-// TAXE PROVINCE TITLE
+        // TAXE PROVINCE TITLE
         if (province.owner == FactionZone::Knight) {
             SDL_SetRenderDrawColor(renderer, 60, 40, 20, 200);
         }
@@ -2753,32 +2757,32 @@ statY += 34.f;
         else if (province.owner == FactionZone::Samurai) {
             SDL_SetRenderDrawColor(renderer, 20, 60, 45, 200);
         }
-SDL_FRect taxBar = {leftX + 5.f, statY, leftW - 10.f, 28.f};
-SDL_RenderFillRect(renderer, &taxBar);
-TTF_SetTextString(gameStatUITitleText, "Tax Province", 0);
-TTF_SetTextColor(gameStatUITitleText, 220, 180, 60, 255);
-TTF_DrawRendererText(gameStatUITitleText, leftX + 10.f, statY + 2.f);
-statY += 35.f;
+        SDL_FRect taxBar = {leftX + 5.f, statY, leftW - 10.f, 28.f};
+        SDL_RenderFillRect(renderer, &taxBar);
+        TTF_SetTextString(gameStatUITitleText, "Tax Province", 0);
+        TTF_SetTextColor(gameStatUITitleText, 220, 180, 60, 255);
+        TTF_DrawRendererText(gameStatUITitleText, leftX + 10.f, statY + 2.f);
+        statY += 35.f;
 
-// income + gold icone
-SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
-SDL_FRect incomeIconRect = {leftX + 8.f, statY, 20.f, 20.f};
-SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &incomeIconRect);
-// SDL_RenderFillRect(renderer, &incomeIconRect);
-// SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
-// SDL_RenderRect(renderer, &incomeIconRect);
-TTF_SetTextString(gameStatUIText, "Income", 0);
-TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
-TTF_DrawRendererText(gameStatUIText, leftX + 35.f, statY);
-int displayedIncome = province.bToggleCollectIncome ? incomeTotal : 0;
-TTF_SetTextString(gameStatUIText, std::to_string(displayedIncome).c_str(), 0);
-TTF_SetTextColor(gameStatUIText, 180, 230, 100, 255);
-TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
-statY += 34.f;
+        // income + gold icone
+        SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
+        SDL_FRect incomeIconRect = {leftX + 8.f, statY, 20.f, 20.f};
+        SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &incomeIconRect);
+        // SDL_RenderFillRect(renderer, &incomeIconRect);
+        // SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
+        // SDL_RenderRect(renderer, &incomeIconRect);
+        TTF_SetTextString(gameStatUIText, "Income", 0);
+        TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
+        TTF_DrawRendererText(gameStatUIText, leftX + 35.f, statY);
+        int displayedIncome = province.bToggleCollectIncome ? incomeTotal : 0;
+        TTF_SetTextString(gameStatUIText, std::to_string(displayedIncome).c_str(), 0);
+        TTF_SetTextColor(gameStatUIText, 180, 230, 100, 255);
+        TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
+        statY += 34.f;
 
         //Toggle to tax the settlement. (collect income)
         //rect in gameapp
-toggleTaxIncomeCollect = {leftX + 8.f, statY, 20.f, 20.f};
+        toggleTaxIncomeCollect = {leftX + 8.f, statY, 20.f, 20.f};
         if (provinces[provinceID].bToggleCollectIncome) {
             // SDL_SetRenderDrawColor(renderer, 80, 200, 80, 255);  //green
             // SDL_RenderFillRect(renderer, &toggleTaxIncomeCollect);
@@ -2792,352 +2796,352 @@ toggleTaxIncomeCollect = {leftX + 8.f, statY, 20.f, 20.f};
         }
 
 
-TTF_SetTextString(gameStatUIText, "Tax Province", 0);
-TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
-TTF_DrawRendererText(gameStatUIText, leftX + 35.f, statY);
+        TTF_SetTextString(gameStatUIText, "Tax Province", 0);
+        TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
+        TTF_DrawRendererText(gameStatUIText, leftX + 35.f, statY);
 
 
-statY += 34.f;
-// public Order Icon
-Uint8 poR  = publicOrderTotal > 0 ? 80  : (publicOrderTotal < 0 ? 220 : 130);
-Uint8 poG  = publicOrderTotal > 0 ? 200 : (publicOrderTotal < 0 ? 50  : 130);
-Uint8 poB2 = 80;
+        statY += 34.f;
+        // public Order Icon
+        Uint8 poR  = publicOrderTotal > 0 ? 80  : (publicOrderTotal < 0 ? 220 : 130);
+        Uint8 poG  = publicOrderTotal > 0 ? 200 : (publicOrderTotal < 0 ? 50  : 130);
+        Uint8 poB2 = 80;
         SDL_FRect poIconRect = {leftX + 8.f, statY, 20.f, 20.f};
         SDL_Texture* poTex = (publicOrderTotal > 0) ? gamePublicOrderPositifTexture
                            : (publicOrderTotal < 0) ? gamePublicOrderNegatifTexture
                                                     : gamePublicOrderNeutralTexture;
         if (poTex) SDL_RenderTexture(renderer, poTex, nullptr, &poIconRect);
-TTF_SetTextString(gameStatUIText, "Public order", 0);
-TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
-TTF_DrawRendererText(gameStatUIText, leftX + 35.f, statY - 3.f);
-TTF_SetTextString(gameStatUIText, std::to_string(publicOrderTotal).c_str(), 0);
-TTF_SetTextColor(gameStatUIText, poR, poG, poB2, 255);
-TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
-statY += 34.f;
+        TTF_SetTextString(gameStatUIText, "Public order", 0);
+        TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
+        TTF_DrawRendererText(gameStatUIText, leftX + 35.f, statY - 3.f);
+        TTF_SetTextString(gameStatUIText, std::to_string(publicOrderTotal).c_str(), 0);
+        TTF_SetTextColor(gameStatUIText, poR, poG, poB2, 255);
+        TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
+        statY += 34.f;
 
-// Capital
-TTF_SetTextString(gameStatUIText, "Capital:", 0);
-TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
-TTF_DrawRendererText(gameStatUIText, leftX + 28.f, statY);
-TTF_SetTextString(gameStatUIText, province.isCapital ? "Yes" : "No", 0);
-TTF_SetTextColor(gameStatUIText, 255, 215, 0, 255);
-TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
+        // Capital
+        TTF_SetTextString(gameStatUIText, "Capital:", 0);
+        TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
+        TTF_DrawRendererText(gameStatUIText, leftX + 28.f, statY);
+        TTF_SetTextString(gameStatUIText, province.isCapital ? "Yes" : "No", 0);
+        TTF_SetTextColor(gameStatUIText, 255, 215, 0, 255);
+        TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
 
-    //Province UI Different Buttons (buildings, garrison, All buildings, recruit a lord, recruit a hero)
-    //Render those Buttons
-    RenderBoutons(provinceButtonUIBuilding, nullptr,40,40,40,100);
-    SDL_RenderTexture(renderer,provinceTextureUIBuilding,nullptr,&provinceButtonUIBuilding);
-    RenderBoutons(provinceButtonUIGarrison, nullptr,40,40,40,100);
-    SDL_RenderTexture(renderer,provinceTextureUIGarrison,nullptr,&provinceButtonUIGarrison);
+        //Province UI Different Buttons (buildings, garrison, All buildings, recruit a lord, recruit a hero)
+        //Render those Buttons
+        RenderBoutons(provinceButtonUIBuilding, nullptr,40,40,40,100);
+        SDL_RenderTexture(renderer,provinceTextureUIBuilding,nullptr,&provinceButtonUIBuilding);
+        RenderBoutons(provinceButtonUIGarrison, nullptr,40,40,40,100);
+        SDL_RenderTexture(renderer,provinceTextureUIGarrison,nullptr,&provinceButtonUIGarrison);
 
 
-    availableSlotRects.clear();
-    availableSlotInfo.clear();
-    pendingSlotInfo.clear();
-    pendingSlotRects.clear();
+        availableSlotRects.clear();
+        availableSlotInfo.clear();
+        pendingSlotInfo.clear();
+        pendingSlotRects.clear();
 
-    //-> BOTTOM UI PANNEL <-
-            int   count = (int)provinceSettlements.size();
-            float cardW = 280.f;
-            float cardH = 200.f;
-            float cardGap = 16.f;
-            float totalW = count * cardW + (count - 1) * cardGap;
-            float startX = (1920.f - totalW) / 2.f;
-            float panelY = 1080.f - cardH - 65.f;
-            //clear mainBuildingSlot before the for
-            mainBuildingSlotRects.clear();
-             mainBuildingSlotRects.resize(count, {0,0,0,0});
-            for (int i = 0; i < count; i++) {
-                const Settlement* s = provinceSettlements[i];
-                bool isSelected = (s == &clickedSettlement);
+        //-> BOTTOM UI PANNEL <-
+        int   count = (int)provinceSettlements.size();
+        float cardW = 280.f;
+        float cardH = 200.f;
+        float cardGap = 16.f;
+        float totalW = count * cardW + (count - 1) * cardGap;
+        float startX = (1920.f - totalW) / 2.f;
+        float panelY = 1080.f - cardH - 65.f;
+        //clear mainBuildingSlot before the for
+        mainBuildingSlotRects.clear();
+        mainBuildingSlotRects.resize(count, {0,0,0,0});
+        for (int i = 0; i < count; i++) {
+            const Settlement* s = provinceSettlements[i];
+            bool isSelected = (s == &clickedSettlement);
 
-                float cx = startX + i * (cardW + cardGap);
+            float cx = startX + i * (cardW + cardGap);
 
-                // Fond carte
-                SDL_SetRenderDrawColor(renderer, isSelected ? 40 : 25, isSelected ? 40 : 25, isSelected ? 40 : 25, 220);
-                SDL_FRect card = {cx, panelY, cardW, cardH};
-                SDL_RenderFillRect(renderer, &card);
+            // Fond carte
+            SDL_SetRenderDrawColor(renderer, isSelected ? 40 : 25, isSelected ? 40 : 25, isSelected ? 40 : 25, 220);
+            SDL_FRect card = {cx, panelY, cardW, cardH};
+            SDL_RenderFillRect(renderer, &card);
 
-                // Border
-                if (isSelected)
-                    SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 255);
-                else
-                    SDL_SetRenderDrawColor(renderer, 70, 70, 70, 255);
-                SDL_RenderRect(renderer, &card);
+            // Border
+            if (isSelected)
+                SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 255);
+            else
+                SDL_SetRenderDrawColor(renderer, 70, 70, 70, 255);
+            SDL_RenderRect(renderer, &card);
 
-                // title of each settlement UI changes the color
-                SDL_Color typeColor;
-                std::string typeName;
-                if (s->settlementData.type == SettlementType::Capital) {
-                    if (province.owner == FactionZone::Knight) {
-                        typeColor = {255,215,  0,255}; typeName = "Capital";
-                    }
-                    else if (province.owner == FactionZone::Samurai) {
-                        typeColor = {0,255, 215,255}; typeName = "Capital";
-                    }
-                    else if (province.owner == FactionZone::Viking) {
-                        typeColor = {255,0,0,255}; typeName = "Capital";
-                    }
+            // title of each settlement UI changes the color
+            SDL_Color typeColor;
+            std::string typeName;
+            if (s->settlementData.type == SettlementType::Capital) {
+                if (province.owner == FactionZone::Knight) {
+                    typeColor = {255,215,  0,255}; typeName = "Capital";
                 }
-                else if (s->settlementData.type == SettlementType::Castle) {
-                    if (province.owner == FactionZone::Knight) {
-                        typeColor = {255,215,0,255}; typeName = "Castle";
-                    }
-                    else if (province.owner == FactionZone::Samurai) {
-                        typeColor = {0,255, 215,255}; typeName = "Castle";
-                    }
-                    else if (province.owner == FactionZone::Viking) {
-                        typeColor = {255,0,0,255}; typeName = "Castle";
-                    }
+                else if (province.owner == FactionZone::Samurai) {
+                    typeColor = {0,255, 215,255}; typeName = "Capital";
                 }
-                else if (s->settlementData.type == SettlementType::Village) {
-                    if (province.owner == FactionZone::Knight) {
-                        typeColor = {255,215,0,255}; typeName = "Village";
-                    }
-                    else if (province.owner == FactionZone::Samurai) {
-                        typeColor = {0,255, 215,255}; typeName = "Village";
-                    }
-                    else if (province.owner == FactionZone::Viking) {
-                        typeColor = {255,0,0,255}; typeName = "Village";
-                    }
+                else if (province.owner == FactionZone::Viking) {
+                    typeColor = {255,0,0,255}; typeName = "Capital";
                 }
+            }
+            else if (s->settlementData.type == SettlementType::Castle) {
+                if (province.owner == FactionZone::Knight) {
+                    typeColor = {255,215,0,255}; typeName = "Castle";
+                }
+                else if (province.owner == FactionZone::Samurai) {
+                    typeColor = {0,255, 215,255}; typeName = "Castle";
+                }
+                else if (province.owner == FactionZone::Viking) {
+                    typeColor = {255,0,0,255}; typeName = "Castle";
+                }
+            }
+            else if (s->settlementData.type == SettlementType::Village) {
+                if (province.owner == FactionZone::Knight) {
+                    typeColor = {255,215,0,255}; typeName = "Village";
+                }
+                else if (province.owner == FactionZone::Samurai) {
+                    typeColor = {0,255, 215,255}; typeName = "Village";
+                }
+                else if (province.owner == FactionZone::Viking) {
+                    typeColor = {255,0,0,255}; typeName = "Village";
+                }
+            }
 
-                SDL_SetRenderDrawColor(renderer, typeColor.r/3, typeColor.g/3, typeColor.b/3, 200);
-                SDL_FRect cardTitle = {cx, panelY, cardW, 38.f};
-                SDL_RenderFillRect(renderer, &cardTitle);
+            SDL_SetRenderDrawColor(renderer, typeColor.r/3, typeColor.g/3, typeColor.b/3, 200);
+            SDL_FRect cardTitle = {cx, panelY, cardW, 38.f};
+            SDL_RenderFillRect(renderer, &cardTitle);
 
-                // Icon
-                SDL_SetRenderDrawColor(renderer, typeColor.r, typeColor.g, typeColor.b, 255);
-                SDL_FRect icon = {cx + 10.f, panelY + 10.f, 18.f, 18.f};
-                SDL_RenderFillRect(renderer, &icon);
-                //each settlement Title ->
-                TTF_SetTextString(gameStatUITitleText, s->settlementData.cityName.c_str(), 0);
-                TTF_SetTextColor(gameStatUITitleText, 230, 230, 230, 255);
-                TTF_DrawRendererText(gameStatUITitleText, cx + 36.f, panelY + 9.f);
+            // Icon
+            SDL_SetRenderDrawColor(renderer, typeColor.r, typeColor.g, typeColor.b, 255);
+            SDL_FRect icon = {cx + 10.f, panelY + 10.f, 18.f, 18.f};
+            SDL_RenderFillRect(renderer, &icon);
+            //each settlement Title ->
+            TTF_SetTextString(gameStatUITitleText, s->settlementData.cityName.c_str(), 0);
+            TTF_SetTextColor(gameStatUITitleText, 230, 230, 230, 255);
+            TTF_DrawRendererText(gameStatUITitleText, cx + 36.f, panelY + 9.f);
 
-                // building slots
-                if (bButtonUIBuildingIsPressed) {
-                    float slotSize = 60.f;
-                    float slotGap  = 6.f;
-                    int cols = 0;
-                    if (s->settlementData.type == SettlementType::Village) cols = 2;
-                    else if (s->settlementData.type == SettlementType::Castle)  cols = 3;
-                    else if (s->settlementData.type == SettlementType::Capital) cols = 4;
+            // building slots
+            if (bButtonUIBuildingIsPressed) {
+                float slotSize = 60.f;
+                float slotGap  = 6.f;
+                int cols = 0;
+                if (s->settlementData.type == SettlementType::Village) cols = 2;
+                else if (s->settlementData.type == SettlementType::Castle)  cols = 3;
+                else if (s->settlementData.type == SettlementType::Capital) cols = 4;
 
-                    float gridW      = cols * slotSize + (cols - 1) * slotGap;
-                    float slotStartX = cx + (cardW - gridW) / 2.f;
-                    float row0Y      = panelY + cardH - (slotSize * 2 + slotGap) - 12.f;
-                    float row1Y      = row0Y + slotSize + slotGap;
+                float gridW      = cols * slotSize + (cols - 1) * slotGap;
+                float slotStartX = cx + (cardW - gridW) / 2.f;
+                float row0Y      = panelY + cardH - (slotSize * 2 + slotGap) - 12.f;
+                float row1Y      = row0Y + slotSize + slotGap;
 
 
-                    for (int b = 0; b < (int)s->settlementData.buildings.size(); b++) {
-                        BuildingType buildingType = s->settlementData.buildings[b];
+                for (int b = 0; b < (int)s->settlementData.buildings.size(); b++) {
+                    BuildingType buildingType = s->settlementData.buildings[b];
 
-                        int col = b % cols;
-                        int row = b / cols;
+                    int col = b % cols;
+                    int row = b / cols;
 
-                        float sx = slotStartX + col * (slotSize + slotGap);
-                        float sy = (row == 0) ? row0Y : row1Y;
+                    float sx = slotStartX + col * (slotSize + slotGap);
+                    float sy = (row == 0) ? row0Y : row1Y;
 
-                        // unique building per faction
-                        //slot 0
-                        if (b == 0) {
-                            if (province.owner == FactionZone::Knight)
-                                SDL_SetRenderDrawColor(renderer, 255, 215, 0, 255);
-                            else if (province.owner == FactionZone::Viking)
-                                SDL_SetRenderDrawColor(renderer, 255, 50, 50, 255);
-                            else if (province.owner == FactionZone::Samurai)
-                                SDL_SetRenderDrawColor(renderer, 0, 200, 160, 255);
-                            else
-                                SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
+                    // unique building per faction
+                    //slot 0
+                    if (b == 0) {
+                        if (province.owner == FactionZone::Knight)
+                            SDL_SetRenderDrawColor(renderer, 255, 215, 0, 255);
+                        else if (province.owner == FactionZone::Viking)
+                            SDL_SetRenderDrawColor(renderer, 255, 50, 50, 255);
+                        else if (province.owner == FactionZone::Samurai)
+                            SDL_SetRenderDrawColor(renderer, 0, 200, 160, 255);
+                        else
+                            SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
+
+                    } else {
+
+                        // capital start with 2 buildings available instead of 1
+                        bool built = (buildingType != BuildingType::None);
+                        int tier = s->settlementData.settlementTier;
+
+                        int slotThreshold = tier;
+                        if (s->settlementData.type == SettlementType::Capital) slotThreshold = tier + 1;
+
+                        if (b <= slotThreshold) {
+                            SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255); // available
 
                         } else {
-
-                            // capital start with 2 buildings available instead of 1
-                            bool built = (buildingType != BuildingType::None);
-                            int tier = s->settlementData.settlementTier;
-
-                            int slotThreshold = tier;
-                            if (s->settlementData.type == SettlementType::Capital) slotThreshold = tier + 1;
-
-                            if (b <= slotThreshold) {
-                                SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255); // available
-
-                            } else {
-                                SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);  // not available
-                            }
-
+                            SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);  // not available
                         }
 
-                        SDL_FRect slot = {sx, sy, slotSize, slotSize};
-                        SDL_RenderFillRect(renderer, &slot);
+                    }
 
-                        //Main settlement (0)
-                        if (b == 0) {
-                            // Texture
-                            int tierToRender = s->settlementData.bBuidingUnderConstruction? s->settlementData.pendingTier: s->settlementData.settlementTier;
-                            SDL_Texture* tex = GetSettlementBuildingUpgradeTexture(province.owner, s->settlementData.type, tierToRender);
-                            if (tex) SDL_RenderTexture(renderer, tex, nullptr, &slot);
+                    SDL_FRect slot = {sx, sy, slotSize, slotSize};
+                    SDL_RenderFillRect(renderer, &slot);
 
-                            std::string tierStr = "T" + std::to_string(s->settlementData.settlementTier);
-                            TTF_SetTextString(gameStatUIText, tierStr.c_str(), 0);
-                            TTF_SetTextColor(gameStatUIText, 255, 255, 255, 255);
-                            TTF_DrawRendererText(gameStatUIText, sx + 4.f, sy + 4.f);
+                    //Main settlement (0)
+                    if (b == 0) {
+                        // Texture
+                        int tierToRender = s->settlementData.bBuidingUnderConstruction? s->settlementData.pendingTier: s->settlementData.settlementTier;
+                        SDL_Texture* tex = GetSettlementBuildingUpgradeTexture(province.owner, s->settlementData.type, tierToRender);
+                        if (tex) SDL_RenderTexture(renderer, tex, nullptr, &slot);
 
-                            int maxTierCheck = 3;
-                            if (s->settlementData.type == SettlementType::Castle)  maxTierCheck = 5;
-                            if (s->settlementData.type == SettlementType::Capital) maxTierCheck = 5;
+                        std::string tierStr = "T" + std::to_string(s->settlementData.settlementTier);
+                        TTF_SetTextString(gameStatUIText, tierStr.c_str(), 0);
+                        TTF_SetTextColor(gameStatUIText, 255, 255, 255, 255);
+                        TTF_DrawRendererText(gameStatUIText, sx + 4.f, sy + 4.f);
 
-                            //if not full tier than the hammer shows
-                            BuildingType mainBuilding = s->settlementData.buildings[0];
-                            int upgradeCost = player.GetUpgradeCost(s->settlementData.settlementTier, mainBuilding);
-                            if (provinces[s->settlementData.provinceID].owner == player.faction) {
-                                if (s->settlementData.settlementTier < maxTierCheck && hammerUIBuildingUpgradeTexture && player.currentGold  >= upgradeCost && s->settlementData.bBuidingUnderConstruction == false) {
-                                    SDL_FRect hammerRect = {
-                                        sx + slotSize - 30.f,
-                                        sy + 4.f,
-                                        35.f, 35.f
-                                    };
-                                    SDL_RenderTexture(renderer, hammerUIBuildingUpgradeTexture, nullptr, &hammerRect);
-                                }
-                            }
-                            // turn green to show the building is being upgraded
-                            if (s->settlementData.bBuidingUnderConstruction) {
-                                SDL_FRect baseTurnConstructionRect = {sx + 8.f, sy + 20.f, slotSize - 15.f, slotSize - 40.f};
-                                SDL_SetRenderDrawColor(renderer, 144, 238, 144, 255);
-                                SDL_RenderFillRect(renderer, &baseTurnConstructionRect);
+                        int maxTierCheck = 3;
+                        if (s->settlementData.type == SettlementType::Castle)  maxTierCheck = 5;
+                        if (s->settlementData.type == SettlementType::Capital) maxTierCheck = 5;
 
-                                // the number of Turn remaining before the construction is finished
-                                std::string turnRemainingString = std::to_string(s->settlementData.constructionTime);
-                                TTF_SetTextString(gameBuildingConstructionTimeText, turnRemainingString.c_str(), 0);
-                                TTF_DrawRendererText(gameBuildingConstructionTimeText, sx + 25.f, sy + 20.f);
-
-                                //for main buildings beeing able to refound a pending upgrade
-                                pendingSlotRects.push_back(slot);
-                                pendingSlotInfo.push_back({i,0});
-                            }
-
-                                mainBuildingSlotRects[i] = slot;
-                            //which card is the mouse on
-                            float mx, my;
-                            SDL_GetMouseState(&mx, &my);
-                            float lx, ly;
-                            SDL_RenderCoordinatesFromWindow(renderer, mx, my, &lx, &ly);
-                            SDL_FPoint mousePt = {lx, ly};
-                            SDL_FRect slotCheck = {sx, sy, slotSize, slotSize};
-                            if (SDL_PointInRectFloat(&mousePt, &slotCheck)) {
-                                hoveredCardIndex = i;
+                        //if not full tier than the hammer shows
+                        BuildingType mainBuilding = s->settlementData.buildings[0];
+                        int upgradeCost = player.GetUpgradeCost(s->settlementData.settlementTier, mainBuilding);
+                        if (provinces[s->settlementData.provinceID].owner == player.faction) {
+                            if (s->settlementData.settlementTier < maxTierCheck && hammerUIBuildingUpgradeTexture && player.currentGold  >= upgradeCost && s->settlementData.bBuidingUnderConstruction == false) {
+                                SDL_FRect hammerRect = {
+                                    sx + slotSize - 30.f,
+                                    sy + 4.f,
+                                    35.f, 35.f
+                                };
+                                SDL_RenderTexture(renderer, hammerUIBuildingUpgradeTexture, nullptr, &hammerRect);
                             }
                         }
-                        else {
-                            int tier = s->settlementData.settlementTier;
-                            int slotThreshold = tier;
-                            if (s->settlementData.type == SettlementType::Capital) {
-                                slotThreshold = tier + 1; // capital start with 2 tier
-                            }
-                            bool slotAvailable = (b <= slotThreshold);
-                            bool hasBuilding = (buildingType != BuildingType::None);
+                        // turn green to show the building is being upgraded
+                        if (s->settlementData.bBuidingUnderConstruction) {
+                            SDL_FRect baseTurnConstructionRect = {sx + 8.f, sy + 20.f, slotSize - 15.f, slotSize - 40.f};
+                            SDL_SetRenderDrawColor(renderer, 144, 238, 144, 255);
+                            SDL_RenderFillRect(renderer, &baseTurnConstructionRect);
 
-                           if (hasBuilding) {
+                            // the number of Turn remaining before the construction is finished
+                            std::string turnRemainingString = std::to_string(s->settlementData.constructionTime);
+                            TTF_SetTextString(gameBuildingConstructionTimeText, turnRemainingString.c_str(), 0);
+                            TTF_DrawRendererText(gameBuildingConstructionTimeText, sx + 25.f, sy + 20.f);
+
+                            //for main buildings beeing able to refound a pending upgrade
+                            pendingSlotRects.push_back(slot);
+                            pendingSlotInfo.push_back({i,0});
+                        }
+
+                        mainBuildingSlotRects[i] = slot;
+                        //which card is the mouse on
+                        float mx, my;
+                        SDL_GetMouseState(&mx, &my);
+                        float lx, ly;
+                        SDL_RenderCoordinatesFromWindow(renderer, mx, my, &lx, &ly);
+                        SDL_FPoint mousePt = {lx, ly};
+                        SDL_FRect slotCheck = {sx, sy, slotSize, slotSize};
+                        if (SDL_PointInRectFloat(&mousePt, &slotCheck)) {
+                            hoveredCardIndex = i;
+                        }
+                    }
+                    else {
+                        int tier = s->settlementData.settlementTier;
+                        int slotThreshold = tier;
+                        if (s->settlementData.type == SettlementType::Capital) {
+                            slotThreshold = tier + 1; // capital start with 2 tier
+                        }
+                        bool slotAvailable = (b <= slotThreshold);
+                        bool hasBuilding = (buildingType != BuildingType::None);
+
+                        if (hasBuilding) {
                             SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
                             SDL_RenderFillRect(renderer, &slot);
 
                             bool upgradePending = (s->settlementData.pendingBuildings[b] != BuildingType::None);
 
-    // Render T2 if in construction, else T1
-    SDL_Texture* textureToRender = upgradePending
-        ? GetBuildingTexture(s->settlementData.pendingBuildings[b])
-        : GetBuildingTexture(buildingType);
-    if (textureToRender) SDL_RenderTexture(renderer, textureToRender, nullptr, &slot);
+                            // Render T2 if in construction, else T1
+                            SDL_Texture* textureToRender = upgradePending
+                                ? GetBuildingTexture(s->settlementData.pendingBuildings[b])
+                                : GetBuildingTexture(buildingType);
+                            if (textureToRender) SDL_RenderTexture(renderer, textureToRender, nullptr, &slot);
 
-    const BuildingData* bd = GetBuildingData(buildingType);
-    if (bd) {
-        std::string tierStr = "T" + std::to_string(bd->Tier);
-        TTF_SetTextString(gameStatUIText, tierStr.c_str(), 0);
-        TTF_SetTextColor(gameStatUIText, 255, 255, 255, 255);
-        TTF_DrawRendererText(gameStatUIText, sx + 4.f, sy + 4.f);
+                            const BuildingData* bd = GetBuildingData(buildingType);
+                            if (bd) {
+                                std::string tierStr = "T" + std::to_string(bd->Tier);
+                                TTF_SetTextString(gameStatUIText, tierStr.c_str(), 0);
+                                TTF_SetTextColor(gameStatUIText, 255, 255, 255, 255);
+                                TTF_DrawRendererText(gameStatUIText, sx + 4.f, sy + 4.f);
 
-        if (upgradePending) {
-            SDL_FRect constructionRect = {sx + 8.f, sy + 20.f, slotSize - 15.f, slotSize - 40.f};
-            SDL_SetRenderDrawColor(renderer, 144, 238, 144, 255);
-            SDL_RenderFillRect(renderer, &constructionRect);
-            std::string turnStr = std::to_string(s->settlementData.slotConstructionTimes[b]);
-            TTF_SetTextString(gameBuildingConstructionTimeText, turnStr.c_str(), 0);
-            TTF_DrawRendererText(gameBuildingConstructionTimeText, sx + 25.f, sy + 20.f);
-            pendingSlotRects.push_back(slot);
-            pendingSlotInfo.push_back({i, b});
-        } else {
-            // Hammer if upgradable...
-            if (bd->upgradesTo != BuildingType::None && hammerUIBuildingUpgradeTexture && provinces[s->settlementData.provinceID].owner == player.faction) {
-                const BuildingData* nextBd = GetBuildingData(bd->upgradesTo);
-                if (nextBd && nextBd->Tier <= s->settlementData.settlementTier) {
-                    if (player.currentGold >= nextBd->cost) {
-                        SDL_FRect hammerRect = { sx + slotSize - 30.f, sy + 4.f, 35.f, 35.f };
-                        SDL_RenderTexture(renderer, hammerUIBuildingUpgradeTexture, nullptr, &hammerRect);
-                    }
-                    availableSlotRects.push_back(slot);
-                    availableSlotInfo.push_back({i, b});
-                }
-            }
-        }
-        //To check a building name and what they do even if it's not upgradable yet.
-        float mxCheck, myCheck;
-        SDL_GetMouseState(&mxCheck, &myCheck);
-        float lxCheck, lyCheck;
-        SDL_RenderCoordinatesFromWindow(renderer, mxCheck, myCheck, &lxCheck, &lyCheck);
-        SDL_FPoint mpCheck = {lxCheck, lyCheck};
-        if (SDL_PointInRectFloat(&mpCheck, &slot) && categoryEvolutionPopupRect.w <= 0) {
-            // if upgrade pending, show the current [ending building being constructed.
-            bool upgPend = (s->settlementData.pendingBuildings[b] != BuildingType::None);
-            hoveredCategoryBuildingType = upgPend
-                ? s->settlementData.pendingBuildings[b]
-                : buildingType;
-        }
-    }
-}
-                            else if (slotAvailable && s->settlementData.pendingBuildings[b] == BuildingType::None) {
-                                // Show texture available
-                                if (province.owner == FactionZone::Knight)
-                                    SDL_RenderTexture(renderer, gameAvailableSlotKnight, nullptr, &slot);
-                                else if (province.owner == FactionZone::Viking)
-                                    SDL_RenderTexture(renderer, gameAvailableSlotViking, nullptr, &slot);
-                                else if (province.owner == FactionZone::Samurai)
-                                    SDL_RenderTexture(renderer, gameAvailableSlotSamurai, nullptr, &slot);
-
-                                availableSlotRects.push_back(slot);
-                                availableSlotInfo.push_back({i, b});
+                                if (upgradePending) {
+                                    SDL_FRect constructionRect = {sx + 8.f, sy + 20.f, slotSize - 15.f, slotSize - 40.f};
+                                    SDL_SetRenderDrawColor(renderer, 144, 238, 144, 255);
+                                    SDL_RenderFillRect(renderer, &constructionRect);
+                                    std::string turnStr = std::to_string(s->settlementData.slotConstructionTimes[b]);
+                                    TTF_SetTextString(gameBuildingConstructionTimeText, turnStr.c_str(), 0);
+                                    TTF_DrawRendererText(gameBuildingConstructionTimeText, sx + 25.f, sy + 20.f);
+                                    pendingSlotRects.push_back(slot);
+                                    pendingSlotInfo.push_back({i, b});
+                                } else {
+                                    // Hammer if upgradable...
+                                    if (bd->upgradesTo != BuildingType::None && hammerUIBuildingUpgradeTexture && provinces[s->settlementData.provinceID].owner == player.faction) {
+                                        const BuildingData* nextBd = GetBuildingData(bd->upgradesTo);
+                                        if (nextBd && nextBd->Tier <= s->settlementData.settlementTier) {
+                                            if (player.currentGold >= nextBd->cost) {
+                                                SDL_FRect hammerRect = { sx + slotSize - 30.f, sy + 4.f, 35.f, 35.f };
+                                                SDL_RenderTexture(renderer, hammerUIBuildingUpgradeTexture, nullptr, &hammerRect);
+                                            }
+                                            availableSlotRects.push_back(slot);
+                                            availableSlotInfo.push_back({i, b});
+                                        }
+                                    }
+                                }
+                                //To check a building name and what they do even if it's not upgradable yet.
+                                float mxCheck, myCheck;
+                                SDL_GetMouseState(&mxCheck, &myCheck);
+                                float lxCheck, lyCheck;
+                                SDL_RenderCoordinatesFromWindow(renderer, mxCheck, myCheck, &lxCheck, &lyCheck);
+                                SDL_FPoint mpCheck = {lxCheck, lyCheck};
+                                if (SDL_PointInRectFloat(&mpCheck, &slot) && categoryEvolutionPopupRect.w <= 0) {
+                                    // if upgrade pending, show the current [ending building being constructed.
+                                    bool upgPend = (s->settlementData.pendingBuildings[b] != BuildingType::None);
+                                    hoveredCategoryBuildingType = upgPend
+                                        ? s->settlementData.pendingBuildings[b]
+                                        : buildingType;
+                                }
                             }
-                            else if (slotAvailable && s->settlementData.pendingBuildings[b] != BuildingType::None) {
-                                // Texture pending building
-                                SDL_Texture* pendingTex = GetBuildingTexture(s->settlementData.pendingBuildings[b]);
-                                if (pendingTex) SDL_RenderTexture(renderer, pendingTex, nullptr, &slot);
+                        }
+                        else if (slotAvailable && s->settlementData.pendingBuildings[b] == BuildingType::None) {
+                            // Show texture available
+                            if (province.owner == FactionZone::Knight)
+                                SDL_RenderTexture(renderer, gameAvailableSlotKnight, nullptr, &slot);
+                            else if (province.owner == FactionZone::Viking)
+                                SDL_RenderTexture(renderer, gameAvailableSlotViking, nullptr, &slot);
+                            else if (province.owner == FactionZone::Samurai)
+                                SDL_RenderTexture(renderer, gameAvailableSlotSamurai, nullptr, &slot);
 
-                                // small rect to construct
-                                SDL_FRect constructionRect = {sx + 8.f, sy + 20.f, slotSize - 15.f, slotSize - 40.f};
-                                SDL_SetRenderDrawColor(renderer, 144, 238, 144, 255);
-                                SDL_RenderFillRect(renderer, &constructionRect);
+                            availableSlotRects.push_back(slot);
+                            availableSlotInfo.push_back({i, b});
+                        }
+                        else if (slotAvailable && s->settlementData.pendingBuildings[b] != BuildingType::None) {
+                            // Texture pending building
+                            SDL_Texture* pendingTex = GetBuildingTexture(s->settlementData.pendingBuildings[b]);
+                            if (pendingTex) SDL_RenderTexture(renderer, pendingTex, nullptr, &slot);
 
-                                // the turn amount before completion
-                                std::string turnStr = std::to_string(s->settlementData.slotConstructionTimes[b]);
-                                TTF_SetTextString(gameBuildingConstructionTimeText, turnStr.c_str(), 0);
-                                TTF_DrawRendererText(gameBuildingConstructionTimeText, sx + 25.f, sy + 20.f);
-                                //to fix the pending bug
-                                pendingSlotRects.push_back(slot);
-                                pendingSlotInfo.push_back({i, b});
-                            }
-                            else {
-                                // Not Available Slot
-                                if (province.owner == FactionZone::Knight)
-                                    SDL_RenderTexture(renderer, gameNotAvailableSlotKnight, nullptr, &slot);
-                                else if (province.owner == FactionZone::Viking)
-                                    SDL_RenderTexture(renderer, gameNotAvailableSlotViking, nullptr, &slot);
-                                else if (province.owner == FactionZone::Samurai)
-                                    SDL_RenderTexture(renderer, gameNotAvailableSlotSamurai, nullptr, &slot);
-                            }
+                            // small rect to construct
+                            SDL_FRect constructionRect = {sx + 8.f, sy + 20.f, slotSize - 15.f, slotSize - 40.f};
+                            SDL_SetRenderDrawColor(renderer, 144, 238, 144, 255);
+                            SDL_RenderFillRect(renderer, &constructionRect);
+
+                            // the turn amount before completion
+                            std::string turnStr = std::to_string(s->settlementData.slotConstructionTimes[b]);
+                            TTF_SetTextString(gameBuildingConstructionTimeText, turnStr.c_str(), 0);
+                            TTF_DrawRendererText(gameBuildingConstructionTimeText, sx + 25.f, sy + 20.f);
+                            //to fix the pending bug
+                            pendingSlotRects.push_back(slot);
+                            pendingSlotInfo.push_back({i, b});
+                        }
+                        else {
+                            // Not Available Slot
+                            if (province.owner == FactionZone::Knight)
+                                SDL_RenderTexture(renderer, gameNotAvailableSlotKnight, nullptr, &slot);
+                            else if (province.owner == FactionZone::Viking)
+                                SDL_RenderTexture(renderer, gameNotAvailableSlotViking, nullptr, &slot);
+                            else if (province.owner == FactionZone::Samurai)
+                                SDL_RenderTexture(renderer, gameNotAvailableSlotSamurai, nullptr, &slot);
                         }
                     }
                 }
             }
+        }
 
         //render of the Popup for the general Buildings
         //just to get mouse position
@@ -3251,44 +3255,44 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
             bool mouseOnEvolutionPopup = categoryEvolutionPopupRect.w > 0 && SDL_PointInRectFloat(&mousePt, &expandedEvolCheck);
 
             if (!hoveredBuildingSlotUpgradable) {
-            for (int k = 0; k < 5; k++) {
-                SDL_FRect buttonsRect = {buttonStartX + k * (buttonW + buttonGap), buttonY, buttonW, buttonH};
-                //font de la couleur
-                SDL_SetRenderDrawColor(renderer, categoryColors[k].r, categoryColors[k].g, categoryColors[k].b, 200);
-                SDL_RenderFillRect(renderer, &buttonsRect);
-                SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
-                SDL_RenderRect(renderer, &buttonsRect);
+                for (int k = 0; k < 5; k++) {
+                    SDL_FRect buttonsRect = {buttonStartX + k * (buttonW + buttonGap), buttonY, buttonW, buttonH};
+                    //font de la couleur
+                    SDL_SetRenderDrawColor(renderer, categoryColors[k].r, categoryColors[k].g, categoryColors[k].b, 200);
+                    SDL_RenderFillRect(renderer, &buttonsRect);
+                    SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
+                    SDL_RenderRect(renderer, &buttonsRect);
 
-                //render textures based of faction culture instead of text
-                if (province.owner == FactionZone::Knight) {
-                    if (k == 0) SDL_RenderTexture(renderer, gameBuildingTypesGroupingMilitaryKnight, nullptr, &buttonsRect);
-                    else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitaryKnight, nullptr, &buttonsRect);
-                    else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceKnight, nullptr, &buttonsRect);
-                    else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomyKnight, nullptr, &buttonsRect);
-                    else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionKnight, nullptr, &buttonsRect);
-                }
-                else if (province.owner == FactionZone::Viking) {
-                    if (k == 0) SDL_RenderTexture(renderer, gameBuildingTypesGroupingMilitaryViking, nullptr, &buttonsRect);
-                    else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitaryViking, nullptr, &buttonsRect);
-                    else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceViking, nullptr, &buttonsRect);
-                    else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomyViking, nullptr, &buttonsRect);
-                    else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionViking, nullptr, &buttonsRect);
-                }
-                else if (province.owner == FactionZone::Samurai) {
-                    if (k == 0) SDL_RenderTexture(renderer, gameBuildingTypesGroupingMilitarySamurai, nullptr, &buttonsRect);
-                    else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitarySamurai, nullptr, &buttonsRect);
-                    else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceSamurai, nullptr, &buttonsRect);
-                    else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomySamurai, nullptr, &buttonsRect);
-                    else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionSamurai, nullptr, &buttonsRect);
-                }
+                    //render textures based of faction culture instead of text
+                    if (province.owner == FactionZone::Knight) {
+                        if (k == 0) SDL_RenderTexture(renderer, gameBuildingTypesGroupingMilitaryKnight, nullptr, &buttonsRect);
+                        else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitaryKnight, nullptr, &buttonsRect);
+                        else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceKnight, nullptr, &buttonsRect);
+                        else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomyKnight, nullptr, &buttonsRect);
+                        else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionKnight, nullptr, &buttonsRect);
+                    }
+                    else if (province.owner == FactionZone::Viking) {
+                        if (k == 0) SDL_RenderTexture(renderer, gameBuildingTypesGroupingMilitaryViking, nullptr, &buttonsRect);
+                        else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitaryViking, nullptr, &buttonsRect);
+                        else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceViking, nullptr, &buttonsRect);
+                        else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomyViking, nullptr, &buttonsRect);
+                        else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionViking, nullptr, &buttonsRect);
+                    }
+                    else if (province.owner == FactionZone::Samurai) {
+                        if (k == 0) SDL_RenderTexture(renderer, gameBuildingTypesGroupingMilitarySamurai, nullptr, &buttonsRect);
+                        else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitarySamurai, nullptr, &buttonsRect);
+                        else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceSamurai, nullptr, &buttonsRect);
+                        else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomySamurai, nullptr, &buttonsRect);
+                        else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionSamurai, nullptr, &buttonsRect);
+                    }
 
-                // //TTF_SetTextString(gameStatUIText, categoryNames[k], 0);
-                // TTF_SetTextColor(gameStatUIText, 255, 255, 255, 255);
-                // int tw = 0, th = 0;
-                // TTF_GetTextSize(gameStatUIText, &tw, &th);
-                // TTF_DrawRendererText(gameStatUIText,buttonsRect.x + (buttonW - tw) / 2.f,buttonsRect.y + (buttonH - th) / 2.f);
+                    // //TTF_SetTextString(gameStatUIText, categoryNames[k], 0);
+                    // TTF_SetTextColor(gameStatUIText, 255, 255, 255, 255);
+                    // int tw = 0, th = 0;
+                    // TTF_GetTextSize(gameStatUIText, &tw, &th);
+                    // TTF_DrawRendererText(gameStatUIText,buttonsRect.x + (buttonW - tw) / 2.f,buttonsRect.y + (buttonH - th) / 2.f);
+                }
             }
-        }
             if (!mouseOnEvolutionPopup && !hoveredBuildingSlotUpgradable) {
                 hoveredBuildingCategoryIndex = -1;
                 for (int k = 0; k < 5; k++) {
@@ -3353,153 +3357,153 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
 
             if (hoveredCardIndex >= 0 && hoveredCardIndex < (int)provinceSettlements.size()) {
 
-        const Settlement* provinceSettl = provinceSettlements[hoveredCardIndex];
-    int currentTier = provinceSettl->settlementData.settlementTier;
-    int maxTier = 3;//for the villages
-    //for castle and capital its 5
-    if (provinceSettl->settlementData.type == SettlementType::Castle || provinceSettl->settlementData.type == SettlementType::Capital) {
-        maxTier = 5;
-    }
+                const Settlement* provinceSettl = provinceSettlements[hoveredCardIndex];
+                int currentTier = provinceSettl->settlementData.settlementTier;
+                int maxTier = 3;//for the villages
+                //for castle and capital its 5
+                if (provinceSettl->settlementData.type == SettlementType::Castle || provinceSettl->settlementData.type == SettlementType::Capital) {
+                    maxTier = 5;
+                }
 
 
-    float tileW  = 64.f;
-    float tileH  = 64.f;
-    float arrowH = 22.f;
-    float totalH = maxTier * tileH + (maxTier - 1) * arrowH;
+                float tileW  = 64.f;
+                float tileH  = 64.f;
+                float arrowH = 22.f;
+                float totalH = maxTier * tileH + (maxTier - 1) * arrowH;
 
-    float popX = mainBuildingSlotRects[hoveredCardIndex].x + (mainBuildingSlotRects[hoveredCardIndex].w - tileW) / 2.f;
-    float popY = mainBuildingSlotRects[hoveredCardIndex].y - totalH - 15.f;
-    if (popY < 5.f) popY = 5.f;
+                float popX = mainBuildingSlotRects[hoveredCardIndex].x + (mainBuildingSlotRects[hoveredCardIndex].w - tileW) / 2.f;
+                float popY = mainBuildingSlotRects[hoveredCardIndex].y - totalH - 15.f;
+                if (popY < 5.f) popY = 5.f;
 
-    // Background of popup
-    SDL_SetRenderDrawColor(renderer, 10, 10, 10, 230);
-    SDL_FRect bgRect = {popX - 12.f, popY - 8.f, tileW + 24.f, totalH + 16.f};
-    SDL_RenderFillRect(renderer, &bgRect);
-    mainBuildingPopupRect = bgRect;
-    SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 120);
-    SDL_RenderRect(renderer, &bgRect);
+                // Background of popup
+                SDL_SetRenderDrawColor(renderer, 10, 10, 10, 230);
+                SDL_FRect bgRect = {popX - 12.f, popY - 8.f, tileW + 24.f, totalH + 16.f};
+                SDL_RenderFillRect(renderer, &bgRect);
+                mainBuildingPopupRect = bgRect;
+                SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 120);
+                SDL_RenderRect(renderer, &bgRect);
 
-    // Tier 5 is UP → Tier 1 if down
-    for (int t = maxTier; t >= 1; t--) {
-        int idx = maxTier - t;  // 0 = tier5(top), 4 = tier1(down)
-        float tierSquareY = popY + idx * (tileH + arrowH);
+                // Tier 5 is UP → Tier 1 if down
+                for (int t = maxTier; t >= 1; t--) {
+                    int idx = maxTier - t;  // 0 = tier5(top), 4 = tier1(down)
+                    float tierSquareY = popY + idx * (tileH + arrowH);
 
-        bool isCurrent  = (t == currentTier);
-        bool isNext = t == currentTier + 1 && currentTier < maxTier;
-        bool isUnlocked = (t < currentTier);
+                    bool isCurrent  = (t == currentTier);
+                    bool isNext = t == currentTier + 1 && currentTier < maxTier;
+                    bool isUnlocked = (t < currentTier);
 
-        // square of tier
-        if (isCurrent) {
-            SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 255);
-        }
-        else if (isNext) {
-            SDL_SetRenderDrawColor(renderer, factionColor.r/2,factionColor.g/2,factionColor.b/2,255);
-        }
-        else if (isUnlocked) {
-            SDL_SetRenderDrawColor(renderer, factionColor.r,factionColor.g,factionColor.b,255);
-        }
-        else
-            SDL_SetRenderDrawColor(renderer, 22, 22, 22, 255);
+                    // square of tier
+                    if (isCurrent) {
+                        SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 255);
+                    }
+                    else if (isNext) {
+                        SDL_SetRenderDrawColor(renderer, factionColor.r/2,factionColor.g/2,factionColor.b/2,255);
+                    }
+                    else if (isUnlocked) {
+                        SDL_SetRenderDrawColor(renderer, factionColor.r,factionColor.g,factionColor.b,255);
+                    }
+                    else
+                        SDL_SetRenderDrawColor(renderer, 22, 22, 22, 255);
 
-        SDL_FRect tierRect = {popX, tierSquareY, tileW, tileH};
-        SDL_RenderFillRect(renderer, &tierRect);
+                    SDL_FRect tierRect = {popX, tierSquareY, tileW, tileH};
+                    SDL_RenderFillRect(renderer, &tierRect);
 
-        //textures of the building
-        SDL_Texture* textureBuilding = GetSettlementBuildingUpgradeTexture(province.owner,provinceSettl->settlementData.type, t );
-        if (textureBuilding) {
-            Uint8 alpha = isCurrent ? 255 : (isNext ? 180 : 60);
-            SDL_SetTextureAlphaMod(textureBuilding, alpha);
-            SDL_RenderTexture(renderer, textureBuilding, nullptr, &tierRect);
-            SDL_SetTextureAlphaMod(textureBuilding, 255); // reset
-        }
-        // Bordure
-        SDL_SetRenderDrawColor(renderer,
-            isCurrent ? factionColor.r : 65,
-            isCurrent ? factionColor.g : 65,
-            isCurrent ? factionColor.b : 65, 255);
-        SDL_RenderRect(renderer, &tierRect);
-        // Chiffre romain
-        const char* rn[] = {"I", "II", "III", "IV", "V"};
-        TTF_SetTextString(gameStatUIText, rn[t - 1], 0);
-        Uint8 la = isCurrent ? 255 : (isUnlocked ? 180 : 80);
-        TTF_SetTextColor(gameStatUIText, la, la, la, 255);
-        int tw = 0, th = 0;
-        TTF_GetTextSize(gameStatUIText, &tw, &th);
-        TTF_DrawRendererText(gameStatUIText,popX + (tileW - tw) / 2.f,tierSquareY + tileH - th - 5.f);
+                    //textures of the building
+                    SDL_Texture* textureBuilding = GetSettlementBuildingUpgradeTexture(province.owner,provinceSettl->settlementData.type, t );
+                    if (textureBuilding) {
+                        Uint8 alpha = isCurrent ? 255 : (isNext ? 180 : 60);
+                        SDL_SetTextureAlphaMod(textureBuilding, alpha);
+                        SDL_RenderTexture(renderer, textureBuilding, nullptr, &tierRect);
+                        SDL_SetTextureAlphaMod(textureBuilding, 255); // reset
+                    }
+                    // Bordure
+                    SDL_SetRenderDrawColor(renderer,
+                        isCurrent ? factionColor.r : 65,
+                        isCurrent ? factionColor.g : 65,
+                        isCurrent ? factionColor.b : 65, 255);
+                    SDL_RenderRect(renderer, &tierRect);
+                    // Chiffre romain
+                    const char* rn[] = {"I", "II", "III", "IV", "V"};
+                    TTF_SetTextString(gameStatUIText, rn[t - 1], 0);
+                    Uint8 la = isCurrent ? 255 : (isUnlocked ? 180 : 80);
+                    TTF_SetTextColor(gameStatUIText, la, la, la, 255);
+                    int tw = 0, th = 0;
+                    TTF_GetTextSize(gameStatUIText, &tw, &th);
+                    TTF_DrawRendererText(gameStatUIText,popX + (tileW - tw) / 2.f,tierSquareY + tileH - th - 5.f);
 
 
-        if (t > currentTier && t <= maxTier) {
-            BuildingType buildingAtTier = GetSettlementBuildingType(provinceSettl->settlementData.type, province.owner, t - 1);
+                    if (t > currentTier && t <= maxTier) {
+                        BuildingType buildingAtTier = GetSettlementBuildingType(provinceSettl->settlementData.type, province.owner, t - 1);
 
-            const BuildingData* tierData = GetBuildingData(buildingAtTier);
-            const BuildingData* nextData = (tierData && tierData->upgradesTo != BuildingType::None)? GetBuildingData(tierData->upgradesTo) : nullptr;
-            int cost = nextData ? nextData->cost : 123456; // if the cost cannot be get from the dataBuilding section it returns 123456 (error)
-            int constructionTurns = nextData ? nextData->constructionTurns : 1;
+                        const BuildingData* tierData = GetBuildingData(buildingAtTier);
+                        const BuildingData* nextData = (tierData && tierData->upgradesTo != BuildingType::None)? GetBuildingData(tierData->upgradesTo) : nullptr;
+                        int cost = nextData ? nextData->cost : 123456; // if the cost cannot be get from the dataBuilding section it returns 123456 (error)
+                        int constructionTurns = nextData ? nextData->constructionTurns : 1;
 
-            std::string costString = std::to_string(cost);
-            TTF_SetTextString(gameBuildingCostUIText, costString.c_str(), 0);
+                        std::string costString = std::to_string(cost);
+                        TTF_SetTextString(gameBuildingCostUIText, costString.c_str(), 0);
 
-            //green if can purchase and red if to expensive
-            if (player.currentGold >= cost) {
-                TTF_SetTextColor(gameBuildingCostUIText, 127, 255, 0, 255);
-            }else {
-                TTF_SetTextColor(gameBuildingCostUIText, 220, 60, 60, 255);
+                        //green if can purchase and red if to expensive
+                        if (player.currentGold >= cost) {
+                            TTF_SetTextColor(gameBuildingCostUIText, 127, 255, 0, 255);
+                        }else {
+                            TTF_SetTextColor(gameBuildingCostUIText, 220, 60, 60, 255);
+                        }
+                        int costW = 0, costH = 0;
+                        TTF_GetTextSize(gameBuildingCostUIText, &costW, &costH);
+                        TTF_DrawRendererText(gameBuildingCostUIText,popX + (tileW - costW) -2.f,tierSquareY + 45.f);
+
+                        //texture gold
+                        float iconSize = 12.f;
+                        float totalRowW = iconSize + 3.f + costW;
+                        float rowStartX = popX + (tileW - totalRowW) / 2.f;
+
+                        SDL_FRect goldUI = {rowStartX + 57.f, tierSquareY + 48.f, iconSize, iconSize};
+                        // SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
+                        // SDL_RenderFillRect(renderer, &goldUI);
+                        // SDL_SetRenderDrawColor(renderer, 180, 140, 20, 255);
+                        // SDL_RenderRect(renderer, &goldUI);
+                        SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &goldUI);
+
+                        //Show the amount of turn before the building is constructed.
+                        std::string timeConstructionAmountString = std::to_string(constructionTurns);
+                        TTF_SetTextString(gameBuildingConstructionTimeText, timeConstructionAmountString.c_str(), 0);
+                        int turnW = 0, turnH = 0;
+                        TTF_GetTextSize(gameBuildingConstructionTimeText, &turnW, &turnH);
+                        TTF_DrawRendererText(gameBuildingConstructionTimeText, popX + (tileW - turnW) -5.f,tierSquareY + 1.f);
+                        //texture TurnTime Icon
+                        float TurnIconSize = 12.f;
+                        float TotalTurnRowW = TurnIconSize + 3.f + turnW;
+                        float rowTurnStartX = popX + (tileW - TotalTurnRowW) / 2.f;
+
+                        SDL_FRect turnUI = {rowTurnStartX + 43.f, tierSquareY + 5.f, TurnIconSize, TurnIconSize};
+                        // SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
+                        // SDL_RenderFillRect(renderer, &turnUI);
+                        // SDL_SetRenderDrawColor(renderer, 180, 180, 180, 255);
+                        // SDL_RenderFillRect(renderer, &turnUI);
+                        SDL_RenderTexture(renderer, gameTurnAmountTexture, nullptr, &turnUI);
+
+                    }
+
+
+                    // up arrow between this current and next building upgrade
+                    if (t > 1) {
+                        float cx  = popX + tileW / 2.f;
+                        float tipY = tierSquareY + tileH + 2.f;
+                        float baseY = tierSquareY + tileH + arrowH - 2.f;
+                        SDL_SetRenderDrawColor(renderer, 0, 180, 0, 200);
+                        SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)cx, (int)baseY);
+                        SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)(cx - 6), (int)(tipY + 8));
+                        SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)(cx + 6), (int)(tipY + 8));
+                    }
+                    // Save the rect to detect the clic
+                    if ((int)tierPopupRects.size() < maxTier)
+                        tierPopupRects.resize(maxTier);
+                    tierPopupRects[t - 1] = tierRect;
+                    tierPopupMaxTier = maxTier;
+                }
             }
-            int costW = 0, costH = 0;
-            TTF_GetTextSize(gameBuildingCostUIText, &costW, &costH);
-            TTF_DrawRendererText(gameBuildingCostUIText,popX + (tileW - costW) -2.f,tierSquareY + 45.f);
-
-            //texture gold
-            float iconSize = 12.f;
-            float totalRowW = iconSize + 3.f + costW;
-            float rowStartX = popX + (tileW - totalRowW) / 2.f;
-
-            SDL_FRect goldUI = {rowStartX + 57.f, tierSquareY + 48.f, iconSize, iconSize};
-            // SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
-            // SDL_RenderFillRect(renderer, &goldUI);
-            // SDL_SetRenderDrawColor(renderer, 180, 140, 20, 255);
-            // SDL_RenderRect(renderer, &goldUI);
-            SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &goldUI);
-
-            //Show the amount of turn before the building is constructed.
-            std::string timeConstructionAmountString = std::to_string(constructionTurns);
-            TTF_SetTextString(gameBuildingConstructionTimeText, timeConstructionAmountString.c_str(), 0);
-            int turnW = 0, turnH = 0;
-            TTF_GetTextSize(gameBuildingConstructionTimeText, &turnW, &turnH);
-            TTF_DrawRendererText(gameBuildingConstructionTimeText, popX + (tileW - turnW) -5.f,tierSquareY + 1.f);
-            //texture TurnTime Icon
-            float TurnIconSize = 12.f;
-            float TotalTurnRowW = TurnIconSize + 3.f + turnW;
-            float rowTurnStartX = popX + (tileW - TotalTurnRowW) / 2.f;
-
-            SDL_FRect turnUI = {rowTurnStartX + 43.f, tierSquareY + 5.f, TurnIconSize, TurnIconSize};
-            // SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
-            // SDL_RenderFillRect(renderer, &turnUI);
-            // SDL_SetRenderDrawColor(renderer, 180, 180, 180, 255);
-            // SDL_RenderFillRect(renderer, &turnUI);
-            SDL_RenderTexture(renderer, gameTurnAmountTexture, nullptr, &turnUI);
-
-        }
-
-
-        // up arrow between this current and next building upgrade
-        if (t > 1) {
-            float cx  = popX + tileW / 2.f;
-            float tipY = tierSquareY + tileH + 2.f;
-            float baseY = tierSquareY + tileH + arrowH - 2.f;
-            SDL_SetRenderDrawColor(renderer, 0, 180, 0, 200);
-            SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)cx, (int)baseY);
-            SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)(cx - 6), (int)(tipY + 8));
-            SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)(cx + 6), (int)(tipY + 8));
-        }
-        // Save the rect to detect the clic
-        if ((int)tierPopupRects.size() < maxTier)
-            tierPopupRects.resize(maxTier);
-        tierPopupRects[t - 1] = tierRect;
-        tierPopupMaxTier = maxTier;
-    }
-    }
-}
+            }
 
         if (bButtonUIGarrisonIsPressed) {
             //To Do later the garrison with Their Unit cards
@@ -3515,40 +3519,40 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
         TTF_DrawRendererText(gameStatUITitleText, middleTitlePositionX + 50.f, middleTitlePositionY + 2.f);
 
-    // Restore
-    TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
+        // Restore
+        TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
 
-}
+    }
     //fonction to buy a new building on a constructable square in RenderProvinceUI
     //Same has the main building
     void RenderBuildingCategoryEvolution() {
         categoryEvolutionTileRects.clear();
-    if (hoveredBuildingCategoryIndex < 0 || !bHasClickedOnASettlement || selectedSettlementIndex < 0) return;
-    if (categoryPopupCardIndex < 0 || categoryButtonsPopupRect.w <= 0) return;
+        if (hoveredBuildingCategoryIndex < 0 || !bHasClickedOnASettlement || selectedSettlementIndex < 0) return;
+        if (categoryPopupCardIndex < 0 || categoryButtonsPopupRect.w <= 0) return;
 
-    const Settlement& clickedSett = settlements[selectedSettlementIndex];
-    int provID = clickedSett.settlementData.provinceID;
-    const Province& prov = provinces[provID];
-    FactionZone faction = prov.owner;
+        const Settlement& clickedSett = settlements[selectedSettlementIndex];
+        int provID = clickedSett.settlementData.provinceID;
+        const Province& prov = provinces[provID];
+        FactionZone faction = prov.owner;
 
-    std::vector<const Settlement*> provS;
-    for (const auto& s : settlements)
-        if (s.settlementData.provinceID == provID)
-            provS.push_back(&s);
-    if (categoryPopupCardIndex>= (int)provS.size()) return;
-    const Settlement* cardSett = provS[categoryPopupCardIndex];
-    int settlementTier = cardSett->settlementData.settlementTier;
+        std::vector<const Settlement*> provS;
+        for (const auto& s : settlements)
+            if (s.settlementData.provinceID == provID)
+                provS.push_back(&s);
+        if (categoryPopupCardIndex>= (int)provS.size()) return;
+        const Settlement* cardSett = provS[categoryPopupCardIndex];
+        int settlementTier = cardSett->settlementData.settlementTier;
 
-    // faction color
-    SDL_Color fc;
-    if (faction == FactionZone::Knight) fc = {255, 215,   0, 255};
-    else if (faction == FactionZone::Viking) fc = {255,   0,   0, 255};
-    else fc = {  0, 200, 160, 255};
+        // faction color
+        SDL_Color fc;
+        if (faction == FactionZone::Knight) fc = {255, 215,   0, 255};
+        else if (faction == FactionZone::Viking) fc = {255,   0,   0, 255};
+        else fc = {  0, 200, 160, 255};
 
 
-    BuildingCategory cat = (BuildingCategory)hoveredBuildingCategoryIndex;
-    std::vector<BuildingType> rootBuildings = GetBuildingsForCategory(cat, faction, 5);
-    if (rootBuildings.empty()) return;
+        BuildingCategory cat = (BuildingCategory)hoveredBuildingCategoryIndex;
+        std::vector<BuildingType> rootBuildings = GetBuildingsForCategory(cat, faction, 5);
+        if (rootBuildings.empty()) return;
         // if we hovered an existing building we show its evolutions
         if (hoveredBuildingSlotUpgradable && upgradableSlotRootBuilding != BuildingType::None) {
             rootBuildings.erase(
@@ -3558,19 +3562,19 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
             );
             if (rootBuildings.empty()) return;
         }
-    // upgrade chain chain.tiers[0]=T1, [last]=T_max
-    struct Chain { std::vector<BuildingType> tiers; };
-    std::vector<Chain> chains;
-    for (BuildingType root : rootBuildings) {
-        Chain c;
-        BuildingType cur = root;
-        while (cur != BuildingType::None) {
-            c.tiers.push_back(cur);
-            const BuildingData* d = GetBuildingData(cur);
-            cur = (d && d->upgradesTo != BuildingType::None) ? d->upgradesTo : BuildingType::None;
+        // upgrade chain chain.tiers[0]=T1, [last]=T_max
+        struct Chain { std::vector<BuildingType> tiers; };
+        std::vector<Chain> chains;
+        for (BuildingType root : rootBuildings) {
+            Chain c;
+            BuildingType cur = root;
+            while (cur != BuildingType::None) {
+                c.tiers.push_back(cur);
+                const BuildingData* d = GetBuildingData(cur);
+                cur = (d && d->upgradesTo != BuildingType::None) ? d->upgradesTo : BuildingType::None;
+            }
+            chains.push_back(c);
         }
-        chains.push_back(c);
-    }
 
         int maxTierOverall = 0;
         for (auto& c : chains) {
@@ -3583,19 +3587,19 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         // float buttonW = 65.f;
         // float buttonH = 65.f;
         // float buttonGap = 4.f;
-    // Layout
-    float tileW  = 65.f;
-    float tileH  = 65.f;
-    float arrowH = 18.f;
-    float colGap = 10.f;
+        // Layout
+        float tileW  = 65.f;
+        float tileH  = 65.f;
+        float arrowH = 18.f;
+        float colGap = 10.f;
 
-    int maxLen = 0;
-    for (auto& c : chains) maxLen = std::max(maxLen, (int)c.tiers.size());
+        int maxLen = 0;
+        for (auto& c : chains) maxLen = std::max(maxLen, (int)c.tiers.size());
 
-    float totalW = (float)chains.size() * tileW + ((float)chains.size() - 1.f) * colGap;
-    float totalH = (float)maxTierOverall * tileH + ((float)(maxTierOverall - 1)) * arrowH;
+        float totalW = (float)chains.size() * tileW + ((float)chains.size() - 1.f) * colGap;
+        float totalH = (float)maxTierOverall * tileH + ((float)(maxTierOverall - 1)) * arrowH;
 
-    // Position on top
+        // Position on top
         float popX = 400.f, popY = 300.f;
         if (hoveredBuildingSlotUpgradable) {
             // Position on top of the constructed building
@@ -3607,114 +3611,114 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
             popX = btn.x + btn.w / 2.f - totalW / 2.f;
             popY = btn.y - totalH - 14.f;
         }
-    if (popX < 5.f) popX = 5.f;
-    if (popX + totalW > 1915.f) popX = 1915.f - totalW;
-    if (popY < 5.f) popY = 5.f;
+        if (popX < 5.f) popX = 5.f;
+        if (popX + totalW > 1915.f) popX = 1915.f - totalW;
+        if (popY < 5.f) popY = 5.f;
 
-    // Fond of the popup
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(renderer, 10, 10, 10, 230);
-    SDL_FRect bg = {popX - 10.f, popY - 8.f, totalW + 20.f, totalH + 16.f};
-    SDL_RenderFillRect(renderer, &bg);
+        // Fond of the popup
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 10, 10, 10, 230);
+        SDL_FRect bg = {popX - 10.f, popY - 8.f, totalW + 20.f, totalH + 16.f};
+        SDL_RenderFillRect(renderer, &bg);
         categoryEvolutionPopupRect = bg;
-    SDL_SetRenderDrawColor(renderer, fc.r, fc.g, fc.b, 130);
-    SDL_RenderRect(renderer, &bg);
+        SDL_SetRenderDrawColor(renderer, fc.r, fc.g, fc.b, 130);
+        SDL_RenderRect(renderer, &bg);
 
-    //Render each col
-    for (int ci = 0; ci < (int)chains.size(); ci++) {
-        const Chain& chain = chains[ci];
-        int numTiers = (int)chain.tiers.size();
-        float colX = popX + ci * (tileW + colGap);
+        //Render each col
+        for (int ci = 0; ci < (int)chains.size(); ci++) {
+            const Chain& chain = chains[ci];
+            int numTiers = (int)chain.tiers.size();
+            float colX = popX + ci * (tileW + colGap);
 
-        // Tier higer is 5 and lower is 1
-        for (int ti = 0; ti < numTiers; ti++) {
-            BuildingType bt = chain.tiers[numTiers - 1 - ti];
-            const BuildingData* data = GetBuildingData(bt);
-            if (!data) continue;
+            // Tier higer is 5 and lower is 1
+            for (int ti = 0; ti < numTiers; ti++) {
+                BuildingType bt = chain.tiers[numTiers - 1 - ti];
+                const BuildingData* data = GetBuildingData(bt);
+                if (!data) continue;
 
-            int rowIndex = maxTierOverall - data->Tier; // 0 = top (tier le plus haut)
-            float tileY = popY + rowIndex * (tileH + arrowH);
-            bool isUnlocked = (data->Tier <= settlementTier);
+                int rowIndex = maxTierOverall - data->Tier; // 0 = top (tier le plus haut)
+                float tileY = popY + rowIndex * (tileH + arrowH);
+                bool isUnlocked = (data->Tier <= settlementTier);
 
-            // Fond de la tuile
-            if (isUnlocked)
-                SDL_SetRenderDrawColor(renderer, fc.r / 3, fc.g / 3, fc.b / 3, 255);
-            else
-                SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
-            SDL_FRect tileRect = {colX, tileY, tileW, tileH};
-            SDL_RenderFillRect(renderer, &tileRect);
+                // Fond de la tuile
+                if (isUnlocked)
+                    SDL_SetRenderDrawColor(renderer, fc.r / 3, fc.g / 3, fc.b / 3, 255);
+                else
+                    SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
+                SDL_FRect tileRect = {colX, tileY, tileW, tileH};
+                SDL_RenderFillRect(renderer, &tileRect);
 
-            //textures
-            SDL_Texture* texture = GetBuildingTexture(bt);
-            if (texture) {
-                Uint8 alpha;
-                if (bt == hoveredCategoryBuildingType) {
-                    alpha = 255; // mouse on top
-                } else if (isUnlocked) {
-                    alpha = 120;
-                } else {
-                    alpha = 120; // locked
+                //textures
+                SDL_Texture* texture = GetBuildingTexture(bt);
+                if (texture) {
+                    Uint8 alpha;
+                    if (bt == hoveredCategoryBuildingType) {
+                        alpha = 255; // mouse on top
+                    } else if (isUnlocked) {
+                        alpha = 120;
+                    } else {
+                        alpha = 120; // locked
+                    }
+                    SDL_SetTextureAlphaMod(texture, alpha);
+                    SDL_RenderTexture(renderer, texture, nullptr, &tileRect);
+                    SDL_SetTextureAlphaMod(texture, 255); // reset
                 }
-                SDL_SetTextureAlphaMod(texture, alpha);
-                SDL_RenderTexture(renderer, texture, nullptr, &tileRect);
-                SDL_SetTextureAlphaMod(texture, 255); // reset
-            }
 
-            std::string tierStr = "T" + std::to_string(data->Tier);
-            TTF_SetTextString(gameStatUIText, tierStr.c_str(), 0);
-            Uint8 tierAlpha = isUnlocked ? 255 : 120;
-            TTF_SetTextColor(gameStatUIText, tierAlpha, tierAlpha, tierAlpha, 255);
-            TTF_DrawRendererText(gameStatUIText, colX - 5.f, tileY + tileH - 18.f);
-            categoryEvolutionTileRects.push_back({tileRect, bt});//detection click
-            // // Building name
-            // TTF_SetTextString(gameStatUIText, data->name.c_str(), 0);
-            // Uint8 nameAlpha = isUnlocked ? 220 : 80;
-            // TTF_SetTextColor(gameStatUIText, nameAlpha, nameAlpha, nameAlpha, 255);
-            // TTF_DrawRendererText(gameStatUIText, colX + 1.f, tileY + 3.f);
+                std::string tierStr = "T" + std::to_string(data->Tier);
+                TTF_SetTextString(gameStatUIText, tierStr.c_str(), 0);
+                Uint8 tierAlpha = isUnlocked ? 255 : 120;
+                TTF_SetTextColor(gameStatUIText, tierAlpha, tierAlpha, tierAlpha, 255);
+                TTF_DrawRendererText(gameStatUIText, colX - 5.f, tileY + tileH - 18.f);
+                categoryEvolutionTileRects.push_back({tileRect, bt});//detection click
+                // // Building name
+                // TTF_SetTextString(gameStatUIText, data->name.c_str(), 0);
+                // Uint8 nameAlpha = isUnlocked ? 220 : 80;
+                // TTF_SetTextColor(gameStatUIText, nameAlpha, nameAlpha, nameAlpha, 255);
+                // TTF_DrawRendererText(gameStatUIText, colX + 1.f, tileY + 3.f);
 
-            // Cost + Icon
-            std::string costStr = std::to_string(data->cost);
-            TTF_SetTextString(gameBuildingCostUIText, costStr.c_str(), 0);
-            //green
-            if (player.currentGold >= data->cost)
-                TTF_SetTextColor(gameBuildingCostUIText, 127, 255, 0, 255);
-            else //red
-                TTF_SetTextColor(gameBuildingCostUIText, 220, 60, 60, 255);
-            //SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
-            SDL_FRect goldIcon = {colX + 63.f, tileY + tileH - 15.f, 12.f, 12.f};
-            //SDL_RenderFillRect(renderer, &goldIcon);
-            SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &goldIcon);
-            TTF_DrawRendererText(gameBuildingCostUIText, colX + 30.f, tileY + tileH - 19.f);
+                // Cost + Icon
+                std::string costStr = std::to_string(data->cost);
+                TTF_SetTextString(gameBuildingCostUIText, costStr.c_str(), 0);
+                //green
+                if (player.currentGold >= data->cost)
+                    TTF_SetTextColor(gameBuildingCostUIText, 127, 255, 0, 255);
+                else //red
+                    TTF_SetTextColor(gameBuildingCostUIText, 220, 60, 60, 255);
+                //SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
+                SDL_FRect goldIcon = {colX + 63.f, tileY + tileH - 15.f, 12.f, 12.f};
+                //SDL_RenderFillRect(renderer, &goldIcon);
+                SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &goldIcon);
+                TTF_DrawRendererText(gameBuildingCostUIText, colX + 30.f, tileY + tileH - 19.f);
 
-            // time construction
-            std::string turnStr = std::to_string(data->constructionTurns);
-            TTF_SetTextString(gameBuildingConstructionTimeText, turnStr.c_str(), 0);
-            TTF_SetTextColor(gameBuildingConstructionTimeText, 180, 180, 255, 255);
-            //SDL_SetRenderDrawColor(renderer, 120, 120, 120, 255);
-            SDL_FRect turnIcon = {colX + tileW - 3.f, tileY + tileH - 62.f, 12.f, 12.f};
-            //SDL_RenderFillRect(renderer, &turnIcon);
-            SDL_RenderTexture(renderer, gameTurnAmountTexture, nullptr, &turnIcon);
-            TTF_DrawRendererText(gameBuildingConstructionTimeText, colX + tileW - 15.f, tileY + tileH - 65.f);
+                // time construction
+                std::string turnStr = std::to_string(data->constructionTurns);
+                TTF_SetTextString(gameBuildingConstructionTimeText, turnStr.c_str(), 0);
+                TTF_SetTextColor(gameBuildingConstructionTimeText, 180, 180, 255, 255);
+                //SDL_SetRenderDrawColor(renderer, 120, 120, 120, 255);
+                SDL_FRect turnIcon = {colX + tileW - 3.f, tileY + tileH - 62.f, 12.f, 12.f};
+                //SDL_RenderFillRect(renderer, &turnIcon);
+                SDL_RenderTexture(renderer, gameTurnAmountTexture, nullptr, &turnIcon);
+                TTF_DrawRendererText(gameBuildingConstructionTimeText, colX + tileW - 15.f, tileY + tileH - 65.f);
 
-            //arrow towards next tier
-            if (ti < numTiers - 1) {
-                BuildingType nextBt = chain.tiers[numTiers - 1 - (ti + 1)];
-                const BuildingData* nextData = GetBuildingData(nextBt);
-                if (nextData) {
-                    int nextRowIndex = maxTierOverall - nextData->Tier;
-                    float nextTileY = popY + nextRowIndex * (tileH + arrowH);
-                    float cx   = colX + tileW / 2.f;
-                    float tipY = tileY + tileH + 2.f;
-                    float botY = nextTileY - 2.f;
-                    SDL_SetRenderDrawColor(renderer, 0, 180, 0, 200);
-                    SDL_RenderLine(renderer, (int)cx, (int)tipY, (int)cx,      (int)botY);
-                    SDL_RenderLine(renderer, (int)cx, (int)tipY, (int)(cx - 5),(int)(tipY + 7));
-                    SDL_RenderLine(renderer, (int)cx, (int)tipY, (int)(cx + 5),(int)(tipY + 7));
+                //arrow towards next tier
+                if (ti < numTiers - 1) {
+                    BuildingType nextBt = chain.tiers[numTiers - 1 - (ti + 1)];
+                    const BuildingData* nextData = GetBuildingData(nextBt);
+                    if (nextData) {
+                        int nextRowIndex = maxTierOverall - nextData->Tier;
+                        float nextTileY = popY + nextRowIndex * (tileH + arrowH);
+                        float cx   = colX + tileW / 2.f;
+                        float tipY = tileY + tileH + 2.f;
+                        float botY = nextTileY - 2.f;
+                        SDL_SetRenderDrawColor(renderer, 0, 180, 0, 200);
+                        SDL_RenderLine(renderer, (int)cx, (int)tipY, (int)cx,      (int)botY);
+                        SDL_RenderLine(renderer, (int)cx, (int)tipY, (int)(cx - 5),(int)(tipY + 7));
+                        SDL_RenderLine(renderer, (int)cx, (int)tipY, (int)(cx + 5),(int)(tipY + 7));
+                    }
                 }
             }
         }
     }
-}
 
 
 
@@ -3958,6 +3962,27 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         TTF_SetTextString(gamePopulationIndicatorUiText, clergyAmountStr.c_str(), 0);
         TTF_SetTextColor(gamePopulationIndicatorUiText, 255,255,255,255);
         TTF_DrawRendererText(gamePopulationIndicatorUiText, 1100.f + thickness,38.f + thickness);
+
+        //hovered Different Populations Zone
+        SDL_FRect peasantryHoveredZone = {860.f + thickness, 38.f + thickness, 40, 28};
+        SDL_FRect nobilityHoveredZone = {970.f + thickness, 38.f + thickness, 40, 28};
+        SDL_FRect clergyHoveredZone = {1060.f + thickness, 38.f + thickness, 40, 28 };
+
+        float mouseXPopulation;
+        float mouseYPopulation;
+        SDL_GetMouseState(&mouseXPopulation, &mouseYPopulation);
+        float lenghtXPopulation;
+        float lenghtYPopulation;
+        SDL_RenderCoordinatesFromWindow(renderer, mouseXPopulation, mouseYPopulation, &lenghtXPopulation, &lenghtYPopulation);
+        SDL_FPoint mousePointPopulation = {lenghtXPopulation, lenghtYPopulation};
+        //true if on peasantry or nobility or clergy zone
+        bMouseOnPopulationIcon = SDL_PointInRectFloat(&mousePointPopulation, &peasantryHoveredZone)
+                            || SDL_PointInRectFloat(&mousePointPopulation, &nobilityHoveredZone)
+                            || SDL_PointInRectFloat(&mousePointPopulation, &clergyHoveredZone);
+
+        populationTooltipX = lenghtXPopulation;
+        populationTooltipY = lenghtYPopulation;
+
     }
     //public order based on food (FILLEDS SEGS 1,2,3,4,5,6)
     /*
@@ -4240,6 +4265,28 @@ TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         SDL_RenderRect(renderer, &bg);
 
 }
+    //Population Hovered Ui Show
+    void RenderPopulationTooltip() {
+        if (!bMouseOnPopulationIcon) return;
+
+        //Food hoved Rectangle
+        float tooltipW = 260.f;
+        float tooltipH = 100.f;
+
+        float tooltipX = foodTooltipX + 30.f;
+        float tooltipY = foodTooltipY - tooltipH + 130.f;
+        if (tooltipX + tooltipW > 1910.f) tooltipX = foodTooltipX - tooltipW - 12.f;
+        if (tooltipY < 5.f) tooltipY = 5.f;
+
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+        // Background
+        SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+        SDL_FRect bg = {tooltipX, tooltipY, tooltipW, tooltipH};
+        SDL_RenderFillRect(renderer, &bg);
+    }
+
+
 
         //for the information about a specific Building when mouse on it
    void RenderBuildingInfoUI() {
@@ -4644,6 +4691,7 @@ void RenderCategoryBuildingInfoUI() {
         RenderGeneralUI();
         RenderMoneyTooltip();
         RenderFoodTooltip();
+        RenderPopulationTooltip();
         RenderBuildingInfoUI();
         RenderCategoryBuildingInfoUI();
         // Tooltip public order
