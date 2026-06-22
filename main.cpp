@@ -5000,13 +5000,40 @@ public:
             player.foodStored = std::min(player.foodStored+9, player.foodStorage);
         }
 
-        //population increase each turn
-        //peasantry
-        player.currentPeasantryAmount += player.basePeasantryBirth - player.basePeasantryDeath;
-        //nobility
-        player.currentNobilityAmount += player.baseNobilityBirth - player.baseNobilityDeath;
-        //clergy
-        player.currentClergyAmount += player.baseClergyGrowth - player.baseClergyDeath;
+        // Re randomize the base Birth and death of each population after the end turn for a different outcome each turn.
+        player.basePeasantryBirth = 70 + rand() % 21;
+        player.basePeasantryDeath = 25 + rand() % 16;
+        player.baseNobilityBirth  = 8  + rand() % 13;
+        player.baseNobilityDeath  = 2  + rand() % 9;
+        player.baseClergyGrowth   = 1  + rand() % 5;
+        player.baseClergyDeath    = 1  + rand() % 4;
+
+        //population increase each turn based on base random bonus + building bonus
+        int buildingPeasantryBonus = 0;
+        int buildingNobilityBonus = 0;
+        int buildingClergyBonus = 0;
+
+        for (const auto &s : settlements) {
+            if (provinces[s.settlementData.provinceID].owner != player.faction) continue;//Not player faction -> continue
+
+            for (BuildingType building_type : s.settlementData.buildings) {
+                if (building_type == BuildingType::None) continue;//no building -> continue
+                const BuildingData *building_data = GetBuildingData(building_type);
+                if (!building_data) continue;
+                buildingPeasantryBonus += building_data->peasantryBornBonus;
+                buildingNobilityBonus += building_data->nobilityBornBonus;
+                buildingClergyBonus += building_data->clergyTrainedBonus;
+            }
+        }
+        // stock the net growth
+        player.nextTurnPeasantry = (player.basePeasantryBirth - player.basePeasantryDeath) + buildingPeasantryBonus;
+        player.nextTurnNobility = (player.baseNobilityBirth  - player.baseNobilityDeath)  + buildingNobilityBonus;
+        player.nextTurnClergyBonus = (player.baseClergyGrowth   - player.baseClergyDeath)    + buildingClergyBonus;
+
+        player.currentPeasantryAmount += player.nextTurnPeasantry;
+        player.currentNobilityAmount += player.nextTurnNobility;
+        player.currentClergyAmount += player.nextTurnClergyBonus;
+
     // AI TURNS~!
     std::vector<FactionZone> turnOrder = { FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai };
     int playerIndex = 0;
