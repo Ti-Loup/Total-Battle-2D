@@ -326,6 +326,10 @@ public:
     SDL_Texture *gamePeasantryIconUi = nullptr;
     SDL_Texture *gameNobilityIconUi = nullptr;
     SDL_Texture *gameClergyIconUi = nullptr;
+    //Positive and negative UI Icon to put on top of diffrent Icons
+    SDL_Texture *gamePositiveUiIcon = nullptr;
+    SDL_Texture *gameNegativeUiIcon = nullptr;
+
     //UI TextFont
     TTF_Font *gameStatUITitleFont = nullptr;
 
@@ -899,7 +903,17 @@ private://constructor
         }
         SDL_SetTextureScaleMode(provinceTextureUIBuilding, SDL_SCALEMODE_NEAREST);
         SDL_SetTextureScaleMode(provinceTextureUIGarrison, SDL_SCALEMODE_NEAREST);
-
+        //Texture Positive and negative Icon On top of other textures
+        gamePositiveUiIcon = IMG_LoadTexture(renderer, "assets/PositiveUiLogo.png");
+        if (gamePositiveUiIcon == nullptr) {
+            SDL_LogWarn(0, "failed to load texture of gamePositiveUiIcon", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gamePositiveUiIcon, SDL_SCALEMODE_NEAREST);
+        gameNegativeUiIcon = IMG_LoadTexture(renderer, "assets/NegativeUiLogo.png");
+        if (gamePositiveUiIcon == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameNegativeUiIcon", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameNegativeUiIcon, SDL_SCALEMODE_NEAREST);
         //Texture construction Hammer
         hammerUIBuildingUpgradeTexture = IMG_LoadTexture(renderer, "assets/UIHammer.png");
         if (hammerUIBuildingUpgradeTexture == nullptr) {
@@ -2278,6 +2292,8 @@ private://constructor
         SDL_DestroyTexture(gamePeasantryIconUi);
         SDL_DestroyTexture(gameNobilityIconUi);
         SDL_DestroyTexture(gameClergyIconUi);
+        SDL_DestroyTexture(gamePositiveUiIcon);
+        SDL_DestroyTexture(gameNegativeUiIcon);
         // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
