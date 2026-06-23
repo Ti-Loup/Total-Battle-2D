@@ -4291,71 +4291,159 @@ private://constructor
 }
     //Population Hovered Ui Show
     void RenderPopulationTooltip() {
-        if (!bMouseOnPopulationIcon) return;
+    if (!bMouseOnPopulationIcon) return;
 
-        const char *populationTitleStr = "";
-        const char *populationStatusStr = "";
-        int amount = 0;
-        int totalGrowth = 0;
+    const char *populationTitleStr = "";
+    const char *populationStatusStr = "";
+    int amount = 0;
+    int totalGrowth = 0;
 
-        //peasantry
-        if (hoveredPopulationType == 0) {
-            amount = player.currentPeasantryAmount;
-            totalGrowth = player.nextTurnPeasantryAmount;
-            populationTitleStr = "Peasantry";
-            if (amount < 1000) populationStatusStr = "Weak";
-            else if (amount < 5000) populationStatusStr = "Stable";
-            else if (amount < 10000) populationStatusStr = "Overpopulated";
-        }
-        //Nobility
-        else if (hoveredPopulationType == 1) {
-            amount = player.currentNobilityAmount;
-            totalGrowth = player.nextTurnNobilityAmount;
-            populationTitleStr = "Nobility";
-            if (amount < 100) populationStatusStr = "Weak";
-            else if (amount < 500) populationStatusStr = "Stable";
-            else if (amount < 1000) populationStatusStr = "Overpopulated";
-        }
-        //Clergy
-        else if (hoveredPopulationType == 2) {
-            amount = player.currentClergyAmount;
-            totalGrowth = player.nextTurnClergyAmount;
-            populationTitleStr = "Clergy";
-            if (amount < 25) populationStatusStr = "Weak";
-            else if (amount < 100) populationStatusStr = "Stable";
-            else if (amount < 250) populationStatusStr = "Overpopulated";
-        }
-
-        //Food hoved Rectangle
-        float tooltipW = 260.f;
-        float tooltipH = 100.f;
-
-        float tooltipX = populationTooltipX + 30.f;
-        float tooltipY = populationTooltipY - tooltipH + 130.f;
-        if (tooltipX + tooltipW > 1910.f) tooltipX = populationTooltipX - tooltipW - 12.f;
-        if (tooltipY < 5.f) tooltipY = 5.f;
-
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-
-        // Background
-        SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
-        SDL_FRect bg = {tooltipX, tooltipY, tooltipW, tooltipH};
-        SDL_RenderFillRect(renderer, &bg);
-        // Title bar
-        SDL_SetRenderDrawColor(renderer, 25, 65, 55, 255);
-        SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, 28.f};
-        SDL_RenderFillRect(renderer, &titleBar);
-        SDL_SetRenderDrawColor(renderer, 90, 170, 140, 255);
-        SDL_RenderRect(renderer, &bg);
-        //Text Title
-        std::string fullPopulationTitle = std::string(populationStatusStr) + " - " + populationTitleStr;
-        TTF_SetTextString(gamePopulationIndicatorUiText, fullPopulationTitle.c_str(), 0);
-        TTF_SetTextColor (gamePopulationIndicatorUiText, 255,255,255,255);
-        TTF_DrawRendererText(gamePopulationIndicatorUiText, tooltipX + 10.f, tooltipY + 4.f);
-
-        float lineY = tooltipY + 34.f;
-
+    //peasantry
+    if (hoveredPopulationType == 0) {
+        amount = player.currentPeasantryAmount;
+        totalGrowth = player.nextTurnPeasantryAmount;
+        populationTitleStr = "Peasantry";
+        if (amount < 1000) populationStatusStr = "Weak";
+        else if (amount < 5000) populationStatusStr = "Stable";
+        else if (amount < 10000) populationStatusStr = "Overpopulated";
     }
+    //Nobility
+    else if (hoveredPopulationType == 1) {
+        amount = player.currentNobilityAmount;
+        totalGrowth = player.nextTurnNobilityAmount;
+        populationTitleStr = "Nobility";
+        if (amount < 100) populationStatusStr = "Weak";
+        else if (amount < 500) populationStatusStr = "Stable";
+        else if (amount < 1000) populationStatusStr = "Overpopulated";
+    }
+    //Clergy
+    else if (hoveredPopulationType == 2) {
+        amount = player.currentClergyAmount;
+        totalGrowth = player.nextTurnClergyAmount;
+        populationTitleStr = "Clergy";
+        if (amount < 25) populationStatusStr = "Weak";
+        else if (amount < 100) populationStatusStr = "Stable";
+        else if (amount < 250) populationStatusStr = "Overpopulated";
+    }
+
+    float labelX = 0.f;
+    float rightX = 0.f;
+    float rowH = 22.f;
+    float sepH = 8.f;
+
+    // calculate bonus building for population
+    int buildingBonus = 0;
+    for (const auto& s : settlements) {
+        if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
+        for (BuildingType bt : s.settlementData.buildings) {
+            if (bt == BuildingType::None) continue;
+            const BuildingData* bd = GetBuildingData(bt);
+            if (!bd) continue;
+            if (hoveredPopulationType == 0) buildingBonus += bd->peasantryBornBonus;
+            else if (hoveredPopulationType == 1) buildingBonus += bd->nobilityBornBonus;
+            else if (hoveredPopulationType == 2) buildingBonus += bd->clergyTrainedBonus;
+        }
+    }
+    //add a row if it's not equal to 0
+    int rowCount = 0;
+    if (hoveredPopulationType == 0) {
+        if (player.basePeasantryBirth != 0) rowCount++;
+        if (player.basePeasantryDeath != 0) rowCount++;
+        if (buildingBonus != 0) rowCount++;
+    }
+    else if (hoveredPopulationType == 1) {
+        if (player.baseNobilityBirth != 0) rowCount++;
+        if (player.baseNobilityDeath != 0) rowCount++;
+        if (buildingBonus != 0) rowCount++;
+    }
+    else if (hoveredPopulationType == 2) {
+        if (player.baseClergyGrowth != 0) rowCount++;
+        if (player.baseClergyDeath  != 0) rowCount++;
+        if (buildingBonus != 0) rowCount++;
+    }
+
+    //Population hoved Rectangle
+    float tooltipW = 260.f;
+    float tooltipH = 28.f + 6.f + rowCount * rowH + sepH + rowH + 14.f;
+
+    float tooltipX = populationTooltipX + 30.f;
+    float tooltipY = populationTooltipY - tooltipH + 130.f;
+    if (tooltipX + tooltipW > 1910.f) tooltipX = populationTooltipX - tooltipW - 12.f;
+    if (tooltipY < 5.f) tooltipY = 5.f;
+
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+    // Background
+    SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+    SDL_FRect bg = {tooltipX, tooltipY, tooltipW, tooltipH};
+    SDL_RenderFillRect(renderer, &bg);
+    // Title bar
+    SDL_SetRenderDrawColor(renderer, 25, 65, 55, 255);
+    SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, 28.f};
+    SDL_RenderFillRect(renderer, &titleBar);
+    SDL_SetRenderDrawColor(renderer, 90, 170, 140, 255);
+    SDL_RenderRect(renderer, &bg);
+    //Text Title
+    std::string fullPopulationTitle = std::string(populationStatusStr) + " - " + populationTitleStr;
+    TTF_SetTextString(gamePopulationIndicatorUiText, fullPopulationTitle.c_str(), 0);
+    TTF_SetTextColor (gamePopulationIndicatorUiText, 255,255,255,255);
+    TTF_DrawRendererText(gamePopulationIndicatorUiText, tooltipX + 10.f, tooltipY + 4.f);
+
+    float lineY = tooltipY + 34.f;
+
+    labelX = tooltipX + 10.f;
+    rightX = tooltipX + tooltipW - 10.f;
+
+    // Lambda row - skip if = 0
+    auto drawRow = [&](const char* label, int value, bool isNegative) {
+        if (value == 0) return;
+        TTF_SetTextString(gameStatUIText, label, 0);
+        TTF_SetTextColor(gameStatUIText, 160, 155, 140, 255);
+        TTF_DrawRendererText(gameStatUIText, labelX, lineY);
+        std::string valStr = (isNegative ? "-" : "+") + std::to_string(std::abs(value));
+        TTF_SetTextString(gameStatUIText, valStr.c_str(), 0);
+        TTF_SetTextColor(gameStatUIText, isNegative ? 220 : 80, isNegative ? 60 : 200, 80, 255);
+        int vW, vH; TTF_GetTextSize(gameStatUIText, &vW, &vH);
+        TTF_DrawRendererText(gameStatUIText, rightX - vW, lineY);
+        lineY += rowH;
+    };
+
+    // Lambda separator
+    auto drawSep = [&]() {
+        SDL_SetRenderDrawColor(renderer, 80, 70, 50, 200);
+        SDL_RenderLine(renderer, tooltipX + 6.f, lineY + 2.f, tooltipX + tooltipW - 6.f, lineY + 2.f);
+        lineY += sepH;
+    };
+
+    // Rows from the population type
+    if (hoveredPopulationType == 0) {
+        drawRow("Base births", player.basePeasantryBirth, false);
+        drawRow("Base deaths", player.basePeasantryDeath, true);
+        drawRow("Buildings",   buildingBonus,             false);
+    }
+    else if (hoveredPopulationType == 1) {
+        drawRow("Base births", player.baseNobilityBirth, false);
+        drawRow("Base deaths", player.baseNobilityDeath, true);
+        drawRow("Buildings",   buildingBonus,            false);
+    }
+    else if (hoveredPopulationType == 2) {
+        drawRow("Base growth", player.baseClergyGrowth, false);
+        drawRow("Base deaths", player.baseClergyDeath,  true);
+        drawRow("Buildings",   buildingBonus,           false);
+    }
+
+    drawSep();
+
+    // Total next turn
+    TTF_SetTextString(gameStatUIText, "Next turn:", 0);
+    TTF_SetTextColor(gameStatUIText, 215, 215, 215, 255);
+    TTF_DrawRendererText(gameStatUIText, labelX, lineY);
+    std::string totalStr = (totalGrowth >= 0 ? "+" : "") + std::to_string(totalGrowth);
+    TTF_SetTextString(gameStatUIText, totalStr.c_str(), 0);
+    TTF_SetTextColor(gameStatUIText, totalGrowth >= 0 ? 80 : 220, totalGrowth >= 0 ? 200 : 60, 80, 255);
+    int tW, tH; TTF_GetTextSize(gameStatUIText, &tW, &tH);
+    TTF_DrawRendererText(gameStatUIText, rightX - tW, lineY);
+}
 
 
 
