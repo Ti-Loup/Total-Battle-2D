@@ -23,17 +23,17 @@ public :
     int basePeasantryBirth = 70 + rand() % 21;   // 70-90
     int basePeasantryDeath = 25 + rand() % 16;    // 25-40
     int currentPeasantryAmount = 0;
-    int nextTurnPeasantry = 0;
+    int nextTurnPeasantryAmount = 0;
     //nobility
     int baseNobilityBirth = 8 + rand() % 13; // 8-12
     int baseNobilityDeath = 2 + rand() % 9; // 2-8
     int currentNobilityAmount = 0;
-    int nextTurnNobility = 0;
+    int nextTurnNobilityAmount = 0;
     //clergy
     int baseClergyGrowth = 1 + rand() % 5; // 1-4
     int baseClergyDeath = 1 + rand () %4; // 1-3
     int currentClergyAmount = 0;
-    int nextTurnClergyBonus = 0;
+    int nextTurnClergyAmount = 0;
     //default faction played by user
     FactionZone faction = FactionZone::Knight;
 

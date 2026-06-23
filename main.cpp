@@ -470,6 +470,7 @@ public:
     bool bMouseOnPopulationIcon = false;
     float populationTooltipX = 0.0f;
     float populationTooltipY = 0.0f;
+    int hoveredPopulationType = -1;
 
     //toggle tax province
     //bool bToggleCollectIncome = true; is global and for each settlement i need to use Province.h
@@ -3980,9 +3981,9 @@ private://constructor
         TTF_DrawRendererText(gamePopulationIndicatorUiText, 1100.f + thickness,38.f + thickness);
 
         //hovered Different Populations Zone
-        SDL_FRect peasantryHoveredZone = {860.f + thickness, 38.f + thickness, 40, 28};
-        SDL_FRect nobilityHoveredZone = {970.f + thickness, 38.f + thickness, 40, 28};
-        SDL_FRect clergyHoveredZone = {1060.f + thickness, 38.f + thickness, 40, 28 };
+        SDL_FRect peasantryHoveredZone = {825.f + thickness, 38.f + thickness, 60, 28};
+        SDL_FRect nobilityHoveredZone = {940.f + thickness, 38.f + thickness, 60, 28};
+        SDL_FRect clergyHoveredZone = {1060.f + thickness, 38.f + thickness, 60, 28 };
 
         float mouseXPopulation;
         float mouseYPopulation;
@@ -3992,9 +3993,16 @@ private://constructor
         SDL_RenderCoordinatesFromWindow(renderer, mouseXPopulation, mouseYPopulation, &lenghtXPopulation, &lenghtYPopulation);
         SDL_FPoint mousePointPopulation = {lenghtXPopulation, lenghtYPopulation};
         //true if on peasantry or nobility or clergy zone
-        bMouseOnPopulationIcon = SDL_PointInRectFloat(&mousePointPopulation, &peasantryHoveredZone)
-                            || SDL_PointInRectFloat(&mousePointPopulation, &nobilityHoveredZone)
-                            || SDL_PointInRectFloat(&mousePointPopulation, &clergyHoveredZone);
+        if (SDL_PointInRectFloat(&mousePointPopulation, &peasantryHoveredZone)) {
+            hoveredPopulationType = 0;
+        } else if (SDL_PointInRectFloat(&mousePointPopulation, &nobilityHoveredZone)) {
+            hoveredPopulationType = 1;
+        } else if (SDL_PointInRectFloat(&mousePointPopulation, &clergyHoveredZone)) {
+            hoveredPopulationType = 2;
+        } else {
+            hoveredPopulationType = -1;
+        }
+        bMouseOnPopulationIcon = (hoveredPopulationType >= 0);
 
         populationTooltipX = lenghtXPopulation;
         populationTooltipY = lenghtYPopulation;
@@ -4285,13 +4293,46 @@ private://constructor
     void RenderPopulationTooltip() {
         if (!bMouseOnPopulationIcon) return;
 
+        const char *populationTitleStr = "";
+        const char *populationStatusStr = "";
+        int amount = 0;
+        int totalGrowth = 0;
+
+        //peasantry
+        if (hoveredPopulationType == 0) {
+            amount = player.currentPeasantryAmount;
+            totalGrowth = player.nextTurnPeasantryAmount;
+            populationTitleStr = "Peasantry";
+            if (amount < 1000) populationStatusStr = "Weak";
+            else if (amount < 5000) populationStatusStr = "Stable";
+            else if (amount < 10000) populationStatusStr = "Overpopulated";
+        }
+        //Nobility
+        else if (hoveredPopulationType == 1) {
+            amount = player.currentNobilityAmount;
+            totalGrowth = player.nextTurnNobilityAmount;
+            populationTitleStr = "Nobility";
+            if (amount < 100) populationStatusStr = "Weak";
+            else if (amount < 500) populationStatusStr = "Stable";
+            else if (amount < 1000) populationStatusStr = "Overpopulated";
+        }
+        //Clergy
+        else if (hoveredPopulationType == 2) {
+            amount = player.currentClergyAmount;
+            totalGrowth = player.nextTurnClergyAmount;
+            populationTitleStr = "Clergy";
+            if (amount < 25) populationStatusStr = "Weak";
+            else if (amount < 100) populationStatusStr = "Stable";
+            else if (amount < 250) populationStatusStr = "Overpopulated";
+        }
+
         //Food hoved Rectangle
         float tooltipW = 260.f;
         float tooltipH = 100.f;
 
-        float tooltipX = foodTooltipX + 30.f;
-        float tooltipY = foodTooltipY - tooltipH + 130.f;
-        if (tooltipX + tooltipW > 1910.f) tooltipX = foodTooltipX - tooltipW - 12.f;
+        float tooltipX = populationTooltipX + 30.f;
+        float tooltipY = populationTooltipY - tooltipH + 130.f;
+        if (tooltipX + tooltipW > 1910.f) tooltipX = populationTooltipX - tooltipW - 12.f;
         if (tooltipY < 5.f) tooltipY = 5.f;
 
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -4300,6 +4341,20 @@ private://constructor
         SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
         SDL_FRect bg = {tooltipX, tooltipY, tooltipW, tooltipH};
         SDL_RenderFillRect(renderer, &bg);
+        // Title bar
+        SDL_SetRenderDrawColor(renderer, 25, 65, 55, 255);
+        SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, 28.f};
+        SDL_RenderFillRect(renderer, &titleBar);
+        SDL_SetRenderDrawColor(renderer, 90, 170, 140, 255);
+        SDL_RenderRect(renderer, &bg);
+        //Text Title
+        std::string fullPopulationTitle = std::string(populationStatusStr) + " - " + populationTitleStr;
+        TTF_SetTextString(gamePopulationIndicatorUiText, fullPopulationTitle.c_str(), 0);
+        TTF_SetTextColor (gamePopulationIndicatorUiText, 255,255,255,255);
+        TTF_DrawRendererText(gamePopulationIndicatorUiText, tooltipX + 10.f, tooltipY + 4.f);
+
+        float lineY = tooltipY + 34.f;
+
     }
 
 
@@ -5092,13 +5147,13 @@ public:
             }
         }
         // stock the net growth
-        player.nextTurnPeasantry = (player.basePeasantryBirth - player.basePeasantryDeath) + buildingPeasantryBonus;
-        player.nextTurnNobility = (player.baseNobilityBirth  - player.baseNobilityDeath)  + buildingNobilityBonus;
-        player.nextTurnClergyBonus = (player.baseClergyGrowth   - player.baseClergyDeath)    + buildingClergyBonus;
+        player.nextTurnPeasantryAmount = (player.basePeasantryBirth - player.basePeasantryDeath) + buildingPeasantryBonus;
+        player.nextTurnNobilityAmount = (player.baseNobilityBirth  - player.baseNobilityDeath)  + buildingNobilityBonus;
+        player.nextTurnClergyAmount = (player.baseClergyGrowth   - player.baseClergyDeath)    + buildingClergyBonus;
 
-        player.currentPeasantryAmount += player.nextTurnPeasantry;
-        player.currentNobilityAmount += player.nextTurnNobility;
-        player.currentClergyAmount += player.nextTurnClergyBonus;
+        player.currentPeasantryAmount += player.nextTurnPeasantryAmount;
+        player.currentNobilityAmount += player.nextTurnNobilityAmount;
+        player.currentClergyAmount += player.nextTurnClergyAmount;
 
     // AI TURNS~!
     std::vector<FactionZone> turnOrder = { FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai };
