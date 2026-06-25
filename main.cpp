@@ -184,6 +184,8 @@ public:
     TTF_Text *gameFoodIndicatorUiText = nullptr;
     TTF_Font *gamePopulationIndicatorUiFont = nullptr;
     TTF_Text *gamePopulationIndicatorUiText = nullptr;
+    TTF_Font *gameCurrentPopulationUiFont = nullptr;
+    TTF_Text *gameCurrentPopulationUiText = nullptr;
     TTF_Text *gameNumberOfTurnText = nullptr;
     TTF_Font *gameBuildingCostUIFont = nullptr;
     TTF_Text *gameBuildingCostUIText = nullptr;
@@ -734,6 +736,7 @@ private://constructor
         gameFoodIndicatorUiFont = TTF_OpenFont ("assets/Rubik.ttf", 19);
         gameMoneyIndicatorUiFont = TTF_OpenFont("assets/Rubik.ttf", 19);
         gamePopulationIndicatorUiFont = TTF_OpenFont("assets/Rubik.ttf", 19);
+        gameCurrentPopulationUiFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         //same font has AnticipatedMoneyUiText
         gameCurrentFoodUiText = TTF_CreateText(textEngine, gameCurrentFoodUiFont, "", 25);
         if (gameCurrentFoodUiText == nullptr) {
@@ -750,6 +753,10 @@ private://constructor
         gamePopulationIndicatorUiText = TTF_CreateText (textEngine, gamePopulationIndicatorUiFont, "", 25);
         if (gamePopulationIndicatorUiText == nullptr) {
             SDL_LogWarn(0, "failed to create text of gamePopulationIndicatorUiText ", SDL_GetError());
+        }
+        gameCurrentPopulationUiText = TTF_CreateText (textEngine, gameCurrentPopulationUiFont, "", 25);
+        if (gameCurrentPopulationUiText == nullptr) {
+            SDL_LogWarn(0, "failed to load text of gameCurrentPopulationUiText", SDL_GetError());
         }
 
         gameNumberOfTurnText = TTF_CreateText(textEngine, gameGeneralFont, "0", 25);
@@ -2186,6 +2193,7 @@ private://constructor
         TTF_CloseFont(gameMoneyIndicatorUiFont);
         TTF_CloseFont(gameFoodIndicatorUiFont);
         TTF_CloseFont(gamePopulationIndicatorUiFont);
+        TTF_CloseFont(gameCurrentPopulationUiFont);
         TTF_CloseFont(gameInProgressFont);
         TTF_CloseFont(gameVersionFont);
         // ---------------------------------
@@ -2228,6 +2236,7 @@ private://constructor
         TTF_DestroyText(gameInProgressText);
         TTF_DestroyText(gameVersionText);
         TTF_DestroyText(gamePopulationIndicatorUiText);
+        TTF_DestroyText(gameCurrentPopulationUiText);
         // ---------------------------------
         SDL_DestroyTexture(provinceKnightBannerTexture);
         SDL_DestroyTexture(provinceVikingBannerTexture);
@@ -4256,7 +4265,7 @@ private://constructor
         float tooltipH = 260.f;
 
         float tooltipX = foodTooltipX + 30.f;
-        float tooltipY = foodTooltipY - tooltipH + 210.f;
+        float tooltipY = foodTooltipY - tooltipH + 290.f;
         if (tooltipX + tooltipW > 1910.f) tooltipX = foodTooltipX - tooltipW - 12.f;
         if (tooltipY < 5.f) tooltipY = 5.f;
 
@@ -4331,7 +4340,7 @@ TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, tooltipY + 82.f);
 }
 
 TTF_SetTextString(gameCurrentFoodUiText, "Farms", 0);
-TTF_SetTextColor(gameCurrentFoodUiText, 180, 180, 180, 255);
+TTF_SetTextColor(gameCurrentFoodUiText, 255, 255, 255, 255);
 TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, tooltipY + 102.f);
 {
     std::string bldStr = (buildingFoodTotal >= 0 ? "+" : "") + std::to_string(buildingFoodTotal);
@@ -4403,7 +4412,7 @@ else if (player.currentFood < 0 && player.currentFood > -150) {
     TTF_SetTextColor(gameCurrentFoodUiText, 255, 0, 0, 255);
     TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 130.f, tooltipY + 162.f);
     SDL_FRect populationGrowthIcon = {tooltipX + 5.f, tooltipY + 202.f, 20, 20};
-    SDL_RenderTexture(renderer, gamePopulationPositiveGrowth, nullptr, &populationGrowthIcon);
+    SDL_RenderTexture(renderer, gamePopulationNegativeGrowth, nullptr, &populationGrowthIcon);
     TTF_SetTextString(gameCurrentFoodUiText, "-20% Base Population Growth \n                        (All Provinces) ", 0);
     TTF_SetTextColor(gameCurrentFoodUiText, 255, 255, 255, 255);
     TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 202.f);
@@ -4418,7 +4427,7 @@ else if (player.currentFood >= -150 && player.currentFood > -300) {
     TTF_SetTextColor(gameCurrentFoodUiText, 255, 0, 0, 255);
     TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 130.f, tooltipY + 162.f);
     SDL_FRect populationGrowthIcon = {tooltipX + 5.f, tooltipY + 202.f, 20, 20};
-    SDL_RenderTexture(renderer, gamePopulationPositiveGrowth, nullptr, &populationGrowthIcon);
+    SDL_RenderTexture(renderer, gamePopulationNegativeGrowth, nullptr, &populationGrowthIcon);
     TTF_SetTextString(gameCurrentFoodUiText, "-60% Base Population Growth \n                        (All Provinces) ", 0);
     TTF_SetTextColor(gameCurrentFoodUiText, 255, 255, 255, 255);
     TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 202.f);
@@ -4433,7 +4442,7 @@ else if (player.currentFood >= -300) {
     TTF_SetTextColor(gameCurrentFoodUiText, 255, 0, 0, 255);
     TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 130.f, tooltipY + 162.f);
     SDL_FRect populationGrowthIcon = {tooltipX + 5.f, tooltipY + 202.f, 20, 20};
-    SDL_RenderTexture(renderer, gamePopulationPositiveGrowth, nullptr, &populationGrowthIcon);
+    SDL_RenderTexture(renderer, gamePopulationNegativeGrowth, nullptr, &populationGrowthIcon);
     TTF_SetTextString(gameCurrentFoodUiText, "-100% Base Population Growth \n                        (All Provinces) ", 0);
     TTF_SetTextColor(gameCurrentFoodUiText, 255, 255, 255, 255);
     TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 202.f);
@@ -4449,24 +4458,30 @@ SDL_RenderRect(renderer, &bg);
     if (!bMouseOnPopulationIcon) return;
 
     const char *populationTitleStr = "";
+    const char *populationDescriptionStr = "";
+    const char *populationDescriptionYellowStr = "";
+    const char *populationDescriptionGreenStr = "";
     int amount = 0;
 
     //peasantry
     if (hoveredPopulationType == 0) {
         amount = player.currentPeasantryAmount;
         populationTitleStr = "Peasantry";
-
+        populationDescriptionStr = "The sound of the whetstone and the lowing of cattle return to the shires."
+                                   " There is enough labor to maintain the status quo.";
     }
     //Nobility
     else if (hoveredPopulationType == 1) {
         amount = player.currentNobilityAmount;
         populationTitleStr = "Nobility";
-
+        populationDescriptionStr = "An established noble class ensures the King's peace. From the highest jarl to the lowest thegn, "
+                                   "the chain of command is unbroken and effective.";
     }
     //Clergy
     else if (hoveredPopulationType == 2) {
         amount = player.currentClergyAmount;
         populationTitleStr = "Clergy";
+        populationDescriptionStr = "Humble chapels begin to rise, faith is the most important to have a united Kingdom. The faith is a flickering candle in the dark.";
     }
 
     float labelX = 0.f;
@@ -4491,10 +4506,19 @@ SDL_RenderRect(renderer, &bg);
 
     //Population hoved Rectangle
     float tooltipW = 260.f;
-    float tooltipH = 150.f;
+    float titleBarH = 28.f;
+    float padH = 10.f;
+    float wrapW = tooltipW - 10.f; //5px margin for each side
+
+    // --- measure description BEFORE laying out the rect ---
+    TTF_SetTextWrapWidth(gameCurrentPopulationUiText, (int)wrapW);
+    TTF_SetTextString(gameCurrentPopulationUiText, populationDescriptionStr, 0);
+    int descW, descH;
+    TTF_GetTextSize(gameCurrentPopulationUiText, &descW, &descH);
+    float tooltipH = titleBarH + padH + (float)descH + padH;
 
     float tooltipX = populationTooltipX + 30.f;
-    float tooltipY = populationTooltipY - tooltipH + 130.f;
+    float tooltipY = populationTooltipY + 30.f;
     if (tooltipX + tooltipW > 1910.f) tooltipX = populationTooltipX - tooltipW - 12.f;
     if (tooltipY < 5.f) tooltipY = 5.f;
 
@@ -4511,10 +4535,23 @@ SDL_RenderRect(renderer, &bg);
     SDL_SetRenderDrawColor(renderer, 90, 170, 140, 255);
     SDL_RenderRect(renderer, &bg);
     //Text Title
-    std::string fullPopulationTitle = std::string(populationTitleStr);
-    TTF_SetTextString(gamePopulationIndicatorUiText, fullPopulationTitle.c_str(), 0);
-    TTF_SetTextColor (gamePopulationIndicatorUiText, 255,255,255,255);
-    TTF_DrawRendererText(gamePopulationIndicatorUiText, tooltipX + 90.f, tooltipY + 4.f);
+        TTF_SetTextWrapWidth(gamePopulationIndicatorUiText, 0); // no wrap for title
+        TTF_SetTextString(gamePopulationIndicatorUiText, populationTitleStr, 0);
+        TTF_SetTextColor(gamePopulationIndicatorUiText, 255, 255, 255, 255);
+        int titleW, titleH;
+        TTF_GetTextSize(gamePopulationIndicatorUiText, &titleW, &titleH);
+        TTF_DrawRendererText(gamePopulationIndicatorUiText,
+            tooltipX + (tooltipW - titleW) / 2.f,
+            tooltipY + (titleBarH - titleH) / 2.f);
+        // Description text (already wrapped)
+        TTF_SetTextColor(gameCurrentPopulationUiText, 255, 255, 255, 255);
+        TTF_DrawRendererText(gameCurrentPopulationUiText,
+            tooltipX + 5.f,
+            tooltipY + titleBarH + padH / 2.f);
+
+        // Reset wrap width so other text objects are unaffected
+        TTF_SetTextWrapWidth(gameCurrentPopulationUiText, 0);
+        //Yellow Description Text
 
 
 
