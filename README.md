@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/TileMap.png" alt="Total Battle 2D Banner" width="900">
+  <img src="assets/TotalBattle2DUpdate.png" alt="Total Battle 2D Banner" width="900">
 </p>
 
 <h1 align="center">Total Battle 2D</h1>
