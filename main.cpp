@@ -25,7 +25,6 @@
 /*
  * 0.2.0
  * POPULATION SYSTEM
- * Hovered Population
  * (population is affected by food storage system)
  * Having population texture positive and negative
  * Having money and food texture positive and negative
@@ -73,6 +72,8 @@
  * Fix a bug when a building is pending you can buy an other one + if a pending building is clicked on->its refounded and removed when pending
 * fix Textures errors
 * ReadMe -> Github
+* Hovered Population
+
  */
 
 
@@ -227,6 +228,9 @@ public:
     SDL_Texture *gamePublicOrderPositifTexture = nullptr;
     SDL_Texture *gamePublicOrderNegatifTexture = nullptr;
     SDL_Texture *gamePublicOrderNeutralTexture = nullptr;
+    //texture population growth
+    SDL_Texture *gamePopulationPositiveGrowth = nullptr;
+    SDL_Texture *gamePopulationNegativeGrowth = nullptr;
 
     //inizialise the rect for the publicOrder so i can use it when i put my mouse on it it shows the public order next turn
     SDL_FRect publicOrderIcon = {0.f, 0.f, 0.f, 0.f};
@@ -986,6 +990,18 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture gamePublicOrderNegatifTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gamePublicOrderNegatifTexture, SDL_SCALEMODE_NEAREST);
+        //Texture Population Growth
+        gamePopulationPositiveGrowth = IMG_LoadTexture(renderer, "assets/PopulationPositiveGrowthIcon.png");
+        if (gamePopulationPositiveGrowth == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gamePopulationPositiveGrowth", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gamePopulationPositiveGrowth, SDL_SCALEMODE_NEAREST);
+        gamePopulationNegativeGrowth = IMG_LoadTexture(renderer, "assets/PopulationNegativeGrowthIcon.png");
+        if (gamePopulationNegativeGrowth == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gamePopulationNegativeGrowth", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gamePopulationNegativeGrowth, SDL_SCALEMODE_NEAREST);
+
         //SETTLEMENTS EVOLUTIF IN CAMPAIGN FOR EACH FACTION
 
         /*
@@ -2295,6 +2311,8 @@ private://constructor
         SDL_DestroyTexture(gameClergyIconUi);
         SDL_DestroyTexture(gamePositiveUiIcon);
         SDL_DestroyTexture(gameNegativeUiIcon);
+        SDL_DestroyTexture(gamePopulationPositiveGrowth);
+        SDL_DestroyTexture(gamePopulationNegativeGrowth);
         // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
@@ -4222,7 +4240,7 @@ private://constructor
 
     //Food hoved Rectangle
         float tooltipW = 260.f;
-        float tooltipH = 100.f;
+        float tooltipH = 150.f;
 
         float tooltipX = foodTooltipX + 30.f;
         float tooltipY = foodTooltipY - tooltipH + 130.f;
@@ -4283,6 +4301,47 @@ private://constructor
             TTF_SetTextColor (gameCurrentFoodUiText, 255, 0, 0, 255);
         }
         TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 65.f, tooltipY + 60.f);
+
+        //Show the public order bonus + Population decrease if less food ui
+        TTF_SetTextString(gameFoodIndicatorUiText, "Effects", 0);
+        TTF_SetTextColor (gameFoodIndicatorUiText, 255, 255, 255, 255);
+        TTF_DrawRendererText(gameFoodIndicatorUiText, tooltipX + 90.f, tooltipY + 80.f);
+
+
+        //Public Order Bonus + Population negatif
+        if (player.currentFood >=  300) { // +3
+
+        }
+        else if (player.currentFood >= 150 && player.currentFood <300) {//+2
+
+        }
+        else if (player.currentFood >= 0 && player.currentFood < 150) {//+1
+            //public order ui + texture
+            SDL_FRect publicOrderBonusIcon = {tooltipX + 5.f, tooltipY + 120.f, 20,20};
+            SDL_RenderTexture(renderer,gamePublicOrderPositifTexture, nullptr, &publicOrderBonusIcon);
+            TTF_SetTextString(gameCurrentFoodUiText, "Public Order :", 0);
+            TTF_SetTextColor (gameCurrentFoodUiText, 255, 255, 255, 255);
+            TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 120.f);
+            TTF_SetTextString(gameCurrentFoodUiText, " (+1) ", 0);
+            TTF_SetTextColor (gameCurrentFoodUiText, 0, 255, 0, 255);
+            TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 130.f, tooltipY + 120.f);
+            //population ui
+            SDL_FRect populationGrowthIcon = {tooltipX + 5.f, tooltipY + 160.f, 20, 20};
+            SDL_RenderTexture(renderer, gamePopulationPositiveGrowth, nullptr, &populationGrowthIcon);
+            TTF_SetTextString(gameCurrentFoodUiText, " Base Population Growth (All Provinces) ", 0);
+            TTF_SetTextColor(gameCurrentFoodUiText, 255,255,255,255);
+            TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 160);
+        }
+        else if (player.currentFood < 0 && player.currentFood > -150) {//-1
+
+        }
+        else if (player.currentFood >= -150 && player.currentFood > -300) {//-2
+
+        }
+        else if (player.currentFood >= -300) {// -3
+
+        }
+
 
         // Border
         SDL_SetRenderDrawColor(renderer, 90, 170, 140, 255);
