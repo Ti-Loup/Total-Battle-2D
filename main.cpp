@@ -4514,16 +4514,31 @@ SDL_RenderRect(renderer, &bg);
     float titleBarH = 28.f;
     float padH = 10.f;
     float wrapW = tooltipW - 10.f; //5px margin for each side
+    float lineSpacing = 5.f;
 
     // measure description before laying out the rec
-    TTF_SetTextWrapWidth(gameCurrentPopulationUiText, (int)wrapW);
+        TTF_SetTextWrapWidth(gameCurrentPopulationUiText, (int)wrapW);
+
     TTF_SetTextString(gameCurrentPopulationUiText, populationDescriptionStr, 0);
-    TTF_SetTextString(gameCurrentPopulationUiText, populationDescriptionYellowStr, 0);
-    TTF_SetTextString(gameCurrentPopulationUiText, populationDescriptionGreenStr, 0);
-    TTF_SetTextString(gameCurrentPopulationUiText, populationDescriptionRedStr, 0);
     int descW, descH;
     TTF_GetTextSize(gameCurrentPopulationUiText, &descW, &descH);
-    float tooltipH = titleBarH + padH + (float)descH + padH;
+
+    TTF_SetTextString(gameCurrentPopulationUiText, populationDescriptionYellowStr, 0);
+    int yellowW, yellowH;
+    TTF_GetTextSize(gameCurrentPopulationUiText, &yellowW, &yellowH);
+
+    // Green or Red
+    const char* bonusStr = (hoveredPopulationType == 1)
+                           ? populationDescriptionRedStr
+                           : populationDescriptionGreenStr;
+    TTF_SetTextString(gameCurrentPopulationUiText, bonusStr, 0);
+    int bonusW, bonusH;
+    TTF_GetTextSize(gameCurrentPopulationUiText, &bonusW, &bonusH);
+
+    float tooltipH = titleBarH + padH
+                   + descH + lineSpacing
+                   + yellowH + lineSpacing
+                   + bonusH + padH;
 
     float tooltipX = populationTooltipX + 30.f;
     float tooltipY = populationTooltipY + 30.f;
@@ -4532,39 +4547,51 @@ SDL_RenderRect(renderer, &bg);
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-    // Background
     SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
     SDL_FRect bg = {tooltipX, tooltipY, tooltipW, tooltipH};
     SDL_RenderFillRect(renderer, &bg);
-    // Title bar
+
     SDL_SetRenderDrawColor(renderer, 25, 65, 55, 255);
-    SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, 28.f};
+    SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, titleBarH};
     SDL_RenderFillRect(renderer, &titleBar);
+
     SDL_SetRenderDrawColor(renderer, 90, 170, 140, 255);
     SDL_RenderRect(renderer, &bg);
-    //Text Title
-        TTF_SetTextWrapWidth(gamePopulationIndicatorUiText, 0); // no wrap for title
-        TTF_SetTextString(gamePopulationIndicatorUiText, populationTitleStr, 0);
-        TTF_SetTextColor(gamePopulationIndicatorUiText, 255, 255, 255, 255);
-        int titleW, titleH;
-        TTF_GetTextSize(gamePopulationIndicatorUiText, &titleW, &titleH);
-        TTF_DrawRendererText(gamePopulationIndicatorUiText,
-            tooltipX + (tooltipW - titleW) / 2.f,
-            tooltipY + (titleBarH - titleH) / 2.f);
-        // Description text (already wrapped)
-        TTF_SetTextColor(gameCurrentPopulationUiText, 255, 255, 255, 255);
-        TTF_DrawRendererText(gameCurrentPopulationUiText,
-            tooltipX + 5.f,
-            tooltipY + titleBarH + padH / 2.f);
 
-        // Reset wrap width so other text objects are unaffected
-        //Yellow Description Text
-        TTF_SetTextColor(gameCurrentPopulationUiText, 255,255,0,255);
-        TTF_DrawRendererText(gameCurrentPopulationUiText,
-            tooltipX + 5.f,
-            tooltipY + titleBarH + padH / 2.f);
+    // Titre
+    TTF_SetTextWrapWidth(gamePopulationIndicatorUiText, 0);
+    TTF_SetTextString(gamePopulationIndicatorUiText, populationTitleStr, 0);
+    TTF_SetTextColor(gamePopulationIndicatorUiText, 255, 255, 255, 255);
+    int titleW, titleH;
+    TTF_GetTextSize(gamePopulationIndicatorUiText, &titleW, &titleH);
+    TTF_DrawRendererText(gamePopulationIndicatorUiText,
+        tooltipX + (tooltipW - titleW) / 2.f,
+        tooltipY + (titleBarH - titleH) / 2.f);
 
+    float currentY = tooltipY + titleBarH + padH / 2.f;
 
+    // Text white description
+    TTF_SetTextWrapWidth(gameCurrentPopulationUiText, (int)wrapW);
+    TTF_SetTextString(gameCurrentPopulationUiText, populationDescriptionStr, 0);
+    TTF_SetTextColor(gameCurrentPopulationUiText, 200, 200, 200, 255);
+    TTF_DrawRendererText(gameCurrentPopulationUiText, tooltipX + 5.f, currentY);
+    currentY += descH + lineSpacing;
+
+    // Text yellow
+    TTF_SetTextString(gameCurrentPopulationUiText, populationDescriptionYellowStr, 0);
+    TTF_SetTextColor(gameCurrentPopulationUiText, 255, 255, 0, 255);
+    TTF_DrawRendererText(gameCurrentPopulationUiText, tooltipX + 5.f, currentY);
+    currentY += yellowH + lineSpacing;
+
+    // green or red text
+    if (bonusStr && bonusStr[0] != '\0') {
+        TTF_SetTextString(gameCurrentPopulationUiText, bonusStr, 0);
+        if (hoveredPopulationType == 1)
+            TTF_SetTextColor(gameCurrentPopulationUiText, 220, 60, 60, 255);
+        else
+            TTF_SetTextColor(gameCurrentPopulationUiText, 80, 220, 80, 255);
+        TTF_DrawRendererText(gameCurrentPopulationUiText, tooltipX + 5.f, currentY);
+    }
 }
 
 
