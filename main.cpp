@@ -4033,11 +4033,11 @@ private://constructor
     int GetFoodPublicOrderModifier() {
         switch (filledSegs) {
             case 1:
-                return (player.foodStored > 0) ? 0 : -3;
+                return (player.foodStored > 0) ? 0 : -6;
             case 2:
-                return (player.foodStored > 0) ? 0 : -2;
+                return (player.foodStored > 0) ? 0 : -4;
             case 3:
-                return (player.foodStored > 0) ? 0 : -1;
+                return (player.foodStored > 0) ? 0 : -2;
             case 4: 
                 return 1;
             case 5:
@@ -4240,10 +4240,10 @@ private://constructor
 
     //Food hoved Rectangle
         float tooltipW = 260.f;
-        float tooltipH = 150.f;
+        float tooltipH = 200.f;
 
         float tooltipX = foodTooltipX + 30.f;
-        float tooltipY = foodTooltipY - tooltipH + 130.f;
+        float tooltipY = foodTooltipY - tooltipH + 210.f;
         if (tooltipX + tooltipW > 1910.f) tooltipX = foodTooltipX - tooltipW - 12.f;
         if (tooltipY < 5.f) tooltipY = 5.f;
 
@@ -4310,10 +4310,38 @@ private://constructor
 
         //Public Order Bonus + Population negatif
         if (player.currentFood >=  300) { // +3
-
+            //public order ui + texture
+            SDL_FRect publicOrderBonusIcon = {tooltipX + 5.f, tooltipY + 120.f, 20,20};
+            SDL_RenderTexture(renderer,gamePublicOrderPositifTexture, nullptr, &publicOrderBonusIcon);
+            TTF_SetTextString(gameCurrentFoodUiText, "Public Order :", 0);
+            TTF_SetTextColor (gameCurrentFoodUiText, 255, 255, 255, 255);
+            TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 120.f);
+            TTF_SetTextString(gameCurrentFoodUiText, " (+3) ", 0);
+            TTF_SetTextColor (gameCurrentFoodUiText, 0, 255, 0, 255);
+            TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 130.f, tooltipY + 120.f);
+            //population ui
+            SDL_FRect populationGrowthIcon = {tooltipX + 5.f, tooltipY + 160.f, 20, 20};
+            SDL_RenderTexture(renderer, gamePopulationPositiveGrowth, nullptr, &populationGrowthIcon);
+            TTF_SetTextString(gameCurrentFoodUiText, "200% Base Population Growth \n                        (All Provinces) ", 0);
+            TTF_SetTextColor(gameCurrentFoodUiText, 255,255,255,255);
+            TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 160);
         }
         else if (player.currentFood >= 150 && player.currentFood <300) {//+2
-
+            //public order ui + texture
+            SDL_FRect publicOrderBonusIcon = {tooltipX + 5.f, tooltipY + 120.f, 20,20};
+            SDL_RenderTexture(renderer,gamePublicOrderPositifTexture, nullptr, &publicOrderBonusIcon);
+            TTF_SetTextString(gameCurrentFoodUiText, "Public Order :", 0);
+            TTF_SetTextColor (gameCurrentFoodUiText, 255, 255, 255, 255);
+            TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 120.f);
+            TTF_SetTextString(gameCurrentFoodUiText, " (+2) ", 0);
+            TTF_SetTextColor (gameCurrentFoodUiText, 0, 255, 0, 255);
+            TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 130.f, tooltipY + 120.f);
+            //population ui
+            SDL_FRect populationGrowthIcon = {tooltipX + 5.f, tooltipY + 160.f, 20, 20};
+            SDL_RenderTexture(renderer, gamePopulationPositiveGrowth, nullptr, &populationGrowthIcon);
+            TTF_SetTextString(gameCurrentFoodUiText, "100% Base Population Growth \n                        (All Provinces) ", 0);
+            TTF_SetTextColor(gameCurrentFoodUiText, 255,255,255,255);
+            TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 160);
         }
         else if (player.currentFood >= 0 && player.currentFood < 150) {//+1
             //public order ui + texture
@@ -4328,18 +4356,60 @@ private://constructor
             //population ui
             SDL_FRect populationGrowthIcon = {tooltipX + 5.f, tooltipY + 160.f, 20, 20};
             SDL_RenderTexture(renderer, gamePopulationPositiveGrowth, nullptr, &populationGrowthIcon);
-            TTF_SetTextString(gameCurrentFoodUiText, " Base Population Growth (All Provinces) ", 0);
+            TTF_SetTextString(gameCurrentFoodUiText, "50% Base Population Growth \n                        (All Provinces) ", 0);
             TTF_SetTextColor(gameCurrentFoodUiText, 255,255,255,255);
             TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 160);
         }
-        else if (player.currentFood < 0 && player.currentFood > -150) {//-1
-
+        else if (player.currentFood < 0 && player.currentFood > -150) {//-2
+            //public order ui + texture
+            SDL_FRect publicOrderBonusIcon = {tooltipX + 5.f, tooltipY + 120.f, 20,20};
+            SDL_RenderTexture(renderer,gamePublicOrderNegatifTexture, nullptr, &publicOrderBonusIcon);
+            TTF_SetTextString(gameCurrentFoodUiText, "Public Order :", 0);
+            TTF_SetTextColor (gameCurrentFoodUiText, 255, 255, 255, 255);
+            TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 120.f);
+            TTF_SetTextString(gameCurrentFoodUiText, " (-2) ", 0);
+            TTF_SetTextColor (gameCurrentFoodUiText, 255, 0, 0, 255);
+            TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 130.f, tooltipY + 120.f);
+            //population ui
+            SDL_FRect populationGrowthIcon = {tooltipX + 5.f, tooltipY + 160.f, 20, 20};
+            SDL_RenderTexture(renderer, gamePopulationPositiveGrowth, nullptr, &populationGrowthIcon);
+            TTF_SetTextString(gameCurrentFoodUiText, "-20% Base Population Growth \n                        (All Provinces) ", 0);
+            TTF_SetTextColor(gameCurrentFoodUiText, 255,255,255,255);
+            TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 160);
         }
-        else if (player.currentFood >= -150 && player.currentFood > -300) {//-2
-
+        else if (player.currentFood >= -150 && player.currentFood > -300) {//-4
+            //public order ui + texture
+            SDL_FRect publicOrderBonusIcon = {tooltipX + 5.f, tooltipY + 120.f, 20,20};
+            SDL_RenderTexture(renderer,gamePublicOrderNegatifTexture, nullptr, &publicOrderBonusIcon);
+            TTF_SetTextString(gameCurrentFoodUiText, "Public Order :", 0);
+            TTF_SetTextColor (gameCurrentFoodUiText, 255, 255, 255, 255);
+            TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 120.f);
+            TTF_SetTextString(gameCurrentFoodUiText, " (-4) ", 0);
+            TTF_SetTextColor (gameCurrentFoodUiText, 255, 0, 0, 255);
+            TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 130.f, tooltipY + 120.f);
+            //population ui
+            SDL_FRect populationGrowthIcon = {tooltipX + 5.f, tooltipY + 160.f, 20, 20};
+            SDL_RenderTexture(renderer, gamePopulationPositiveGrowth, nullptr, &populationGrowthIcon);
+            TTF_SetTextString(gameCurrentFoodUiText, "-60% Base Population Growth \n                        (All Provinces) ", 0);
+            TTF_SetTextColor(gameCurrentFoodUiText, 255,255,255,255);
+            TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 160);
         }
-        else if (player.currentFood >= -300) {// -3
-
+        else if (player.currentFood >= -300) {// -6
+            //public order ui + texture
+            SDL_FRect publicOrderBonusIcon = {tooltipX + 5.f, tooltipY + 120.f, 20,20};
+            SDL_RenderTexture(renderer,gamePublicOrderNegatifTexture, nullptr, &publicOrderBonusIcon);
+            TTF_SetTextString(gameCurrentFoodUiText, "Public Order :", 0);
+            TTF_SetTextColor (gameCurrentFoodUiText, 255, 255, 255, 255);
+            TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 120.f);
+            TTF_SetTextString(gameCurrentFoodUiText, " (-6) ", 0);
+            TTF_SetTextColor (gameCurrentFoodUiText, 255, 0, 0, 255);
+            TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 130.f, tooltipY + 120.f);
+            //population ui
+            SDL_FRect populationGrowthIcon = {tooltipX + 5.f, tooltipY + 160.f, 20, 20};
+            SDL_RenderTexture(renderer, gamePopulationPositiveGrowth, nullptr, &populationGrowthIcon);
+            TTF_SetTextString(gameCurrentFoodUiText, "-100% Base Population Growth \n                        (All Provinces) ", 0);
+            TTF_SetTextColor(gameCurrentFoodUiText, 255,255,255,255);
+            TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 160);
         }
 
 
@@ -4353,7 +4423,6 @@ private://constructor
     if (!bMouseOnPopulationIcon) return;
 
     const char *populationTitleStr = "";
-    const char *populationStatusStr = "";
     int amount = 0;
     int totalGrowth = 0;
 
@@ -4362,27 +4431,20 @@ private://constructor
         amount = player.currentPeasantryAmount;
         totalGrowth = player.nextTurnPeasantryAmount;
         populationTitleStr = "Peasantry";
-        if (amount < 1000) populationStatusStr = "Weak";
-        else if (amount < 5000) populationStatusStr = "Stable";
-        else if (amount < 10000) populationStatusStr = "Overpopulated";
+
     }
     //Nobility
     else if (hoveredPopulationType == 1) {
         amount = player.currentNobilityAmount;
         totalGrowth = player.nextTurnNobilityAmount;
         populationTitleStr = "Nobility";
-        if (amount < 100) populationStatusStr = "Weak";
-        else if (amount < 500) populationStatusStr = "Stable";
-        else if (amount < 1000) populationStatusStr = "Overpopulated";
+
     }
     //Clergy
     else if (hoveredPopulationType == 2) {
         amount = player.currentClergyAmount;
         totalGrowth = player.nextTurnClergyAmount;
         populationTitleStr = "Clergy";
-        if (amount < 25) populationStatusStr = "Weak";
-        else if (amount < 100) populationStatusStr = "Stable";
-        else if (amount < 250) populationStatusStr = "Overpopulated";
     }
 
     float labelX = 0.f;
@@ -4443,7 +4505,7 @@ private://constructor
     SDL_SetRenderDrawColor(renderer, 90, 170, 140, 255);
     SDL_RenderRect(renderer, &bg);
     //Text Title
-    std::string fullPopulationTitle = std::string(populationStatusStr) + " - " + populationTitleStr;
+    std::string fullPopulationTitle = std::string(populationTitleStr);
     TTF_SetTextString(gamePopulationIndicatorUiText, fullPopulationTitle.c_str(), 0);
     TTF_SetTextColor (gamePopulationIndicatorUiText, 255,255,255,255);
     TTF_DrawRendererText(gamePopulationIndicatorUiText, tooltipX + 10.f, tooltipY + 4.f);
@@ -4493,15 +4555,7 @@ private://constructor
 
     drawSep();
 
-    // Total next turn
-    TTF_SetTextString(gameStatUIText, "Next turn:", 0);
-    TTF_SetTextColor(gameStatUIText, 215, 215, 215, 255);
-    TTF_DrawRendererText(gameStatUIText, labelX, lineY);
-    std::string totalStr = (totalGrowth >= 0 ? "+" : "") + std::to_string(totalGrowth);
-    TTF_SetTextString(gameStatUIText, totalStr.c_str(), 0);
-    TTF_SetTextColor(gameStatUIText, totalGrowth >= 0 ? 80 : 220, totalGrowth >= 0 ? 200 : 60, 80, 255);
-    int tW, tH; TTF_GetTextSize(gameStatUIText, &tW, &tH);
-    TTF_DrawRendererText(gameStatUIText, rightX - tW, lineY);
+
 }
 
 
