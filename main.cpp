@@ -4460,28 +4460,33 @@ SDL_RenderRect(renderer, &bg);
     const char *populationTitleStr = "";
     const char *populationDescriptionStr = "";
     const char *populationDescriptionYellowStr = "";
-    const char *populationDescriptionGreenStr = "";
+    const char *populationDescriptionGreenStr = "";//for peasantry and clergy
+    const char *populationDescriptionRedStr = "";//For nobility
     int amount = 0;
 
     //peasantry
     if (hoveredPopulationType == 0) {
         amount = player.currentPeasantryAmount;
         populationTitleStr = "Peasantry";
-        populationDescriptionStr = "The sound of the whetstone and the lowing of cattle return to the shires."
-                                   " There is enough labor to maintain the status quo.";
+        populationDescriptionStr = "The sound of the whetstone and the lowing of cattle return to the shires.There is enough labor to maintain the status quo.";
+        populationDescriptionYellowStr = "Peasant manpower grows over time, and grows faster when food is plentiful. When peasants are recruited into armies, settleents are raided or sacked, or famine strikes, manpower will be lost.";
+        populationDescriptionGreenStr = "When peasants are plentiful, the economy and construction time will improve, your kingdom will also be able to replenish armies faster.";
     }
     //Nobility
     else if (hoveredPopulationType == 1) {
         amount = player.currentNobilityAmount;
         populationTitleStr = "Nobility";
-        populationDescriptionStr = "An established noble class ensures the King's peace. From the highest jarl to the lowest thegn, "
-                                   "the chain of command is unbroken and effective.";
+        populationDescriptionStr = "An established noble class ensures the King's peace. From the highest jarl to the lowest thegn, the chain of command is unbroken and effective.";
+        populationDescriptionYellowStr = "Noble manpower grows over time, and can be increased by improving the Allegiance of your regions. When nobles are recruited into armies, settlements are raided or sacked, or famine strikes, manpower will be lost.";
+        populationDescriptionRedStr = "Authority falters when the Lords are outnumbered by more than ten-to-one, or when the noble headcount falls too low to oversee the King's lands.";
     }
     //Clergy
     else if (hoveredPopulationType == 2) {
         amount = player.currentClergyAmount;
         populationTitleStr = "Clergy";
         populationDescriptionStr = "Humble chapels begin to rise, faith is the most important to have a united Kingdom. The faith is a flickering candle in the dark.";
+        populationDescriptionYellowStr = "Clergy are trained over time in Abbeys and Monasteries throughout your kingdom. When settlements containing your churchers are sacked, clergy will be lost.";
+        populationDescriptionGreenStr = "A large clergy brings improved Public Order, improved allegiance, faster Research Rate, and a decrease in monastery building costs and time.";
     }
 
     float labelX = 0.f;
@@ -4510,9 +4515,12 @@ SDL_RenderRect(renderer, &bg);
     float padH = 10.f;
     float wrapW = tooltipW - 10.f; //5px margin for each side
 
-    // --- measure description BEFORE laying out the rect ---
+    // measure description before laying out the rec
     TTF_SetTextWrapWidth(gameCurrentPopulationUiText, (int)wrapW);
     TTF_SetTextString(gameCurrentPopulationUiText, populationDescriptionStr, 0);
+    TTF_SetTextString(gameCurrentPopulationUiText, populationDescriptionYellowStr, 0);
+    TTF_SetTextString(gameCurrentPopulationUiText, populationDescriptionGreenStr, 0);
+    TTF_SetTextString(gameCurrentPopulationUiText, populationDescriptionRedStr, 0);
     int descW, descH;
     TTF_GetTextSize(gameCurrentPopulationUiText, &descW, &descH);
     float tooltipH = titleBarH + padH + (float)descH + padH;
@@ -4550,9 +4558,11 @@ SDL_RenderRect(renderer, &bg);
             tooltipY + titleBarH + padH / 2.f);
 
         // Reset wrap width so other text objects are unaffected
-        TTF_SetTextWrapWidth(gameCurrentPopulationUiText, 0);
         //Yellow Description Text
-
+        TTF_SetTextColor(gameCurrentPopulationUiText, 255,255,0,255);
+        TTF_DrawRendererText(gameCurrentPopulationUiText,
+            tooltipX + 5.f,
+            tooltipY + titleBarH + padH / 2.f);
 
 
 }
