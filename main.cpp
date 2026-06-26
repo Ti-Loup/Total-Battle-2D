@@ -4616,11 +4616,26 @@ SDL_RenderRect(renderer, &bg);
         if (hoveredPopulationType == 0) {
             TTF_SetTextWrapWidth(gameCurrentPopulationUiText, 0);
             //Descriptions
+            TTF_SetTextString(gamePopulationIndicatorUiText, "Effects", 0);
+            TTF_SetTextColor(gamePopulationIndicatorUiText, 255, 255, 255, 255);
+            TTF_DrawRendererText(gamePopulationIndicatorUiText, tooltipX + 90.f, currentY);
             //Base Population
             TTF_SetTextString (gameCurrentPopulationUiText, "Region Base Population", 0);
             TTF_SetTextColor(gameCurrentPopulationUiText, 255, 255, 255, 255);
-            TTF_DrawRendererText(gameCurrentPopulationUiText, tooltipX + 5.0f, currentY);
-            //Birth Rate
+            TTF_DrawRendererText(gameCurrentPopulationUiText, tooltipX + 5.0f, currentY + 30.f);
+            std::string regionBasePeasantryString = std::to_string(player.currentPeasantryAmount);
+            TTF_SetTextString(gameCurrentPopulationUiText, regionBasePeasantryString.c_str() , 0);
+            TTF_SetTextColor(gameCurrentPopulationUiText, 255, 255, 255, 255);
+            TTF_DrawRendererText(gameCurrentPopulationUiText,tooltipX + 240.f, currentY+30.f);
+            //Birth Rate after buff/debuff of
+            TTF_SetTextString(gameCurrentPopulationUiText, "Birth Rate", 0);
+            TTF_SetTextColor(gameCurrentPopulationUiText, 255, 255, 255, 255);
+            TTF_DrawRendererText(gameCurrentPopulationUiText, tooltipX +5.f, currentY + 50.f);
+            std::string birthRatePeasantryStr = std::to_string(player.basePeasantryBirth);
+            TTF_SetTextString(gameCurrentPopulationUiText, birthRatePeasantryStr.c_str() , 0);
+            TTF_SetTextColor(gameCurrentPopulationUiText, 255, 255, 255, 255);
+            TTF_DrawRendererText(gameCurrentPopulationUiText,tooltipX + 240.f, currentY+ 50.f);
+
             //Death Rate
             //Building Growth Bonus
             //Famine
