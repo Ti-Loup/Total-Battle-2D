@@ -30,13 +30,15 @@
  * Having money and food texture positive and negative
  * Update Buildings info in UI +/-
  *
+ * If time add place holders for commerce and industrial buildings for 0.3
+ *
  *---------------------------------------------
  * 0.2.5
  * WORLD EVENTS (plague, exceed food production, thunder) + SEASONS + DATE (12 turns a year) 3 turn per season
  * --------------------------------------------
  * 0.3.0
  * DIPLOMACY + RESSOURCE SETTLEMENTS/BUILDINGS
- * MINE, SPICE, FISH, medicine plants, hunting meat,
+ * MINE, Forged Steel Production, FISH, medicine plants, Candle
  * THE RESSOURCES ARE STORED IN
  * --------------------------------------------
  * 0.3.5
@@ -4455,8 +4457,19 @@ SDL_RenderRect(renderer, &bg);
 }
     //Population Hovered Ui Show
     void RenderPopulationTooltip() {
-    if (!bMouseOnPopulationIcon) return;
 
+    if (!bMouseOnPopulationIcon) return;
+        float tooltipX = populationTooltipX + 30.f;
+        float tooltipY = populationTooltipY + 30.f;
+        //Population hoved Rectangle
+        float tooltipW = 260.f;
+        float titleBarH = 28.f;
+        float padH = 10.f;
+        float wrapW = tooltipW - 10.f; //5px margin for each side
+        float lineSpacing = 5.f;
+
+        if (tooltipX + tooltipW > 1910.f) tooltipX = populationTooltipX - tooltipW - 12.f;
+        if (tooltipY < 5.f) tooltipY = 5.f;
     const char *populationTitleStr = "";
     const char *populationDescriptionStr = "";
     const char *populationDescriptionYellowStr = "";
@@ -4509,12 +4522,6 @@ SDL_RenderRect(renderer, &bg);
     }
 
 
-    //Population hoved Rectangle
-    float tooltipW = 260.f;
-    float titleBarH = 28.f;
-    float padH = 10.f;
-    float wrapW = tooltipW - 10.f; //5px margin for each side
-    float lineSpacing = 5.f;
 
     // measure description before laying out the rec
         TTF_SetTextWrapWidth(gameCurrentPopulationUiText, (int)wrapW);
@@ -4540,11 +4547,9 @@ SDL_RenderRect(renderer, &bg);
                    + yellowH + lineSpacing
                    + bonusH + padH;
 
-    float tooltipX = populationTooltipX + 30.f;
-    float tooltipY = populationTooltipY + 30.f;
-    if (tooltipX + tooltipW > 1910.f) tooltipX = populationTooltipX - tooltipW - 12.f;
-    if (tooltipY < 5.f) tooltipY = 5.f;
-
+        if (hoveredPopulationType == 0) tooltipH += 150.f; // extra space for peasantry rows
+        else if (hoveredPopulationType == 1) tooltipH += 150.f;
+        else if (hoveredPopulationType == 2) tooltipH += 150.f;
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
     SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
@@ -4592,6 +4597,36 @@ SDL_RenderRect(renderer, &bg);
             TTF_SetTextColor(gameCurrentPopulationUiText, 80, 220, 80, 255);
         TTF_DrawRendererText(gameCurrentPopulationUiText, tooltipX + 5.f, currentY);
     }
+        currentY += bonusH + lineSpacing;
+
+        if (hoveredPopulationType == 0) {
+
+            //Descriptions
+            //Region
+            TTF_SetTextString (gameCurrentPopulationUiText, "Region Base Population", 0);
+            TTF_SetTextColor(gameCurrentPopulationUiText, 255, 255, 255, 255);
+            TTF_DrawRendererText(gameCurrentPopulationUiText, tooltipX + 5.0f, currentY);
+            //Famine
+            //Rioting
+            //Population Growth
+            //War Devastation
+            //Recruitment and Replenishment
+
+            /*Effects,
+             *-Tax if less Peasants +Tax if more
+             * -Food producted if less Peasants ~Normal food produce otherwise.
+             *
+             *
+             *
+             */
+        }
+        else if (hoveredPopulationType == 1) {
+
+        }
+        else if (hoveredPopulationType == 2) {
+
+        }
+
 }
 
 
