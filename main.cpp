@@ -25,10 +25,10 @@
 /*
  * 0.2.0
  * POPULATION SYSTEM
- * (population is affected by food storage system)
+ *
  * Having population texture positive and negative
  * Having money and food texture positive and negative
- * Update Buildings info in UI +/-
+ * Update Province and building info in UI +/-
  *
  * If time add place holders for commerce and industrial buildings for 0.3
  *
@@ -75,6 +75,8 @@
 * fix Textures errors
 * ReadMe -> Github
 * Hovered Population
+* (population is affected by food storage system)
+*
 
  */
 
@@ -4561,9 +4563,9 @@ SDL_RenderRect(renderer, &bg);
                    + yellowH + lineSpacing
                    + bonusH + padH;
 
-        if (hoveredPopulationType == 0) tooltipH += 150.f; // extra space for peasantry rows
-        else if (hoveredPopulationType == 1) tooltipH += 150.f;
-        else if (hoveredPopulationType == 2) tooltipH += 150.f;
+        if (hoveredPopulationType == 0) tooltipH += 220.f;
+        else if (hoveredPopulationType == 1) tooltipH += 220.f;
+        else if (hoveredPopulationType == 2) tooltipH += 220.f;
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
     SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
@@ -4613,58 +4615,92 @@ SDL_RenderRect(renderer, &bg);
     }
         currentY += bonusH + lineSpacing;
 
+        TTF_SetTextWrapWidth(gameCurrentPopulationUiText, 0);
+float rightEdge2 = tooltipX + tooltipW - 5.f;
+
+// similar values calculated like endTurn to show results
+float foodPopulationMultiplier = GetFoodPopulationGrowthMultiplier();
+int baseBirth = 0, baseDeath = 0;
+        //based on the different population type
         if (hoveredPopulationType == 0) {
-            TTF_SetTextWrapWidth(gameCurrentPopulationUiText, 0);
-            //Descriptions
-            TTF_SetTextString(gamePopulationIndicatorUiText, "Effects", 0);
-            TTF_SetTextColor(gamePopulationIndicatorUiText, 255, 255, 255, 255);
-            TTF_DrawRendererText(gamePopulationIndicatorUiText, tooltipX + 90.f, currentY);
-            //Base Population
-            TTF_SetTextString (gameCurrentPopulationUiText, "Region Base Population", 0);
-            TTF_SetTextColor(gameCurrentPopulationUiText, 255, 255, 255, 255);
-            TTF_DrawRendererText(gameCurrentPopulationUiText, tooltipX + 5.0f, currentY + 30.f);
-            std::string regionBasePeasantryString = std::to_string(player.currentPeasantryAmount);
-            TTF_SetTextString(gameCurrentPopulationUiText, regionBasePeasantryString.c_str() , 0);
-            TTF_SetTextColor(gameCurrentPopulationUiText, 255, 255, 255, 255);
-            TTF_DrawRendererText(gameCurrentPopulationUiText,tooltipX + 240.f, currentY+30.f);
-            //Birth Rate after buff/debuff of
-            TTF_SetTextString(gameCurrentPopulationUiText, "Birth Rate", 0);
-            TTF_SetTextColor(gameCurrentPopulationUiText, 255, 255, 255, 255);
-            TTF_DrawRendererText(gameCurrentPopulationUiText, tooltipX +5.f, currentY + 50.f);
-            std::string birthRatePeasantryStr = std::to_string(player.basePeasantryBirth);
-            TTF_SetTextString(gameCurrentPopulationUiText, birthRatePeasantryStr.c_str() , 0);
-            TTF_SetTextColor(gameCurrentPopulationUiText, 0, 255, 0, 255);
-            TTF_DrawRendererText(gameCurrentPopulationUiText,tooltipX + 240.f, currentY+ 50.f);
-            //Death Rate
-            TTF_SetTextString(gameCurrentPopulationUiText, "Death Rate", 0);
-            TTF_SetTextColor(gameCurrentPopulationUiText, 255, 255, 255, 255);
-            TTF_DrawRendererText(gameCurrentPopulationUiText, tooltipX +5.f, currentY + 70.f);
-            std::string deathRatePeasantryStr = std::to_string(player.basePeasantryDeath);
-            TTF_SetTextString(gameCurrentPopulationUiText, deathRatePeasantryStr.c_str() , 0);
-            TTF_SetTextColor(gameCurrentPopulationUiText, 255, 0, 0, 255);
-            TTF_DrawRendererText(gameCurrentPopulationUiText,tooltipX + 240.f, currentY+ 70.f);
-            //Building Growth Bonus
-            //Famine
-            //Rioting
-            //War Devastation
-            //Recruitment and Replenishment
-
-            /*Effects,
-             *-Tax if less Peasants +Tax if more
-             * -Food producted if less Peasants ~Normal food produce otherwise.
-             *
-             *
-             *
-             */
-        }
-        else if (hoveredPopulationType == 1) {
-
-        }
-        else if (hoveredPopulationType == 2) {
-
+              baseBirth = player.basePeasantryBirth;
+              baseDeath = player.basePeasantryDeath;
+        } else if (hoveredPopulationType == 1) {
+            baseBirth = player.baseNobilityBirth;
+            baseDeath = player.baseNobilityDeath;
+        } else if (hoveredPopulationType == 2) {
+            baseBirth = player.baseClergyGrowth;
+            baseDeath = player.baseClergyDeath;
         }
 
-}
+        int effectiveBirths = (int)((float)(baseBirth + buildingBonus) * foodPopulationMultiplier);
+        int netChange = effectiveBirths - baseDeath;
+
+        // sous title
+        TTF_SetTextString(gamePopulationIndicatorUiText, "This Turn", 0);
+        TTF_SetTextColor(gamePopulationIndicatorUiText, 255, 255, 255, 255);
+        int hW, hH;
+        TTF_GetTextSize(gamePopulationIndicatorUiText, &hW, &hH);
+        TTF_DrawRendererText(gamePopulationIndicatorUiText,
+            tooltipX + (tooltipW - hW) / 2.f, currentY);
+        currentY += hH + 8.f;
+
+        // Lambda to show label lines and values are to the right
+        auto drawStatRow = [&](const char* label, const std::string& valStr,
+                               Uint8 r2, Uint8 g2, Uint8 b2) {
+            TTF_SetTextString(gameCurrentPopulationUiText, label, 0);
+            TTF_SetTextColor(gameCurrentPopulationUiText, 180, 180, 180, 255);
+            TTF_DrawRendererText(gameCurrentPopulationUiText, tooltipX + 5.f, currentY);
+            TTF_SetTextString(gameCurrentPopulationUiText, valStr.c_str(), 0);
+            TTF_SetTextColor(gameCurrentPopulationUiText, r2, g2, b2, 255);
+            int vW, vH;
+            TTF_GetTextSize(gameCurrentPopulationUiText, &vW, &vH);
+            TTF_DrawRendererText(gameCurrentPopulationUiText, rightEdge2 - vW, currentY);
+            currentY += 20.f;
+        };
+
+        // actual population
+        int curPop = (hoveredPopulationType == 0) ? player.currentPeasantryAmount
+                   : (hoveredPopulationType == 1) ? player.currentNobilityAmount
+                                                  : player.currentClergyAmount;
+        drawStatRow("Current Population", std::to_string(curPop), 210, 210, 210);
+
+        // base growth
+        drawStatRow("Base Birth Rate", "+" + std::to_string(baseBirth), 100, 220, 60);
+
+        // Bonus bâtiments (seulement si non-zéro)
+        if (buildingBonus != 0) {
+            bool good = (buildingBonus > 0);
+            drawStatRow("Building Bonus",
+                        (good ? "+" : "") + std::to_string(buildingBonus),
+                        good ? 100 : 220, good ? 220 : 60, 60);
+        }
+
+        // Multiplicator population
+        int multiplierPopulation = (int)((foodPopulationMultiplier - 1.0f) * 100.f);
+        bool multGood = (foodPopulationMultiplier >= 1.0f);
+        std::string multiplierPopulationStr = (multiplierPopulation >= 0 ? "+" : "") + std::to_string(multiplierPopulation) + "%";
+        drawStatRow("Population Growth Multiplier", multiplierPopulationStr,
+                    multGood ? 100 : 220, multGood ? 220 : 60, 60);
+
+        // effective Growth base + building * populationmultiplier from food
+        drawStatRow("After Bonuses Births", "+" + std::to_string(effectiveBirths), 100, 220, 60);
+
+        // dead people /red
+        drawStatRow("Death Rate", "-" + std::to_string(baseDeath), 220, 60, 60);
+
+        // separator
+        SDL_SetRenderDrawColor(renderer, 80, 70, 30, 200);
+        SDL_RenderLine(renderer, tooltipX + 5.f, currentY, tooltipX + tooltipW - 5.f, currentY);
+        currentY += 8.f;
+
+        // Changement net green if positive and red if negative
+        bool netPos = (netChange >= 0);
+        drawStatRow("Net Change / Turn",
+                    (netPos ? "+" : "") + std::to_string(netChange),
+                    netPos ? 100 : 220, netPos ? 220 : 60, 60);
+
+        }
 
 
 
@@ -5430,14 +5466,6 @@ public:
             player.foodStored = std::min(player.foodStored+9, player.foodStorage);
         }
 
-        // Re randomize the base Birth and death of each population after the end turn for a different outcome each turn.
-        player.basePeasantryBirth = 70 + rand() % 21;
-        player.basePeasantryDeath = 25 + rand() % 16;
-        player.baseNobilityBirth  = 8  + rand() % 13;
-        player.baseNobilityDeath  = 2  + rand() % 9;
-        player.baseClergyGrowth   = 1  + rand() % 5;
-        player.baseClergyDeath    = 1  + rand() % 4;
-
         //population increase each turn based on base random bonus + building bonus
         int buildingPeasantryBonus = 0;
         int buildingNobilityBonus = 0;
@@ -5476,6 +5504,14 @@ public:
         if (player.currentPeasantryAmount < 0) player.currentPeasantryAmount = 0;
         if (player.currentNobilityAmount < 0)  player.currentNobilityAmount = 0;
         if (player.currentClergyAmount < 0)    player.currentClergyAmount = 0;
+
+        // Re randomize the base Birth and death of each population after the end turn for a different outcome each turn.
+        player.basePeasantryBirth = 70 + rand() % 21;
+        player.basePeasantryDeath = 25 + rand() % 16;
+        player.baseNobilityBirth  = 8  + rand() % 13;
+        player.baseNobilityDeath  = 2  + rand() % 9;
+        player.baseClergyGrowth   = 1  + rand() % 5;
+        player.baseClergyDeath    = 1  + rand() % 4;
 
     // AI TURNS~!
     std::vector<FactionZone> turnOrder = { FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai };
