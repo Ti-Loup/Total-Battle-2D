@@ -4616,13 +4616,15 @@ SDL_RenderRect(renderer, &bg);
         if (hoveredPopulationType == 0) {
             TTF_SetTextWrapWidth(gameCurrentPopulationUiText, 0);
             //Descriptions
-            //Region
+            //Base Population
             TTF_SetTextString (gameCurrentPopulationUiText, "Region Base Population", 0);
             TTF_SetTextColor(gameCurrentPopulationUiText, 255, 255, 255, 255);
             TTF_DrawRendererText(gameCurrentPopulationUiText, tooltipX + 5.0f, currentY);
+            //Birth Rate
+            //Death Rate
+            //Building Growth Bonus
             //Famine
             //Rioting
-            //Population Growth
             //War Devastation
             //Recruitment and Replenishment
 
