@@ -4059,6 +4059,20 @@ private://constructor
             default: return 0;
         }
     }
+    //PopulationGrowth modifier based on Food
+    float GetFoodPopulationGrowthMultiplier() {
+        switch (filledSegs) {
+            case 6: return 2.0f; //200% BonusPG
+            case 5: return 1.0f; //100%
+            case 4: return 0.5f; //50%
+            case 3: return 0.8f;  // -20%
+            case 2: return 0.4f;  // -60%
+            case 1: return 0.0f;  // -100% No growth
+            default: return 1.0f;
+        }
+    }
+
+
     //MONEY HOVERED UI FR DETAILS OF INCOME/UPKEEP
     void RenderMoneyTooltip() {
     if (!bMouseOnMoneyIcon) return;
@@ -4600,7 +4614,7 @@ SDL_RenderRect(renderer, &bg);
         currentY += bonusH + lineSpacing;
 
         if (hoveredPopulationType == 0) {
-
+            TTF_SetTextWrapWidth(gameCurrentPopulationUiText, 0);
             //Descriptions
             //Region
             TTF_SetTextString (gameCurrentPopulationUiText, "Region Base Population", 0);
@@ -5418,14 +5432,27 @@ public:
                 buildingClergyBonus += building_data->clergyTrainedBonus;
             }
         }
-        // stock the net growth
-        player.nextTurnPeasantryAmount = (player.basePeasantryBirth - player.basePeasantryDeath) + buildingPeasantryBonus;
-        player.nextTurnNobilityAmount = (player.baseNobilityBirth  - player.baseNobilityDeath)  + buildingNobilityBonus;
-        player.nextTurnClergyAmount = (player.baseClergyGrowth   - player.baseClergyDeath)    + buildingClergyBonus;
+        float foodMultiplier = GetFoodPopulationGrowthMultiplier();
 
+        // Calcul global Birthrate (Base + buildings)multiplied by food Multiplier
+        int totalPeasantryBirths = (int)((float)(player.basePeasantryBirth + buildingPeasantryBonus) * foodMultiplier);
+        int totalNobilityBirths  = (int)((float)(player.baseNobilityBirth + buildingNobilityBonus) * foodMultiplier);
+        int totalClergyBirths    = (int)((float)(player.baseClergyGrowth + buildingClergyBonus) * foodMultiplier);
+
+        // net change with death
+        player.nextTurnPeasantryAmount = totalPeasantryBirths - player.basePeasantryDeath;
+        player.nextTurnNobilityAmount  = totalNobilityBirths  - player.baseNobilityDeath;
+        player.nextTurnClergyAmount    = totalClergyBirths    - player.baseClergyDeath;
+
+        // Added to current population
         player.currentPeasantryAmount += player.nextTurnPeasantryAmount;
-        player.currentNobilityAmount += player.nextTurnNobilityAmount;
-        player.currentClergyAmount += player.nextTurnClergyAmount;
+        player.currentNobilityAmount  += player.nextTurnNobilityAmount;
+        player.currentClergyAmount    += player.nextTurnClergyAmount;
+
+        // Population can't go lower than 0
+        if (player.currentPeasantryAmount < 0) player.currentPeasantryAmount = 0;
+        if (player.currentNobilityAmount < 0)  player.currentNobilityAmount = 0;
+        if (player.currentClergyAmount < 0)    player.currentClergyAmount = 0;
 
     // AI TURNS~!
     std::vector<FactionZone> turnOrder = { FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai };
