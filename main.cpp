@@ -4062,9 +4062,9 @@ private://constructor
     //PopulationGrowth modifier based on Food
     float GetFoodPopulationGrowthMultiplier() {
         switch (filledSegs) {
-            case 6: return 2.0f; //200% BonusPG
-            case 5: return 1.0f; //100%
-            case 4: return 0.5f; //50%
+            case 6: return 3.0f; //200% BonusPG
+            case 5: return 2.0f; //100%
+            case 4: return 1.5f; //50% bonus from base
             case 3: return 0.8f;  // -20%
             case 2: return 0.4f;  // -60%
             case 1: return 0.0f;  // -100% No growth
@@ -4633,10 +4633,16 @@ SDL_RenderRect(renderer, &bg);
             TTF_DrawRendererText(gameCurrentPopulationUiText, tooltipX +5.f, currentY + 50.f);
             std::string birthRatePeasantryStr = std::to_string(player.basePeasantryBirth);
             TTF_SetTextString(gameCurrentPopulationUiText, birthRatePeasantryStr.c_str() , 0);
-            TTF_SetTextColor(gameCurrentPopulationUiText, 255, 255, 255, 255);
+            TTF_SetTextColor(gameCurrentPopulationUiText, 0, 255, 0, 255);
             TTF_DrawRendererText(gameCurrentPopulationUiText,tooltipX + 240.f, currentY+ 50.f);
-
             //Death Rate
+            TTF_SetTextString(gameCurrentPopulationUiText, "Death Rate", 0);
+            TTF_SetTextColor(gameCurrentPopulationUiText, 255, 255, 255, 255);
+            TTF_DrawRendererText(gameCurrentPopulationUiText, tooltipX +5.f, currentY + 70.f);
+            std::string deathRatePeasantryStr = std::to_string(player.basePeasantryDeath);
+            TTF_SetTextString(gameCurrentPopulationUiText, deathRatePeasantryStr.c_str() , 0);
+            TTF_SetTextColor(gameCurrentPopulationUiText, 255, 0, 0, 255);
+            TTF_DrawRendererText(gameCurrentPopulationUiText,tooltipX + 240.f, currentY+ 70.f);
             //Building Growth Bonus
             //Famine
             //Rioting
