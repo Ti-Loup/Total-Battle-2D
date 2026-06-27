@@ -373,7 +373,7 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::Settlement_Capital_Samurai_T1, {"Small Town Capital",       "A growing Capital where merchants\nand farmers gather", 0, 0, 200,  0, 1, 1, 5, 0, 50, 0, 0, 0,BuildingType::Settlement_Capital_Samurai_T2});
     add(BuildingType::Settlement_Capital_Samurai_T2, {"Town Capital",      "Bustling streets and temples\nculture and military power.", 0, 0, 350,  0, 2, 1, 10, 0, 50, 0, 0, 0, BuildingType::Settlement_Capital_Samurai_T3});
     add(BuildingType::Settlement_Capital_Samurai_T3, {"City Capital",      "A wealthy Capital known for trade,\nculture and military power.", 0, 0, 550,  0, 3, 1, 15, 0, 50, 0, 0, 0, BuildingType::Settlement_Capital_Samurai_T4});
-    add(BuildingType::Settlement_Capital_Samurai_T4, {"Large City Capital",       "Great districts and noble estates\nshape the mighty city", 0, 0, 800,  0, 4, 1, 20, 0, 50, 0, 0, 0, BuildingType::Settlement_Capital_Samurai_T2});
+    add(BuildingType::Settlement_Capital_Samurai_T4, {"Large City Capital",       "Great districts and noble estates\nshape the mighty city", 0, 0, 800,  0, 4, 1, 20, 0, 50, 0, 0, 0, BuildingType::Settlement_Capital_Samurai_T5});
     add(BuildingType::Settlement_Capital_Samurai_T5, {"Shogun's Capital", "The glorious seat of the Shogun,\nruling the empire with honor.", 0, 0, 1100, 0, 5, 1, 40, 0, 50, 0, 0, 0, BuildingType::None});
 
     // ── KNIGHT ECONOMY ──
