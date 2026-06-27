@@ -35,6 +35,9 @@
  *---------------------------------------------
  * 0.2.5
  * WORLD EVENTS (plague, exceed food production, thunder) + SEASONS + DATE (12 turns a year) 3 turn per season
+ * Mini Map
+ * Event Button Under Mini map
+ * Fix camera never stop when touch edge
  * --------------------------------------------
  * 0.3.0
  * DIPLOMACY + RESSOURCE SETTLEMENTS/BUILDINGS
