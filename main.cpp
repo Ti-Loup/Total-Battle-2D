@@ -5817,12 +5817,34 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 if (!currentBd || currentBd->upgradesTo != bt) { SDL_Log("EXIT: invalid upgrade path, upgradesTo=%d, bt=%d", currentBd ? (int)currentBd->upgradesTo : -1, (int)bt); return SDL_APP_CONTINUE; }
             }
 
+            // Walk backwards to find the root of bt's upgrade chain
             bool alreadyBuilt = false;
-            for (const auto& existingBt : sel->settlementData.buildings) {
-                if (existingBt == bt) { alreadyBuilt = true; break; }
-            }
-            if (alreadyBuilt) { SDL_Log("EXIT: already built"); return SDL_APP_CONTINUE; }
+            {
+                const auto& buildDb = GetBuildingDatabase();
 
+                BuildingType chainRoot = bt;
+                for (bool changed = true; changed; ) {
+                    changed = false;
+                    for (const auto& [k, v] : buildDb) {
+                        if (v.upgradesTo == chainRoot) { chainRoot = k; changed = true; break; }
+                    }
+                }
+
+                // Walk the full chain forward and check every slot (except the target slot)
+                for (BuildingType c = chainRoot; c != BuildingType::None && !alreadyBuilt; ) {
+                    for (int cs = 1; cs < (int)sel->settlementData.buildings.size() && !alreadyBuilt; cs++) {
+                        if (cs == slotB) continue; // skip target slot
+                        if (sel->settlementData.buildings[cs] == c ||
+                            sel->settlementData.pendingBuildings[cs] == c)
+                            alreadyBuilt = true;
+                    }
+                    const BuildingData* d = GetBuildingData(c);
+                    c = (d && d->upgradesTo != BuildingType::None) ? d->upgradesTo : BuildingType::None;
+                }
+            }
+            if (alreadyBuilt) { SDL_Log("EXIT: building chain already exists in another slot"); return SDL_APP_CONTINUE; }
+
+            // Keep the block if exact type is already pending anywhere
             for (const auto& pb : sel->settlementData.pendingBuildings) {
                 if (pb == bt) { SDL_Log("EXIT: already being built"); return SDL_APP_CONTINUE; }
             }
