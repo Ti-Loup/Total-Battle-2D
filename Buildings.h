@@ -318,6 +318,25 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::KnightWareHouse_T3:
     case BuildingType::KnightWareHouse_T4:
     case BuildingType::KnightWareHouse_T5:
+    case BuildingType::KnightMint_T1:
+    case BuildingType::KnightMint_T2:
+    case BuildingType::KnightMint_T3:
+    case BuildingType::KnightTavern_T1:
+    case BuildingType::KnightIndustrialForge_T1:
+    case BuildingType::KnightIndustrialForge_T2:
+    case BuildingType::KnightIndustrialForge_T3:
+    case BuildingType::KnightCarpentry_T1:
+    case BuildingType::KnightCarpentry_T2:
+    case BuildingType::KnightCarpentry_T3:
+    case BuildingType::KnightArtisan_T1:
+    case BuildingType::KnightArtisan_T2:
+    case BuildingType::KnightArtisan_T3:
+    case BuildingType::KnightForge_T2:
+    case BuildingType::KnightForge_T3:
+    case BuildingType::KnightForge_T4:
+    case BuildingType::KnightJeweller_T3:
+    case BuildingType::KnightJeweller_T4:
+    case BuildingType::KnightJeweller_T5:
     case BuildingType::SlaveMarket_T1:
     case BuildingType::SlaveMarket_T2:
     case BuildingType::SlaveMarket_T3:
@@ -330,6 +349,25 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::VikingWareHouse_T3:
     case BuildingType::VikingWareHouse_T4:
     case BuildingType::VikingWareHouse_T5:
+    case BuildingType::VikingMint_T1:
+    case BuildingType::VikingMint_T2:
+    case BuildingType::VikingMint_T3:
+    case BuildingType::VikingTavern_T1:
+    case BuildingType::VikingIndustrialForge_T1:
+    case BuildingType::VikingIndustrialForge_T2:
+    case BuildingType::VikingIndustrialForge_T3:
+    case BuildingType::VikingCarpentry_T1:
+    case BuildingType::VikingCarpentry_T2:
+    case BuildingType::VikingCarpentry_T3:
+    case BuildingType::VikingArtisan_T1:
+    case BuildingType::VikingArtisan_T2:
+    case BuildingType::VikingArtisan_T3:
+    case BuildingType::VikingForge_T2:
+    case BuildingType::VikingForge_T3:
+    case BuildingType::VikingForge_T4:
+    case BuildingType::VikingJeweller_T3:
+    case BuildingType::VikingJeweller_T4:
+    case BuildingType::VikingJeweller_T5:
     case BuildingType::Market_T1:
     case BuildingType::Market_T2:
     case BuildingType::Market_T3:
@@ -342,6 +380,25 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::SamuraiWareHouse_T3:
     case BuildingType::SamuraiWareHouse_T4:
     case BuildingType::SamuraiWareHouse_T5:
+    case BuildingType::SamuraiMint_T1:
+    case BuildingType::SamuraiMint_T2:
+    case BuildingType::SamuraiMint_T3:
+    case BuildingType::SamuraiTavern_T1:
+    case BuildingType::SamuraiIndustrialForge_T1:
+    case BuildingType::SamuraiIndustrialForge_T2:
+    case BuildingType::SamuraiIndustrialForge_T3:
+    case BuildingType::SamuraiCarpentry_T1:
+    case BuildingType::SamuraiCarpentry_T2:
+    case BuildingType::SamuraiCarpentry_T3:
+    case BuildingType::SamuraiArtisan_T1:
+    case BuildingType::SamuraiArtisan_T2:
+    case BuildingType::SamuraiArtisan_T3:
+    case BuildingType::SamuraiForge_T2:
+    case BuildingType::SamuraiForge_T3:
+    case BuildingType::SamuraiForge_T4:
+    case BuildingType::SamuraiJeweller_T3:
+    case BuildingType::SamuraiJeweller_T4:
+    case BuildingType::SamuraiJeweller_T5:
         return BuildingCategory::Economy;
 
     case BuildingType::Church_T1:
@@ -440,6 +497,14 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::Settlement_Capital_Samurai_T5, {"Shogun's Capital", "The glorious seat of the Shogun,\nruling the empire with honor.", 0, 0, 1100, 0, 5, 1, 40, 0, 50, 0, 0, 0, BuildingType::None});
 
     // ── KNIGHT ECONOMY ──
+    add(BuildingType::KnightWareHouse_T3, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 3, 5, 0, 0, 25, 0, 0, 0, BuildingType::KnightWareHouse_T4}); //store 25 food
+    add(BuildingType::KnightWareHouse_T4, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 4, 5, 0, 0, 50, 0, 0, 0, BuildingType::KnightWareHouse_T5}); // store 50 food
+    add(BuildingType::KnightWareHouse_T5, {"Great Warehouse", "All goods can be stored,\nsafe from the weather", 1000, 80, 0, 0, 5, 7, 0, 0, 75, 0, 0, 0, BuildingType::None}); // store 75 food
+    add(BuildingType::KnightMint_T1, {"Mint", "Coins hold power beyond wealth.\nThey are legitimacy.\nThey are loyalty.", 600, 5, 0, 0, 1, 11, 0, 0, 0, 0, 0, 0, BuildingType::KnightMint_T2}); 
+    add(BuildingType::KnightMint_T2, {"Royal Mint", "When your face is everywhere,\nthere can be no doubt \nwho rules.", 750, 10, 0, 0, 2, 4, 0, 0, 0, 0, 0, 0, BuildingType::KnightMint_T3}); 
+    add(BuildingType::KnightMint_T3, {"Treasury", "The coffers of the state, from \nwhich funds are drawn \naccording to need and favour.", 900, 15, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, BuildingType::None});
+    add(BuildingType::KnightTavern_T1, {"Tavern", "An intelligent man is sometimes \nforced to be intoxicated to \nspend time with fools.", 900, 0, 20, 3, 1,6, 0, 0, 0, 0, 0, 0, BuildingType::None}); 
+
     add(BuildingType::Economy_T1, {"Small Farm shop", "Basic farmland.",        100,  0,  20,  0, 1, 2, 0, 0, 0, 0, 0, 0, BuildingType::Economy_T2});
     add(BuildingType::Economy_T2, {"Village market", "Established farmland.",   250,  0,  35,  0, 2, 3, 0, 0, 0, 0, 0, 0, BuildingType::Economy_T3});
     add(BuildingType::Economy_T3, {"Strong market", "Rich agricultural land.", 500, 0, 50,  0, 3, 4, 0, 0, 0, 0, 0, 0, BuildingType::None});
@@ -449,9 +514,23 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::NobilityEstate_T1,  {"Small private farm", "Grows population.", 80,  0,  15,  2, 1, 2, 0, 6, 0, 0, 3, 0, BuildingType::NobilityEstate_T2});//Nobility generate less food but more money
     add(BuildingType::NobilityEstate_T2,  {"Lord's Fields", "Grows population faster.", 200, 0,  30,  4, 2, 3, 0, 10, 0, 0, 5, 0, BuildingType::NobilityEstate_T3});
     add(BuildingType::NobilityEstate_T3,  {"Grand Manor Farm", "Major growth bonus.", 400, 0, 45,  6, 3, 4, 0, 14, 0, 0, 8, 0, BuildingType::None});
-    add(BuildingType::KnightWareHouse_T3, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 3, 5, 0, 0, 25, 0, 0, 0, BuildingType::KnightWareHouse_T4}); //store 25 food
-    add(BuildingType::KnightWareHouse_T4, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 4, 5, 0, 0, 50, 0, 0, 0, BuildingType::KnightWareHouse_T5}); // store 50 food
-    add(BuildingType::KnightWareHouse_T5, {"Great Warehouse", "All goods can be stored,\nsafe from the weather", 1000, 80, 0, 0, 5, 7, 0, 0, 75, 0, 0, 0, BuildingType::None}); // store 75 food
+
+    add(BuildingType::KnightIndustrialForge_T1, {"Small Forge", "Whatever his medium, the\ncraftsman has the skills required to\nfashion it to a saleable standard.", 1100, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, BuildingType::KnightIndustrialForge_T2 });
+    add(BuildingType::KnightIndustrialForge_T2, {"Commercial Forge", "Organising crafts production into\n a pipeline is important when massproducing\nitems for sales at home or\nfor exports.", 1500, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::KnightIndustrialForge_T3 });
+    add(BuildingType::KnightIndustrialForge_T3, {"Metalworking District", "Over time, master craftsmen\ngain a reputation, which must be\nmaintained if supply and demand are to\nremain abreast.", 1900, 0, 0, 0, 3, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::KnightCarpentry_T1, {"Carpenter", "Natural shelter from the elements\ncan be found here, as well as\nprecious timber reserves.", 450, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::KnightCarpentry_T2});
+    add(BuildingType::KnightCarpentry_T2, {"Woodshop", "The forest itself provides the\n handle for the woodcutter's axe.", 700, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::KnightCarpentry_T3 });
+    add(BuildingType::KnightCarpentry_T3, {"Carpentry Industry", "From which kingdoms are built, fueld,\nand transported.", 850, 0, 0, 0, 3, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::KnightArtisan_T1, {"Artisan", "If you've got made-goods to sell,\nthe chances are that this man\ncan find you a buyer.", 750, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::KnightArtisan_T2});
+    add(BuildingType::KnightArtisan_T2, {"Craft Workshop", "If you travel far enough, there's\nalways a buyer willing to buy\nor barter for your wares.", 900, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, BuildingType::KnightArtisan_T3 });
+    add(BuildingType::KnightArtisan_T3, {"Crafts Industry", "I have buyers lined up across the\nkingdom and beyond, and the vessels to get\nthe goods where they need to be.", 1050, 0, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::KnightForge_T2, {"Blacksmith", "What is wrought by the blacksmith\nwill last a lifetime.", 850, 0, 0, 0, 2, 8, 0, 0, 0, 0, 0, 0, BuildingType::KnightForge_T3});
+    add(BuildingType::KnightForge_T3, {"Forge", "The modern world is born\nof the forge.", 1000, 0, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, BuildingType::KnightForge_T4 });
+    add(BuildingType::KnightForge_T4, {"Great Forge", "Incredible temperatures allow\nmetals and alloys to be shaped with\nthe greatest of ease.", 1200, 0, 0, 0, 4, 7, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::KnightJeweller_T3, {"Jewellers", "The rare skills necessary to work\nprecious metals ensure that\nthose who have them are never\nout of work.", 750, 0, 0, 0, 3, 9, 0, 0, 0, 0, 0, 0, BuildingType::KnightJeweller_T4});
+    add(BuildingType::KnightJeweller_T4, {"Master jewellers", "To take the necessary and make\nit special? Now that takes skill", 900, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, BuildingType::KnightJeweller_T5 });
+    add(BuildingType::KnightJeweller_T5, {"Jewelley Industry", "As pure function has given way\nto ornate forms, so the artisan\njeweller has risen to be master of his craft.", 1050, 0, 0, 0, 5, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
+
     // ── KNIGHT MILITARY ──
     add(BuildingType::Barracks_T1,     {"Militia Grounds",  "Trains basic infantry.",   150, 10, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, BuildingType::Barracks_T2});
     add(BuildingType::Barracks_T2,     {"Training Grounds", "Trains medium infantry.",  300, 20, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, BuildingType::Barracks_T3});
@@ -499,18 +578,41 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::ReinforcedDrakkar_T5, {"Legendary Drakkar", "Unstoppable fleet.",  1400, 45, 0, 12, 5, 6, 25, 0, 0, 0, 0, 0, BuildingType::None});
 
     // ── VIKING ECONOMY ──
-    add(BuildingType::SlaveMarket_T1, {"Slave Market", "Income from raids.", 100,  0,  20,  0, 1, 2, 0, 0, 0, 0, 0, 0, BuildingType::SlaveMarket_T2});
-    add(BuildingType::SlaveMarket_T2, {"Slave Medium Market", "More raid income.", 250,  0,  35,  0, 2, 3, 0, 0, 0, 0, 0, 0, BuildingType::SlaveMarket_T3});
-    add(BuildingType::SlaveMarket_T3, {"Grand Slave Market", "Major raid income.", 500, 0, 50,  0, 3, 4, 0, 0, 0, 0, 0, 0, BuildingType::None});
-    add(BuildingType::PeasantryVikingGrowth_T1,  {"Viking Village Market",    "Grows peasant population.", 195,  0,  15,  2, 1, 2, 0, 13, 0, 5, 0, 0, BuildingType::PeasantryVikingGrowth_T2});
-    add(BuildingType::PeasantryVikingGrowth_T2,  {"Town Market",       "Grows population faster.", 225, 0,  20,  4, 2, 3, 0, 20, 0, 10, 0, 0, BuildingType::PeasantryVikingGrowth_T3});
-    add(BuildingType::PeasantryVikingGrowth_T3,  {"Grand Market",      "Major growth bonus.", 270, 0, 25,  6, 3, 4, 0, 26, 0,  30, 0, 0, BuildingType::None});
-    add(BuildingType::NobilityVikingEstate_T1,  {"Viking Village Market",    "Grows population.", 80,  0,  15,  2, 1, 2, 0, 6, 0, 0, 3, 0, BuildingType::NobilityVikingEstate_T2});
-    add(BuildingType::NobilityVikingEstate_T2,  {"Town Market",       "Grows population faster.", 200, 0,  30,  4, 2, 3, 0, 10, 0,  0, 5, 0, BuildingType::NobilityVikingEstate_T3});
-    add(BuildingType::NobilityVikingEstate_T3,  {"Grand Market",      "Major growth bonus.", 400, 0, 45,  6, 3, 4, 0, 14, 0, 0, 8, 0, BuildingType::None});
+
     add(BuildingType::VikingWareHouse_T3, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 3, 5, 0, 0, 25, 0, 0, 0, BuildingType::VikingWareHouse_T4}); //store 25 food
     add(BuildingType::VikingWareHouse_T4, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 4, 5, 0, 0, 50, 0, 0, 0, BuildingType::VikingWareHouse_T5}); // store 50 food
     add(BuildingType::VikingWareHouse_T5, {"Great Warehouse", "All goods can be stored,\nsafe from the weather", 1000, 80, 0, 0, 5, 7, 0, 0, 75, 0, 0, 0, BuildingType::None}); // store 75 food
+    add(BuildingType::VikingMint_T1, {"Mint", "Coins hold power beyond wealth.\nThey are legitimacy.\nThey are loyalty.", 600, 5, 0, 0, 1, 11, 0, 0, 0, 0, 0, 0, BuildingType::VikingMint_T2}); 
+    add(BuildingType::VikingMint_T2, {"Royal Mint", "When your face is everywhere,\nthere can be no doubt \nwho rules.", 750, 10, 0, 0, 2, 4, 0, 0, 0, 0, 0, 0, BuildingType::VikingMint_T3}); 
+    add(BuildingType::VikingMint_T3, {"Treasury", "The coffers of the state, from \nwhich funds are drawn \naccording to need and favour.", 900, 15, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, BuildingType::None});
+    add(BuildingType::VikingTavern_T1, {"Tavern", "An intelligent man is sometimes \nforced to be intoxicated to \nspend time with fools.", 900, 0, 20, 3, 1,6, 0, 0, 0, 0, 0, 0, BuildingType::None}); 
+
+    add(BuildingType::SlaveMarket_T1, {"Slave Market", "Income from raids.", 100,  0,  20,  0, 1, 2, 0, 0, 0, 0, 0, 0, BuildingType::SlaveMarket_T2});
+    add(BuildingType::SlaveMarket_T2, {"Slave Medium Market", "More raid income.", 250,  0,  35,  0, 2, 3, 0, 0, 0, 0, 0, 0, BuildingType::SlaveMarket_T3});
+    add(BuildingType::SlaveMarket_T3, {"Grand Slave Market", "Major raid income.", 500, 0, 50,  0, 3, 4, 0, 0, 0, 0, 0, 0, BuildingType::None});
+    add(BuildingType::PeasantryVikingGrowth_T1,  {"Viking Village Market", "Grows peasant population.", 195,  0,  15,  2, 1, 2, 0, 13, 0, 5, 0, 0, BuildingType::PeasantryVikingGrowth_T2});
+    add(BuildingType::PeasantryVikingGrowth_T2,  {"Town Market", "Grows population faster.", 225, 0,  20,  4, 2, 3, 0, 20, 0, 10, 0, 0, BuildingType::PeasantryVikingGrowth_T3});
+    add(BuildingType::PeasantryVikingGrowth_T3,  {"Grand Market", "Major growth bonus.", 270, 0, 25,  6, 3, 4, 0, 26, 0,  30, 0, 0, BuildingType::None});
+    add(BuildingType::NobilityVikingEstate_T1,  {"Viking Village Market", "Grows population.", 80,  0,  15,  2, 1, 2, 0, 6, 0, 0, 3, 0, BuildingType::NobilityVikingEstate_T2});
+    add(BuildingType::NobilityVikingEstate_T2,  {"Town Market", "Grows population faster.", 200, 0,  30,  4, 2, 3, 0, 10, 0,  0, 5, 0, BuildingType::NobilityVikingEstate_T3});
+    add(BuildingType::NobilityVikingEstate_T3,  {"Grand Market", "Major growth bonus.", 400, 0, 45,  6, 3, 4, 0, 14, 0, 0, 8, 0, BuildingType::None});
+
+    add(BuildingType::VikingIndustrialForge_T1, {"Small Forge", "Whatever his medium, the\ncraftsman has the skills required to\nfashion it to a saleable standard.", 1100, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, BuildingType::VikingIndustrialForge_T2 });
+    add(BuildingType::VikingIndustrialForge_T2, {"Commercial Forge", "Organising crafts production into\n a pipeline is important when massproducing\nitems for sales at home or\nfor exports.", 1500, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::VikingIndustrialForge_T3 });
+    add(BuildingType::VikingIndustrialForge_T3, {"Metalworking District", "Over time, master craftsmen\ngain a reputation, which must be\nmaintained if supply and demand are to\nremain abreast.", 1900, 0, 0, 0, 3, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::VikingCarpentry_T1, {"Carpenter", "Natural shelter from the elements\ncan be found here, as well as\nprecious timber reserves.", 450, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::VikingCarpentry_T2});
+    add(BuildingType::VikingCarpentry_T2, {"Woodshop", "The forest itself provides the\n handle for the woodcutter's axe.", 700, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::VikingCarpentry_T3 });
+    add(BuildingType::VikingCarpentry_T3, {"Carpentry Industry", "From which kingdoms are built, fueld,\nand transported.", 850, 0, 0, 0, 3, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::VikingArtisan_T1, {"Artisan", "If you've got made-goods to sell,\nthe chances are that this man\ncan find you a buyer.", 750, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::VikingArtisan_T2});
+    add(BuildingType::VikingArtisan_T2, {"Craft Workshop", "If you travel far enough, there's\nalways a buyer willing to buy\nor barter for your wares.", 900, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, BuildingType::VikingArtisan_T3 });
+    add(BuildingType::VikingArtisan_T3, {"Crafts Industry", "I have buyers lined up across the\nkingdom and beyond, and the vessels to get\nthe goods where they need to be.", 1050, 0, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::VikingForge_T2, {"Blacksmith", "What is wrought by the blacksmith\nwill last a lifetime.", 850, 0, 0, 0, 2, 8, 0, 0, 0, 0, 0, 0, BuildingType::VikingForge_T3});
+    add(BuildingType::VikingForge_T3, {"Forge", "The modern world is born\nof the forge.", 1000, 0, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, BuildingType::VikingForge_T4 });
+    add(BuildingType::VikingForge_T4, {"Great Forge", "Incredible temperatures allow\nmetals and alloys to be shaped with\nthe greatest of ease.", 1200, 0, 0, 0, 4, 7, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::VikingJeweller_T3, {"Jewellers", "The rare skills necessary to work\nprecious metals ensure that\nthose who have them are never\nout of work.", 750, 0, 0, 0, 3, 9, 0, 0, 0, 0, 0, 0, BuildingType::VikingJeweller_T4});
+    add(BuildingType::VikingJeweller_T4, {"Master jewellers", "To take the necessary and make\nit special? Now that takes skill", 900, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, BuildingType::VikingJeweller_T5 });
+    add(BuildingType::VikingJeweller_T5, {"Jewelley Industry", "As pure function has given way\nto ornate forms, so the artisan\njeweller has risen to be master of his craft.", 1050, 0, 0, 0, 5, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    
     // ── VIKING RELIGION ──
     add(BuildingType::Shrine_T1,          {"Shrine",          "Pleases the gods.",        100,  5, 0,  0, 1, 2, 0, 0, 0, 0, 0, 1, BuildingType::Shrine_T2});
     add(BuildingType::Shrine_T2,          {"Temple",          "Greater divine favor.",    250, 10, 0, 1, 2, 3, 0, 0, 0, 0, 0, 3, BuildingType::Shrine_T3});
@@ -542,6 +644,15 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::FortifiedCastle_T5, {"Impregnable Keep", "Unbreachable walls.",  1400, 45, 0, 12, 5, 6, 25, 0, 0, 0, 0, 0, BuildingType::None});
 
     // ── SAMURAI ECONOMY ──
+
+    add(BuildingType::SamuraiWareHouse_T3, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 3, 5, 0, 0, 25, 0, 0, 0, BuildingType::SamuraiWareHouse_T4}); //store 25 food
+    add(BuildingType::SamuraiWareHouse_T4, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 4, 5, 0, 0, 50, 0, 0, 0, BuildingType::SamuraiWareHouse_T5}); // store 50 food
+    add(BuildingType::SamuraiWareHouse_T5, {"Great Warehouse", "All goods can be stored,\nsafe from the weather", 1000, 80, 0, 0, 5, 7, 0, 0, 75, 0, 0, 0, BuildingType::None}); // store 75 food
+    add(BuildingType::SamuraiMint_T1, {"Mint", "Coins hold power beyond wealth.\nThey are legitimacy.\nThey are loyalty.", 600, 5, 0, 0, 1, 11, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiMint_T2});
+    add(BuildingType::SamuraiMint_T2, {"Royal Mint", "When your face is everywhere,\nthere can be no doubt \nwho rules.", 750, 10, 0, 0, 2, 4, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiMint_T3}); 
+    add(BuildingType::SamuraiMint_T3, {"Treasury", "The coffers of the state, from \nwhich funds are drawn \naccording to need and favour.", 900, 15, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, BuildingType::None});
+    add(BuildingType::SamuraiTavern_T1, {"Tavern", "An intelligent man is sometimes \nforced to be intoxicated to \nspend time with fools.", 900, 0, 20, 3, 1,6, 0, 0, 0, 0, 0, 0, BuildingType::None}); 
+
     add(BuildingType::Market_T1, {"Samurai Village Market", "Basic trade.", 100,  0,  20,  0, 1, 2, 0, 0, 0, 0, 0, 0, BuildingType::Market_T2});
     add(BuildingType::Market_T2, {"Town Market",    "Established trade.",  250,  0,  35,  0, 2, 3, 0, 0, 0, 0, 0, 0, BuildingType::Market_T3});
     add(BuildingType::Market_T3, {"Grand Market",   "Rich trade routes.", 500, 0, 50,  0, 3, 4, 0, 0, 0, 0, 0, 0, BuildingType::None});
@@ -551,9 +662,23 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::NobilitySamuraiEstate_T1,  {"Samurai Village Market",    "Grows population.", 80,  0,  15,  2, 1, 2, 0, 6, 0, 0, 3, 0, BuildingType::NobilitySamuraiEstate_T2});
     add(BuildingType::NobilitySamuraiEstate_T2,  {"Town Market",       "Grows population faster.", 200, 0,  30,  4, 2, 3, 0, 10, 0, 0, 5, 0, BuildingType::NobilitySamuraiEstate_T3});
     add(BuildingType::NobilitySamuraiEstate_T3,  {"Grand Market",      "Major growth bonus.", 400, 0, 45,  6, 3, 4, 0, 14, 0, 0, 8, 0, BuildingType::None});
-    add(BuildingType::SamuraiWareHouse_T3, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 3, 5, 0, 0, 25, 0, 0, 0, BuildingType::SamuraiWareHouse_T4}); //store 25 food
-    add(BuildingType::SamuraiWareHouse_T4, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 4, 5, 0, 0, 50, 0, 0, 0, BuildingType::SamuraiWareHouse_T5}); // store 50 food
-    add(BuildingType::SamuraiWareHouse_T5, {"Great Warehouse", "All goods can be stored,\nsafe from the weather", 1000, 80, 0, 0, 5, 7, 0, 0, 75, 0, 0, 0, BuildingType::None}); // store 75 food
+    
+    add(BuildingType::SamuraiIndustrialForge_T1, {"Small Forge", "Whatever his medium, the\ncraftsman has the skills required to\nfashion it to a saleable standard.", 1100, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiIndustrialForge_T2 });
+    add(BuildingType::SamuraiIndustrialForge_T2, {"Commercial Forge", "Organising crafts production into\n a pipeline is important when massproducing\nitems for sales at home or\nfor exports.", 1500, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiIndustrialForge_T3 });
+    add(BuildingType::SamuraiIndustrialForge_T3, {"Metalworking District", "Over time, master craftsmen\ngain a reputation, which must be\nmaintained if supply and demand are to\nremain abreast.", 1900, 0, 0, 0, 3, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::SamuraiCarpentry_T1, {"Carpenter", "Natural shelter from the elements\ncan be found here, as well as\nprecious timber reserves.", 450, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiCarpentry_T2});
+    add(BuildingType::SamuraiCarpentry_T2, {"Woodshop", "The forest itself provides the\n handle for the woodcutter's axe.", 700, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiCarpentry_T3 });
+    add(BuildingType::SamuraiCarpentry_T3, {"Carpentry Industry", "From which kingdoms are built, fueld,\nand transported.", 850, 0, 0, 0, 3, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::SamuraiArtisan_T1, {"Artisan", "If you've got made-goods to sell,\nthe chances are that this man\ncan find you a buyer.", 750, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiArtisan_T2});
+    add(BuildingType::SamuraiArtisan_T2, {"Craft Workshop", "If you travel far enough, there's\nalways a buyer willing to buy\nor barter for your wares.", 900, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiArtisan_T3 });
+    add(BuildingType::SamuraiArtisan_T3, {"Crafts Industry", "I have buyers lined up across the\nkingdom and beyond, and the vessels to get\nthe goods where they need to be.", 1050, 0, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::SamuraiForge_T2, {"Blacksmith", "What is wrought by the blacksmith\nwill last a lifetime.", 850, 0, 0, 0, 2, 8, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiForge_T3});
+    add(BuildingType::SamuraiForge_T3, {"Forge", "The modern world is born\nof the forge.", 1000, 0, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiForge_T4 });
+    add(BuildingType::SamuraiForge_T4, {"Great Forge", "Incredible temperatures allow\nmetals and alloys to be shaped with\nthe greatest of ease.", 1200, 0, 0, 0, 4, 7, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::SamuraiJeweller_T3, {"Jewellers", "The rare skills necessary to work\nprecious metals ensure that\nthose who have them are never\nout of work.", 750, 0, 0, 0, 3, 9, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiJeweller_T4});
+    add(BuildingType::SamuraiJeweller_T4, {"Master jewellers", "To take the necessary and make\nit special? Now that takes skill", 900, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiJeweller_T5 });
+    add(BuildingType::SamuraiJeweller_T5, {"Jewelley Industry", "As pure function has given way\nto ornate forms, so the artisan\njeweller has risen to be master of his craft.", 1050, 0, 0, 0, 5, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
+
     // ── SAMURAI RELIGION ──
     add(BuildingType::Hospital_T1, {"Field Hospital", "Heals troops.",       100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 0, BuildingType::Hospital_T2});
     add(BuildingType::Hospital_T2, {"Hospital",       "Better healing.",     250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 0, BuildingType::Hospital_T3});
@@ -606,11 +731,14 @@ inline std::vector<BuildingType> GetBuildingsForCategory(BuildingCategory catego
 
         case BuildingCategory::Economy:
             if (faction == FactionZone::Knight)
-                results = {BuildingType::KnightWareHouse_T3, BuildingType::Economy_T1, BuildingType::PeasantryGrowth_T1, BuildingType::NobilityEstate_T1};
+                results = {BuildingType::KnightWareHouse_T3,BuildingType::KnightMint_T1, BuildingType::KnightTavern_T1, BuildingType::Economy_T1, BuildingType::PeasantryGrowth_T1, BuildingType::NobilityEstate_T1,
+             BuildingType::KnightIndustrialForge_T1, BuildingType::KnightCarpentry_T1, BuildingType::KnightArtisan_T1, BuildingType:: KnightForge_T2, BuildingType::KnightJeweller_T3};
             else if (faction == FactionZone::Viking)
-                results = {BuildingType::VikingWareHouse_T3, BuildingType::SlaveMarket_T1, BuildingType::PeasantryVikingGrowth_T1, BuildingType::NobilityVikingEstate_T1};
+                results = {BuildingType::VikingWareHouse_T3,BuildingType::VikingMint_T1, BuildingType::VikingTavern_T1, BuildingType::SlaveMarket_T1, BuildingType::PeasantryVikingGrowth_T1, BuildingType::NobilityVikingEstate_T1,
+            BuildingType::VikingIndustrialForge_T1, BuildingType::VikingCarpentry_T1, BuildingType::VikingArtisan_T1, BuildingType:: VikingForge_T2, BuildingType::VikingJeweller_T3};
             else if (faction == FactionZone::Samurai)
-                results = {BuildingType::SamuraiWareHouse_T3, BuildingType::Market_T1, BuildingType::PeasantrySamuraiGrowth_T1, BuildingType::NobilitySamuraiEstate_T1};
+                results = {BuildingType::SamuraiWareHouse_T3, BuildingType::SamuraiMint_T1, BuildingType::SamuraiTavern_T1, BuildingType::Market_T1, BuildingType::PeasantrySamuraiGrowth_T1, BuildingType::NobilitySamuraiEstate_T1,
+            BuildingType::SamuraiIndustrialForge_T1, BuildingType::SamuraiCarpentry_T1, BuildingType::SamuraiArtisan_T1, BuildingType:: SamuraiForge_T2, BuildingType::SamuraiJeweller_T3};
             break;
 
         case BuildingCategory::Religion:
