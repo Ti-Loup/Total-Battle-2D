@@ -65,10 +65,8 @@ KnightTavern_T1,
     //Industry
 KnightIndustrialForge_T1,
 KnightIndustrialForge_T2,
-KnightIndustrialForge_T3,
 KnightCarpentry_T1,
 KnightCarpentry_T2,
-KnightCarpentry_T3,
 KnightArtisan_T1,
 KnightArtisan_T2,
 KnightArtisan_T3,
@@ -133,10 +131,8 @@ VikingTavern_T1,
     //Industry
 VikingIndustrialForge_T1,
 VikingIndustrialForge_T2,
-VikingIndustrialForge_T3,
 VikingCarpentry_T1,
 VikingCarpentry_T2,
-VikingCarpentry_T3,
 VikingArtisan_T1,
 VikingArtisan_T2,
 VikingArtisan_T3,
@@ -208,10 +204,8 @@ SamuraiTavern_T1,
     //Industry
 SamuraiIndustrialForge_T1,
 SamuraiIndustrialForge_T2,
-SamuraiIndustrialForge_T3,
 SamuraiCarpentry_T1,
 SamuraiCarpentry_T2,
-SamuraiCarpentry_T3,
 SamuraiArtisan_T1,
 SamuraiArtisan_T2,
 SamuraiArtisan_T3,
@@ -324,10 +318,8 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::KnightTavern_T1:
     case BuildingType::KnightIndustrialForge_T1:
     case BuildingType::KnightIndustrialForge_T2:
-    case BuildingType::KnightIndustrialForge_T3:
     case BuildingType::KnightCarpentry_T1:
     case BuildingType::KnightCarpentry_T2:
-    case BuildingType::KnightCarpentry_T3:
     case BuildingType::KnightArtisan_T1:
     case BuildingType::KnightArtisan_T2:
     case BuildingType::KnightArtisan_T3:
@@ -355,10 +347,8 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::VikingTavern_T1:
     case BuildingType::VikingIndustrialForge_T1:
     case BuildingType::VikingIndustrialForge_T2:
-    case BuildingType::VikingIndustrialForge_T3:
     case BuildingType::VikingCarpentry_T1:
     case BuildingType::VikingCarpentry_T2:
-    case BuildingType::VikingCarpentry_T3:
     case BuildingType::VikingArtisan_T1:
     case BuildingType::VikingArtisan_T2:
     case BuildingType::VikingArtisan_T3:
@@ -386,10 +376,8 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::SamuraiTavern_T1:
     case BuildingType::SamuraiIndustrialForge_T1:
     case BuildingType::SamuraiIndustrialForge_T2:
-    case BuildingType::SamuraiIndustrialForge_T3:
     case BuildingType::SamuraiCarpentry_T1:
     case BuildingType::SamuraiCarpentry_T2:
-    case BuildingType::SamuraiCarpentry_T3:
     case BuildingType::SamuraiArtisan_T1:
     case BuildingType::SamuraiArtisan_T2:
     case BuildingType::SamuraiArtisan_T3:
@@ -516,11 +504,9 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::NobilityEstate_T3,  {"Grand Manor Farm", "Major growth bonus.", 400, 0, 45,  6, 3, 4, 0, 14, 0, 0, 8, 0, BuildingType::None});
 
     add(BuildingType::KnightIndustrialForge_T1, {"Small Forge", "Whatever his medium, the\ncraftsman has the skills required to\nfashion it to a saleable standard.", 1100, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, BuildingType::KnightIndustrialForge_T2 });
-    add(BuildingType::KnightIndustrialForge_T2, {"Commercial Forge", "Organising crafts production into\n a pipeline is important when massproducing\nitems for sales at home or\nfor exports.", 1500, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::KnightIndustrialForge_T3 });
-    add(BuildingType::KnightIndustrialForge_T3, {"Metalworking District", "Over time, master craftsmen\ngain a reputation, which must be\nmaintained if supply and demand are to\nremain abreast.", 1900, 0, 0, 0, 3, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::KnightIndustrialForge_T2, {"Commercial Forge", "Organising crafts production into\n a pipeline is important when massproducing\nitems for sales at home or\nfor exports.", 1500, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
     add(BuildingType::KnightCarpentry_T1, {"Carpenter", "Natural shelter from the elements\ncan be found here, as well as\nprecious timber reserves.", 450, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::KnightCarpentry_T2});
-    add(BuildingType::KnightCarpentry_T2, {"Woodshop", "The forest itself provides the\n handle for the woodcutter's axe.", 700, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::KnightCarpentry_T3 });
-    add(BuildingType::KnightCarpentry_T3, {"Carpentry Industry", "From which kingdoms are built, fueld,\nand transported.", 850, 0, 0, 0, 3, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::KnightCarpentry_T2, {"Woodshop", "The forest itself provides the\n handle for the woodcutter's axe.", 700, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
     add(BuildingType::KnightArtisan_T1, {"Artisan", "If you've got made-goods to sell,\nthe chances are that this man\ncan find you a buyer.", 750, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::KnightArtisan_T2});
     add(BuildingType::KnightArtisan_T2, {"Craft Workshop", "If you travel far enough, there's\nalways a buyer willing to buy\nor barter for your wares.", 900, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, BuildingType::KnightArtisan_T3 });
     add(BuildingType::KnightArtisan_T3, {"Crafts Industry", "I have buyers lined up across the\nkingdom and beyond, and the vessels to get\nthe goods where they need to be.", 1050, 0, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, BuildingType::None });
@@ -598,11 +584,9 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::NobilityVikingEstate_T3,  {"Grand Market", "Major growth bonus.", 400, 0, 45,  6, 3, 4, 0, 14, 0, 0, 8, 0, BuildingType::None});
 
     add(BuildingType::VikingIndustrialForge_T1, {"Small Forge", "Whatever his medium, the\ncraftsman has the skills required to\nfashion it to a saleable standard.", 1100, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, BuildingType::VikingIndustrialForge_T2 });
-    add(BuildingType::VikingIndustrialForge_T2, {"Commercial Forge", "Organising crafts production into\n a pipeline is important when massproducing\nitems for sales at home or\nfor exports.", 1500, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::VikingIndustrialForge_T3 });
-    add(BuildingType::VikingIndustrialForge_T3, {"Metalworking District", "Over time, master craftsmen\ngain a reputation, which must be\nmaintained if supply and demand are to\nremain abreast.", 1900, 0, 0, 0, 3, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::VikingIndustrialForge_T2, {"Commercial Forge", "Organising crafts production into\n a pipeline is important when massproducing\nitems for sales at home or\nfor exports.", 1500, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
     add(BuildingType::VikingCarpentry_T1, {"Carpenter", "Natural shelter from the elements\ncan be found here, as well as\nprecious timber reserves.", 450, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::VikingCarpentry_T2});
-    add(BuildingType::VikingCarpentry_T2, {"Woodshop", "The forest itself provides the\n handle for the woodcutter's axe.", 700, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::VikingCarpentry_T3 });
-    add(BuildingType::VikingCarpentry_T3, {"Carpentry Industry", "From which kingdoms are built, fueld,\nand transported.", 850, 0, 0, 0, 3, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::VikingCarpentry_T2, {"Woodshop", "The forest itself provides the\n handle for the woodcutter's axe.", 700, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
     add(BuildingType::VikingArtisan_T1, {"Artisan", "If you've got made-goods to sell,\nthe chances are that this man\ncan find you a buyer.", 750, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::VikingArtisan_T2});
     add(BuildingType::VikingArtisan_T2, {"Craft Workshop", "If you travel far enough, there's\nalways a buyer willing to buy\nor barter for your wares.", 900, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, BuildingType::VikingArtisan_T3 });
     add(BuildingType::VikingArtisan_T3, {"Crafts Industry", "I have buyers lined up across the\nkingdom and beyond, and the vessels to get\nthe goods where they need to be.", 1050, 0, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, BuildingType::None });
@@ -664,11 +648,9 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::NobilitySamuraiEstate_T3,  {"Grand Market",      "Major growth bonus.", 400, 0, 45,  6, 3, 4, 0, 14, 0, 0, 8, 0, BuildingType::None});
     
     add(BuildingType::SamuraiIndustrialForge_T1, {"Small Forge", "Whatever his medium, the\ncraftsman has the skills required to\nfashion it to a saleable standard.", 1100, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiIndustrialForge_T2 });
-    add(BuildingType::SamuraiIndustrialForge_T2, {"Commercial Forge", "Organising crafts production into\n a pipeline is important when massproducing\nitems for sales at home or\nfor exports.", 1500, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiIndustrialForge_T3 });
-    add(BuildingType::SamuraiIndustrialForge_T3, {"Metalworking District", "Over time, master craftsmen\ngain a reputation, which must be\nmaintained if supply and demand are to\nremain abreast.", 1900, 0, 0, 0, 3, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::SamuraiIndustrialForge_T2, {"Commercial Forge", "Organising crafts production into\n a pipeline is important when massproducing\nitems for sales at home or\nfor exports.", 1500, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
     add(BuildingType::SamuraiCarpentry_T1, {"Carpenter", "Natural shelter from the elements\ncan be found here, as well as\nprecious timber reserves.", 450, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiCarpentry_T2});
-    add(BuildingType::SamuraiCarpentry_T2, {"Woodshop", "The forest itself provides the\n handle for the woodcutter's axe.", 700, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiCarpentry_T3 });
-    add(BuildingType::SamuraiCarpentry_T3, {"Carpentry Industry", "From which kingdoms are built, fueld,\nand transported.", 850, 0, 0, 0, 3, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::SamuraiCarpentry_T2, {"Woodshop", "The forest itself provides the\n handle for the woodcutter's axe.", 700, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
     add(BuildingType::SamuraiArtisan_T1, {"Artisan", "If you've got made-goods to sell,\nthe chances are that this man\ncan find you a buyer.", 750, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiArtisan_T2});
     add(BuildingType::SamuraiArtisan_T2, {"Craft Workshop", "If you travel far enough, there's\nalways a buyer willing to buy\nor barter for your wares.", 900, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiArtisan_T3 });
     add(BuildingType::SamuraiArtisan_T3, {"Crafts Industry", "I have buyers lined up across the\nkingdom and beyond, and the vessels to get\nthe goods where they need to be.", 1050, 0, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, BuildingType::None });
