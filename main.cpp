@@ -1433,6 +1433,43 @@ private://constructor
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::ReinforceWalls_T5], SDL_SCALEMODE_NEAREST);
 
         //Economy
+        //warehouse
+        buildingTypeTextures[BuildingType::KnightWareHouse_T3] = IMG_LoadTexture(renderer, "assets/Knight/WareHouseTier3.png");
+        if (buildingTypeTextures[BuildingType::KnightWareHouse_T3]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightWareHouse_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightWareHouse_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightWareHouse_T4] = IMG_LoadTexture(renderer, "assets/Knight/WareHouseTier4.png");
+        if (buildingTypeTextures[BuildingType::KnightWareHouse_T4]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightWareHouse_T4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightWareHouse_T4], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightWareHouse_T5] = IMG_LoadTexture(renderer, "assets/Knight/WareHouseTier5.png");
+        if (buildingTypeTextures[BuildingType::KnightWareHouse_T5]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightWareHouse_T5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightWareHouse_T5], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightMint_T1] = IMG_LoadTexture(renderer, "assets/Knight/MintTier1.png");
+        if (buildingTypeTextures[BuildingType::KnightMint_T1]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightMint_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightMint_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightMint_T2] = IMG_LoadTexture(renderer, "assets/Knight/MintTier2.png");
+        if (buildingTypeTextures[BuildingType::KnightMint_T2]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightMint_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightMint_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightMint_T3] = IMG_LoadTexture(renderer, "assets/Knight/MintTier3.png");
+        if (buildingTypeTextures[BuildingType::KnightMint_T3]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightMint_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightMint_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightTavern_T1] = IMG_LoadTexture(renderer, "assets/Knight/TavernTier1.png");
+        if (buildingTypeTextures[BuildingType::KnightTavern_T1]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightTavern_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightTavern_T1], SDL_SCALEMODE_NEAREST);
+
         buildingTypeTextures[BuildingType::Economy_T1] = IMG_LoadTexture(renderer, "assets/Knight/EconomyTier1.png");
         if (buildingTypeTextures[BuildingType::Economy_T1]  == nullptr) {
             SDL_LogWarn(0,"failed to load texture Economy_T1", SDL_GetError());
@@ -1484,22 +1521,7 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture NobilityEstate_T3", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::NobilityEstate_T3], SDL_SCALEMODE_NEAREST);
-        //warehouse
-        buildingTypeTextures[BuildingType::KnightWareHouse_T3] = IMG_LoadTexture(renderer, "assets/Knight/WareHouseTier3.png");
-        if (buildingTypeTextures[BuildingType::KnightWareHouse_T3]  == nullptr) {
-            SDL_LogWarn(0, "failed to load texture KnightWareHouse_T3", SDL_GetError());
-        }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightWareHouse_T3], SDL_SCALEMODE_NEAREST);
-        buildingTypeTextures[BuildingType::KnightWareHouse_T4] = IMG_LoadTexture(renderer, "assets/Knight/WareHouseTier4.png");
-        if (buildingTypeTextures[BuildingType::KnightWareHouse_T4]  == nullptr) {
-            SDL_LogWarn(0, "failed to load texture KnightWareHouse_T4", SDL_GetError());
-        }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightWareHouse_T4], SDL_SCALEMODE_NEAREST);
-        buildingTypeTextures[BuildingType::KnightWareHouse_T5] = IMG_LoadTexture(renderer, "assets/Knight/WareHouseTier5.png");
-        if (buildingTypeTextures[BuildingType::KnightWareHouse_T5]  == nullptr) {
-            SDL_LogWarn(0, "failed to load texture KnightWareHouse_T5", SDL_GetError());
-        }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightWareHouse_T5], SDL_SCALEMODE_NEAREST);
+
         //Religion
         buildingTypeTextures[BuildingType::Church_T1] = IMG_LoadTexture(renderer, "assets/Knight/ChurchTier1.png");
         if (buildingTypeTextures[BuildingType::Church_T1] == nullptr) {
@@ -1723,6 +1745,44 @@ private://constructor
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::ReinforcedDrakkar_T5], SDL_SCALEMODE_NEAREST);
 
         //Economy
+        //warehouse
+        buildingTypeTextures[BuildingType::VikingWareHouse_T3] = IMG_LoadTexture(renderer, "assets/Viking/WareHouseTier3.png");
+        if (buildingTypeTextures[BuildingType::VikingWareHouse_T3]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingWareHouse_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingWareHouse_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingWareHouse_T4] = IMG_LoadTexture(renderer, "assets/Viking/WareHouseTier4.png");
+        if (buildingTypeTextures[BuildingType::VikingWareHouse_T4]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingWareHouse_T4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingWareHouse_T4], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingWareHouse_T5] = IMG_LoadTexture(renderer, "assets/Viking/WareHouseTier5.png");
+        if (buildingTypeTextures[BuildingType::VikingWareHouse_T5]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingWareHouse_T5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingWareHouse_T5], SDL_SCALEMODE_NEAREST);
+
+        buildingTypeTextures[BuildingType::VikingMint_T1] = IMG_LoadTexture(renderer, "assets/Viking/MintTier1.png");
+        if (buildingTypeTextures[BuildingType::VikingMint_T1]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingMint_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingMint_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingMint_T2] = IMG_LoadTexture(renderer, "assets/Viking/MintTier2.png");
+        if (buildingTypeTextures[BuildingType::VikingMint_T2]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingMint_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingMint_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingMint_T3] = IMG_LoadTexture(renderer, "assets/Viking/MintTier3.png");
+        if (buildingTypeTextures[BuildingType::VikingMint_T3]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingMint_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingMint_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingTavern_T1] = IMG_LoadTexture(renderer, "assets/Viking/TavernTier1.png");
+        if (buildingTypeTextures[BuildingType::VikingTavern_T1]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingTavern_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingTavern_T1], SDL_SCALEMODE_NEAREST);
+
         buildingTypeTextures[BuildingType::SlaveMarket_T1]= IMG_LoadTexture(renderer, "assets/Viking/SlaveMarketTier1.png");
         if (buildingTypeTextures[BuildingType::SlaveMarket_T1] == nullptr) {
             SDL_LogWarn(0, "failed to load texture SlaveMarket_T1", SDL_GetError);
@@ -1774,22 +1834,7 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture NobilityVikingEstate_T3", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::NobilityVikingEstate_T3], SDL_SCALEMODE_NEAREST);
-        //warehouse
-        buildingTypeTextures[BuildingType::VikingWareHouse_T5] = IMG_LoadTexture(renderer, "assets/Viking/WareHouseTier3.png");
-        if (buildingTypeTextures[BuildingType::VikingWareHouse_T5]  == nullptr) {
-            SDL_LogWarn(0, "failed to load texture VikingWareHouse_T3", SDL_GetError());
-        }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingWareHouse_T5], SDL_SCALEMODE_NEAREST);
-        buildingTypeTextures[BuildingType::VikingWareHouse_T4] = IMG_LoadTexture(renderer, "assets/Viking/WareHouseTier4.png");
-        if (buildingTypeTextures[BuildingType::VikingWareHouse_T4]  == nullptr) {
-            SDL_LogWarn(0, "failed to load texture VikingWareHouse_T4", SDL_GetError());
-        }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingWareHouse_T4], SDL_SCALEMODE_NEAREST);
-        buildingTypeTextures[BuildingType::VikingWareHouse_T5] = IMG_LoadTexture(renderer, "assets/Viking/WareHouseTier5.png");
-        if (buildingTypeTextures[BuildingType::VikingWareHouse_T5]  == nullptr) {
-            SDL_LogWarn(0, "failed to load texture VikingWareHouse_T5", SDL_GetError());
-        }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingWareHouse_T5], SDL_SCALEMODE_NEAREST);
+
 
         //Religion
         buildingTypeTextures[BuildingType::Shrine_T1] = IMG_LoadTexture(renderer, "assets/Viking/ShrineTier1.png");
@@ -2038,6 +2083,44 @@ private://constructor
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::FortifiedCastle_T5], SDL_SCALEMODE_NEAREST);
 
         //Economy
+        //warehouse
+        buildingTypeTextures[BuildingType::SamuraiWareHouse_T3] = IMG_LoadTexture(renderer, "assets/Samurai/WareHouseTier3.png");
+        if (buildingTypeTextures[BuildingType::SamuraiWareHouse_T3]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiWareHouse_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiWareHouse_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiWareHouse_T4] = IMG_LoadTexture(renderer, "assets/Samurai/WareHouseTier4.png");
+        if (buildingTypeTextures[BuildingType::SamuraiWareHouse_T4]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiWareHouse_T4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiWareHouse_T4], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiWareHouse_T5] = IMG_LoadTexture(renderer, "assets/Samurai/WareHouseTier5.png");
+        if (buildingTypeTextures[BuildingType::SamuraiWareHouse_T5]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiWareHouse_T5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiWareHouse_T5], SDL_SCALEMODE_NEAREST);
+
+        buildingTypeTextures[BuildingType::SamuraiMint_T1] = IMG_LoadTexture(renderer, "assets/Samurai/MintTier1.png");
+        if (buildingTypeTextures[BuildingType::SamuraiMint_T1]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiMint_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiMint_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiMint_T2] = IMG_LoadTexture(renderer, "assets/Samurai/MintTier2.png");
+        if (buildingTypeTextures[BuildingType::SamuraiMint_T2]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiMint_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiMint_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiMint_T3] = IMG_LoadTexture(renderer, "assets/Samurai/MintTier3.png");
+        if (buildingTypeTextures[BuildingType::SamuraiMint_T3]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiMint_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiMint_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiTavern_T1] = IMG_LoadTexture(renderer, "assets/Samurai/TavernTier1.png");
+        if (buildingTypeTextures[BuildingType::SamuraiTavern_T1]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiTavern_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiTavern_T1], SDL_SCALEMODE_NEAREST);
+
         buildingTypeTextures[BuildingType::Market_T1] = IMG_LoadTexture(renderer, "assets/Samurai/MarketTier1.png");
         if (buildingTypeTextures[BuildingType::Market_T1] == nullptr) {
             SDL_LogWarn(0, "failed to load texture Market_T1", SDL_GetError());
