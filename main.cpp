@@ -1522,6 +1522,72 @@ private://constructor
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::NobilityEstate_T3], SDL_SCALEMODE_NEAREST);
 
+        //Industry
+        buildingTypeTextures[BuildingType::KnightIndustrialForge_T1] = IMG_LoadTexture(renderer, "assets/Knight/IndustrialForgeTier1.png");
+        if (buildingTypeTextures[BuildingType::KnightIndustrialForge_T1]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightIndustrialForge_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightIndustrialForge_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightIndustrialForge_T2] = IMG_LoadTexture(renderer, "assets/Knight/IndustrialForgeTier2.png");
+        if (buildingTypeTextures[BuildingType::KnightIndustrialForge_T2]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightIndustrialForge_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightIndustrialForge_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightCarpentry_T1] = IMG_LoadTexture(renderer, "assets/Knight/CarpentryTier1.png");
+        if (buildingTypeTextures[BuildingType::KnightCarpentry_T1]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightCarpentry_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightCarpentry_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightCarpentry_T2] = IMG_LoadTexture(renderer, "assets/Knight/CarpentryTier2.png");
+        if (buildingTypeTextures[BuildingType::KnightCarpentry_T2]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightCarpentry_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightCarpentry_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightArtisan_T1] = IMG_LoadTexture(renderer, "assets/Knight/ArtisanTier1.png");
+        if (buildingTypeTextures[BuildingType::KnightArtisan_T1]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightArtisan_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightArtisan_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightArtisan_T2] = IMG_LoadTexture(renderer, "assets/Knight/ArtisanTier2.png");
+        if (buildingTypeTextures[BuildingType::KnightArtisan_T2]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightArtisan_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightArtisan_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightArtisan_T3] = IMG_LoadTexture(renderer, "assets/Knight/ArtisanTier3.png");
+        if (buildingTypeTextures[BuildingType::KnightArtisan_T3]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightArtisan_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightArtisan_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightForge_T2] = IMG_LoadTexture(renderer, "assets/Knight/ForgeTier2.png");
+        if (buildingTypeTextures[BuildingType::KnightForge_T2]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightForge_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightForge_T2],  SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightForge_T3] = IMG_LoadTexture(renderer, "assets/Knight/ForgeTier3.png");
+        if (buildingTypeTextures[BuildingType::KnightForge_T3]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightForge_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightForge_T3],  SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightForge_T4] = IMG_LoadTexture(renderer, "assets/Knight/ForgeTier4.png");
+        if (buildingTypeTextures[BuildingType::KnightForge_T4]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightForge_T4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightForge_T4],  SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightJeweller_T3] = IMG_LoadTexture(renderer, "assets/Knight/JewellerTier3.png");
+        if (buildingTypeTextures[BuildingType::KnightJeweller_T3]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightJeweller_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightJeweller_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightJeweller_T4] = IMG_LoadTexture(renderer, "assets/Knight/JewellerTier4.png");
+        if (buildingTypeTextures[BuildingType::KnightJeweller_T4]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightJeweller_T4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightJeweller_T4], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightJeweller_T5] = IMG_LoadTexture(renderer, "assets/Knight/JewellerTier5.png");
+        if (buildingTypeTextures[BuildingType::KnightJeweller_T5]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightJeweller_T5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightJeweller_T5], SDL_SCALEMODE_NEAREST);
         //Religion
         buildingTypeTextures[BuildingType::Church_T1] = IMG_LoadTexture(renderer, "assets/Knight/ChurchTier1.png");
         if (buildingTypeTextures[BuildingType::Church_T1] == nullptr) {
@@ -1834,7 +1900,72 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture NobilityVikingEstate_T3", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::NobilityVikingEstate_T3], SDL_SCALEMODE_NEAREST);
-
+        //Industry
+        buildingTypeTextures[BuildingType::VikingIndustrialForge_T1] = IMG_LoadTexture(renderer, "assets/Viking/IndustrialForgeTier1.png");
+        if (buildingTypeTextures[BuildingType::VikingIndustrialForge_T1]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingIndustrialForge_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingIndustrialForge_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingIndustrialForge_T2] = IMG_LoadTexture(renderer, "assets/Viking/IndustrialForgeTier2.png");
+        if (buildingTypeTextures[BuildingType::VikingIndustrialForge_T2]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingIndustrialForge_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingIndustrialForge_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingCarpentry_T1] = IMG_LoadTexture(renderer, "assets/Viking/CarpentryTier1.png");
+        if (buildingTypeTextures[BuildingType::VikingCarpentry_T1]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingCarpentry_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingCarpentry_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingCarpentry_T2] = IMG_LoadTexture(renderer, "assets/Viking/CarpentryTier2.png");
+        if (buildingTypeTextures[BuildingType::VikingCarpentry_T2]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingCarpentry_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingCarpentry_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingArtisan_T1] = IMG_LoadTexture(renderer, "assets/Viking/ArtisanTier1.png");
+        if (buildingTypeTextures[BuildingType::VikingArtisan_T1]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingArtisan_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingArtisan_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingArtisan_T2] = IMG_LoadTexture(renderer, "assets/Vikng/ArtisanTier2.png");
+        if (buildingTypeTextures[BuildingType::VikingArtisan_T2]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingArtisan_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingArtisan_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingArtisan_T3] = IMG_LoadTexture(renderer, "assets/Viking/ArtisanTier3.png");
+        if (buildingTypeTextures[BuildingType::VikingArtisan_T3]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingArtisan_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingArtisan_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingForge_T2] = IMG_LoadTexture(renderer, "assets/Viking/ForgeTier2.png");
+        if (buildingTypeTextures[BuildingType::VikingForge_T2]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingForge_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingForge_T2],  SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingForge_T3] = IMG_LoadTexture(renderer, "assets/Viking/ForgeTier3.png");
+        if (buildingTypeTextures[BuildingType::VikingForge_T3]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingForge_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingForge_T3],  SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingForge_T4] = IMG_LoadTexture(renderer, "assets/Viking/ForgeTier4.png");
+        if (buildingTypeTextures[BuildingType::VikingForge_T4]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingForge_T4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingForge_T4],  SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingJeweller_T3] = IMG_LoadTexture(renderer, "assets/Viking/JewellerTier3.png");
+        if (buildingTypeTextures[BuildingType::VikingJeweller_T3]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingJeweller_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingJeweller_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingJeweller_T4] = IMG_LoadTexture(renderer, "assets/Viking/JewellerTier4.png");
+        if (buildingTypeTextures[BuildingType::VikingJeweller_T4]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingJeweller_T4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingJeweller_T4], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingJeweller_T5] = IMG_LoadTexture(renderer, "assets/Viking/JewellerTier5.png");
+        if (buildingTypeTextures[BuildingType::VikingJeweller_T5]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingJeweller_T5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingJeweller_T5], SDL_SCALEMODE_NEAREST);
 
         //Religion
         buildingTypeTextures[BuildingType::Shrine_T1] = IMG_LoadTexture(renderer, "assets/Viking/ShrineTier1.png");
@@ -2172,6 +2303,73 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture NobilitySamuraiEstate_T3", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::NobilitySamuraiEstate_T3], SDL_SCALEMODE_NEAREST);
+
+        //Industry
+        buildingTypeTextures[BuildingType::SamuraiIndustrialForge_T1] = IMG_LoadTexture(renderer, "assets/Samurai/IndustrialForgeTier1.png");
+        if (buildingTypeTextures[BuildingType::SamuraiIndustrialForge_T1]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiIndustrialForge_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiIndustrialForge_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiIndustrialForge_T2] = IMG_LoadTexture(renderer, "assets/Samurai/IndustrialForgeTier2.png");
+        if (buildingTypeTextures[BuildingType::SamuraiIndustrialForge_T2]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiIndustrialForge_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiIndustrialForge_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiCarpentry_T1] = IMG_LoadTexture(renderer, "assets/Samurai/CarpentryTier1.png");
+        if (buildingTypeTextures[BuildingType::SamuraiCarpentry_T1]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiCarpentry_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiCarpentry_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiCarpentry_T2] = IMG_LoadTexture(renderer, "assets/Samurai/CarpentryTier2.png");
+        if (buildingTypeTextures[BuildingType::SamuraiCarpentry_T2]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiCarpentry_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiCarpentry_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiArtisan_T1] = IMG_LoadTexture(renderer, "assets/Samurai/ArtisanTier1.png");
+        if (buildingTypeTextures[BuildingType::SamuraiArtisan_T1]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiArtisan_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiArtisan_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiArtisan_T2] = IMG_LoadTexture(renderer, "assets/Samurai/ArtisanTier2.png");
+        if (buildingTypeTextures[BuildingType::SamuraiArtisan_T2]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiArtisan_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiArtisan_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiArtisan_T3] = IMG_LoadTexture(renderer, "assets/Samurai/ArtisanTier3.png");
+        if (buildingTypeTextures[BuildingType::SamuraiArtisan_T3]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiArtisan_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiArtisan_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiForge_T2] = IMG_LoadTexture(renderer, "assets/Samurai/ForgeTier2.png");
+        if (buildingTypeTextures[BuildingType::SamuraiForge_T2]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiForge_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiForge_T2],  SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiForge_T3] = IMG_LoadTexture(renderer, "assets/Samurai/ForgeTier3.png");
+        if (buildingTypeTextures[BuildingType::SamuraiForge_T3]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiForge_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiForge_T3],  SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiForge_T4] = IMG_LoadTexture(renderer, "assets/Samurai/ForgeTier4.png");
+        if (buildingTypeTextures[BuildingType::SamuraiForge_T4]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiForge_T4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiForge_T4],  SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiJeweller_T3] = IMG_LoadTexture(renderer, "assets/Samurai/JewellerTier3.png");
+        if (buildingTypeTextures[BuildingType::SamuraiJeweller_T3]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiJeweller_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiJeweller_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiJeweller_T4] = IMG_LoadTexture(renderer, "assets/Samurai/JewellerTier4.png");
+        if (buildingTypeTextures[BuildingType::SamuraiJeweller_T4]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiJeweller_T4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiJeweller_T4], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiJeweller_T5] = IMG_LoadTexture(renderer, "assets/Samurai/JewellerTier5.png");
+        if (buildingTypeTextures[BuildingType::SamuraiJeweller_T5]  == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiJeweller_T5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiJeweller_T5], SDL_SCALEMODE_NEAREST);
 
         //Religion
         buildingTypeTextures[BuildingType::Hospital_T1] = IMG_LoadTexture(renderer, "assets/Samurai/HospitalTier1.png");
