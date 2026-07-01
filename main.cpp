@@ -1906,7 +1906,7 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture VikingArtisan_T1", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingArtisan_T1], SDL_SCALEMODE_NEAREST);
-        buildingTypeTextures[BuildingType::VikingArtisan_T2] = IMG_LoadTexture(renderer, "assets/Vikng/ArtisanTier2.png");
+        buildingTypeTextures[BuildingType::VikingArtisan_T2] = IMG_LoadTexture(renderer, "assets/Viking/ArtisanTier2.png");
         if (buildingTypeTextures[BuildingType::VikingArtisan_T2]  == nullptr) {
             SDL_LogWarn(0, "failed to load texture VikingArtisan_T2", SDL_GetError());
         }
