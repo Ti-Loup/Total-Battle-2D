@@ -1523,16 +1523,6 @@ private://constructor
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::NobilityEstate_T3], SDL_SCALEMODE_NEAREST);
 
         //Industry
-        buildingTypeTextures[BuildingType::KnightIndustrialForge_T1] = IMG_LoadTexture(renderer, "assets/Knight/IndustrialForgeTier1.png");
-        if (buildingTypeTextures[BuildingType::KnightIndustrialForge_T1]  == nullptr) {
-            SDL_LogWarn(0, "failed to load texture KnightIndustrialForge_T1", SDL_GetError());
-        }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightIndustrialForge_T1], SDL_SCALEMODE_NEAREST);
-        buildingTypeTextures[BuildingType::KnightIndustrialForge_T2] = IMG_LoadTexture(renderer, "assets/Knight/IndustrialForgeTier2.png");
-        if (buildingTypeTextures[BuildingType::KnightIndustrialForge_T2]  == nullptr) {
-            SDL_LogWarn(0, "failed to load texture KnightIndustrialForge_T2", SDL_GetError());
-        }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightIndustrialForge_T2], SDL_SCALEMODE_NEAREST);
         buildingTypeTextures[BuildingType::KnightCarpentry_T1] = IMG_LoadTexture(renderer, "assets/Knight/CarpentryTier1.png");
         if (buildingTypeTextures[BuildingType::KnightCarpentry_T1]  == nullptr) {
             SDL_LogWarn(0, "failed to load texture KnightCarpentry_T1", SDL_GetError());
@@ -1901,16 +1891,6 @@ private://constructor
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::NobilityVikingEstate_T3], SDL_SCALEMODE_NEAREST);
         //Industry
-        buildingTypeTextures[BuildingType::VikingIndustrialForge_T1] = IMG_LoadTexture(renderer, "assets/Viking/IndustrialForgeTier1.png");
-        if (buildingTypeTextures[BuildingType::VikingIndustrialForge_T1]  == nullptr) {
-            SDL_LogWarn(0, "failed to load texture VikingIndustrialForge_T1", SDL_GetError());
-        }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingIndustrialForge_T1], SDL_SCALEMODE_NEAREST);
-        buildingTypeTextures[BuildingType::VikingIndustrialForge_T2] = IMG_LoadTexture(renderer, "assets/Viking/IndustrialForgeTier2.png");
-        if (buildingTypeTextures[BuildingType::VikingIndustrialForge_T2]  == nullptr) {
-            SDL_LogWarn(0, "failed to load texture VikingIndustrialForge_T2", SDL_GetError());
-        }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingIndustrialForge_T2], SDL_SCALEMODE_NEAREST);
         buildingTypeTextures[BuildingType::VikingCarpentry_T1] = IMG_LoadTexture(renderer, "assets/Viking/CarpentryTier1.png");
         if (buildingTypeTextures[BuildingType::VikingCarpentry_T1]  == nullptr) {
             SDL_LogWarn(0, "failed to load texture VikingCarpentry_T1", SDL_GetError());
@@ -2305,16 +2285,7 @@ private://constructor
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::NobilitySamuraiEstate_T3], SDL_SCALEMODE_NEAREST);
 
         //Industry
-        buildingTypeTextures[BuildingType::SamuraiIndustrialForge_T1] = IMG_LoadTexture(renderer, "assets/Samurai/IndustrialForgeTier1.png");
-        if (buildingTypeTextures[BuildingType::SamuraiIndustrialForge_T1]  == nullptr) {
-            SDL_LogWarn(0, "failed to load texture SamuraiIndustrialForge_T1", SDL_GetError());
-        }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiIndustrialForge_T1], SDL_SCALEMODE_NEAREST);
-        buildingTypeTextures[BuildingType::SamuraiIndustrialForge_T2] = IMG_LoadTexture(renderer, "assets/Samurai/IndustrialForgeTier2.png");
-        if (buildingTypeTextures[BuildingType::SamuraiIndustrialForge_T2]  == nullptr) {
-            SDL_LogWarn(0, "failed to load texture SamuraiIndustrialForge_T2", SDL_GetError());
-        }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiIndustrialForge_T2], SDL_SCALEMODE_NEAREST);
+
         buildingTypeTextures[BuildingType::SamuraiCarpentry_T1] = IMG_LoadTexture(renderer, "assets/Samurai/CarpentryTier1.png");
         if (buildingTypeTextures[BuildingType::SamuraiCarpentry_T1]  == nullptr) {
             SDL_LogWarn(0, "failed to load texture SamuraiCarpentry_T1", SDL_GetError());

@@ -63,8 +63,6 @@ KnightMint_T2,
 KnightMint_T3,
 KnightTavern_T1,
     //Industry
-KnightIndustrialForge_T1,
-KnightIndustrialForge_T2,
 KnightCarpentry_T1,
 KnightCarpentry_T2,
 KnightArtisan_T1,
@@ -129,8 +127,6 @@ VikingMint_T2,
 VikingMint_T3,
 VikingTavern_T1,
     //Industry
-VikingIndustrialForge_T1,
-VikingIndustrialForge_T2,
 VikingCarpentry_T1,
 VikingCarpentry_T2,
 VikingArtisan_T1,
@@ -202,8 +198,6 @@ SamuraiMint_T2,
 SamuraiMint_T3,
 SamuraiTavern_T1,
     //Industry
-SamuraiIndustrialForge_T1,
-SamuraiIndustrialForge_T2,
 SamuraiCarpentry_T1,
 SamuraiCarpentry_T2,
 SamuraiArtisan_T1,
@@ -316,8 +310,6 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::KnightMint_T2:
     case BuildingType::KnightMint_T3:
     case BuildingType::KnightTavern_T1:
-    case BuildingType::KnightIndustrialForge_T1:
-    case BuildingType::KnightIndustrialForge_T2:
     case BuildingType::KnightCarpentry_T1:
     case BuildingType::KnightCarpentry_T2:
     case BuildingType::KnightArtisan_T1:
@@ -345,8 +337,6 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::VikingMint_T2:
     case BuildingType::VikingMint_T3:
     case BuildingType::VikingTavern_T1:
-    case BuildingType::VikingIndustrialForge_T1:
-    case BuildingType::VikingIndustrialForge_T2:
     case BuildingType::VikingCarpentry_T1:
     case BuildingType::VikingCarpentry_T2:
     case BuildingType::VikingArtisan_T1:
@@ -374,8 +364,6 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::SamuraiMint_T2:
     case BuildingType::SamuraiMint_T3:
     case BuildingType::SamuraiTavern_T1:
-    case BuildingType::SamuraiIndustrialForge_T1:
-    case BuildingType::SamuraiIndustrialForge_T2:
     case BuildingType::SamuraiCarpentry_T1:
     case BuildingType::SamuraiCarpentry_T2:
     case BuildingType::SamuraiArtisan_T1:
@@ -503,8 +491,6 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::NobilityEstate_T2,  {"Lord's Fields", "Grows population faster.", 200, 0,  30,  4, 2, 3, 0, 10, 0, 0, 5, 0, BuildingType::NobilityEstate_T3});
     add(BuildingType::NobilityEstate_T3,  {"Grand Manor Farm", "Major growth bonus.", 400, 0, 45,  6, 3, 4, 0, 14, 0, 0, 8, 0, BuildingType::None});
 
-    add(BuildingType::KnightIndustrialForge_T1, {"Small Forge", "Whatever his medium, the\ncraftsman has the skills required to\nfashion it to a saleable standard.", 1100, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, BuildingType::KnightIndustrialForge_T2 });
-    add(BuildingType::KnightIndustrialForge_T2, {"Commercial Forge", "Organising crafts production into\n a pipeline is important when massproducing\nitems for sales at home or\nfor exports.", 1500, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
     add(BuildingType::KnightCarpentry_T1, {"Carpenter", "Natural shelter from the elements\ncan be found here, as well as\nprecious timber reserves.", 450, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::KnightCarpentry_T2});
     add(BuildingType::KnightCarpentry_T2, {"Woodshop", "The forest itself provides the\n handle for the woodcutter's axe.", 700, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
     add(BuildingType::KnightArtisan_T1, {"Artisan", "If you've got made-goods to sell,\nthe chances are that this man\ncan find you a buyer.", 750, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::KnightArtisan_T2});
@@ -583,8 +569,6 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::NobilityVikingEstate_T2,  {"Town Market", "Grows population faster.", 200, 0,  30,  4, 2, 3, 0, 10, 0,  0, 5, 0, BuildingType::NobilityVikingEstate_T3});
     add(BuildingType::NobilityVikingEstate_T3,  {"Grand Market", "Major growth bonus.", 400, 0, 45,  6, 3, 4, 0, 14, 0, 0, 8, 0, BuildingType::None});
 
-    add(BuildingType::VikingIndustrialForge_T1, {"Small Forge", "Whatever his medium, the\ncraftsman has the skills required to\nfashion it to a saleable standard.", 1100, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, BuildingType::VikingIndustrialForge_T2 });
-    add(BuildingType::VikingIndustrialForge_T2, {"Commercial Forge", "Organising crafts production into\n a pipeline is important when massproducing\nitems for sales at home or\nfor exports.", 1500, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
     add(BuildingType::VikingCarpentry_T1, {"Carpenter", "Natural shelter from the elements\ncan be found here, as well as\nprecious timber reserves.", 450, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::VikingCarpentry_T2});
     add(BuildingType::VikingCarpentry_T2, {"Woodshop", "The forest itself provides the\n handle for the woodcutter's axe.", 700, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
     add(BuildingType::VikingArtisan_T1, {"Artisan", "If you've got made-goods to sell,\nthe chances are that this man\ncan find you a buyer.", 750, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::VikingArtisan_T2});
@@ -646,9 +630,7 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::NobilitySamuraiEstate_T1,  {"Samurai Village Market",    "Grows population.", 80,  0,  15,  2, 1, 2, 0, 6, 0, 0, 3, 0, BuildingType::NobilitySamuraiEstate_T2});
     add(BuildingType::NobilitySamuraiEstate_T2,  {"Town Market",       "Grows population faster.", 200, 0,  30,  4, 2, 3, 0, 10, 0, 0, 5, 0, BuildingType::NobilitySamuraiEstate_T3});
     add(BuildingType::NobilitySamuraiEstate_T3,  {"Grand Market",      "Major growth bonus.", 400, 0, 45,  6, 3, 4, 0, 14, 0, 0, 8, 0, BuildingType::None});
-    
-    add(BuildingType::SamuraiIndustrialForge_T1, {"Small Forge", "Whatever his medium, the\ncraftsman has the skills required to\nfashion it to a saleable standard.", 1100, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiIndustrialForge_T2 });
-    add(BuildingType::SamuraiIndustrialForge_T2, {"Commercial Forge", "Organising crafts production into\n a pipeline is important when massproducing\nitems for sales at home or\nfor exports.", 1500, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
+
     add(BuildingType::SamuraiCarpentry_T1, {"Carpenter", "Natural shelter from the elements\ncan be found here, as well as\nprecious timber reserves.", 450, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiCarpentry_T2});
     add(BuildingType::SamuraiCarpentry_T2, {"Woodshop", "The forest itself provides the\n handle for the woodcutter's axe.", 700, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
     add(BuildingType::SamuraiArtisan_T1, {"Artisan", "If you've got made-goods to sell,\nthe chances are that this man\ncan find you a buyer.", 750, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiArtisan_T2});
@@ -714,13 +696,13 @@ inline std::vector<BuildingType> GetBuildingsForCategory(BuildingCategory catego
         case BuildingCategory::Economy:
             if (faction == FactionZone::Knight)
                 results = {BuildingType::KnightWareHouse_T3,BuildingType::KnightMint_T1, BuildingType::KnightTavern_T1, BuildingType::Economy_T1, BuildingType::PeasantryGrowth_T1, BuildingType::NobilityEstate_T1,
-             BuildingType::KnightIndustrialForge_T1, BuildingType::KnightCarpentry_T1, BuildingType::KnightArtisan_T1, BuildingType:: KnightForge_T2, BuildingType::KnightJeweller_T3};
+              BuildingType::KnightCarpentry_T1, BuildingType::KnightArtisan_T1, BuildingType:: KnightForge_T2, BuildingType::KnightJeweller_T3};
             else if (faction == FactionZone::Viking)
                 results = {BuildingType::VikingWareHouse_T3,BuildingType::VikingMint_T1, BuildingType::VikingTavern_T1, BuildingType::SlaveMarket_T1, BuildingType::PeasantryVikingGrowth_T1, BuildingType::NobilityVikingEstate_T1,
-            BuildingType::VikingIndustrialForge_T1, BuildingType::VikingCarpentry_T1, BuildingType::VikingArtisan_T1, BuildingType:: VikingForge_T2, BuildingType::VikingJeweller_T3};
+             BuildingType::VikingCarpentry_T1, BuildingType::VikingArtisan_T1, BuildingType:: VikingForge_T2, BuildingType::VikingJeweller_T3};
             else if (faction == FactionZone::Samurai)
                 results = {BuildingType::SamuraiWareHouse_T3, BuildingType::SamuraiMint_T1, BuildingType::SamuraiTavern_T1, BuildingType::Market_T1, BuildingType::PeasantrySamuraiGrowth_T1, BuildingType::NobilitySamuraiEstate_T1,
-            BuildingType::SamuraiIndustrialForge_T1, BuildingType::SamuraiCarpentry_T1, BuildingType::SamuraiArtisan_T1, BuildingType:: SamuraiForge_T2, BuildingType::SamuraiJeweller_T3};
+            BuildingType::SamuraiCarpentry_T1, BuildingType::SamuraiArtisan_T1, BuildingType:: SamuraiForge_T2, BuildingType::SamuraiJeweller_T3};
             break;
 
         case BuildingCategory::Religion:
