@@ -717,6 +717,7 @@ private://constructor
         tileMap = new TileMap("assets/TileMap.png",16);
         tileMap->BakeToTexture(renderer);
         tileMap->LoadProvinceMap("assets/ProvinceMap.png");
+        camera.SetMapBounds((float)(tileMap->cols * tileMap->tileSize),(float)(tileMap->rows * tileMap->tileSize),1920.f, 1080.f);
         //UI Font
         gameStatUITitleFont = TTF_OpenFont("assets/Rubik.ttf", 25);
         gameStatUIFont = TTF_OpenFont("assets/Rubik.ttf", 20);
