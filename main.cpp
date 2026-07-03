@@ -238,8 +238,7 @@ public:
     SDL_Texture *gamePublicOrderNegatifTexture = nullptr;
     SDL_Texture *gamePublicOrderNeutralTexture = nullptr;
     //texture population growth
-    SDL_Texture *gamePopulationPositiveGrowth = nullptr;
-    SDL_Texture *gamePopulationNegativeGrowth = nullptr;
+    SDL_Texture *gamePopulationGrowth = nullptr;
 
     //inizialise the rect for the publicOrder so i can use it when i put my mouse on it it shows the public order next turn
     SDL_FRect publicOrderIcon = {0.f, 0.f, 0.f, 0.f};
@@ -342,6 +341,8 @@ public:
     //Positive and negative UI Icon to put on top of diffrent Icons
     SDL_Texture *gamePositiveUiIcon = nullptr;
     SDL_Texture *gameNegativeUiIcon = nullptr;
+    //Texture Storage
+    SDL_Texture *gameStorageUiIcon = nullptr;
 
     //UI TextFont
     TTF_Font *gameStatUITitleFont = nullptr;
@@ -934,6 +935,13 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture gameNegativeUiIcon", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameNegativeUiIcon, SDL_SCALEMODE_NEAREST);
+        //Texture Food Storage Ui
+        gameStorageUiIcon = IMG_LoadTexture(renderer, "assets/StorageUiLogo.png");
+        if (gameStorageUiIcon == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameStorageUiIcon", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameStorageUiIcon, SDL_SCALEMODE_NEAREST);
+
         //Texture construction Hammer
         hammerUIBuildingUpgradeTexture = IMG_LoadTexture(renderer, "assets/UIHammer.png");
         if (hammerUIBuildingUpgradeTexture == nullptr) {
@@ -1006,16 +1014,11 @@ private://constructor
         }
         SDL_SetTextureScaleMode(gamePublicOrderNegatifTexture, SDL_SCALEMODE_NEAREST);
         //Texture Population Growth
-        gamePopulationPositiveGrowth = IMG_LoadTexture(renderer, "assets/PopulationPositiveGrowthIcon.png");
-        if (gamePopulationPositiveGrowth == nullptr) {
-            SDL_LogWarn(0, "failed to load texture gamePopulationPositiveGrowth", SDL_GetError());
+        gamePopulationGrowth = IMG_LoadTexture(renderer, "assets/PopulationGrowthIcon.png");
+        if (gamePopulationGrowth == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gamePopulationGrowth", SDL_GetError());
         }
-        SDL_SetTextureScaleMode(gamePopulationPositiveGrowth, SDL_SCALEMODE_NEAREST);
-        gamePopulationNegativeGrowth = IMG_LoadTexture(renderer, "assets/PopulationNegativeGrowthIcon.png");
-        if (gamePopulationNegativeGrowth == nullptr) {
-            SDL_LogWarn(0, "failed to load texture gamePopulationNegativeGrowth", SDL_GetError());
-        }
-        SDL_SetTextureScaleMode(gamePopulationNegativeGrowth, SDL_SCALEMODE_NEAREST);
+        SDL_SetTextureScaleMode(gamePopulationGrowth, SDL_SCALEMODE_NEAREST);
 
         //SETTLEMENTS EVOLUTIF IN CAMPAIGN FOR EACH FACTION
 
@@ -2580,8 +2583,8 @@ private://constructor
         SDL_DestroyTexture(gameClergyIconUi);
         SDL_DestroyTexture(gamePositiveUiIcon);
         SDL_DestroyTexture(gameNegativeUiIcon);
-        SDL_DestroyTexture(gamePopulationPositiveGrowth);
-        SDL_DestroyTexture(gamePopulationNegativeGrowth);
+        SDL_DestroyTexture(gamePopulationGrowth);
+        SDL_DestroyTexture(gameStorageUiIcon);
         // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
@@ -4641,7 +4644,7 @@ if (player.currentFood >= 300) {
     TTF_SetTextColor(gameCurrentFoodUiText, 0, 255, 0, 255);
     TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 130.f, tooltipY + 162.f);
     SDL_FRect populationGrowthIcon = {tooltipX + 5.f, tooltipY + 202.f, 20, 20};
-    SDL_RenderTexture(renderer, gamePopulationPositiveGrowth, nullptr, &populationGrowthIcon);
+    SDL_RenderTexture(renderer, gamePopulationGrowth, nullptr, &populationGrowthIcon);
     TTF_SetTextString(gameCurrentFoodUiText, "200% Base Population Growth \n                        (All Provinces) ", 0);
     TTF_SetTextColor(gameCurrentFoodUiText, 255, 255, 255, 255);
     TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 202.f);
@@ -4656,7 +4659,7 @@ else if (player.currentFood >= 150 && player.currentFood < 300) {
     TTF_SetTextColor(gameCurrentFoodUiText, 0, 255, 0, 255);
     TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 130.f, tooltipY + 162.f);
     SDL_FRect populationGrowthIcon = {tooltipX + 5.f, tooltipY + 202.f, 20, 20};
-    SDL_RenderTexture(renderer, gamePopulationPositiveGrowth, nullptr, &populationGrowthIcon);
+    SDL_RenderTexture(renderer, gamePopulationGrowth, nullptr, &populationGrowthIcon);
     TTF_SetTextString(gameCurrentFoodUiText, "100% Base Population Growth \n                        (All Provinces) ", 0);
     TTF_SetTextColor(gameCurrentFoodUiText, 255, 255, 255, 255);
     TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 202.f);
@@ -4671,7 +4674,7 @@ else if (player.currentFood >= 0 && player.currentFood < 150) {
     TTF_SetTextColor(gameCurrentFoodUiText, 0, 255, 0, 255);
     TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 130.f, tooltipY + 162.f);
     SDL_FRect populationGrowthIcon = {tooltipX + 5.f, tooltipY + 202.f, 20, 20};
-    SDL_RenderTexture(renderer, gamePopulationPositiveGrowth, nullptr, &populationGrowthIcon);
+    SDL_RenderTexture(renderer, gamePopulationGrowth, nullptr, &populationGrowthIcon);
     TTF_SetTextString(gameCurrentFoodUiText, "50% Base Population Growth \n                        (All Provinces) ", 0);
     TTF_SetTextColor(gameCurrentFoodUiText, 255, 255, 255, 255);
     TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 202.f);
@@ -4686,7 +4689,7 @@ else if (player.currentFood < 0 && player.currentFood > -150) {
     TTF_SetTextColor(gameCurrentFoodUiText, 255, 0, 0, 255);
     TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 130.f, tooltipY + 162.f);
     SDL_FRect populationGrowthIcon = {tooltipX + 5.f, tooltipY + 202.f, 20, 20};
-    SDL_RenderTexture(renderer, gamePopulationNegativeGrowth, nullptr, &populationGrowthIcon);
+    SDL_RenderTexture(renderer, gamePopulationGrowth, nullptr, &populationGrowthIcon);
     TTF_SetTextString(gameCurrentFoodUiText, "-20% Base Population Growth \n                        (All Provinces) ", 0);
     TTF_SetTextColor(gameCurrentFoodUiText, 255, 255, 255, 255);
     TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 202.f);
@@ -4701,7 +4704,7 @@ else if (player.currentFood >= -150 && player.currentFood > -300) {
     TTF_SetTextColor(gameCurrentFoodUiText, 255, 0, 0, 255);
     TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 130.f, tooltipY + 162.f);
     SDL_FRect populationGrowthIcon = {tooltipX + 5.f, tooltipY + 202.f, 20, 20};
-    SDL_RenderTexture(renderer, gamePopulationNegativeGrowth, nullptr, &populationGrowthIcon);
+    SDL_RenderTexture(renderer, gamePopulationGrowth, nullptr, &populationGrowthIcon);
     TTF_SetTextString(gameCurrentFoodUiText, "-60% Base Population Growth \n                        (All Provinces) ", 0);
     TTF_SetTextColor(gameCurrentFoodUiText, 255, 255, 255, 255);
     TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 202.f);
@@ -4716,7 +4719,7 @@ else if (player.currentFood >= -300) {
     TTF_SetTextColor(gameCurrentFoodUiText, 255, 0, 0, 255);
     TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 130.f, tooltipY + 162.f);
     SDL_FRect populationGrowthIcon = {tooltipX + 5.f, tooltipY + 202.f, 20, 20};
-    SDL_RenderTexture(renderer, gamePopulationNegativeGrowth, nullptr, &populationGrowthIcon);
+    SDL_RenderTexture(renderer, gamePopulationGrowth, nullptr, &populationGrowthIcon);
     TTF_SetTextString(gameCurrentFoodUiText, "-100% Base Population Growth \n                        (All Provinces) ", 0);
     TTF_SetTextColor(gameCurrentFoodUiText, 255, 255, 255, 255);
     TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 202.f);
