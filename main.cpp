@@ -4693,7 +4693,7 @@ else if (player.currentFood < 0 && player.currentFood > -150) {
     TTF_SetTextColor(gameCurrentFoodUiText, 255, 255, 255, 255);
     TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 35.f, tooltipY + 162.f);
     TTF_SetTextString(gameCurrentFoodUiText, " (-2) ", 0);
-    TTF_SetTextColor(gameCurrentFoodUiText, 255, 0, 0, 255);
+    TTF_SetTextColor(gameCurrentFoodUiText, 255, 0, 0, 255); 
     TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 130.f, tooltipY + 162.f);
     SDL_FRect populationGrowthIcon = {tooltipX - 2.f, tooltipY + 190.f, 35, 35};
     SDL_RenderTexture(renderer, gamePopulationGrowth, nullptr, &populationGrowthIcon);
