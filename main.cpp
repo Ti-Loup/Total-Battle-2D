@@ -4983,7 +4983,63 @@ int baseBirth = 0, baseDeath = 0;
         }
         return count;
     }
+// draws all stats not null of a building
+void RenderBuildingStatRows(const BuildingData* data, float tooltipX, float rightEdge, float startY) {
+    float lineY = startY;
+    const float rowH = 22.f;
+    const float iconSize = 14.f;
 
+    auto drawRow = [&](SDL_Texture* icon, const char* label, const std::string& valueStr, SDL_Color valueColor) {
+        SDL_FRect iconRect = {tooltipX + 8.f, lineY + 1.f, iconSize, iconSize};
+        if (icon) SDL_RenderTexture(renderer, icon, nullptr, &iconRect);
+
+        TTF_SetTextString(gameStatUIText, label, 0);
+        TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
+        TTF_DrawRendererText(gameStatUIText, tooltipX + 28.f, lineY);
+
+        TTF_SetTextString(gameStatUIText, valueStr.c_str(), 0);
+        TTF_SetTextColor(gameStatUIText, valueColor.r, valueColor.g, valueColor.b, 255);
+        int vw, vh;
+        TTF_GetTextSize(gameStatUIText, &vw, &vh);
+        TTF_DrawRendererText(gameStatUIText, rightEdge - vw, lineY);
+
+        lineY += rowH;
+    };
+
+    if (data->cost != 0)
+        drawRow(gameCoinMoneyTexture, "Cost:", std::to_string(data->cost), {220, 180, 40, 255});
+
+    if (data->incomeBonus != 0)
+        drawRow(gameCoinMoneyTexture, "Income:", (data->incomeBonus >= 0 ? "+" : "") + std::to_string(data->incomeBonus), {180, 230, 100, 255});
+
+    if (data->upkeep != 0)
+        drawRow(gameCoinMoneyTexture, "Upkeep:", "-" + std::to_string(data->upkeep), {220, 60, 60, 255});
+
+    if (data->publicOrderBonus != 0)
+        drawRow(data->publicOrderBonus > 0 ? gamePublicOrderPositifTexture : gamePublicOrderNegatifTexture,
+                "Public Order:", (data->publicOrderBonus >= 0 ? "+" : "") + std::to_string(data->publicOrderBonus), {71, 255, 164, 255});
+
+    if (data->foodProduced != 0)
+        drawRow(gameFoodIconUi, "Food Produced:", "+" + std::to_string(data->foodProduced), {127, 255, 0, 255});
+
+    if (data->foodUpkeep != 0)
+        drawRow(gameFoodIconUi, "Food Upkeep:", "-" + std::to_string(data->foodUpkeep), {220, 60, 60, 255});
+
+    if (data->foodStorage != 0)
+        drawRow(gameStorageUiIcon, "Food Storage:", "+" + std::to_string(data->foodStorage), {180, 230, 100, 255});
+
+    if (data->peasantryBornBonus != 0)
+        drawRow(gamePeasantryIconUi, "Peasantry Growth:", "+" + std::to_string(data->peasantryBornBonus), {180, 230, 100, 255});
+
+    if (data->nobilityBornBonus != 0)
+        drawRow(gameNobilityIconUi, "Nobility Growth:", "+" + std::to_string(data->nobilityBornBonus), {180, 230, 100, 255});
+
+    if (data->clergyTrainedBonus != 0)
+        drawRow(gameClergyIconUi, "Clergy Growth:", "+" + std::to_string(data->clergyTrainedBonus), {180, 230, 100, 255});
+
+    if (data->constructionTurns != 0)
+        drawRow(gameTurnAmountTexture, "Construction:", std::to_string(data->constructionTurns) + " turns", {180, 180, 255, 255});
+}
 
         //for the information about a specific Building when mouse on it
    void RenderBuildingInfoUI() {
@@ -5011,57 +5067,44 @@ int baseBirth = 0, baseDeath = 0;
     else if (province.owner == FactionZone::Viking) fc = {255,   0,   0, 255};
     else fc = {  0, 255, 215, 255};//samurai
 
-    float tooltipX = 0.f;
-    float tooltipW = 250.f;
-    float tooltipH = 175.f;
-    float tooltipY = 708.f - tooltipH - 6.f;
+    int rowCount = InfoBuildingStatRows(data);//data from BuildingData
 
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        float tooltipX = 0.f;
+        float tooltipW = 250.f;
+        float descGap = 80.f; // for description
+        float rowH = 22.f;
+        float tooltipH = 36.f + descGap + (float)rowCount * rowH + 10.f;
+        float tooltipY = 708.f - tooltipH - 6.f;
+        if (tooltipY < 5.f) tooltipY = 5.f;
+        float rightEdge = tooltipX + tooltipW - 10.f;
 
-    SDL_SetRenderDrawColor(renderer, 15, 15, 15, 220);
-    SDL_FRect bg = {tooltipX, tooltipY, tooltipW, tooltipH};
-    SDL_RenderFillRect(renderer, &bg);
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-    SDL_SetRenderDrawColor(renderer, fc.r, fc.g, fc.b, 180);
-    SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, 30.f};
-    SDL_RenderFillRect(renderer, &titleBar);
+        SDL_SetRenderDrawColor(renderer, 15, 15, 15, 220);
+        SDL_FRect bg = {tooltipX, tooltipY, tooltipW, tooltipH};
+        SDL_RenderFillRect(renderer, &bg);
 
-    SDL_SetRenderDrawColor(renderer, fc.r, fc.g, fc.b, 255);
-    SDL_RenderRect(renderer, &bg);
+        SDL_SetRenderDrawColor(renderer, fc.r, fc.g, fc.b, 180);
+        SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, 30.f};
+        SDL_RenderFillRect(renderer, &titleBar);
 
-    TTF_SetTextString(gameStatUITitleText, data->name.c_str(), 0);
-    TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
-    TTF_DrawRendererText(gameStatUITitleText, tooltipX + 8.f, tooltipY + 4.f);
+        SDL_SetRenderDrawColor(renderer, fc.r, fc.g, fc.b, 255);
+        SDL_RenderRect(renderer, &bg);
 
-    float lineY = tooltipY + 36.f;
+        TTF_SetTextString(gameStatUITitleText, data->name.c_str(), 0);
+        TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
+        TTF_DrawRendererText(gameStatUITitleText, tooltipX + 8.f, tooltipY + 4.f);
 
-    //building description
-    TTF_SetTextString(gameBuildingDescriptionText, (data->description).c_str(), 0);
+        float lineY = tooltipY + 36.f;
+
+        // description
+        TTF_SetTextString(gameBuildingDescriptionText, data->description.c_str(), 0);
         TTF_SetTextColor(gameBuildingDescriptionText, 180, 230, 100, 255);
         TTF_DrawRendererText(gameBuildingDescriptionText, tooltipX + 15.f, lineY);
-    lineY += 80.f;
-    // Income bonus
-    SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
-    SDL_FRect goldIcon = {tooltipX + 8.f, lineY + 3.f, 12.f, 12.f};
-    SDL_RenderFillRect(renderer, &goldIcon);
-    TTF_SetTextString(gameStatUIText, "Income:", 0);
-    TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
-    TTF_DrawRendererText(gameStatUIText, tooltipX + 26.f, lineY);
-    TTF_SetTextString(gameStatUIText, ("+" + std::to_string(data->incomeBonus)).c_str(), 0);
-    TTF_SetTextColor(gameStatUIText, 180, 230, 100, 255);
-    TTF_DrawRendererText(gameStatUIText, tooltipX + 190.f, lineY);
-    lineY += 26.f;
+        lineY += descGap;
 
-    // Public order bonus
-    SDL_SetRenderDrawColor(renderer, 80, 200, 80, 255);
-    SDL_FRect orderIcon = {tooltipX + 8.f, lineY + 3.f, 12.f, 12.f};
-    SDL_RenderFillRect(renderer, &orderIcon);
-    TTF_SetTextString(gameStatUIText, "Public Order:", 0);
-    TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
-    TTF_DrawRendererText(gameStatUIText, tooltipX + 26.f, lineY);
-    TTF_SetTextString(gameStatUIText, ("+" + std::to_string(data->publicOrderBonus)).c_str(), 0);
-    TTF_SetTextColor(gameStatUIText, 71, 255, 164, 255);
-    TTF_DrawRendererText(gameStatUIText, tooltipX + 190.f, lineY);
+        // all != null stats
+        RenderBuildingStatRows(data, tooltipX, rightEdge, lineY);
 }
 void RenderCategoryBuildingInfoUI() {
     if (hoveredCategoryBuildingType == BuildingType::None) return;
@@ -5078,64 +5121,44 @@ void RenderCategoryBuildingInfoUI() {
     else if (province.owner == FactionZone::Viking)  fc = {255,   0,   0, 255};
     else fc = {  0, 255, 215, 255};
 
+    int rowCount = InfoBuildingStatRows(data);
+
     float tooltipX = 0.f;
     float tooltipW = 250.f;
-    float tooltipH = 175.f;
+    float descGap = 80.f;
+    float rowH = 22.f;
+    float tooltipH = 36.f + descGap + (float)rowCount * rowH + 10.f;
     float tooltipY = 708.f - tooltipH - 6.f;
+    if (tooltipY < 5.f) tooltipY = 5.f;
+    float rightEdge = tooltipX + tooltipW - 10.f;
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-    // Fond
     SDL_SetRenderDrawColor(renderer, 15, 15, 15, 220);
     SDL_FRect bg = {tooltipX, tooltipY, tooltipW, tooltipH};
     SDL_RenderFillRect(renderer, &bg);
 
-    // Barre titre
     SDL_SetRenderDrawColor(renderer, fc.r, fc.g, fc.b, 180);
     SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, 30.f};
     SDL_RenderFillRect(renderer, &titleBar);
 
-    // Bordure
     SDL_SetRenderDrawColor(renderer, fc.r, fc.g, fc.b, 255);
     SDL_RenderRect(renderer, &bg);
 
-    // Nom du building
     TTF_SetTextString(gameStatUITitleText, data->name.c_str(), 0);
     TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
     TTF_DrawRendererText(gameStatUITitleText, tooltipX + 8.f, tooltipY + 4.f);
 
     float lineY = tooltipY + 36.f;
 
-    // Description
     if (!data->description.empty()) {
         TTF_SetTextString(gameBuildingDescriptionText, data->description.c_str(), 0);
         TTF_SetTextColor(gameBuildingDescriptionText, 180, 230, 100, 255);
         TTF_DrawRendererText(gameBuildingDescriptionText, tooltipX + 8.f, lineY);
     }
-    lineY += 80.f;
+        lineY += descGap;
 
-    // Income bonus
-    SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
-    SDL_FRect goldIcon = {tooltipX + 8.f, lineY + 3.f, 12.f, 12.f};
-    SDL_RenderFillRect(renderer, &goldIcon);
-    TTF_SetTextString(gameStatUIText, "Income:", 0);
-    TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
-    TTF_DrawRendererText(gameStatUIText, tooltipX + 26.f, lineY);
-    TTF_SetTextString(gameStatUIText, ("+" + std::to_string(data->incomeBonus)).c_str(), 0);
-    TTF_SetTextColor(gameStatUIText, 180, 230, 100, 255);
-    TTF_DrawRendererText(gameStatUIText, tooltipX + 190.f, lineY);
-    lineY += 26.f;
-
-    // Public order bonus
-    SDL_SetRenderDrawColor(renderer, 80, 200, 80, 255);
-    SDL_FRect orderIcon = {tooltipX + 8.f, lineY + 3.f, 12.f, 12.f};
-    SDL_RenderFillRect(renderer, &orderIcon);
-    TTF_SetTextString(gameStatUIText, "Public Order:", 0);
-    TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
-    TTF_DrawRendererText(gameStatUIText, tooltipX + 26.f, lineY);
-    TTF_SetTextString(gameStatUIText, ("+" + std::to_string(data->publicOrderBonus)).c_str(), 0);
-    TTF_SetTextColor(gameStatUIText, 71, 255, 164, 255);
-    TTF_DrawRendererText(gameStatUIText, tooltipX + 190.f, lineY);
+    RenderBuildingStatRows(data, tooltipX, rightEdge, lineY);
 }
 
     void UpdateBackgroundTint(const float deltaTime) {
