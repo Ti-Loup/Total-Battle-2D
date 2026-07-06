@@ -71,7 +71,7 @@ Each faction has fully independent settlement textures across all tiers (T1–T5
 
 ### Settlements & Provinces
 
-The campaign map is divided into **9 provinces** (3 per faction), each containing one main settlement (Capital or Castle) and up to three Villages. Settlements upgrade through tiers, visually evolving on the map and unlocking higher-tier ?>>buildings.
+The campaign map is divided into **9 provinces** (3 per faction), each containing one main settlement (Capital or Castle) and up to three Villages. Settlements upgrade through tiers, visually evolving on the map and unlocking higher-tier buildings.
 
 ### Building System
 
@@ -147,8 +147,10 @@ assets/               # Textures, fonts, audio, tilemaps<br>
 |---------|--------|--------|--------|--------|
 | **v0.1.0** | Campaign map, buildings, economy, | Released | May | 2026 |
 | **v0.1.5** | Food storage polish, texture fixes | Released | June | 2026 |
-| **v0.2.0** | Population system(farmers, nobility, church) | In Progress | July | 2026 |
-| **v0.2.5** | World Events + Climate (affect food production) | Planned | August | 2026 |
+| **v0.2.0** | Population system(farmers, nobility, church) | Released | July | 2026 |
+| **v0.2.5** | World Events + Climate (affect food production) | In progress | August | 2026 |
+| **v0.3.0** | Special ressources(Mines) + Fishing/Military Ports + Industrial building item production | Planned | September | 2026 |
+| **v0.3.5** | diplomacy & exchange | Planned | October | 2026 |
 | **Future** | Roads, playable technology tree, faction Unique mechanic, cinematic intro | Vision | 2026 | 2027 |
 
 ---
