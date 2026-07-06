@@ -4977,6 +4977,45 @@ int baseBirth = 0, baseDeath = 0;
 
         }
 
+    //calculated the stats not null of a building (from buildingData stats/) -- If new variable added in building need to add it here too
+    //int because it returns a value
+    int InfoBuildingStatRows(const BuildingData *building_data) {
+        int count = 0;
+        if (building_data->cost != 0) {
+            count++;
+        }
+        if (building_data->incomeBonus != 0) {
+            count++;
+        }
+        if (building_data->upkeep != 0) {
+            count++;
+        }
+        if (building_data->publicOrderBonus != 0) {
+            count++;
+        }
+        if (building_data->foodProduced != 0) {
+            count++;
+        }
+        if (building_data->foodUpkeep != 0) {
+            count++;
+        }
+        if (building_data->foodStorage != 0) {
+            count++;
+        }
+        if (building_data->peasantryBornBonus != 0) {
+            count++;
+        }
+        if (building_data->nobilityBornBonus != 0) {
+            count++;
+        }
+        if (building_data->clergyTrainedBonus != 0) {
+            count++;
+        }
+        if (building_data->constructionTurns != 0) {
+            count++;
+        }
+        return count;
+    }
 
 
         //for the information about a specific Building when mouse on it
