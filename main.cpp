@@ -35,14 +35,22 @@
  * Fix camera never stop when touch edge
  * --------------------------------------------
  * 0.3.0
- * DIPLOMACY + RESSOURCE SETTLEMENTS/BUILDINGS
+ * RESSOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
+ *
  * MINE, Forged Steel Production, FISH, medicine plants, Candle
- * THE RESSOURCES ARE STORED IN
+ * THE RESSOURCES ARE STORED IN (warehouse ?)
+ * If a main settlement or village is close to the sea it has a port. For villages/Fishing port, and Main settlements military port.
  * --------------------------------------------
  * 0.3.5
- * TRADE/MILITARY PORTS, COMMERCE , EXCHANGE FOR DIPLOMACY
+ * DIPLOMACY & EXCHANGE
  * EXANGE MONEY OR RESSOURCES FOR FOOD. IN TRADE.
- * If a main settlement or village is close to the sea it has a port. For villages/Fishing port, and Main settlements military port.
+ *
+ * --------------------------------------------
+ * 0.4.0
+ *
+ * --------------------------------------------
+ * 0.4.5
+ *
  * --------------------------------------------
  * 0.5.0
  * REAL TIME BATTLES FOCUS + NAVAL BATTLES
@@ -3428,7 +3436,7 @@ private://constructor
         // Restore
         TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
 
-        
+
         //render of the Popup for the general Buildings
         //just to get mouse position
         float mouseX;
