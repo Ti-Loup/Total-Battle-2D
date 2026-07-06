@@ -23,23 +23,25 @@
 #include "Player.h"
 
 /*
- * 0.2.0
- * POPULATION SYSTEM
- * Update Province and building info in UI +/-
- *
+
  *---------------------------------------------
  * 0.2.5
  * WORLD EVENTS (plague, exceed food production, thunder) + SEASONS + DATE (12 turns a year) 3 turn per season
  * Mini Map
  * Event Button Under Mini map
  * Fix camera never stop when touch edge
+ * Fix
+ * Add Church candle building + craft
  * --------------------------------------------
  * 0.3.0
  * RESSOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
+ * * 1 If a main settlement or village is close to the sea it has a port. For villages/Fishing port, and Main settlements military port.
+ * fishing ports gives food and produce fish !
+ * 2 MINE, Forged Steel Production, FISH, medicine plants, Candle
+ * 3 THE RESSOURCES ARE STORED IN (warehouse ?)
  *
- * MINE, Forged Steel Production, FISH, medicine plants, Candle
- * THE RESSOURCES ARE STORED IN (warehouse ?)
- * If a main settlement or village is close to the sea it has a port. For villages/Fishing port, and Main settlements military port.
+ * Some industrial buildings can only be buy if you have the raw material
+ * Settlement next to the name shows a texture of mine to show its a mine + fish for a fish port and boat for military ...
  * --------------------------------------------
  * 0.3.5
  * DIPLOMACY & EXCHANGE
@@ -85,7 +87,10 @@
 * If time add place holders for commerce and industrial buildings for 0.3
 * Having population texture positive and negative
 * Having money and food texture positive and negative
-*
+* 0.2.0
+* POPULATION SYSTEM
+* Update Province and building info in UI +/-
+ *
 
  */
 
