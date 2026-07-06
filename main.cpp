@@ -2968,7 +2968,6 @@ private://constructor
             if (s.settlementData.provinceID == provinceID)provinceSettlements.push_back(&s);
 
         int incomeTotal = 0;
-        int populationTotal = 0;
         int publicOrderTotal = 0;
         for (auto* s : provinceSettlements) {
             incomeTotal += s->settlementData.baseIncome;
@@ -2978,7 +2977,6 @@ private://constructor
                     if (bd) incomeTotal += bd->incomeBonus;
                 }
             }
-            populationTotal += s->settlementData.basePopulation;
             publicOrderTotal = s->settlementData.publicOrder;
         }
         //set the color
@@ -3020,37 +3018,6 @@ private://constructor
 
         // Stats
         float statY = leftY + 55.f;
-
-        // GROWTH TITLE SELECTION
-        if (province.owner == FactionZone::Knight) {
-            SDL_SetRenderDrawColor(renderer, 60, 40, 20, 200);
-        }
-        else if (province.owner == FactionZone::Viking) {
-            SDL_SetRenderDrawColor(renderer, 60, 20, 20, 200);
-        }
-        else if (province.owner == FactionZone::Samurai) {
-            SDL_SetRenderDrawColor(renderer, 20, 60, 45, 200);
-        }
-        SDL_FRect growthBar = {leftX + 5.f, statY, leftW - 10.f, 28.f};
-        SDL_RenderFillRect(renderer, &growthBar);
-        TTF_SetTextString(gameStatUITitleText, "Growth", 0);
-        TTF_SetTextColor(gameStatUITitleText, 71, 255, 164, 255);
-        TTF_DrawRendererText(gameStatUITitleText, leftX + 10.f, statY + 2.f);
-        statY += 35.f;
-
-        // Green Icone + growth amount
-        SDL_SetRenderDrawColor(renderer, 80, 200, 80, 255);
-        SDL_FRect popIcon = {leftX + 8.f, statY + 3.f, 14.f, 14.f};
-        SDL_RenderFillRect(renderer, &popIcon);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
-        SDL_RenderRect(renderer, &popIcon);
-        TTF_SetTextString(gameStatUIText, "Growth:", 0);
-        TTF_SetTextColor(gameStatUIText, 180, 180, 180, 255);
-        TTF_DrawRendererText(gameStatUIText, leftX + 28.f, statY);
-        TTF_SetTextString(gameStatUIText, std::to_string(populationTotal).c_str(), 0);
-        TTF_SetTextColor(gameStatUIText, 180, 230, 100, 255);
-        TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
-        statY += 34.f;
 
         // TAXE PROVINCE TITLE
         if (province.owner == FactionZone::Knight) {
