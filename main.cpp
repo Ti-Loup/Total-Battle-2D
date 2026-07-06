@@ -3414,7 +3414,21 @@ private://constructor
                 }
             }
         }
+        // Title bottomProvince Title
+        float middleTitlePositionX = 835.f;
+        float middleTitlePositionY = 770.f;
+        SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 180);
+        SDL_FRect titleBottomBar = {middleTitlePositionX, middleTitlePositionY, 250.f, 40.f};
+        SDL_RenderFillRect(renderer, &titleBottomBar);
+        // Name province for bottomProvince Title
+        TTF_SetTextString(gameStatUITitleText, province.name.c_str(), 0);
+        TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
+        TTF_DrawRendererText(gameStatUITitleText, middleTitlePositionX + 50.f, middleTitlePositionY + 2.f);
 
+        // Restore
+        TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
+
+        
         //render of the Popup for the general Buildings
         //just to get mouse position
         float mouseX;
@@ -3774,25 +3788,12 @@ private://constructor
                     tierPopupRects[t - 1] = tierRect;
                     tierPopupMaxTier = maxTier;
                 }
-            }
+                }
             }
 
         if (bButtonUIGarrisonIsPressed) {
             //To Do later the garrison with Their Unit cards
         }
-        // Title bottomProvince Title
-        float middleTitlePositionX = 835.f;
-        float middleTitlePositionY = 770.f;
-        SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 180);
-        SDL_FRect titleBottomBar = {middleTitlePositionX, middleTitlePositionY, 250.f, 40.f};
-        SDL_RenderFillRect(renderer, &titleBottomBar);
-        // Name province for bottomProvince Title
-        TTF_SetTextString(gameStatUITitleText, province.name.c_str(), 0);
-        TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
-        TTF_DrawRendererText(gameStatUITitleText, middleTitlePositionX + 50.f, middleTitlePositionY + 2.f);
-
-        // Restore
-        TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
 
     }
     //fonction to buy a new building on a constructable square in RenderProvinceUI
