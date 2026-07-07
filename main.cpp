@@ -32,6 +32,7 @@
  * Fix camera never stop when touch edge
  * Fix
  * Add Church candle building + craft
+ * Add some win Achievements After With steam.
  * --------------------------------------------
  * 0.3.0
  * RESSOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
