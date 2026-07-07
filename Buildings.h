@@ -75,9 +75,14 @@ KnightJeweller_T3,
 KnightJeweller_T4,
 KnightJeweller_T5,
     //religion
-Church_T1,
-Church_T2,
-Church_T3,
+KnightAlmsHouse_T1,//reconstitution population
+KnightAlmsHouse_T2,
+KnightBeeKeeper_T1,//Produce candles
+KnightBeeKeeper_T2,
+KnightBeeKeeper_T3,
+KnightChurch_T3,//public order
+KnightChurch_T4,
+KnightChurch_T5,
 
 //  -> VIKINGS BUILDINGS <-
 Settlement_Village_Viking_T1,
@@ -139,12 +144,14 @@ VikingJeweller_T3,
 VikingJeweller_T4,
 VikingJeweller_T5,
     //Religion
-Shrine_T1,
-Shrine_T2,
-Shrine_T3,
-SacrificeRitual_T1,
-SacrificeRitual_T2,
-SacrificeRitual_T3,
+VikingShrine_T1,//Reconstitution Bonus
+VikingShrine_T2,
+VikingBrewKeeper_T1,//Beer production
+VikingBrewKeeper_T2,
+VikingBrewKeeper_T3,
+VikingSacrificeRitual_T3,//Public order (Shaman)
+VikingSacrificeRitual_T4,
+VikingSacrificeRitual_T5,
 
 //  -> SAMURAI BUILDINGS <-
 Settlement_Village_Samurai_T1,
@@ -212,12 +219,14 @@ SamuraiJeweller_T5,
 
 
     //Religion
-Hospital_T1,
-Hospital_T2,
-Hospital_T3,
-Chapel_T1,
-Chapel_T2,
-Chapel_T3,
+SamuraiHospital_T1,//Bonus reconstitution
+SamuraiHospital_T2,
+SamuraiTeaDry_T1,//Produce Tea
+SamuraiTeaDry_T2,
+SamuraiTeaDry_T3,
+SamuraiChapel_T3,//public orders
+SamuraiChapel_T4,
+SamuraiChapel_T5,
 
 //UNIQUE Buildings
 
@@ -377,21 +386,27 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::SamuraiJeweller_T5:
         return BuildingCategory::Economy;
 
-    case BuildingType::Church_T1:
-    case BuildingType::Church_T2:
-    case BuildingType::Church_T3:
-    case BuildingType::Shrine_T1:
-    case BuildingType::Shrine_T2:
-    case BuildingType::Shrine_T3:
-    case BuildingType::SacrificeRitual_T1:
-    case BuildingType::SacrificeRitual_T2:
-    case BuildingType::SacrificeRitual_T3:
-    case BuildingType::Hospital_T1:
-    case BuildingType::Hospital_T2:
-    case BuildingType::Hospital_T3:
-    case BuildingType::Chapel_T1:
-    case BuildingType::Chapel_T2:
-    case BuildingType::Chapel_T3:
+    case BuildingType::KnightAlmsHouse_T1:
+    case BuildingType::KnightAlmsHouse_T2:
+    case BuildingType::KnightBeeKeeper_T1:
+    case BuildingType::KnightBeeKeeper_T2:
+    case BuildingType::KnightBeeKeeper_T3:
+    case BuildingType::KnightChurch_T3:
+    case BuildingType::KnightChurch_T4:
+    case BuildingType::KnightChurch_T5:
+    case BuildingType::VikingShrine_T1:
+    case BuildingType::VikingShrine_T2:
+    case BuildingType::VikingSacrificeRitual_T3:
+    case BuildingType::VikingSacrificeRitual_T4:
+    case BuildingType::VikingSacrificeRitual_T5:
+    case BuildingType::SamuraiHospital_T1:
+    case BuildingType::SamuraiHospital_T2:
+    case BuildingType::SamuraiTeaDry_T1:
+    case BuildingType::SamuraiTeaDry_T2:
+    case BuildingType::SamuraiTeaDry_T3:
+    case BuildingType::SamuraiChapel_T3:
+    case BuildingType::SamuraiChapel_T4:
+    case BuildingType::SamuraiChapel_T5:
         return BuildingCategory::Religion;
 
     default:
@@ -524,9 +539,17 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::ReinforceWalls_T5, {"Castle Walls",    "Impregnable defences.",  1400, 45, 0, 12, 5, 6, 25, 0, 0, 0, 0, 0, BuildingType::None});
 
     // ── KNIGHT RELIGION ──
-    add(BuildingType::Church_T1, {"Chapel",    "Improves public order.",  100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, BuildingType::Church_T2});
-    add(BuildingType::Church_T2, {"Church",    "Strong public order.",    250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 3, BuildingType::Church_T3});
-    add(BuildingType::Church_T3, {"Cathedral", "Major public order.",     500, 15, 0, 4, 3, 4, 0, 0, 0, 0, 0, 5, BuildingType::None});
+    //Reconstitution
+    add(BuildingType::KnightAlmsHouse_T1, {"Small Hospital",    "Improves public order.",  100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, BuildingType::KnightAlmsHouse_T2});
+    add(BuildingType::KnightAlmsHouse_T2, {"Medium hospital",    "Strong public order.",    250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 3, BuildingType::None});
+    //Bee production
+    add(BuildingType::KnightBeeKeeper_T1, {"BeeKeeper1",    "Improves public order.",  100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, BuildingType::KnightBeeKeeper_T2});
+    add(BuildingType::KnightBeeKeeper_T2, {"Beekeeper2",    "Strong public order.",    250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 3, BuildingType::KnightBeeKeeper_T3});
+    add(BuildingType::KnightBeeKeeper_T3, {"Beekeeper3", "Major public order.",     500, 15, 0, 4, 3, 4, 0, 0, 0, 0, 0, 5, BuildingType::None});
+    //public order
+    add(BuildingType::KnightChurch_T3, {"Chapel",    "Improves public order.",  100,  5, 0,  2, 3, 2, 0, 0, 0, 0, 0, 1, BuildingType::KnightChurch_T4});
+    add(BuildingType::KnightChurch_T4, {"Church",    "Strong public order.",    250, 10, 0, 3, 4, 3, 0, 0, 0, 0, 0, 3, BuildingType::KnightChurch_T5});
+    add(BuildingType::KnightChurch_T5, {"Cathedral", "Major public order.",     500, 15, 0, 4, 5, 4, 0, 0, 0, 0, 0, 5, BuildingType::None});
 
     // ── VIKING MILITARY ──
     add(BuildingType::WarLodge_T1,       {"War Lodge",       "Trains raiders.",         150, 10, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, BuildingType::WarLodge_T2});
@@ -582,12 +605,17 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::VikingJeweller_T5, {"Jewelley Industry", "As pure function has given way\nto ornate forms, so the artisan\njeweller has risen to be master of his craft.", 1050, 0, 0, 0, 5, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
     
     // ── VIKING RELIGION ──
-    add(BuildingType::Shrine_T1,          {"Shrine",          "Pleases the gods.",        100,  5, 0,  0, 1, 2, 0, 0, 0, 0, 0, 1, BuildingType::Shrine_T2});
-    add(BuildingType::Shrine_T2,          {"Temple",          "Greater divine favor.",    250, 10, 0, 1, 2, 3, 0, 0, 0, 0, 0, 3, BuildingType::Shrine_T3});
-    add(BuildingType::Shrine_T3,          {"Great Temple",    "Odin smiles upon you.",    500, 15, 0, 2, 3, 4, 0, 0, 0, 0, 0, 5, BuildingType::None});
-    add(BuildingType::SacrificeRitual_T1, {"Ritual Ground",   "Blood for Odin.",          150,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 0, BuildingType::SacrificeRitual_T2});
-    add(BuildingType::SacrificeRitual_T2, {"Sacrifice Altar", "Greater blood offering.",  300, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 0, BuildingType::SacrificeRitual_T3});
-    add(BuildingType::SacrificeRitual_T3, {"Grand Sacrifice", "Odin's full blessing.",    600, 15, 0, 4, 3, 4, 0, 0, 0, 0, 0, 0,BuildingType::None});
+    //reconstitution
+    add(BuildingType::VikingShrine_T1,{"Shrine",          "Pleases the gods.",        100,  5, 0,  0, 1, 2, 0, 0, 0, 0, 0, 1, BuildingType::VikingShrine_T2});
+    add(BuildingType::VikingShrine_T2,{"Temple",          "Greater divine favor.",    250, 10, 0, 1, 2, 3, 0, 0, 0, 0, 0, 3, BuildingType::None});
+    //Beer production
+    add(BuildingType::VikingBrewKeeper_T1, {"SmallReligiousBeerProduction",    "Improves public order.",  100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, BuildingType::VikingBrewKeeper_T1});
+    add(BuildingType::VikingBrewKeeper_T2, {"MediumReligiousBeerProduction",    "Strong public order.",    250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 3, BuildingType::VikingBrewKeeper_T2});
+    add(BuildingType::VikingBrewKeeper_T3, {"LargeReligiousBeerProduction", "Major public order.",     500, 15, 0, 4, 3, 4, 0, 0, 0, 0, 0, 5, BuildingType::None});
+    //PublicOrder
+    add(BuildingType::VikingSacrificeRitual_T3, {"Ritual Ground",   "Blood for Odin.",          150,  5, 0,  2, 3, 2, 0, 0, 0, 0, 0, 0, BuildingType::VikingSacrificeRitual_T3});
+    add(BuildingType::VikingSacrificeRitual_T4, {"Sacrifice Altar", "Greater blood offering.",  300, 10, 0, 3, 4, 3, 0, 0, 0, 0, 0, 0, BuildingType::VikingSacrificeRitual_T4});
+    add(BuildingType::VikingSacrificeRitual_T5, {"Grand Sacrifice", "Odin's full blessing.",    600, 15, 0, 4, 5, 4, 0, 0, 0, 0, 0, 0,BuildingType::None});
 
     // ── SAMURAI MILITARY ──
     add(BuildingType::SwordSchool_T1,    {"Sword School",    "Trains katana units.",     150, 10, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, BuildingType::SwordSchool_T2});
@@ -644,12 +672,17 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::SamuraiJeweller_T5, {"Jewelley Industry", "As pure function has given way\nto ornate forms, so the artisan\njeweller has risen to be master of his craft.", 1050, 0, 0, 0, 5, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
 
     // ── SAMURAI RELIGION ──
-    add(BuildingType::Hospital_T1, {"Field Hospital", "Heals troops.",       100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 0, BuildingType::Hospital_T2});
-    add(BuildingType::Hospital_T2, {"Hospital",       "Better healing.",     250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 0, BuildingType::Hospital_T3});
-    add(BuildingType::Hospital_T3, {"Grand Hospital", "Full medical care.",  500, 15, 0, 4, 3, 4, 0, 0, 0, 0, 0, 0, BuildingType::None});
-    add(BuildingType::Chapel_T1,   {"Shinto Shrine",  "Basic worship.",      100,  5, 0,  1, 1, 2, 0, 0, 0, 0, 0, 1, BuildingType::Chapel_T2});
-    add(BuildingType::Chapel_T2,   {"Shinto Temple",  "Greater worship.",    250, 10, 0, 1, 2, 3, 0, 0, 0, 0, 0, 3, BuildingType::Chapel_T3});
-    add(BuildingType::Chapel_T3,   {"Grand Shrine",   "Divine blessing.",    500, 15, 0, 2, 3, 4, 0, 0, 0, 0, 0, 5, BuildingType::None});
+    //reconstitution
+    add(BuildingType::SamuraiHospital_T1, {"Field Hospital", "Heals troops.",       100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiHospital_T2});
+    add(BuildingType::SamuraiHospital_T2, {"Hospital",       "Better healing.",     250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 0, BuildingType::None});
+    //Tea Dry
+    add(BuildingType::SamuraiTeaDry_T1, {"small religious tea dry",    "Improves public order.",  100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, BuildingType::SamuraiTeaDry_T2});
+    add(BuildingType::SamuraiTeaDry_T2, {"Medium religious tea dry",    "Strong public order.",    250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 3, BuildingType::SamuraiTeaDry_T3});
+    add(BuildingType::SamuraiTeaDry_T3, {"Large religious tea dry", "Major public order.",     500, 15, 0, 4, 3, 4, 0, 0, 0, 0, 0, 5, BuildingType::None});
+    //public order
+    add(BuildingType::SamuraiChapel_T3,   {"Shinto Shrine",  "Basic worship.",      100,  5, 0,  1, 3, 2, 0, 0, 0, 0, 0, 1, BuildingType::SamuraiChapel_T4});
+    add(BuildingType::SamuraiChapel_T4,   {"Shinto Temple",  "Greater worship.",    250, 10, 0, 1, 4, 3, 0, 0, 0, 0, 0, 3, BuildingType::SamuraiChapel_T5});
+    add(BuildingType::SamuraiChapel_T5,   {"Grand Shrine",   "Divine blessing.",    500, 15, 0, 2, 5, 4, 0, 0, 0, 0, 0, 5, BuildingType::None});
 
     return db;
 }
@@ -707,11 +740,11 @@ inline std::vector<BuildingType> GetBuildingsForCategory(BuildingCategory catego
 
         case BuildingCategory::Religion:
             if (faction == FactionZone::Knight)
-                results = {BuildingType::Church_T1};
+                results = {BuildingType::KnightAlmsHouse_T1, BuildingType::KnightBeeKeeper_T1, BuildingType::KnightChurch_T3};
             else if (faction == FactionZone::Viking)
-                results = {BuildingType::Shrine_T1, BuildingType::SacrificeRitual_T1};
+                results = {BuildingType::VikingShrine_T1, BuildingType::VikingBrewKeeper_T1, BuildingType::VikingSacrificeRitual_T3};
             else if (faction == FactionZone::Samurai)
-                results = {BuildingType::Hospital_T1, BuildingType::Chapel_T1};
+                results = {BuildingType::SamuraiHospital_T1, BuildingType::SamuraiTeaDry_T1, BuildingType::SamuraiChapel_T3};
             break;
     }
 

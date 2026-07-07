@@ -1595,23 +1595,49 @@ private://constructor
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightJeweller_T5], SDL_SCALEMODE_NEAREST);
         //Religion
-        buildingTypeTextures[BuildingType::Church_T1] = IMG_LoadTexture(renderer, "assets/Knight/ChurchTier1.png");
-        if (buildingTypeTextures[BuildingType::Church_T1] == nullptr) {
-            SDL_LogWarn(0, "failed to load texture Church_T1", SDL_GetError());
+        //reconstitution
+        buildingTypeTextures[BuildingType::KnightAlmsHouse_T1] = IMG_LoadTexture(renderer, "assets/Knight/AlmsHouse_T1.png");
+        if (buildingTypeTextures[BuildingType::KnightAlmsHouse_T1] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightAlmsHouse_T1", SDL_GetError());
         }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Church_T1], SDL_SCALEMODE_NEAREST);
-
-        buildingTypeTextures[BuildingType::Church_T2] = IMG_LoadTexture(renderer, "assets/Knight/ChurchTier2.png");
-        if (buildingTypeTextures[BuildingType::Church_T2] == nullptr) {
-            SDL_LogWarn(0, "failed to load texture Church_T2", SDL_GetError());
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightAlmsHouse_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightAlmsHouse_T2] = IMG_LoadTexture(renderer, "assets/Knight/AlmsHouse_T2.png");
+        if (buildingTypeTextures[BuildingType::KnightAlmsHouse_T2] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightAlmsHouse_T2", SDL_GetError());
         }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Church_T2], SDL_SCALEMODE_NEAREST);
-
-        buildingTypeTextures[BuildingType::Church_T3] = IMG_LoadTexture(renderer, "assets/Knight/ChurchTier3.png");
-        if (buildingTypeTextures[BuildingType::Church_T3] == nullptr) {
-            SDL_LogWarn(0, "failed to load texture Church_T3", SDL_GetError());
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightAlmsHouse_T2], SDL_SCALEMODE_NEAREST);
+        //BeeKeeper Candle production
+        buildingTypeTextures[BuildingType::KnightBeeKeeper_T1] = IMG_LoadTexture(renderer, "assets/Knight/BeeKeeper_T1.png");
+        if (buildingTypeTextures[BuildingType::KnightBeeKeeper_T1] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightBeeKeeper_T1", SDL_GetError());
         }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Church_T3], SDL_SCALEMODE_NEAREST);
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightBeeKeeper_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightBeeKeeper_T2] = IMG_LoadTexture(renderer, "assets/Knight/BeeKeeper_T2.png");
+        if (buildingTypeTextures[BuildingType::KnightBeeKeeper_T2] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightBeeKeeper_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightBeeKeeper_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightBeeKeeper_T3] = IMG_LoadTexture(renderer, "assets/Knight/BeeKeeper_T3.png");
+        if (buildingTypeTextures[BuildingType::KnightBeeKeeper_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightBeeKeeper_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightBeeKeeper_T3], SDL_SCALEMODE_NEAREST);
+        //Church (Public order)
+        buildingTypeTextures[BuildingType::KnightChurch_T3] = IMG_LoadTexture(renderer, "assets/Knight/ChurchTier3.png");
+        if (buildingTypeTextures[BuildingType::KnightChurch_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightChurch_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightChurch_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightChurch_T4] = IMG_LoadTexture(renderer, "assets/Knight/ChurchTier4.png");
+        if (buildingTypeTextures[BuildingType::KnightChurch_T4] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightChurch_T4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightChurch_T4], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightChurch_T5] = IMG_LoadTexture(renderer, "assets/Knight/ChurchTier5.png");
+        if (buildingTypeTextures[BuildingType::KnightChurch_T5] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightChurch_T5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightChurch_T5], SDL_SCALEMODE_NEAREST);
 
         //                  ! VIKING !
         //capitals
@@ -1964,41 +1990,50 @@ private://constructor
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingJeweller_T5], SDL_SCALEMODE_NEAREST);
 
         //Religion
-        buildingTypeTextures[BuildingType::Shrine_T1] = IMG_LoadTexture(renderer, "assets/Viking/ShrineTier1.png");
-        if (buildingTypeTextures[BuildingType::Shrine_T1] == nullptr) {
-            SDL_LogWarn(0, "failed to load texture Shrine_T1", SDL_GetError());
+        //reconstitution
+        buildingTypeTextures[BuildingType::VikingShrine_T1] = IMG_LoadTexture(renderer, "assets/Viking/ShrineTier1.png");
+        if (buildingTypeTextures[BuildingType::VikingShrine_T1] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingShrine_T1", SDL_GetError());
         }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Shrine_T1], SDL_SCALEMODE_NEAREST);
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingShrine_T1], SDL_SCALEMODE_NEAREST);
 
-        buildingTypeTextures[BuildingType::Shrine_T2] = IMG_LoadTexture(renderer, "assets/Viking/ShrineTier2.png");
-        if (buildingTypeTextures[BuildingType::Shrine_T2] == nullptr) {
-            SDL_LogWarn(0, "failed to load texture Shrine_T2", SDL_GetError());
+        buildingTypeTextures[BuildingType::VikingShrine_T2] = IMG_LoadTexture(renderer, "assets/Viking/ShrineTier2.png");
+        if (buildingTypeTextures[BuildingType::VikingShrine_T2] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingShrine_T2", SDL_GetError());
         }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Shrine_T2], SDL_SCALEMODE_NEAREST);
-
-        buildingTypeTextures[BuildingType::Shrine_T3] = IMG_LoadTexture(renderer, "assets/Viking/ShrineTier3.png");
-        if (buildingTypeTextures[BuildingType::Shrine_T3] == nullptr) {
-            SDL_LogWarn(0, "failed to load texture Shrine_T3", SDL_GetError());
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingShrine_T2], SDL_SCALEMODE_NEAREST);
+        //Beer production
+        buildingTypeTextures[BuildingType::VikingBrewKeeper_T1] = IMG_LoadTexture(renderer, "assets/Viking/BrewKeeper_T1.png");
+        if (buildingTypeTextures[BuildingType::VikingBrewKeeper_T1] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingBrewKeeper_T1", SDL_GetError());
         }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Shrine_T3], SDL_SCALEMODE_NEAREST);
-
-        buildingTypeTextures[BuildingType::SacrificeRitual_T1] = IMG_LoadTexture(renderer, "assets/Viking/SacrificeRitualTier1.png");
-        if (buildingTypeTextures[BuildingType::SacrificeRitual_T1] == nullptr) {
-            SDL_LogWarn(0, "failed to load texture SacrificeRitual_T1", SDL_GetError());
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingBrewKeeper_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingBrewKeeper_T2] = IMG_LoadTexture(renderer, "assets/Viking/BrewKeeper_T2.png");
+        if (buildingTypeTextures[BuildingType::VikingBrewKeeper_T2] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingBrewKeeper_T2", SDL_GetError());
         }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SacrificeRitual_T1], SDL_SCALEMODE_NEAREST);
-
-        buildingTypeTextures[BuildingType::SacrificeRitual_T2] = IMG_LoadTexture(renderer, "assets/Viking/SacrificeRitualTier2.png");
-        if (buildingTypeTextures[BuildingType::SacrificeRitual_T2] == nullptr) {
-            SDL_LogWarn(0, "failed to load texture SacrificeRitual_T2", SDL_GetError());
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingBrewKeeper_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingBrewKeeper_T3] = IMG_LoadTexture(renderer, "assets/Viking/BrewKeeper_T3.png");
+        if (buildingTypeTextures[BuildingType::VikingBrewKeeper_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingBrewKeeper_T3", SDL_GetError());
         }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SacrificeRitual_T2], SDL_SCALEMODE_NEAREST);
-
-        buildingTypeTextures[BuildingType::SacrificeRitual_T3] = IMG_LoadTexture(renderer, "assets/Viking/SacrificeRitualTier3.png");
-        if (buildingTypeTextures[BuildingType::SacrificeRitual_T3] == nullptr) {
-            SDL_LogWarn(0, "failed to load texture SacrificeRitual_T3", SDL_GetError());
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingBrewKeeper_T3], SDL_SCALEMODE_NEAREST);
+        //Public order
+        buildingTypeTextures[BuildingType::VikingSacrificeRitual_T3] = IMG_LoadTexture(renderer, "assets/Viking/SacrificeRitualTier3.png");
+        if (buildingTypeTextures[BuildingType::VikingSacrificeRitual_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingSacrificeRitual_T3", SDL_GetError());
         }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SacrificeRitual_T3], SDL_SCALEMODE_NEAREST);
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingSacrificeRitual_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingSacrificeRitual_T4] = IMG_LoadTexture(renderer, "assets/Viking/SacrificeRitualTier4.png");
+        if (buildingTypeTextures[BuildingType::VikingSacrificeRitual_T4] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingSacrificeRitual_T4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingSacrificeRitual_T4], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingSacrificeRitual_T5] = IMG_LoadTexture(renderer, "assets/Viking/SacrificeRitualTier5.png");
+        if (buildingTypeTextures[BuildingType::VikingSacrificeRitual_T5] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingSacrificeRitual_T5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingSacrificeRitual_T5], SDL_SCALEMODE_NEAREST);
 
         //                  ! SAMURAI !
         //capitals
@@ -2359,41 +2394,50 @@ private://constructor
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiJeweller_T5], SDL_SCALEMODE_NEAREST);
 
         //Religion
-        buildingTypeTextures[BuildingType::Hospital_T1] = IMG_LoadTexture(renderer, "assets/Samurai/HospitalTier1.png");
-        if (buildingTypeTextures[BuildingType::Hospital_T1] == nullptr) {
-            SDL_LogWarn(0, "failed to load texture Hospital_T1", SDL_GetError());
+        //reconstitution
+        buildingTypeTextures[BuildingType::SamuraiHospital_T1] = IMG_LoadTexture(renderer, "assets/Samurai/HospitalTier1.png");
+        if (buildingTypeTextures[BuildingType::SamuraiHospital_T1] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiHospital_T1", SDL_GetError());
         }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Hospital_T1], SDL_SCALEMODE_NEAREST);
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiHospital_T1], SDL_SCALEMODE_NEAREST);
 
-        buildingTypeTextures[BuildingType::Hospital_T2] = IMG_LoadTexture(renderer, "assets/Samurai/HospitalTier2.png");
-        if (buildingTypeTextures[BuildingType::Hospital_T2] == nullptr) {
-            SDL_LogWarn(0, "failed to load texture Hospital_T2", SDL_GetError());
+        buildingTypeTextures[BuildingType::SamuraiHospital_T2] = IMG_LoadTexture(renderer, "assets/Samurai/HospitalTier2.png");
+        if (buildingTypeTextures[BuildingType::SamuraiHospital_T2] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiHospital_T2", SDL_GetError());
         }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Hospital_T2], SDL_SCALEMODE_NEAREST);
-
-        buildingTypeTextures[BuildingType::Hospital_T3] = IMG_LoadTexture(renderer, "assets/Samurai/HospitalTier3.png");
-        if (buildingTypeTextures[BuildingType::Hospital_T3] == nullptr) {
-            SDL_LogWarn(0, "failed to load texture Hospital_T3", SDL_GetError());
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiHospital_T2], SDL_SCALEMODE_NEAREST);
+        //Tea dry Production
+        buildingTypeTextures[BuildingType::SamuraiTeaDry_T1] = IMG_LoadTexture(renderer, "assets/Samurai/TeaDryTier1.png");
+        if (buildingTypeTextures[BuildingType::SamuraiTeaDry_T1] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture SamuraiTeaDry_T1", SDL_GetError);
         }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Hospital_T3], SDL_SCALEMODE_NEAREST);
-
-        buildingTypeTextures[BuildingType::Chapel_T1] = IMG_LoadTexture(renderer, "assets/Samurai/ChapelTier1.png");
-        if (buildingTypeTextures[BuildingType::Chapel_T1] == nullptr) {
-            SDL_LogWarn(0, "failed to load texture Chapel_T1", SDL_GetError());
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiTeaDry_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiTeaDry_T2] = IMG_LoadTexture(renderer, "assets/Samurai/TeaDryTier2.png");
+        if (buildingTypeTextures[BuildingType::SamuraiTeaDry_T2] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture SamuraiTeaDry_T2", SDL_GetError);
         }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Chapel_T1], SDL_SCALEMODE_NEAREST);
-
-        buildingTypeTextures[BuildingType::Chapel_T2] = IMG_LoadTexture(renderer, "assets/Samurai/ChapelTier2.png");
-        if (buildingTypeTextures[BuildingType::Chapel_T2] == nullptr) {
-            SDL_LogWarn(0, "failed to load texture Chapel_T2", SDL_GetError());
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiTeaDry_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiTeaDry_T3] = IMG_LoadTexture(renderer, "assets/Samurai/TeaDryTier3.png");
+        if (buildingTypeTextures[BuildingType::SamuraiTeaDry_T3] == nullptr) {
+            SDL_LogWarn(0,"failed to load texture SamuraiTeaDry_T3", SDL_GetError);
         }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Chapel_T2], SDL_SCALEMODE_NEAREST);
-
-        buildingTypeTextures[BuildingType::Chapel_T3] = IMG_LoadTexture(renderer, "assets/Samurai/ChapelTier3.png");
-        if (buildingTypeTextures[BuildingType::Chapel_T3] == nullptr) {
-            SDL_LogWarn(0, "failed to load texture Chapel_T3", SDL_GetError());
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiTeaDry_T3], SDL_SCALEMODE_NEAREST);
+        //public order
+        buildingTypeTextures[BuildingType::SamuraiChapel_T3] = IMG_LoadTexture(renderer, "assets/Samurai/ChapelTier3.png");
+        if (buildingTypeTextures[BuildingType::SamuraiChapel_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiChapel_T3", SDL_GetError());
         }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Chapel_T3], SDL_SCALEMODE_NEAREST);
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiChapel_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiChapel_T4] = IMG_LoadTexture(renderer, "assets/Samurai/ChapelTier4.png");
+        if (buildingTypeTextures[BuildingType::SamuraiChapel_T4] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiChapel_T4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiChapel_T4], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiChapel_T5] = IMG_LoadTexture(renderer, "assets/Samurai/ChapelTier5.png");
+        if (buildingTypeTextures[BuildingType::SamuraiChapel_T5] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiChapel_T5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiChapel_T5], SDL_SCALEMODE_NEAREST);
 
 
         // -> CREDITS <-
