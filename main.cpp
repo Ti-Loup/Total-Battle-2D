@@ -205,7 +205,7 @@ public:
     TTF_Text *gamePopulationIndicatorUiText = nullptr;
     TTF_Font *gameCurrentPopulationUiFont = nullptr;
     TTF_Text *gameCurrentPopulationUiText = nullptr;
-    TTF_Text *gameNumberOfTurnText = nullptr;
+    TTF_Text *gameTurnUiText = nullptr;
     TTF_Font *gameBuildingCostUIFont = nullptr;
     TTF_Text *gameBuildingCostUIText = nullptr;
     TTF_Font *gameBuildingConstructionTimeFont = nullptr;
@@ -221,9 +221,9 @@ public:
     SDL_Texture *provinceTextureUIBuilding = nullptr;
     SDL_Texture *provinceTextureUIGarrison = nullptr;
     //Circle next turn button
-    Circle NextTurnButton = {1825.f, 1000.f, 55};
+    Circle NextTurnButton = {1775.f, 1000.f, 45};
     //Circle for technologies
-    Circle TechnologyPannel = {1725.f, 900.f, 35};
+    Circle TechnologyPannel = {1200.f, 60.f, 15};
     //Circle to return to game when in technology section
     Circle TechnologyReturnGame = {900.f, 1000.f, 35};
 
@@ -780,8 +780,8 @@ private://constructor
             SDL_LogWarn(0, "failed to load text of gameCurrentPopulationUiText", SDL_GetError());
         }
 
-        gameNumberOfTurnText = TTF_CreateText(textEngine, gameGeneralFont, "0", 25);
-        if (gameNumberOfTurnText == nullptr) {
+        gameTurnUiText = TTF_CreateText(textEngine, gameGeneralFont, "0", 25);
+        if (gameTurnUiText == nullptr) {
             SDL_LogWarn(0,"failed to create the text gameNumberOfTurn",SDL_GetError());
         }
         gameBuildingCostUIText = TTF_CreateText(textEngine, gameBuildingCostUIFont, "0", 25);
@@ -2547,7 +2547,7 @@ private://constructor
         TTF_DestroyText(gameCurrentFoodUiText);
         TTF_DestroyText(gameMoneyIndicatorUiText);
         TTF_DestroyText(gameFoodIndicatorUiText);
-        TTF_DestroyText(gameNumberOfTurnText);
+        TTF_DestroyText(gameTurnUiText);
         TTF_DestroyText(gameBuildingCostUIText);
         TTF_DestroyText(gameBuildingConstructionTimeText);
         TTF_DestroyText(gameBuildingDescriptionText);
@@ -4230,19 +4230,27 @@ private://constructor
                 (int)(arrowCX + halfW), (int)(tipY + dy));
         }
 
+        //far Rect to display the time period
+        SDL_FRect dateBorderRect = {1775.f, 960.f, 145, 80};
+        SDL_SetRenderDrawColor(renderer, 20, 20,20,255);
+        SDL_RenderFillRect(renderer, &dateBorderRect);
+        //close Rect to display the time period
+        SDL_FRect dateBorderRect2 = {1775.f, 965.f, 140, 70 };
+        SDL_SetRenderDrawColor(renderer, 80,80,80,255 );
+        SDL_RenderFillRect(renderer, &dateBorderRect2);
+        //text to show the current Turn
+        std::string endTurn = "Turn: " + std::to_string(currentTurn);
+        TTF_SetTextString(gameTurnUiText, endTurn.c_str(), 0);
+        TTF_SetTextColor(gameTurnUiText, 255, 255, 255, 255);
+        TTF_DrawRendererText(gameTurnUiText, NextTurnButton.circleX+55.f, NextTurnButton.circleY + 0.f);
 
         //circle  button for the NextTurn Button
         SDL_SetRenderDrawColor(renderer, 0,80,255,0);
         RenderBoutonCercle(NextTurnButton, nullptr, gameNextTurnTexture,180, 180, 180);
-
         //Circle for the Technology Button
         SDL_SetRenderDrawColor(renderer, 0, 144,144,255);
         RenderBoutonCercle(TechnologyPannel, nullptr, nullptr, 180, 180, 180);
-        //text to show the current Turn
-        std::string endTurn = std::to_string(currentTurn);
-        TTF_SetTextString(gameNumberOfTurnText, endTurn.c_str(), 0);
-        TTF_SetTextColor(gameNumberOfTurnText, 255, 255, 255, 255);
-        TTF_DrawRendererText(gameNumberOfTurnText, NextTurnButton.circleX+45.f, NextTurnButton.circleY+35.f);
+
         // --------------------------------
         // UI under the contentRect for The growth of the farmers, nobility and church prest.
         //thickness 5.f
