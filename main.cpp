@@ -18,6 +18,7 @@
 #include "Entity.h"
 #include "TileMap.h"
 #include "Camera.h"
+#include "Date.h"
 #include "Province.h"
 #include "Settlements.h"
 #include "Player.h"
@@ -520,6 +521,9 @@ public:
     };
 
 
+    //Date Year and month to chose at the start.
+    int dateStartYear = 874;
+    int dateStartMonth = 2;
 
 
     std::vector<SDL_FRect> tierPopupRects; // 1 rect per building
@@ -733,7 +737,7 @@ private://constructor
         camera.SetMapBounds((float)(tileMap->cols * tileMap->tileSize),(float)(tileMap->rows * tileMap->tileSize),1920.f, 1080.f);
         //UI Font
         gameStatUITitleFont = TTF_OpenFont("assets/Rubik.ttf", 25);
-        gameStatUIFont = TTF_OpenFont("assets/Rubik.ttf", 20);
+        gameStatUIFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         gameBuildingCostUIFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         gameBuildingConstructionTimeFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         gameStatUITitleText = TTF_CreateText(textEngine, gameStatUITitleFont,"GameStatue", 25);
@@ -4051,7 +4055,23 @@ private://constructor
         }
     }
 
-
+    //Returns the texture for the current Season currently just the color
+    SDL_Color GetSeasonTexture(Date::Season currentSeason) {
+        switch (currentSeason) {
+            case Date::Season::Winter: return {
+                70, 130, 220, 255
+            };
+            case Date::Season::Spring: return {
+                110, 200, 90, 255
+            };
+            case Date::Season::Summer: return {
+                230, 200, 60, 255
+            };
+            case Date::Season::Autumn: return {
+                200, 110, 40, 255
+            };
+        }
+    }
 
     //The top UI bar for the money / turn area
     void RenderGeneralUI() {
@@ -4238,11 +4258,35 @@ private://constructor
         SDL_FRect dateBorderRect2 = {1775.f, 965.f, 140, 70 };
         SDL_SetRenderDrawColor(renderer, 80,80,80,255 );
         SDL_RenderFillRect(renderer, &dateBorderRect2);
+
+        //Month and year showing
+        int currentYear = 0, currentMonth = 0;
+        Date::GetCurrentDate(currentTurn, currentYear, currentMonth, dateStartYear, dateStartMonth);
+
+        std::string yearStr = std::to_string(currentYear)+ " AD";
+        TTF_SetTextString(gameTurnUiText, yearStr.c_str(), 0);
+        TTF_SetTextColor(gameTurnUiText, 255, 255, 255, 255); //
+        TTF_DrawRendererText(gameTurnUiText, NextTurnButton.circleX + 55.f, NextTurnButton.circleY - 35.f);
+
+        std::string monthStr = Date::GetMonthName(currentMonth);
+        TTF_SetTextString(gameTurnUiText, monthStr.c_str(), 0);
+        TTF_SetTextColor(gameTurnUiText, 220, 220, 220, 255);
+        TTF_DrawRendererText(gameTurnUiText, NextTurnButton.circleX + 55.f, NextTurnButton.circleY - 15.f);
+
         //text to show the current Turn
         std::string endTurn = "Turn: " + std::to_string(currentTurn);
         TTF_SetTextString(gameTurnUiText, endTurn.c_str(), 0);
         TTF_SetTextColor(gameTurnUiText, 255, 255, 255, 255);
-        TTF_DrawRendererText(gameTurnUiText, NextTurnButton.circleX+55.f, NextTurnButton.circleY + 0.f);
+        TTF_DrawRendererText(gameTurnUiText, NextTurnButton.circleX+55.f, NextTurnButton.circleY + 5.f);
+
+        //Current Season inducator (TOP RIGHT OF UI)
+        Date::Season currentSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
+        SDL_Color seasonColor = GetSeasonTexture(currentSeason);
+        SDL_FRect seasonIconRect = {contentRect.x + 475.f, contentRect.y, 30.f,30.f};
+        SDL_SetRenderDrawColor(renderer, seasonColor.r, seasonColor.g, seasonColor.b, seasonColor.a);
+        SDL_RenderFillRect(renderer, &seasonIconRect);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderRect(renderer, &seasonIconRect);
 
         //circle  button for the NextTurn Button
         SDL_SetRenderDrawColor(renderer, 0,80,255,0);

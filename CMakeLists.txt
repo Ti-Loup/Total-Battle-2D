@@ -28,6 +28,8 @@ add_executable(TotalBattle2D main.cpp
         UnitCardStats.h
         TechnologyTree.cpp
         TechnologyTree.h
+        Date.cpp
+        Date.h
 )
 
 target_include_directories(TotalBattle2D PRIVATE "${MIXER_PATH}/include")
