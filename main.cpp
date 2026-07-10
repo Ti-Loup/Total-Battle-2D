@@ -5144,7 +5144,7 @@ int baseBirth = 0, baseDeath = 0;
         SDL_SetRenderDrawColor(renderer, 25, 65, 55, 255);
         SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, 28.f};
         SDL_RenderFillRect(renderer, &titleBar);
-        
+
         SDL_SetRenderDrawColor(renderer, 90, 170, 140, 255);
         SDL_RenderRect(renderer, &background);
         // Title Text change based
@@ -5177,8 +5177,7 @@ int baseBirth = 0, baseDeath = 0;
         TTF_SetTextColor(gameSeasonUiTitleText, 255, 255, 255, 255);
         int titleW, titleH;
         TTF_GetTextSize(gameSeasonUiTitleText, &titleW, &titleH);
-        TTF_DrawRendererText(gameSeasonUiTitleText,
-            tooltipX + (tooltipW - titleW) / 2.f, tooltipY + (28.f - titleH) / 2.f);
+        TTF_DrawRendererText(gameSeasonUiTitleText, tooltipX + 90.f, tooltipY + 3.f);
 
         // Description et wrap
         float wrapW = tooltipW - 10.f;
@@ -5187,7 +5186,10 @@ int baseBirth = 0, baseDeath = 0;
         TTF_SetTextColor(gameSeasonUiSmallText, 200, 200, 200, 255);
         TTF_DrawRendererText(gameSeasonUiSmallText, tooltipX + 5.f, tooltipY + 36.f);
 
-
+        //Effects
+        TTF_SetTextString(gameSeasonUiTitleText, "Effects", 0);
+        TTF_SetTextColor(gameSeasonUiTitleText, 255, 255, 255, 255);
+        TTF_DrawRendererText(gameSeasonUiTitleText, tooltipX + 90.f, tooltipY + 130.f);
     }
 
 
