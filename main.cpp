@@ -213,6 +213,10 @@ public:
     TTF_Text *gameBuildingConstructionTimeText = nullptr;
     TTF_Font *gameBuildingCategoriesNameFont = nullptr;
     TTF_Text *gameBuildingCategoriesNameText = nullptr;
+    TTF_Font *gameSeasonUiTitleFont = nullptr;
+    TTF_Font *gameSeasonUiSmallFont = nullptr;
+    TTF_Text *gameSeasonUiTitleText = nullptr;
+    TTF_Text *gameSeasonUiSmallText = nullptr;
     //Buttons UI
     bool bButtonUIBuildingIsPressed = true;
     bool bButtonUIGarrisonIsPressed = false;
@@ -356,6 +360,11 @@ public:
     SDL_Texture *gameNegativeUiIcon = nullptr;
     //Texture Storage
     SDL_Texture *gameStorageUiIcon = nullptr;
+    //Textures for the 4 seasons Icons
+    SDL_Texture *gameSeasonWinterIconUiTexture = nullptr;
+    SDL_Texture *gameSeasonSpringIconUiTexture = nullptr;
+    SDL_Texture *gameSeasonSummerIconUiTexture = nullptr;
+    SDL_Texture *gameSeasonAutumnIconUiTexture = nullptr;
 
     //UI TextFont
     TTF_Font *gameStatUITitleFont = nullptr;
@@ -492,6 +501,11 @@ public:
     bool bMouseOnFoodIcon = false;
     float foodTooltipX = 0.0f;
     float foodTooltipY = 0.0f;
+
+    //Season Mouse hovered New UI
+    bool bMouseOnSeasonIcon = false;
+    float seasonTooltipX = 0.0f;
+    float seasonTooltipY = 0.0f;
 
     //Population Mouse Hovered UI
     bool bMouseOnPopulationIcon = false;
@@ -762,6 +776,8 @@ private://constructor
         gameMoneyIndicatorUiFont = TTF_OpenFont("assets/Rubik.ttf", 19);
         gamePopulationIndicatorUiFont = TTF_OpenFont("assets/Rubik.ttf", 19);
         gameCurrentPopulationUiFont = TTF_OpenFont("assets/Rubik.ttf", 15);
+        gameSeasonUiTitleFont = TTF_OpenFont("assets/Rubik.ttf", 19);
+        gameSeasonUiSmallFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         //same font has AnticipatedMoneyUiText
         gameCurrentFoodUiText = TTF_CreateText(textEngine, gameCurrentFoodUiFont, "", 25);
         if (gameCurrentFoodUiText == nullptr) {
@@ -783,7 +799,15 @@ private://constructor
         if (gameCurrentPopulationUiText == nullptr) {
             SDL_LogWarn(0, "failed to load text of gameCurrentPopulationUiText", SDL_GetError());
         }
-
+        //Text Season
+        gameSeasonUiTitleText = TTF_CreateText(textEngine, gameSeasonUiTitleFont, "", 25);
+        if (gameSeasonUiTitleText == nullptr) {
+            SDL_LogWarn(0, "failed to load text of gameSeasonUiTitleText", SDL_GetError());
+        }
+        gameSeasonUiSmallText = TTF_CreateText(textEngine, gameSeasonUiSmallFont, "", 25);
+        if (gameSeasonUiSmallText == nullptr) {
+            SDL_LogWarn(0, "failed to load text of gameSeasonUiSmallText", SDL_GetError());
+        }
         gameTurnUiText = TTF_CreateText(textEngine, gameGeneralFont, "0", 25);
         if (gameTurnUiText == nullptr) {
             SDL_LogWarn(0,"failed to create the text gameNumberOfTurn",SDL_GetError());
@@ -916,6 +940,27 @@ private://constructor
             SDL_LogWarn(0,"failed to load the texture of gameNextTurnTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameNextTurnTexture, SDL_SCALEMODE_NEAREST);
+        //Textures to show the Seasons Icon
+        gameSeasonWinterIconUiTexture = IMG_LoadTexture(renderer, "assets/SeasonWinterIcon.png");
+        if (gameSeasonWinterIconUiTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture of gameSeasonWinterIconUiTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameSeasonWinterIconUiTexture, SDL_SCALEMODE_NEAREST);
+        gameSeasonSpringIconUiTexture = IMG_LoadTexture(renderer, "assets/SeasonSpringIcon.png");
+        if (gameSeasonSpringIconUiTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture of gameSeasonSpringIconUiTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameSeasonSpringIconUiTexture, SDL_SCALEMODE_NEAREST);
+        gameSeasonSummerIconUiTexture = IMG_LoadTexture(renderer, "assets/SeasonSummerIcon.png");
+        if (gameSeasonSummerIconUiTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture of gameSeasonSummerIconUiTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameSeasonSummerIconUiTexture, SDL_SCALEMODE_NEAREST);
+        gameSeasonAutumnIconUiTexture = IMG_LoadTexture(renderer, "assets/SeasonAutumnIcon.png");
+        if (gameSeasonAutumnIconUiTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture of gameSeasonAutumnIconUiTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameSeasonAutumnIconUiTexture, SDL_SCALEMODE_NEAREST);
 
         //texture Province dezoom texture
         provinceKnightBannerTexture = IMG_LoadTexture(renderer, "assets/KnightProvinceTexture.png");
@@ -2519,6 +2564,8 @@ private://constructor
         TTF_CloseFont(gameCurrentPopulationUiFont);
         TTF_CloseFont(gameInProgressFont);
         TTF_CloseFont(gameVersionFont);
+        TTF_CloseFont(gameSeasonUiTitleFont);
+        TTF_CloseFont(gameSeasonUiSmallFont);
         // ---------------------------------
         TTF_DestroyText(fpsText);
         TTF_DestroyText(menuText);
@@ -2560,6 +2607,8 @@ private://constructor
         TTF_DestroyText(gameVersionText);
         TTF_DestroyText(gamePopulationIndicatorUiText);
         TTF_DestroyText(gameCurrentPopulationUiText);
+        TTF_DestroyText(gameSeasonUiTitleText);
+        TTF_DestroyText(gameSeasonUiSmallText);
         // ---------------------------------
         SDL_DestroyTexture(provinceKnightBannerTexture);
         SDL_DestroyTexture(provinceVikingBannerTexture);
@@ -2645,6 +2694,10 @@ private://constructor
         SDL_DestroyTexture(gameNegativeUiIcon);
         SDL_DestroyTexture(gamePopulationGrowth);
         SDL_DestroyTexture(gameStorageUiIcon);
+        SDL_DestroyTexture(gameSeasonWinterIconUiTexture);
+        SDL_DestroyTexture(gameSeasonSummerIconUiTexture);
+        SDL_DestroyTexture(gameSeasonSpringIconUiTexture);
+        SDL_DestroyTexture(gameSeasonAutumnIconUiTexture);
         // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
@@ -4288,6 +4341,20 @@ private://constructor
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderRect(renderer, &seasonIconRect);
 
+        //Hovered Season Zone to show bonuses and debuff
+        SDL_FRect seasonHoveredZone = {contentRect.x + 475.f, contentRect.y, 30.f, 30.f};
+        float mouseXSeason;
+        float mouseYSeason;
+        SDL_GetMouseState(&mouseXSeason, &mouseYSeason);
+        float lenghtXSeason;
+        float lenghtYSeason;
+        SDL_RenderCoordinatesFromWindow(renderer, mouseXSeason, mouseYSeason, &lenghtXSeason, &lenghtYSeason);
+        SDL_FPoint mousePointSeason = {lenghtXSeason, lenghtYSeason};
+        //bool if true (mouse on icon)
+        bMouseOnSeasonIcon = SDL_PointInRectFloat(&mousePointSeason, &seasonHoveredZone);
+        seasonTooltipX = lenghtXSeason;
+        seasonTooltipY = lenghtYSeason;
+
         //circle  button for the NextTurn Button
         SDL_SetRenderDrawColor(renderer, 0,80,255,0);
         RenderBoutonCercle(NextTurnButton, nullptr, gameNextTurnTexture,180, 180, 180);
@@ -5055,6 +5122,76 @@ int baseBirth = 0, baseDeath = 0;
 
         }
 
+    //When hovered Season is true, the interface will show next to the mouse
+
+    void RenderSeasonTooltip() {
+        if (!bMouseOnSeasonIcon) return;
+
+        float tooltipW = 260.f;
+        float tooltipH = 260.f;
+        float tooltipX = seasonTooltipX + 30.f;
+        float tooltipY = seasonTooltipY - tooltipH + 290.f;
+
+        if (tooltipX + tooltipW > 1910.f) tooltipX = seasonTooltipX - tooltipW - 12.f;
+        if (tooltipY < 5.f) tooltipY = 5.f;
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        // Background
+        SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+        SDL_FRect background = {tooltipX, tooltipY, tooltipW, tooltipH};
+        SDL_RenderFillRect(renderer, &background);
+
+        // Title bar
+        SDL_SetRenderDrawColor(renderer, 25, 65, 55, 255);
+        SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, 28.f};
+        SDL_RenderFillRect(renderer, &titleBar);
+        
+        SDL_SetRenderDrawColor(renderer, 90, 170, 140, 255);
+        SDL_RenderRect(renderer, &background);
+        // Title Text change based
+        const char *SeasonTitleString = "";
+        Date::Season currentSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
+
+        const char *seasonTitleString = "";
+        const char *seasonDescriptionString = "";
+
+        switch (currentSeason) {
+            case Date::Season::Winter:
+                seasonTitleString = "Winter";
+                seasonDescriptionString = "Cold ....";
+                break;
+            case Date::Season::Spring:
+                seasonTitleString = "Spring";
+                seasonDescriptionString = "spring brings ....";
+                break;
+            case Date::Season::Summer:
+                seasonTitleString = "Summer";
+                seasonDescriptionString = "Summer brings ....";
+                break;
+            case Date::Season::Autumn:
+                seasonTitleString = "Autumn";
+                seasonDescriptionString = "Autumn and its orange trees ...";
+                break;
+        }
+        //Title
+        TTF_SetTextString(gameSeasonUiTitleText, seasonTitleString, 0);
+        TTF_SetTextColor(gameSeasonUiTitleText, 255, 255, 255, 255);
+        int titleW, titleH;
+        TTF_GetTextSize(gameSeasonUiTitleText, &titleW, &titleH);
+        TTF_DrawRendererText(gameSeasonUiTitleText,
+            tooltipX + (tooltipW - titleW) / 2.f, tooltipY + (28.f - titleH) / 2.f);
+
+        // Description et wrap
+        float wrapW = tooltipW - 10.f;
+        TTF_SetTextWrapWidth(gameSeasonUiSmallText, (int)wrapW);
+        TTF_SetTextString(gameSeasonUiSmallText, seasonDescriptionString, 0);
+        TTF_SetTextColor(gameSeasonUiSmallText, 200, 200, 200, 255);
+        TTF_DrawRendererText(gameSeasonUiSmallText, tooltipX + 5.f, tooltipY + 36.f);
+
+
+    }
+
+
+
     //calculated the stats not null of a building (from buildingData stats/) -- If new variable added in building need to add it here too
     //int because it returns a value
     int InfoBuildingStatRows(const BuildingData *building_data) {
@@ -5523,6 +5660,7 @@ void RenderCategoryBuildingInfoUI() {
         RenderMoneyTooltip();
         RenderFoodTooltip();
         RenderPopulationTooltip();
+        RenderSeasonTooltip();
         RenderBuildingInfoUI();
         RenderCategoryBuildingInfoUI();
         // Tooltip public order
