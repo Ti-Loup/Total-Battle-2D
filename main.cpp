@@ -28,8 +28,9 @@
  *---------------------------------------------
  * 0.2.5
  * WORLD EVENTS (plague, exceed food production, thunder) + SEASONS + DATE (12 turns a year) 3 turn per season
- * Mini Map
- * Event Button Under Mini map
+ * 1. different seasons changes public order, death rate + Food produced
+ * 2. make a Mini Map
+ * 3. create randoms events that pop on
  * Fix camera never stop when touch edge
  * Fix
  * Add Church candle building + craft
@@ -5190,6 +5191,9 @@ int baseBirth = 0, baseDeath = 0;
         TTF_SetTextString(gameSeasonUiTitleText, "Effects", 0);
         TTF_SetTextColor(gameSeasonUiTitleText, 255, 255, 255, 255);
         TTF_DrawRendererText(gameSeasonUiTitleText, tooltipX + 90.f, tooltipY + 130.f);
+
+        //Should display the different bonuses and negatives based on current season
+
     }
 
 
