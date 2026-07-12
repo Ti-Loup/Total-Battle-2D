@@ -5159,6 +5159,8 @@ int baseBirth = 0, baseDeath = 0;
             case Date::Season::Winter:
                 seasonTitleString = "Winter";
                 seasonDescriptionString = "Cold ....";
+
+                //Under effects
                 break;
             case Date::Season::Spring:
                 seasonTitleString = "Spring";
@@ -5193,7 +5195,72 @@ int baseBirth = 0, baseDeath = 0;
         TTF_DrawRendererText(gameSeasonUiTitleText, tooltipX + 90.f, tooltipY + 130.f);
 
         //Should display the different bonuses and negatives based on current season
+        float rightEdge = tooltipX + tooltipW - 10.f;
+        const float iconSlot = 18.f;
+        auto drawEffectRow = [&](float rowY, SDL_Texture* texture, const char* seasonEffects, const std::string& valStr, Uint8 r2, Uint8 g2, Uint8 b2) {
+            if (texture) {
+                float textureW = 0.f, textureH = 0.f;
+                SDL_GetTextureSize(texture, &textureW, &textureH);
 
+                float scale = 1.f;
+                if (textureW > 0.f && textureH > 0.f) {
+                    scale = std::min(iconSlot / textureW, iconSlot / textureH);
+                }
+                float drawW = textureW * scale;
+                float drawH = textureH * scale;
+
+                // center inside the icon slot so different aspect ratios still align
+                SDL_FRect iconRect = {
+                    tooltipX + 8.f + (iconSlot - drawW) / 2.f,
+                    rowY - 1.f + (iconSlot - drawH) / 2.f,
+                    drawW, drawH
+                };
+                SDL_RenderTexture(renderer,texture, nullptr, &iconRect);
+            }
+
+            TTF_SetTextWrapWidth(gameSeasonUiSmallText, 0);
+            TTF_SetTextString(gameSeasonUiSmallText, seasonEffects, 0);
+            TTF_SetTextColor(gameSeasonUiSmallText, 200, 200, 200, 255);
+            TTF_DrawRendererText(gameSeasonUiSmallText, tooltipX + 8.f + iconSlot + 6.f, rowY);
+
+            TTF_SetTextString(gameSeasonUiSmallText, valStr.c_str(), 0);
+            TTF_SetTextColor(gameSeasonUiSmallText, r2, g2, b2, 255);
+            int valueW, valueH;
+            TTF_GetTextSize(gameSeasonUiSmallText, &valueW, &valueH);
+            TTF_DrawRendererText(gameSeasonUiSmallText, rightEdge - valueW, rowY);
+        };
+
+        float rowY = tooltipY + 158.f;
+        const float rowH = 22.f;
+        //Should display the different bonuses and negatives based on current season
+        //Winter -> hardest time, cold so more death rate, people are unhappy by the cold , no food are produced, birthrate is then less than normal
+        if (currentSeason == Date::Season::Winter) {
+            drawEffectRow(rowY, gamePublicOrderNegatifTexture, "Public Order","-2",220,60,60); rowY += rowH;
+            drawEffectRow(rowY, gameFoodIconUi,"Food Production","-50%", 220, 60, 60); rowY += rowH;
+            drawEffectRow(rowY, gamePopulationGrowth, "Birth Rate","-25%", 220, 60, 60); rowY += rowH;
+            drawEffectRow(rowY, gamePopulationGrowth,"Death Rate", "+25%", 220, 60, 60); rowY += rowH;
+        }
+        //Spring -> mild weather, growth season, new life begins after winter
+        else if (currentSeason == Date::Season::Spring) {
+            drawEffectRow(rowY, gamePublicOrderPositifTexture, "Public Order","+1",60,220, 60); rowY += rowH;
+            drawEffectRow(rowY, gameFoodIconUi,"Food Production","+10%", 60, 220, 60); rowY += rowH;
+            drawEffectRow(rowY, gamePopulationGrowth, "Birth Rate","+20%", 60, 220, 60); rowY += rowH;
+            drawEffectRow(rowY, gamePopulationGrowth,"Death Rate","-10%",60, 220, 60); rowY += rowH;
+        }
+        //Summer -> warm weather, good conditions, high morale
+        else if (currentSeason == Date::Season::Summer) {
+            drawEffectRow(rowY, gamePublicOrderPositifTexture, "Public Order",   "+2",   60, 220, 60); rowY += rowH;
+            drawEffectRow(rowY, gameFoodIconUi,"Food Production","+25%", 60, 220, 60); rowY += rowH;
+            drawEffectRow(rowY, gamePopulationGrowth, "Birth Rate","+10%", 60, 220, 60); rowY += rowH;
+            drawEffectRow(rowY, gamePopulationGrowth,"Death Rate", "-15%", 60, 220, 60); rowY += rowH;
+        }
+        //Autumn -> harvest season, best food production, calm before winter
+        else if (currentSeason == Date::Season::Autumn) {
+            drawEffectRow(rowY, gamePublicOrderPositifTexture,"Public Order","+1",60,220,60); rowY += rowH;
+            drawEffectRow(rowY, gameFoodIconUi,"Food Production","+50%", 60, 220, 60); rowY += rowH;
+            drawEffectRow(rowY, gamePopulationGrowth,"Birth Rate","+5%",  60, 220, 60); rowY += rowH;
+            drawEffectRow(rowY, gamePopulationGrowth,"Death Rate","-5%",  60, 220, 60); rowY += rowH;
+        }
     }
 
 
