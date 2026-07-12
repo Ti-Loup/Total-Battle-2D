@@ -5158,21 +5158,20 @@ int baseBirth = 0, baseDeath = 0;
         switch (currentSeason) {
             case Date::Season::Winter:
                 seasonTitleString = "Winter";
-                seasonDescriptionString = "Cold ....";
+                seasonDescriptionString = "The land lies frozen and unforgiving. Stores dwindle, and only the well-prepared kingdoms will see the thaw.";
 
-                //Under effects
                 break;
             case Date::Season::Spring:
                 seasonTitleString = "Spring";
-                seasonDescriptionString = "spring brings ....";
+                seasonDescriptionString = "The frost recedes and fields turn green once more. New life stirs across the kingdom as families grow and crops take root.";
                 break;
             case Date::Season::Summer:
                 seasonTitleString = "Summer";
-                seasonDescriptionString = "Summer brings ....";
+                seasonDescriptionString = "Long days and warm winds favor the realm. Harvests ripen under the sun and spirits run high among the people.";
                 break;
             case Date::Season::Autumn:
                 seasonTitleString = "Autumn";
-                seasonDescriptionString = "Autumn and its orange trees ...";
+                seasonDescriptionString = "Golden leaves fall as the harvest comes in. Granaries fill to the brim before the coming cold reminds all to prepare.";
                 break;
         }
         //Title
