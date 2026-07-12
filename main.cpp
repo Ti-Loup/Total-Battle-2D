@@ -5193,10 +5193,13 @@ int baseBirth = 0, baseDeath = 0;
         TTF_SetTextColor(gameSeasonUiTitleText, 255, 255, 255, 255);
         TTF_DrawRendererText(gameSeasonUiTitleText, tooltipX + 90.f, tooltipY + 130.f);
 
+
         //Should display the different bonuses and negatives based on current season
         float rightEdge = tooltipX + tooltipW - 10.f;
         const float iconSlot = 18.f;
         auto drawEffectRow = [&](float rowY, SDL_Texture* texture, const char* seasonEffects, const std::string& valStr, Uint8 r2, Uint8 g2, Uint8 b2) {
+            SDL_FRect slotRect = {tooltipX + 8.f, rowY - 1.f, iconSlot, iconSlot};
+
             if (texture) {
                 float textureW = 0.f, textureH = 0.f;
                 SDL_GetTextureSize(texture, &textureW, &textureH);
@@ -5210,11 +5213,24 @@ int baseBirth = 0, baseDeath = 0;
 
                 // center inside the icon slot so different aspect ratios still align
                 SDL_FRect iconRect = {
-                    tooltipX + 8.f + (iconSlot - drawW) / 2.f,
-                    rowY - 1.f + (iconSlot - drawH) / 2.f,
+                    slotRect.x + (iconSlot - drawW) / 2.f,
+                    slotRect.y + (iconSlot - drawH) / 2.f,
                     drawW, drawH
                 };
-                SDL_RenderTexture(renderer,texture, nullptr, &iconRect);
+                SDL_RenderTexture(renderer, texture, nullptr, &iconRect);
+
+                // small positive/negative badge, bottom-right corner of the icon slot.
+                bool isPositive = (g2 > r2);
+                SDL_Texture* badgeTexture = isPositive ? gamePositiveUiIcon : gameNegativeUiIcon;
+                if (badgeTexture) {
+                    float badgeW = 12.f, badgeH = 6.f;
+                    SDL_FRect badgeRect = {
+                        slotRect.x + iconSlot - badgeW * 0.65f,
+                        slotRect.y + iconSlot - badgeH * 0.65f,
+                        badgeW, badgeH
+                    };
+                    SDL_RenderTexture(renderer, badgeTexture, nullptr, &badgeRect);
+                }
             }
 
             TTF_SetTextWrapWidth(gameSeasonUiSmallText, 0);
