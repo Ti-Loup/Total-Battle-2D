@@ -625,7 +625,7 @@ private://constructor
         // -> MENU <-
         gameInProgressFont = TTF_OpenFont("assets/KnightFont.ttf", 40);
         gameVersionFont = TTF_OpenFont("assets/Rubik.ttf", 35);
-        gameVersionText = TTF_CreateText (textEngine, gameVersionFont, "Version (0.2.0)", 16);
+        gameVersionText = TTF_CreateText (textEngine, gameVersionFont, "Version (0.2.5)", 16);
         if (gameVersionText == nullptr) {
             SDL_LogWarn(0,"failed to create text for gameVersionText", SDL_GetError());
         }
@@ -5197,7 +5197,7 @@ int baseBirth = 0, baseDeath = 0;
         //Should display the different bonuses and negatives based on current season
         float rightEdge = tooltipX + tooltipW - 10.f;
         const float iconSlot = 18.f;
-        auto drawEffectRow = [&](float rowY, SDL_Texture* texture, const char* seasonEffects, const std::string& valStr, Uint8 r2, Uint8 g2, Uint8 b2) {
+        auto drawEffectRow = [&](float rowY, SDL_Texture* texture, const char* seasonEffects, const std::string& valStr, Uint8 r2, Uint8 g2, Uint8 b2, float textureZoom = 1.0f) {
             SDL_FRect slotRect = {tooltipX + 8.f, rowY - 1.f, iconSlot, iconSlot};
 
             if (texture) {
@@ -5206,7 +5206,7 @@ int baseBirth = 0, baseDeath = 0;
 
                 float scale = 1.f;
                 if (textureW > 0.f && textureH > 0.f) {
-                    scale = std::min(iconSlot / textureW, iconSlot / textureH);
+                    scale = std::min(iconSlot / textureW, iconSlot / textureH) * textureZoom;
                 }
                 float drawW = textureW * scale;
                 float drawH = textureH * scale;
@@ -5220,7 +5220,7 @@ int baseBirth = 0, baseDeath = 0;
                 SDL_RenderTexture(renderer, texture, nullptr, &iconRect);
 
                 // small positive/negative badge, bottom-right corner of the icon slot.
-                bool isPositive = (g2 > r2);
+                bool isPositive = (g2 > r2);//positive if the number of g is higher than the number of r
                 SDL_Texture* badgeTexture = isPositive ? gamePositiveUiIcon : gameNegativeUiIcon;
                 if (badgeTexture) {
                     float badgeW = 12.f, badgeH = 6.f;
@@ -5249,32 +5249,33 @@ int baseBirth = 0, baseDeath = 0;
         const float rowH = 22.f;
         //Should display the different bonuses and negatives based on current season
         //Winter -> hardest time, cold so more death rate, people are unhappy by the cold , no food are produced, birthrate is then less than normal
+        //Texture zoom is default 1.f if not modified/added
         if (currentSeason == Date::Season::Winter) {
             drawEffectRow(rowY, gamePublicOrderNegatifTexture, "Public Order","-2",220,60,60); rowY += rowH;
-            drawEffectRow(rowY, gameFoodIconUi,"Food Production","-50%", 220, 60, 60); rowY += rowH;
-            drawEffectRow(rowY, gamePopulationGrowth, "Birth Rate","-25%", 220, 60, 60); rowY += rowH;
-            drawEffectRow(rowY, gamePopulationGrowth,"Death Rate", "+25%", 220, 60, 60); rowY += rowH;
+            drawEffectRow(rowY, gameFoodIconUi,"Food Production","-50%", 220, 60, 60, 1.4f); rowY += rowH;
+            drawEffectRow(rowY, gamePopulationGrowth, "Birth Rate","-25%", 220, 60, 60, 1.4f); rowY += rowH;
+            drawEffectRow(rowY, gamePopulationGrowth,"Death Rate", "+25%", 220, 60, 60,1.4f); rowY += rowH;
         }
         //Spring -> mild weather, growth season, new life begins after winter
         else if (currentSeason == Date::Season::Spring) {
             drawEffectRow(rowY, gamePublicOrderPositifTexture, "Public Order","+1",60,220, 60); rowY += rowH;
-            drawEffectRow(rowY, gameFoodIconUi,"Food Production","+10%", 60, 220, 60); rowY += rowH;
-            drawEffectRow(rowY, gamePopulationGrowth, "Birth Rate","+20%", 60, 220, 60); rowY += rowH;
-            drawEffectRow(rowY, gamePopulationGrowth,"Death Rate","-10%",60, 220, 60); rowY += rowH;
+            drawEffectRow(rowY, gameFoodIconUi,"Food Production","+10%", 60, 220, 60, 1.4f); rowY += rowH;
+            drawEffectRow(rowY, gamePopulationGrowth, "Birth Rate","+20%", 60, 220, 60, 1.4f); rowY += rowH;
+            drawEffectRow(rowY, gamePopulationGrowth,"Death Rate","-10%",60, 220, 60, 1.4f); rowY += rowH;
         }
         //Summer -> warm weather, good conditions, high morale
         else if (currentSeason == Date::Season::Summer) {
             drawEffectRow(rowY, gamePublicOrderPositifTexture, "Public Order",   "+2",   60, 220, 60); rowY += rowH;
-            drawEffectRow(rowY, gameFoodIconUi,"Food Production","+25%", 60, 220, 60); rowY += rowH;
-            drawEffectRow(rowY, gamePopulationGrowth, "Birth Rate","+10%", 60, 220, 60); rowY += rowH;
-            drawEffectRow(rowY, gamePopulationGrowth,"Death Rate", "-15%", 60, 220, 60); rowY += rowH;
+            drawEffectRow(rowY, gameFoodIconUi,"Food Production","+25%", 60, 220, 60, 1.4f); rowY += rowH;
+            drawEffectRow(rowY, gamePopulationGrowth, "Birth Rate","+10%", 60, 220, 60, 1.4f); rowY += rowH;
+            drawEffectRow(rowY, gamePopulationGrowth,"Death Rate", "-15%", 60, 220, 60, 1.4f); rowY += rowH;
         }
         //Autumn -> harvest season, best food production, calm before winter
         else if (currentSeason == Date::Season::Autumn) {
             drawEffectRow(rowY, gamePublicOrderPositifTexture,"Public Order","+1",60,220,60); rowY += rowH;
-            drawEffectRow(rowY, gameFoodIconUi,"Food Production","+50%", 60, 220, 60); rowY += rowH;
-            drawEffectRow(rowY, gamePopulationGrowth,"Birth Rate","+5%",  60, 220, 60); rowY += rowH;
-            drawEffectRow(rowY, gamePopulationGrowth,"Death Rate","-5%",  60, 220, 60); rowY += rowH;
+            drawEffectRow(rowY, gameFoodIconUi,"Food Production","+50%", 60, 220, 60, 1.4f); rowY += rowH;
+            drawEffectRow(rowY, gamePopulationGrowth,"Birth Rate","+5%",  60, 220, 60, 1.4f); rowY += rowH;
+            drawEffectRow(rowY, gamePopulationGrowth,"Death Rate","-5%",  60, 220, 60, 1.4f); rowY += rowH;
         }
     }
 
