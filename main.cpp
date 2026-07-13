@@ -29,7 +29,12 @@
  * 0.2.5
  * WORLD EVENTS (plague, exceed food production, thunder) + SEASONS + DATE (12 turns a year) 3 turn per season
  * 1. different seasons changes public order, death rate + Food produced
- * 2. make a Mini Map
+ * - works with seasons multiplier
+ * Food : YES
+ * Public Order : NO
+ * BirthRate : NO
+ * DeathRate : NO
+ * 2. make a Mini Map in the corner right + a rect inside to show camera current view.
  * 3. create randoms events that pop on
  * Fix camera never stop when touch edge
  * Fix
