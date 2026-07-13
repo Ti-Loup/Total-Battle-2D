@@ -5122,9 +5122,22 @@ int baseBirth = 0, baseDeath = 0;
                     netPos ? 100 : 220, netPos ? 220 : 60, 60);
 
         }
+    struct SeasonModifiers {
+        int publicOrderBonus = 0;
+        float foodProductionMultiplier = 1.0f;//xfoodProduced
+        float birthRateMultiplier = 1.0f;//xBirthrate
+        float deathRateMultiplier = 1.0f;//xdeathRate
+    };
+    SeasonModifiers GetSeasonModifiers(Date::Season season) {
+        switch (season) {
+            case Date::Season::Winter: return { -2, 0.50f, 0.75f, 1.25f };
+            case Date::Season::Spring: return {  1, 1.10f, 1.20f, 0.90f };
+            case Date::Season::Summer: return {  2, 1.25f, 1.10f, 0.85f };
+            case Date::Season::Autumn: return {  1, 1.50f, 1.05f, 0.95f };        }
+    }
+
 
     //When hovered Season is true, the interface will show next to the mouse
-
     void RenderSeasonTooltip() {
         if (!bMouseOnSeasonIcon) return;
 
@@ -5270,7 +5283,7 @@ int baseBirth = 0, baseDeath = 0;
             drawEffectRow(rowY, gamePopulationGrowth, "Birth Rate","+10%", 60, 220, 60, 1.4f); rowY += rowH;
             drawEffectRow(rowY, gamePopulationGrowth,"Death Rate", "-15%", 60, 220, 60, 1.4f); rowY += rowH;
         }
-        //Autumn -> harvest season, best food production, calm before winter
+        //Autumn -> harvest season, best food production, population still happy, calm before winter
         else if (currentSeason == Date::Season::Autumn) {
             drawEffectRow(rowY, gamePublicOrderPositifTexture,"Public Order","+1",60,220,60); rowY += rowH;
             drawEffectRow(rowY, gameFoodIconUi,"Food Production","+50%", 60, 220, 60, 1.4f); rowY += rowH;
