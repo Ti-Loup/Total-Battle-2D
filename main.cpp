@@ -5829,9 +5829,12 @@ if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
     //public order based on food UI
     bool bIsPlayerProvince = (provinces[provID].owner == player.faction);
     int foodModifier = bIsPlayerProvince ? GetFoodPublicOrderModifier() : 0;
+    //public order based on season
+    Date::Season tooltipSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
+    int seasonModifier = GetSeasonModifiers(tooltipSeason). publicOrderBonus;
     //Money public order penalty
     int taxPenalty = collecting ? -4 : 0;
-    int totalDelta = taxPenalty + provinceBuildingBonus + foodModifier;
+    int totalDelta = taxPenalty + provinceBuildingBonus + foodModifier + seasonModifier;
     int nextPO     = std::clamp(po + totalDelta, -100, 100);
 
     // add the high difference for each categories
@@ -5840,6 +5843,7 @@ if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
     if (provinceBuildingBonus != 0) tooltipH += 24.f;
     if (taxPenalty != 0) tooltipH += 24.f;
     if (foodModifier != 0) tooltipH += 24.f;
+    if (seasonModifier != 0) tooltipH += 24.f;
     tooltipH += 10.f; // padding
 
     float tooltipX = publicOrderTooltipX + 12.f;
@@ -5928,6 +5932,7 @@ if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
     if (provinceBuildingBonus != 0) drawModLine("Buildings",        provinceBuildingBonus);
     if (taxPenalty != 0)            drawModLine("Collected income",  taxPenalty);
     if (foodModifier != 0) drawModLine ("Food", foodModifier);
+    if (seasonModifier != 0) drawModLine("Season", seasonModifier);
 }
         //fps
         TTF_DrawRendererText(fpsText, 10, 10);
@@ -6076,6 +6081,9 @@ public:
     // money & food  // bonus public order inside a province
     int goldEarned = 0;
     int foodPublicOrderModifier = GetFoodPublicOrderModifier();
+    //season public order modifier
+    Date::Season endTurnSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
+    int seasonPublicOrderModifier = GetSeasonModifiers(endTurnSeason).publicOrderBonus;
     for (auto& s : settlements) {
         int provID = s.settlementData.provinceID;
 
@@ -6087,11 +6095,12 @@ public:
 
         // applied bonus to all province
         s.settlementData.publicOrder += provincePublicOrderBonus[provID];
+        // season effect, applies to everyone
+        s.settlementData.publicOrder += seasonPublicOrderModifier;
 
         if (provinces[provID].owner == player.faction) {
             s.settlementData.publicOrder += foodPublicOrderModifier;
         }
-
 
         s.settlementData.publicOrder = std::clamp(s.settlementData.publicOrder, -100, 100);
     }
