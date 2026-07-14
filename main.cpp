@@ -236,7 +236,7 @@ public:
     //Circle next turn button
     Circle NextTurnButton = {1775.f, 1000.f, 45};
     //Circle for technologies
-    Circle TechnologyPannel = {1200.f, 60.f, 15};
+    Circle TechnologyPannel = {1675.f, 18.f, 15};
     //Circle to return to game when in technology section
     Circle TechnologyReturnGame = {900.f, 1000.f, 35};
 
@@ -4345,14 +4345,14 @@ private://constructor
         //Current Season inducator (TOP RIGHT OF UI)
         Date::Season currentSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
         SDL_Color seasonColor = GetSeasonTexture(currentSeason);
-        SDL_FRect seasonIconRect = {contentRect.x + 475.f, contentRect.y, 30.f,30.f};
+        SDL_FRect seasonIconRect = {contentRect.x + 650.f, contentRect.y + 10.f, 60.f,60.f};
         SDL_SetRenderDrawColor(renderer, seasonColor.r, seasonColor.g, seasonColor.b, seasonColor.a);
         SDL_RenderFillRect(renderer, &seasonIconRect);
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderRect(renderer, &seasonIconRect);
 
         //Hovered Season Zone to show bonuses and debuff
-        SDL_FRect seasonHoveredZone = {contentRect.x + 475.f, contentRect.y, 30.f, 30.f};
+        SDL_FRect seasonHoveredZone = {contentRect.x + 650.f, contentRect.y + 10.f, 60.f, 60.f};
         float mouseXSeason;
         float mouseYSeason;
         SDL_GetMouseState(&mouseXSeason, &mouseYSeason);
@@ -4368,6 +4368,12 @@ private://constructor
         //circle  button for the NextTurn Button
         SDL_SetRenderDrawColor(renderer, 0,80,255,0);
         RenderBoutonCercle(NextTurnButton, nullptr, gameNextTurnTexture,180, 180, 180);
+
+        //Ui for Technology/win/diplomacy button area
+        // SDL_FRect miniMapBorderCampaign = {1670.f, 40.f, 250.f,250.f };
+        SDL_FRect topRightUiButtons = {1650.f, 0.f,270.f ,40.f};
+        SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
+        SDL_RenderFillRect(renderer, &topRightUiButtons);
         //Circle for the Technology Button
         SDL_SetRenderDrawColor(renderer, 0, 144,144,255);
         RenderBoutonCercle(TechnologyPannel, nullptr, nullptr, 180, 180, 180);
@@ -4447,6 +4453,14 @@ private://constructor
         populationTooltipX = lenghtXPopulation;
         populationTooltipY = lenghtYPopulation;
 
+        //Campaign Minimap
+        SDL_FRect miniMapBorderCampaign = {1670.f, 40.f, 250.f,250.f };
+        SDL_SetRenderDrawColor(renderer, 20,20,20,255);
+        SDL_RenderFillRect(renderer, &miniMapBorderCampaign);
+
+        SDL_FRect miniMapCampaign = {1675.f, 45.f, 240.f, 240.f};
+        SDL_SetRenderDrawColor(renderer, 160,160,160,255);
+        SDL_RenderFillRect(renderer, &miniMapCampaign);
     }
     //public order based on food (FILLEDS SEGS 1,2,3,4,5,6)
     /*
