@@ -31,7 +31,7 @@
  * 1. different seasons changes public order, death rate + Food produced
  * - works with seasons multiplier
  * Food : YES
- * Public Order : NO
+ * Public Order : YES
  * BirthRate : NO
  * DeathRate : NO
  * 2. make a Mini Map in the corner right + a rect inside to show camera current view.
@@ -5025,9 +5025,9 @@ SDL_RenderRect(renderer, &bg);
                    + yellowH + lineSpacing
                    + bonusH + padH;
 
-        if (hoveredPopulationType == 0) tooltipH += 220.f;
-        else if (hoveredPopulationType == 1) tooltipH += 220.f;
-        else if (hoveredPopulationType == 2) tooltipH += 220.f;
+        if (hoveredPopulationType == 0) tooltipH += 260.f;
+        else if (hoveredPopulationType == 1) tooltipH += 260.f;
+        else if (hoveredPopulationType == 2) tooltipH += 260.f;
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
     SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
@@ -5081,12 +5081,14 @@ SDL_RenderRect(renderer, &bg);
 float rightEdge2 = tooltipX + tooltipW - 5.f;
 
 // similar values calculated like endTurn to show results
-float foodPopulationMultiplier = GetFoodPopulationGrowthMultiplier();
-int baseBirth = 0, baseDeath = 0;
+        float foodPopulationMultiplier = GetFoodPopulationGrowthMultiplier();
+        Date::Season tooltipPopSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
+        SeasonModifiers tooltipPopSeasonMods = GetSeasonModifiers(tooltipPopSeason);
+        int baseBirth = 0, baseDeath = 0;
         //based on the different population type
         if (hoveredPopulationType == 0) {
-              baseBirth = player.basePeasantryBirth;
-              baseDeath = player.basePeasantryDeath;
+            baseBirth = player.basePeasantryBirth;
+            baseDeath = player.basePeasantryDeath;
         } else if (hoveredPopulationType == 1) {
             baseBirth = player.baseNobilityBirth;
             baseDeath = player.baseNobilityDeath;
@@ -5095,8 +5097,9 @@ int baseBirth = 0, baseDeath = 0;
             baseDeath = player.baseClergyDeath;
         }
 
-        int effectiveBirths = (int)((float)(baseBirth + buildingBonus) * foodPopulationMultiplier);
-        int netChange = effectiveBirths - baseDeath;
+        int effectiveBirths = (int)((float)(baseBirth + buildingBonus) * foodPopulationMultiplier * tooltipPopSeasonMods.birthRateMultiplier);
+        int effectiveDeaths = (int)((float)baseDeath * tooltipPopSeasonMods.deathRateMultiplier);
+        int netChange = effectiveBirths - effectiveDeaths;
 
         // sous title
         TTF_SetTextString(gamePopulationIndicatorUiText, "This Turn", 0);
@@ -5138,18 +5141,31 @@ int baseBirth = 0, baseDeath = 0;
                         good ? 100 : 220, good ? 220 : 60, 60);
         }
 
-        // Multiplicator population
+        // Multiplicator population (food)
         int multiplierPopulation = (int)((foodPopulationMultiplier - 1.0f) * 100.f);
         bool multGood = (foodPopulationMultiplier >= 1.0f);
         std::string multiplierPopulationStr = (multiplierPopulation >= 0 ? "+" : "") + std::to_string(multiplierPopulation) + "%";
-        drawStatRow("Population Growth Multiplier", multiplierPopulationStr,
+        drawStatRow("Food Growth Multiplier", multiplierPopulationStr,
                     multGood ? 100 : 220, multGood ? 220 : 60, 60);
 
-        // effective Growth base + building * populationmultiplier from food
+        // Season birth/death modifiers
+        int seasonBirthPercent = (int)std::round((tooltipPopSeasonMods.birthRateMultiplier - 1.0f) * 100.f);
+        bool seasonBirthGood = (tooltipPopSeasonMods.birthRateMultiplier >= 1.0f);
+        std::string seasonBirthStr = (seasonBirthPercent >= 0 ? "+" : "") + std::to_string(seasonBirthPercent) + "%";
+        drawStatRow("Season Birth Modifier", seasonBirthStr,
+                    seasonBirthGood ? 100 : 220, seasonBirthGood ? 220 : 60, 60);
+
+        int seasonDeathPercent = (int)std::round((tooltipPopSeasonMods.deathRateMultiplier - 1.0f) * 100.f);
+        bool seasonDeathGood = (tooltipPopSeasonMods.deathRateMultiplier <= 1.0f); // lower death rate is favorable
+        std::string seasonDeathStr = (seasonDeathPercent >= 0 ? "+" : "") + std::to_string(seasonDeathPercent) + "%";
+        drawStatRow("Season Death Modifier", seasonDeathStr,
+                    seasonDeathGood ? 100 : 220, seasonDeathGood ? 220 : 60, 60);
+
+        // effective Growth base + building * food multiplier * season birth multiplier
         drawStatRow("After Bonuses Births", "+" + std::to_string(effectiveBirths), 100, 220, 60);
 
-        // dead people /red
-        drawStatRow("Death Rate", "-" + std::to_string(baseDeath), 220, 60, 60);
+        // dead people /red, scaled by season death multiplier
+        drawStatRow("Death Rate", "-" + std::to_string(effectiveDeaths), 220, 60, 60);
 
         // separator
         SDL_SetRenderDrawColor(renderer, 80, 70, 30, 200);
@@ -6083,6 +6099,7 @@ public:
     int foodPublicOrderModifier = GetFoodPublicOrderModifier();
     //season public order modifier
     Date::Season endTurnSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
+    SeasonModifiers endTurnSeasonMods = GetSeasonModifiers(endTurnSeason);
     int seasonPublicOrderModifier = GetSeasonModifiers(endTurnSeason).publicOrderBonus;
     for (auto& s : settlements) {
         int provID = s.settlementData.provinceID;
@@ -6191,15 +6208,20 @@ public:
         }
         float foodMultiplier = GetFoodPopulationGrowthMultiplier();
 
-        // Calcul global Birthrate (Base + buildings)multiplied by food Multiplier
-        int totalPeasantryBirths = (int)((float)(player.basePeasantryBirth + buildingPeasantryBonus) * foodMultiplier);
-        int totalNobilityBirths  = (int)((float)(player.baseNobilityBirth + buildingNobilityBonus) * foodMultiplier);
-        int totalClergyBirths    = (int)((float)(player.baseClergyGrowth + buildingClergyBonus) * foodMultiplier);
+        // Calcul global Birthrate (Base + buildings) multiplied by food AND season birth multiplier
+        int totalPeasantryBirths = (int)((float)(player.basePeasantryBirth + buildingPeasantryBonus) * foodMultiplier * endTurnSeasonMods.birthRateMultiplier);
+        int totalNobilityBirths  = (int)((float)(player.baseNobilityBirth + buildingNobilityBonus) * foodMultiplier * endTurnSeasonMods.birthRateMultiplier);
+        int totalClergyBirths = (int)((float)(player.baseClergyGrowth + buildingClergyBonus) * foodMultiplier * endTurnSeasonMods.birthRateMultiplier);
+
+        // deaths scaled by season death multiplier (winter = harsher, summer = milder)
+        int totalPeasantryDeaths = (int)((float)player.basePeasantryDeath * endTurnSeasonMods.deathRateMultiplier);
+        int totalNobilityDeaths  = (int)((float)player.baseNobilityDeath * endTurnSeasonMods.deathRateMultiplier);
+        int totalClergyDeaths = (int)((float)player.baseClergyDeath * endTurnSeasonMods.deathRateMultiplier);
 
         // net change with death
-        player.nextTurnPeasantryAmount = totalPeasantryBirths - player.basePeasantryDeath;
-        player.nextTurnNobilityAmount  = totalNobilityBirths  - player.baseNobilityDeath;
-        player.nextTurnClergyAmount    = totalClergyBirths    - player.baseClergyDeath;
+        player.nextTurnPeasantryAmount = totalPeasantryBirths - totalPeasantryDeaths;
+        player.nextTurnNobilityAmount  = totalNobilityBirths  - totalNobilityDeaths;
+        player.nextTurnClergyAmount = totalClergyBirths - totalClergyDeaths;
 
         // Added to current population
         player.currentPeasantryAmount += player.nextTurnPeasantryAmount;
