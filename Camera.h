@@ -25,6 +25,8 @@ float overscrollMargin = 150.f;
     void Zoom(float factor,float screenW = 1920.f, float screenH = 1080.f);
     void Update(float directiont, float screenW = 1920.f, float screenH = 1080.f);//for the zoom progressive movement
     void Movement(float directionX, float directionY, float screenW = 1920.f, float screenH = 1080.f);
+    //For the miniMap
+    void CenterOn (float worldX, float worldY, float screenW = 1920.f, float screenH = 1080.f);
 
     SDL_FRect WorldToScreen(float worldX, float worldY, float width, float height ) const;
 

@@ -35,6 +35,8 @@
  * BirthRate : NO
  * DeathRate : NO
  * 2. make a Mini Map in the corner right + a rect inside to show camera current view.
+ * Fix an issue with vikings religious buildings crashing the game
+ *
  * 3. create randoms events that pop on
  * Fix camera never stop when touch edge
  * Fix
@@ -388,6 +390,12 @@ public:
     SDL_Texture *provinceVikingBannerTexture = nullptr;
     SDL_Texture *provinceSamuraiBannerTexture = nullptr;
 
+    //Texture of the tilemap for the minimap
+    SDL_Texture *tileMapTexture = nullptr;
+    //Actual on-screen rect the minimap texture is drawn into
+    SDL_FRect miniMapDrawRect = {0.f, 0.f, 0.f, 0.f};
+    //Scale factor minimap pixels
+    float miniMapWorldScale = 1.f;
     //texture of all buildings for different factions
     std::unordered_map<BuildingType, SDL_Texture *> buildingTypeTextures;
 
@@ -757,6 +765,13 @@ private://constructor
         tileMap->BakeToTexture(renderer);
         tileMap->LoadProvinceMap("assets/ProvinceMap.png");
         camera.SetMapBounds((float)(tileMap->cols * tileMap->tileSize),(float)(tileMap->rows * tileMap->tileSize),1920.f, 1080.f);
+        //Texture of the tilemap for minimap
+        tileMapTexture = IMG_LoadTexture(renderer,"assets/TileMap.png");
+        if (tileMapTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load the texture tileMapTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(tileMapTexture,SDL_SCALEMODE_NEAREST);
+
         //UI Font
         gameStatUITitleFont = TTF_OpenFont("assets/Rubik.ttf", 25);
         gameStatUIFont = TTF_OpenFont("assets/Rubik.ttf", 15);
@@ -2706,6 +2721,7 @@ private://constructor
         SDL_DestroyTexture(gameSeasonSummerIconUiTexture);
         SDL_DestroyTexture(gameSeasonSpringIconUiTexture);
         SDL_DestroyTexture(gameSeasonAutumnIconUiTexture);
+        SDL_DestroyTexture(tileMapTexture);
         // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
@@ -4458,9 +4474,50 @@ private://constructor
         SDL_SetRenderDrawColor(renderer, 20,20,20,255);
         SDL_RenderFillRect(renderer, &miniMapBorderCampaign);
 
-        SDL_FRect miniMapCampaign = {1675.f, 45.f, 240.f, 240.f};
-        SDL_SetRenderDrawColor(renderer, 160,160,160,255);
-        SDL_RenderFillRect(renderer, &miniMapCampaign);
+        SDL_FRect miniMapBox = {1675.f, 45.f, 240.f, 240.f};
+
+        float texW = 0.f, texH = 0.f;
+        SDL_GetTextureSize(tileMapTexture, &texW, &texH);
+
+        if (texW > 0.f && texH > 0.f) {
+            float scale = std::min(miniMapBox.w / texW, miniMapBox.h / texH);
+            float drawW = texW * scale;
+            float drawH = texH * scale;
+
+            miniMapDrawRect = {
+                miniMapBox.x + (miniMapBox.w - drawW) / 2.f,
+                miniMapBox.y + (miniMapBox.h - drawH) / 2.f,
+                drawW,
+                drawH
+            };
+
+            // FIX: texW/texH are in tile units, but camera.startX/startY are in
+            // world-pixel units (tile * tileSize). Convert the scale accordingly.
+            miniMapWorldScale = scale / (float)tileMap->tileSize;
+
+            SDL_RenderTexture(renderer, tileMapTexture, nullptr, &miniMapDrawRect);
+
+            // Camera viewport rectangle
+            float viewWorldW = 1920.f / camera.zoom;
+            float viewWorldH = 1080.f / camera.zoom;
+
+            SDL_FRect camViewRect = {
+                miniMapDrawRect.x + camera.startX * miniMapWorldScale,
+                miniMapDrawRect.y + camera.startY * miniMapWorldScale,
+                viewWorldW * miniMapWorldScale,
+                viewWorldH * miniMapWorldScale
+            };
+
+            if (camViewRect.x < miniMapDrawRect.x) camViewRect.x = miniMapDrawRect.x;
+            if (camViewRect.y < miniMapDrawRect.y) camViewRect.y = miniMapDrawRect.y;
+            if (camViewRect.x + camViewRect.w > miniMapDrawRect.x + miniMapDrawRect.w)
+                camViewRect.w = (miniMapDrawRect.x + miniMapDrawRect.w) - camViewRect.x;
+            if (camViewRect.y + camViewRect.h > miniMapDrawRect.y + miniMapDrawRect.h)
+                camViewRect.h = (miniMapDrawRect.y + miniMapDrawRect.h) - camViewRect.y;
+
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            SDL_RenderRect(renderer, &camViewRect);
+        }
     }
     //public order based on food (FILLEDS SEGS 1,2,3,4,5,6)
     /*
@@ -6383,6 +6440,16 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         //IF IN GAME
         //When pressded it shows the position of 1 tile
         if (app.StateActuel == State::Game) {
+            // Minimap click -> jump camera there
+            SDL_FPoint miniMapPt = {nouveauX, nouveauY};
+            if (app.miniMapWorldScale > 0.f && SDL_PointInRectFloat(&miniMapPt, &app.miniMapDrawRect)) {
+                float worldClickX = (nouveauX - app.miniMapDrawRect.x) / app.miniMapWorldScale;
+                float worldClickY = (nouveauY - app.miniMapDrawRect.y) / app.miniMapWorldScale;
+
+                app.camera.CenterOn(worldClickX, worldClickY, 1920.f, 1080.f);
+                return SDL_APP_CONTINUE;
+            }
+
     float worldX = (nouveauX + app.camera.startX * app.camera.zoom) / app.camera.zoom;
     float worldY = (nouveauY + app.camera.startY * app.camera.zoom) / app.camera.zoom;
     int tileC = (int)(worldX / app.tileMap->tileSize);

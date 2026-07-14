@@ -76,6 +76,15 @@ void Camera::Movement(float directionX, float directionY, float screenW, float s
 
     ClampPosition(screenW, screenH);
 }
+void Camera::CenterOn(float worldX, float worldY, float screenW, float screenH) {
+    startX = worldX - (screenW / 2.f) / zoom;
+    startY = worldY - (screenH / 2.f) / zoom;
+    anchorWorldX = worldX;
+    anchorWorldY = worldY;
+
+    ClampPosition(screenW, screenH);
+}
+
 
 SDL_FRect Camera::WorldToScreen(float worldX, float worldY, float width, float height) const {
     return {
