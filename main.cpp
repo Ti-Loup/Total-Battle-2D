@@ -40,6 +40,8 @@
  * Fix
  * Add Church candle building + craft
  * Add some win Achievements After With steam.
+ *
+ * If Time -> work on the ai to build buildings strategicly based on what they're missing.
  * --------------------------------------------
  * 0.3.0
  * RESSOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
