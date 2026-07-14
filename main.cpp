@@ -396,6 +396,17 @@ public:
     SDL_FRect miniMapDrawRect = {0.f, 0.f, 0.f, 0.f};
     //Scale factor minimap pixels
     float miniMapWorldScale = 1.f;
+    float miniMapSquareSize = 240.f;
+    //Fixed square the minimap always renders into (never changes size/shape)
+    SDL_FRect miniMapBoxRect = {1675.f, 45.f, 240.f, 240.f};
+    //Current minimap zoom
+    float miniMapZoom = 1.f;
+    float miniMapMinZoom = 1.f;
+    float miniMapMaxZoom = 6.f;
+    //Screen position that corresponds to world (0,0) on the minimap — needed to convert clicks back to world coords once the minimap is zoomed
+    float miniMapOriginX = 0.f;
+    float miniMapOriginY = 0.f;
+
     //texture of all buildings for different factions
     std::unordered_map<BuildingType, SDL_Texture *> buildingTypeTextures;
 
@@ -4390,9 +4401,13 @@ private://constructor
         SDL_FRect topRightUiButtons = {1650.f, 0.f,270.f ,40.f};
         SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
         SDL_RenderFillRect(renderer, &topRightUiButtons);
+        //Circle for Win conditions
+        //Circle for chest
         //Circle for the Technology Button
         SDL_SetRenderDrawColor(renderer, 0, 144,144,255);
         RenderBoutonCercle(TechnologyPannel, nullptr, nullptr, 180, 180, 180);
+        //Circle for diplomacy
+        //Circle for Family/hierarchy
 
         // --------------------------------
         // UI under the contentRect for The growth of the farmers, nobility and church prest.
@@ -4470,50 +4485,69 @@ private://constructor
         populationTooltipY = lenghtYPopulation;
 
         //Campaign Minimap
-        SDL_FRect miniMapBorderCampaign = {1670.f, 40.f, 250.f,250.f };
-        SDL_SetRenderDrawColor(renderer, 20,20,20,255);
+        SDL_FRect miniMapBorderCampaign = {
+            miniMapBoxRect.x - 5.f,
+            miniMapBoxRect.y - 5.f,
+            miniMapBoxRect.w + 10.f,
+            miniMapBoxRect.h + 10.f
+        };
+        SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
         SDL_RenderFillRect(renderer, &miniMapBorderCampaign);
-
-        SDL_FRect miniMapBox = {1675.f, 45.f, 240.f, 240.f};
 
         float texW = 0.f, texH = 0.f;
         SDL_GetTextureSize(tileMapTexture, &texW, &texH);
 
         if (texW > 0.f && texH > 0.f) {
-            float scale = std::min(miniMapBox.w / texW, miniMapBox.h / texH);
-            float drawW = texW * scale;
-            float drawH = texH * scale;
+            // Crop is always a SQUARE (matches the square box). Since the map is
+            // wider than it is tall, a square crop naturally leaves slack on the
+            // wide axis -> that slack is what lets the minimap pan left/right.
+            float baseCropSize = std::min(texW, texH);
+            float cropSize = baseCropSize / miniMapZoom;
 
-            miniMapDrawRect = {
-                miniMapBox.x + (miniMapBox.w - drawW) / 2.f,
-                miniMapBox.y + (miniMapBox.h - drawH) / 2.f,
-                drawW,
-                drawH
+            float camCenterWorldX = camera.startX + (1920.f / camera.zoom) / 2.f;
+            float camCenterWorldY = camera.startY + (1080.f / camera.zoom) / 2.f;
+            float camCenterTexX = camCenterWorldX / (float)tileMap->tileSize;
+            float camCenterTexY = camCenterWorldY / (float)tileMap->tileSize;
+
+            SDL_FRect srcRect = {
+                camCenterTexX - cropSize / 2.f,
+                camCenterTexY - cropSize / 2.f,
+                cropSize,
+                cropSize
             };
+            if (srcRect.x < 0.f) srcRect.x = 0.f;
+            if (srcRect.y < 0.f) srcRect.y = 0.f;
+            if (srcRect.x + srcRect.w > texW) srcRect.x = texW - srcRect.w;
+            if (srcRect.y + srcRect.h > texH) srcRect.y = texH - srcRect.h;
 
-            // FIX: texW/texH are in tile units, but camera.startX/startY are in
-            // world-pixel units (tile * tileSize). Convert the scale accordingly.
+            // Crop is square and box is square -> this always fills the box exactly,
+            // no overflow, no bars, no clip rect needed.
+            miniMapDrawRect = miniMapBoxRect;
+
+            float scale = miniMapBoxRect.w / cropSize;
             miniMapWorldScale = scale / (float)tileMap->tileSize;
+            miniMapOriginX = miniMapDrawRect.x - srcRect.x * scale;
+            miniMapOriginY = miniMapDrawRect.y - srcRect.y * scale;
 
-            SDL_RenderTexture(renderer, tileMapTexture, nullptr, &miniMapDrawRect);
+            SDL_RenderTexture(renderer, tileMapTexture, &srcRect, &miniMapDrawRect);
 
             // Camera viewport rectangle
             float viewWorldW = 1920.f / camera.zoom;
             float viewWorldH = 1080.f / camera.zoom;
 
             SDL_FRect camViewRect = {
-                miniMapDrawRect.x + camera.startX * miniMapWorldScale,
-                miniMapDrawRect.y + camera.startY * miniMapWorldScale,
+                miniMapOriginX + camera.startX * miniMapWorldScale,
+                miniMapOriginY + camera.startY * miniMapWorldScale,
                 viewWorldW * miniMapWorldScale,
                 viewWorldH * miniMapWorldScale
             };
 
-            if (camViewRect.x < miniMapDrawRect.x) camViewRect.x = miniMapDrawRect.x;
-            if (camViewRect.y < miniMapDrawRect.y) camViewRect.y = miniMapDrawRect.y;
-            if (camViewRect.x + camViewRect.w > miniMapDrawRect.x + miniMapDrawRect.w)
-                camViewRect.w = (miniMapDrawRect.x + miniMapDrawRect.w) - camViewRect.x;
-            if (camViewRect.y + camViewRect.h > miniMapDrawRect.y + miniMapDrawRect.h)
-                camViewRect.h = (miniMapDrawRect.y + miniMapDrawRect.h) - camViewRect.y;
+            if (camViewRect.x < miniMapBoxRect.x) camViewRect.x = miniMapBoxRect.x;
+            if (camViewRect.y < miniMapBoxRect.y) camViewRect.y = miniMapBoxRect.y;
+            if (camViewRect.x + camViewRect.w > miniMapBoxRect.x + miniMapBoxRect.w)
+                camViewRect.w = (miniMapBoxRect.x + miniMapBoxRect.w) - camViewRect.x;
+            if (camViewRect.y + camViewRect.h > miniMapBoxRect.y + miniMapBoxRect.h)
+                camViewRect.h = (miniMapBoxRect.y + miniMapBoxRect.h) - camViewRect.y;
 
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderRect(renderer, &camViewRect);
@@ -6442,9 +6476,9 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         if (app.StateActuel == State::Game) {
             // Minimap click -> jump camera there
             SDL_FPoint miniMapPt = {nouveauX, nouveauY};
-            if (app.miniMapWorldScale > 0.f && SDL_PointInRectFloat(&miniMapPt, &app.miniMapDrawRect)) {
-                float worldClickX = (nouveauX - app.miniMapDrawRect.x) / app.miniMapWorldScale;
-                float worldClickY = (nouveauY - app.miniMapDrawRect.y) / app.miniMapWorldScale;
+            if (app.miniMapWorldScale > 0.f && SDL_PointInRectFloat(&miniMapPt, &app.miniMapBoxRect)) {
+                float worldClickX = (nouveauX - app.miniMapOriginX) / app.miniMapWorldScale;
+                float worldClickY = (nouveauY - app.miniMapOriginY) / app.miniMapWorldScale;
 
                 app.camera.CenterOn(worldClickX, worldClickY, 1920.f, 1080.f);
                 return SDL_APP_CONTINUE;
@@ -6455,7 +6489,6 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
     int tileC = (int)(worldX / app.tileMap->tileSize);
     int tileR = (int)(worldY / app.tileMap->tileSize);
     SDL_Log("Tile: col=%d, row=%d", tileC, tileR);
-
 
 
             if (app.ClickInsideCircle(nouveauX, nouveauY, app.BoutonReturn)) {
@@ -6910,9 +6943,20 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
     // Zoom
     if (event->type == SDL_EVENT_MOUSE_WHEEL && app.StateActuel == State::Game) {
-        float factor = (event->wheel.y > 0) ? 1.1f : 0.9f;
-        app.camera.Zoom(factor, 1920.f, 1080.f);
+        float wheelMouseX, wheelMouseY;
+        SDL_GetMouseState(&wheelMouseX, &wheelMouseY);
+        float wheelLogicX, wheelLogicY;
+        SDL_RenderCoordinatesFromWindow(app.renderer, wheelMouseX, wheelMouseY, &wheelLogicX, &wheelLogicY);
+        SDL_FPoint wheelPt = {wheelLogicX, wheelLogicY};
+
+        if (SDL_PointInRectFloat(&wheelPt, &app.miniMapBoxRect)) {
+            float miniZoomFactor = (event->wheel.y > 0) ? 1.25f : 0.8f;
+            app.miniMapZoom = std::clamp(app.miniMapZoom * miniZoomFactor, app.miniMapMinZoom, app.miniMapMaxZoom);
+        } else {
+            float factor = (event->wheel.y > 0) ? 1.1f : 0.9f;
+            app.camera.Zoom(factor, 1920.f, 1080.f);
         }
+    }
     //When Mouse touch a edge it
 
 
