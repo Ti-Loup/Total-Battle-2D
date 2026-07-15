@@ -237,8 +237,17 @@ public:
     SDL_Texture *provinceTextureUIGarrison = nullptr;
     //Circle next turn button
     Circle NextTurnButton = {1775.f, 1000.f, 45};
+    //Circle for win condition
+    Circle WinConditionPannel = {1675.f , 18.f, 15};
+    //Circle for edits
+    Circle ChestEditsPannel = {1715.f, 18.f, 15};
     //Circle for technologies
-    Circle TechnologyPannel = {1675.f, 18.f, 15};
+    Circle TechnologyPannel = {1755.f, 18.f, 15};
+    //Circle diplomacy
+    Circle DiplomacyPannel = {1795.f, 18.f, 15};
+    //Circle Family Hierarchy
+    Circle FamilyHierarchyPannel = {1835.f, 18.f, 15};
+    
     //Circle to return to game when in technology section
     Circle TechnologyReturnGame = {900.f, 1000.f, 35};
 
@@ -4402,12 +4411,20 @@ private://constructor
         SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
         SDL_RenderFillRect(renderer, &topRightUiButtons);
         //Circle for Win conditions
-        //Circle for chest
+        SDL_SetRenderDrawColor(renderer, 0, 0,144,255);
+        RenderBoutonCercle(WinConditionPannel, nullptr, nullptr, 180, 180, 180);
+        //Circle for chest edits
+        SDL_SetRenderDrawColor(renderer, 0, 144,0,255);
+        RenderBoutonCercle(ChestEditsPannel, nullptr, nullptr, 180, 180, 180);
         //Circle for the Technology Button
         SDL_SetRenderDrawColor(renderer, 0, 144,144,255);
         RenderBoutonCercle(TechnologyPannel, nullptr, nullptr, 180, 180, 180);
         //Circle for diplomacy
+        SDL_SetRenderDrawColor(renderer, 240, 0,144,255);
+        RenderBoutonCercle(DiplomacyPannel, nullptr, nullptr, 180, 180, 180);
         //Circle for Family/hierarchy
+        SDL_SetRenderDrawColor(renderer, 0, 244,0,255);
+        RenderBoutonCercle(FamilyHierarchyPannel, nullptr, nullptr, 180, 180, 180);
 
         // --------------------------------
         // UI under the contentRect for The growth of the farmers, nobility and church prest.
