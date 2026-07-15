@@ -237,17 +237,21 @@ public:
     SDL_Texture *provinceTextureUIGarrison = nullptr;
     //Circle next turn button
     Circle NextTurnButton = {1775.f, 1000.f, 45};
+    //Circle for Degrees
+    Circle DegreesPannel = {1655.f, 18.f, 15};
     //Circle for win condition
-    Circle WinConditionPannel = {1675.f , 18.f, 15};
-    //Circle for edits
-    Circle ChestEditsPannel = {1715.f, 18.f, 15};
+    Circle WinConditionPannel = {1695.f , 18.f, 15};
+    //Circle for Tresure and increase taxation
+    Circle TreasuryPannel = {1735.f, 18.f, 15};
     //Circle for technologies
-    Circle TechnologyPannel = {1755.f, 18.f, 15};
+    Circle TechnologyPannel = {1775.f, 18.f, 15};
     //Circle diplomacy
-    Circle DiplomacyPannel = {1795.f, 18.f, 15};
+    Circle DiplomacyPannel = {1815.f, 18.f, 15};
     //Circle Family Hierarchy
-    Circle FamilyHierarchyPannel = {1835.f, 18.f, 15};
-    
+    Circle FamilyHierarchyPannel = {1855.f, 18.f, 15};
+    //Circle camera reset
+    Circle CameraResetPannel = {1895.f, 18.f, 15};
+
     //Circle to return to game when in technology section
     Circle TechnologyReturnGame = {900.f, 1000.f, 35};
 
@@ -4406,16 +4410,18 @@ private://constructor
         RenderBoutonCercle(NextTurnButton, nullptr, gameNextTurnTexture,180, 180, 180);
 
         //Ui for Technology/win/diplomacy button area
-        // SDL_FRect miniMapBorderCampaign = {1670.f, 40.f, 250.f,250.f };
-        SDL_FRect topRightUiButtons = {1650.f, 0.f,270.f ,40.f};
+        SDL_FRect topRightUiButtons = {1625.f, 0.f,295.f ,40.f};
         SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
         SDL_RenderFillRect(renderer, &topRightUiButtons);
+        //Circle for Degrees
+        SDL_SetRenderDrawColor(renderer, 0, 0,144,255);
+        RenderBoutonCercle(DegreesPannel, nullptr, nullptr, 180, 180, 180);
         //Circle for Win conditions
         SDL_SetRenderDrawColor(renderer, 0, 0,144,255);
         RenderBoutonCercle(WinConditionPannel, nullptr, nullptr, 180, 180, 180);
-        //Circle for chest edits
+        //Circle for treasury and taxation
         SDL_SetRenderDrawColor(renderer, 0, 144,0,255);
-        RenderBoutonCercle(ChestEditsPannel, nullptr, nullptr, 180, 180, 180);
+        RenderBoutonCercle(TreasuryPannel, nullptr, nullptr, 180, 180, 180);
         //Circle for the Technology Button
         SDL_SetRenderDrawColor(renderer, 0, 144,144,255);
         RenderBoutonCercle(TechnologyPannel, nullptr, nullptr, 180, 180, 180);
@@ -4425,7 +4431,9 @@ private://constructor
         //Circle for Family/hierarchy
         SDL_SetRenderDrawColor(renderer, 0, 244,0,255);
         RenderBoutonCercle(FamilyHierarchyPannel, nullptr, nullptr, 180, 180, 180);
-
+        //Circle for Reset Camera
+        SDL_SetRenderDrawColor(renderer, 20, 244,50,255);
+        RenderBoutonCercle(CameraResetPannel, nullptr, nullptr, 180, 180, 180);
         // --------------------------------
         // UI under the contentRect for The growth of the farmers, nobility and church prest.
         //thickness 5.f
