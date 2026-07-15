@@ -396,6 +396,9 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::KnightChurch_T5:
     case BuildingType::VikingShrine_T1:
     case BuildingType::VikingShrine_T2:
+    case BuildingType::VikingBrewKeeper_T1:
+    case BuildingType::VikingBrewKeeper_T2:
+    case BuildingType::VikingBrewKeeper_T3:
     case BuildingType::VikingSacrificeRitual_T3:
     case BuildingType::VikingSacrificeRitual_T4:
     case BuildingType::VikingSacrificeRitual_T5:
@@ -609,12 +612,12 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::VikingShrine_T1,{"Shrine",          "Pleases the gods.",        100,  5, 0,  0, 1, 2, 0, 0, 0, 0, 0, 1, BuildingType::VikingShrine_T2});
     add(BuildingType::VikingShrine_T2,{"Temple",          "Greater divine favor.",    250, 10, 0, 1, 2, 3, 0, 0, 0, 0, 0, 3, BuildingType::None});
     //Beer production
-    add(BuildingType::VikingBrewKeeper_T1, {"SmallReligiousBeerProduction",    "Improves public order.",  100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, BuildingType::VikingBrewKeeper_T1});
-    add(BuildingType::VikingBrewKeeper_T2, {"MediumReligiousBeerProduction",    "Strong public order.",    250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 3, BuildingType::VikingBrewKeeper_T2});
+    add(BuildingType::VikingBrewKeeper_T1, {"SmallReligiousBeerProduction",    "Improves public order.",  100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, BuildingType::VikingBrewKeeper_T2});
+    add(BuildingType::VikingBrewKeeper_T2, {"MediumReligiousBeerProduction",    "Strong public order.",    250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 3, BuildingType::VikingBrewKeeper_T3});
     add(BuildingType::VikingBrewKeeper_T3, {"LargeReligiousBeerProduction", "Major public order.",     500, 15, 0, 4, 3, 4, 0, 0, 0, 0, 0, 5, BuildingType::None});
     //PublicOrder
-    add(BuildingType::VikingSacrificeRitual_T3, {"Ritual Ground",   "Blood for Odin.",          150,  5, 0,  2, 3, 2, 0, 0, 0, 0, 0, 0, BuildingType::VikingSacrificeRitual_T3});
-    add(BuildingType::VikingSacrificeRitual_T4, {"Sacrifice Altar", "Greater blood offering.",  300, 10, 0, 3, 4, 3, 0, 0, 0, 0, 0, 0, BuildingType::VikingSacrificeRitual_T4});
+    add(BuildingType::VikingSacrificeRitual_T3, {"Ritual Ground",   "Blood for Odin.",          150,  5, 0,  2, 3, 2, 0, 0, 0, 0, 0, 0, BuildingType::VikingSacrificeRitual_T4});
+    add(BuildingType::VikingSacrificeRitual_T4, {"Sacrifice Altar", "Greater blood offering.",  300, 10, 0, 3, 4, 3, 0, 0, 0, 0, 0, 0, BuildingType::VikingSacrificeRitual_T5});
     add(BuildingType::VikingSacrificeRitual_T5, {"Grand Sacrifice", "Odin's full blessing.",    600, 15, 0, 4, 5, 4, 0, 0, 0, 0, 0, 0,BuildingType::None});
 
     // ── SAMURAI MILITARY ──
