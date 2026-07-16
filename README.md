@@ -148,7 +148,7 @@ assets/               # Textures, fonts, audio, tilemaps<br>
 | **v0.1.0** | Campaign map, buildings, economy, | Released | May | 2026 |
 | **v0.1.5** | Food storage polish, texture fixes | Released | June | 2026 |
 | **v0.2.0** | Population system(farmers, nobility, church) | Released | July | 2026 |
-| **v0.2.5** | World Events + Climate (affect food production) | In progress | August | 2026 |
+| **v0.2.5** | World Events + Climate (affect food production) + MiniMap | In progress | August | 2026 |
 | **v0.3.0** | Special ressources(Mines) + Fishing/Military Ports + Industrial building item production | Planned | September | 2026 |
 | **v0.3.5** | diplomacy & exchange | Planned | October | 2026 |
 | **Future** | Roads, playable technology tree, faction Unique mechanic, cinematic intro | Vision | 2026 | 2027 |
