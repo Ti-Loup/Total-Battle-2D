@@ -41,7 +41,7 @@
  *
  * If time -> pannel buttons popup ui element for each .exemple -> Add some win Achievements
  * If Time -> work on the ai to build buildings strategicly based on what they're missing.
- * 
+ *
  * Fixes :
 * Fixed | issue with vikings religious buildings crashing the game
  * Fixed | camera never stop when touch edge
