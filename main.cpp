@@ -1027,6 +1027,11 @@ private://constructor
         if (provinceSamuraiBannerTexture == nullptr) {
             SDL_LogWarn(0,"failed to load the provinceSamuraiBannerTexture");
         }
+        provinceVikingBannerTexture = IMG_LoadTexture(renderer, "assets/VikingProvinceTexture.png");
+        if (provinceVikingBannerTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture provinceVikingBannerTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(provinceVikingBannerTexture, SDL_SCALEMODE_NEAREST);
         SDL_SetTextureScaleMode(provinceKnightBannerTexture, SDL_SCALEMODE_NEAREST);
         SDL_SetTextureScaleMode(provinceSamuraiBannerTexture, SDL_SCALEMODE_NEAREST);
 
@@ -5968,7 +5973,7 @@ void RenderCategoryBuildingInfoUI() {
             auto renderVikingBanner = [&](SDL_Texture* provincesTexture, SDL_FPoint screenPos, Uint8 alpha) {
                 if (!provincesTexture) return;
                 SDL_FRect dst = {
-                    screenPos.x - 100.f,
+                    screenPos.x - 140.f,
                     screenPos.y - 70.f,
                     275.f, 150.f
                 };
@@ -5978,7 +5983,7 @@ void RenderCategoryBuildingInfoUI() {
             };
 
             renderKnightBanner(provinceKnightBannerTexture,  kScreen, a);
-            //renderVikingBanner(vikingBanner,  vScreen, a);
+            renderVikingBanner(provinceVikingBannerTexture,  vScreen, a);
             renderSamuraiBanner(provinceSamuraiBannerTexture, sScreen, a);
 
 
