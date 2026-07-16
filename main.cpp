@@ -237,20 +237,27 @@ public:
     SDL_Texture *provinceTextureUIGarrison = nullptr;
     //Circle next turn button
     Circle NextTurnButton = {1775.f, 1000.f, 45};
-    //Circle for Degrees
-    Circle DegreesPannel = {1655.f, 18.f, 15};
+    //Circle for Decrees
+    Circle DecreesPannel = {1655.f, 18.f, 15};
+    SDL_Texture *decreesPannelTexture = nullptr;
     //Circle for win condition
     Circle WinConditionPannel = {1695.f , 18.f, 15};
+    SDL_Texture *winConditionPannelTexture = nullptr;
     //Circle for Tresure and increase taxation
     Circle TreasuryPannel = {1735.f, 18.f, 15};
+    SDL_Texture *treasuryPannelTexture = nullptr;
     //Circle for technologies
     Circle TechnologyPannel = {1775.f, 18.f, 15};
+    SDL_Texture *technologyPannelTexture = nullptr;
     //Circle diplomacy
     Circle DiplomacyPannel = {1815.f, 18.f, 15};
+    SDL_Texture *diplomacyPannelTexture = nullptr;
     //Circle Family Hierarchy
     Circle FamilyHierarchyPannel = {1855.f, 18.f, 15};
+    SDL_Texture *familyHierarchyPannelTexture = nullptr;
     //Circle camera reset
     Circle CameraResetPannel = {1895.f, 18.f, 15};
+    SDL_Texture *cameraResetPannelTexture = nullptr;
 
     //Circle to return to game when in technology section
     Circle TechnologyReturnGame = {900.f, 1000.f, 35};
@@ -1128,6 +1135,42 @@ private://constructor
         }
         SDL_SetTextureScaleMode(gamePopulationGrowth, SDL_SCALEMODE_NEAREST);
 
+        //Textures Buttons UI
+        decreesPannelTexture = IMG_LoadTexture(renderer, "assets/DecreesPannel.png");
+        if (decreesPannelTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture decreesPannelTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(decreesPannelTexture, SDL_SCALEMODE_NEAREST);
+        winConditionPannelTexture = IMG_LoadTexture(renderer, "assets/WinConditionPannel.png");
+        if (winConditionPannelTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture winConditionPannelTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(winConditionPannelTexture, SDL_SCALEMODE_NEAREST);
+        treasuryPannelTexture = IMG_LoadTexture(renderer, "assets/TreasuryPannel.png");
+        if (treasuryPannelTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture treasuryPannelTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(treasuryPannelTexture, SDL_SCALEMODE_NEAREST);
+        diplomacyPannelTexture = IMG_LoadTexture(renderer, "assets/DiplomacyPannel.png");
+        if (diplomacyPannelTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture diploacyPannelTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(diplomacyPannelTexture, SDL_SCALEMODE_NEAREST);
+        technologyPannelTexture = IMG_LoadTexture(renderer, "assets/TechnologyPannel.png");
+        if (technologyPannelTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture technologyPannelTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(technologyPannelTexture, SDL_SCALEMODE_NEAREST);
+        familyHierarchyPannelTexture = IMG_LoadTexture(renderer, "assets/FamilyHierarchyPannel.png");
+        if (familyHierarchyPannelTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture familyHierarchyPannelTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(familyHierarchyPannelTexture, SDL_SCALEMODE_NEAREST);
+        cameraResetPannelTexture = IMG_LoadTexture(renderer, "assets/CameraResetPannel.png");
+        if (cameraResetPannelTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture cameraResetPannelTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(cameraResetPannelTexture, SDL_SCALEMODE_NEAREST);
         //SETTLEMENTS EVOLUTIF IN CAMPAIGN FOR EACH FACTION
 
         /*
@@ -2746,6 +2789,13 @@ private://constructor
         SDL_DestroyTexture(gameSeasonSpringIconUiTexture);
         SDL_DestroyTexture(gameSeasonAutumnIconUiTexture);
         SDL_DestroyTexture(tileMapTexture);
+        SDL_DestroyTexture(decreesPannelTexture);
+        SDL_DestroyTexture(winConditionPannelTexture);
+        SDL_DestroyTexture(treasuryPannelTexture);
+        SDL_DestroyTexture(diplomacyPannelTexture);
+        SDL_DestroyTexture(technologyPannelTexture);
+        SDL_DestroyTexture(familyHierarchyPannelTexture);
+        SDL_DestroyTexture(cameraResetPannelTexture);
         // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
@@ -4415,7 +4465,7 @@ private://constructor
         SDL_RenderFillRect(renderer, &topRightUiButtons);
         //Circle for Degrees
         SDL_SetRenderDrawColor(renderer, 0, 0,144,255);
-        RenderBoutonCercle(DegreesPannel, nullptr, nullptr, 180, 180, 180);
+        RenderBoutonCercle(DecreesPannel, nullptr, nullptr, 180, 180, 180);
         //Circle for Win conditions
         SDL_SetRenderDrawColor(renderer, 0, 0,144,255);
         RenderBoutonCercle(WinConditionPannel, nullptr, nullptr, 180, 180, 180);
