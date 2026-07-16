@@ -37,14 +37,14 @@
  * 2. make a Mini Map in the corner right + a rect inside to show camera current view.
  * Add Church candle building + craft
  *
- * 3. create randoms events that pop on
- *
+ * 3. create randoms events that pop on (plague, exceed food production, thunder)
  * If time -> pannel buttons popup ui element for each .exemple -> Add some win Achievements
  * If Time -> work on the ai to build buildings strategicly based on what they're missing.
  *
- * Fixes :
-* Fixed | issue with vikings religious buildings crashing the game
+ *
+ * Fixed | issue with vikings religious buildings crashing the game
  * Fixed | camera never stop when touch edge
+ * Fixed | Viking Unzoom Texture added
  * To Fix | the population need to start with a baseamount, not 0
  * --------------------------------------------
  * 0.3.0
