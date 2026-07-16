@@ -32,18 +32,20 @@
  * - works with seasons multiplier
  * Food : YES
  * Public Order : YES
- * BirthRate : NO
- * DeathRate : NO
+ * BirthRate : YES
+ * DeathRate : YES
  * 2. make a Mini Map in the corner right + a rect inside to show camera current view.
- * Fix an issue with vikings religious buildings crashing the game
+ * Add Church candle building + craft
  *
  * 3. create randoms events that pop on
- * Fix camera never stop when touch edge
- * Fix
- * Add Church candle building + craft
- * Add some win Achievements After With steam.
  *
+ * If time -> pannel buttons popup ui element for each .exemple -> Add some win Achievements
  * If Time -> work on the ai to build buildings strategicly based on what they're missing.
+ * 
+ * Fixes :
+* Fixed | issue with vikings religious buildings crashing the game
+ * Fixed | camera never stop when touch edge
+ * To Fix | the population need to start with a baseamount, not 0
  * --------------------------------------------
  * 0.3.0
  * RESSOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
