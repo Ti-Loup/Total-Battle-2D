@@ -6877,10 +6877,40 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         app.EndTurn();
         return SDL_APP_CONTINUE;
     }
+
+    //Decree Ui button pressed
+    if (app.ClickInsideCircle(nouveauX, nouveauY, app.DecreesPannel)) {
+        //log message for now -> ui poping on later
+        SDL_LogWarn(0, "Clicked DecreesPannel");
+    }
+    //WinAchivements Ui Button pressed
+    if (app.ClickInsideCircle(nouveauX, nouveauY, app.WinConditionPannel)) {
+         //log message for now -> ui poping on later
+         SDL_LogWarn(0, "Clicked WinConditionPannel");
+    }
+    //Treasury Ui button pressed
+    if (app.ClickInsideCircle(nouveauX, nouveauY, app.TreasuryPannel)) {
+        //log message for now -> ui poping on later
+        SDL_LogWarn(0, "Clicked TreasuryPannel");
+    }
+    //Diplomacy UiButton pressed
+    if (app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyPannel)) {
+        SDL_LogWarn(0, "Clicked Diplomacy");
+    }
     //When button Technology is pressed it goes to the Technology State
     if (app.ClickInsideCircle(nouveauX, nouveauY, app.TechnologyPannel)) {
         app.StateActuel = State::Technology;
         return SDL_APP_CONTINUE;
+    }
+    //Hierarchy Family Ui Button pressed
+    if (app.ClickInsideCircle(nouveauX, nouveauY, app.FamilyHierarchyPannel)) {
+        //log message for now -> ui poping on later
+        SDL_LogWarn(0, "Clicked FamilyHierarchy");
+    }
+    //Camera Zoom reset Ui Button Pressed
+    if (app.ClickInsideCircle(nouveauX, nouveauY, app.CameraResetPannel)) {
+        //log message for now -> ui poping on later
+        SDL_LogWarn(0, "Clicked CameraResetPannel");
     }
 
 }
