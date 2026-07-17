@@ -264,6 +264,9 @@ public:
     //Circle to return to game when in technology section
     Circle TechnologyReturnGame = {900.f, 1000.f, 35};
 
+    //Circle to bring World events info popup to false again
+    Circle WorlEventsButtonReturnGame = {1000.f, 770.f, 20};
+
     //End Turn
     int currentTurn = 1;
     FactionZone currentFactionTurn = FactionZone::Knight;//start with player
@@ -587,6 +590,12 @@ public:
     //Date Year and month to chose at the start.
     int dateStartYear = 874;
     int dateStartMonth = 2;
+
+    //bool popup when World event starts
+    bool bWorldEventInfoPopup = false;
+    //World Events Calculate trigger each turn
+    int worldEventCountdown = 0;
+
 
 
     std::vector<SDL_FRect> tierPopupRects; // 1 rect per building
@@ -2619,6 +2628,11 @@ private://constructor
         player.currentPeasantryAmount = player.basePeasantryBirth - player.basePeasantryDeath;
         player.currentNobilityAmount = player.baseNobilityBirth - player.baseNobilityDeath;
         player.currentClergyAmount = player.baseClergyGrowth - player.baseClergyDeath;
+
+        //RNG WorldEvent random
+        SDL_srand(0);
+        worldEventCountdown = RollWorldEventCountdown();
+
     }
 
     //DESTRUCTEUR
@@ -5539,6 +5553,33 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         }
     }
 
+    //Events Popup every each 12 to 24 rounds
+    void RenderWorldEventInfoPopup() {
+        if (!bWorldEventInfoPopup)return;
+
+        //border
+        SDL_FRect WorldEventBorder = {650.f, 300.f, 700, 500};
+        SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
+        SDL_RenderFillRect(renderer, &WorldEventBorder);
+        //backround
+        SDL_FRect WorldEventBackground = {655.f, 305.f, 690, 490};
+        SDL_SetRenderDrawColor(renderer, 120, 120, 120, 255);
+        SDL_RenderFillRect(renderer, &WorldEventBackground);
+        //title background
+        SDL_FRect WorldEventTitleBackground = {655.f, 305.f, 690, 50};
+        SDL_SetRenderDrawColor(renderer, 130, 100, 0, 255);
+        SDL_RenderFillRect(renderer, &WorldEventTitleBackground);
+        //Image in middle
+        SDL_FRect WorldEventImageBackground = {700.f, 375.f, 600, 300};
+        SDL_SetRenderDrawColor(renderer, 80,120,41,255);
+        SDL_RenderFillRect(renderer, &WorldEventImageBackground);
+        //Desc Bottom left
+
+        //Effects bottom right
+
+        //Return Button
+        RenderBoutonCercle(WorlEventsButtonReturnGame, nullptr, nullptr, 0, 180, 10);
+    }
 
 
     //calculated the stats not null of a building (from buildingData stats/) -- If new variable added in building need to add it here too
@@ -6012,6 +6053,7 @@ void RenderCategoryBuildingInfoUI() {
         RenderSeasonTooltip();
         RenderBuildingInfoUI();
         RenderCategoryBuildingInfoUI();
+        RenderWorldEventInfoPopup();
         // Tooltip public order
 if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
     const Settlement& sPO = settlements[hoveredPublicOrderSettlementIndex];
@@ -6268,6 +6310,11 @@ public:
         return 1;
     }
 
+    // Rolls a random amount of turns (12 to 18) before the next world event
+    int RollWorldEventCountdown() {
+        return 12 + (int)SDL_rand(7); //range [12,18]
+    }
+
     //fonction to end a turn
     void EndTurn() {
 
@@ -6444,6 +6491,12 @@ public:
 
     currentTurn++;
     SDL_Log("Turn %d || your turn (%d)", currentTurn, (int)player.faction);
+
+    worldEventCountdown --;
+    if (worldEventCountdown <= 0) {
+        bWorldEventInfoPopup = true;
+        worldEventCountdown = RollWorldEventCountdown();//restart
+    }
 }
 
     SDL_AppResult RunCallBacks() {
@@ -6914,6 +6967,14 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
     }
 
 }
+
+        //Button WorldEvent To remove Ui
+        if (app.ClickInsideCircle(nouveauX, nouveauY, app.WorlEventsButtonReturnGame)) {
+            app.bWorldEventInfoPopup = false;
+            return SDL_APP_CONTINUE;
+        }
+
+
         //TECHNOLOGYTREE SECTION
         if (app.StateActuel == State::Technology) {
             if (app.ClickInsideCircle(nouveauX, nouveauY, app.TechnologyReturnGame)) {
