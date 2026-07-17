@@ -22,6 +22,7 @@
 #include "Province.h"
 #include "Settlements.h"
 #include "Player.h"
+#include "WorldEvents.h"
 
 /*
 
@@ -38,6 +39,8 @@
  * Add Church candle building + craft
  *
  * 3. create randoms events that pop on (plague, exceed food production, thunder)
+ * Add Ports buildings If a main settlement or village is close to the sea it has a port. For villages/Fishing port, and Main settlements military port.
+ * fishing ports gives food and produce fish in 0.3.0!
  * If time -> pannel buttons popup ui element for each .exemple -> Add some win Achievements
  * If Time -> work on the ai to build buildings strategicly based on what they're missing.
  *
@@ -49,9 +52,9 @@
  * --------------------------------------------
  * 0.3.0
  * RESSOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
- * * 1 If a main settlement or village is close to the sea it has a port. For villages/Fishing port, and Main settlements military port.
+ *
  * fishing ports gives food and produce fish !
- * 2 MINE, Forged Steel Production, FISH, medicine plants, Candle
+ * 1 MINE, Forged Steel Production, FISH, medicine plants, Candle
  * 3 THE RESSOURCES ARE STORED IN (warehouse ?)
  *
  * Some industrial buildings can only be buy if you have the raw material
@@ -593,6 +596,7 @@ public:
 
     //bool popup when World event starts
     bool bWorldEventInfoPopup = false;
+    WorldEventsType currentWorldsEvent = WorldEventsType::None;//Start with none event
     //World Events Calculate trigger each turn
     int worldEventCountdown = 0;
 
@@ -5553,9 +5557,32 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         }
     }
 
+    //Fonction to pick a random WorldEvent
+    WorldEventsType PickRandomWorldEvents() {
+        std::vector<WorldEventsType> allEvents = {
+            WorldEventsType::Storm,
+            WorldEventsType::Earthquake,
+            WorldEventsType::Drought,
+            WorldEventsType::Plague,
+            WorldEventsType::Fire,
+            WorldEventsType::PoorPopulation,
+            WorldEventsType::GoodHarvest,
+            WorldEventsType::MiraculousFishCatch,
+            WorldEventsType::FavorableWinds,
+            WorldEventsType::Justice,
+            WorldEventsType::NewInvension,
+            WorldEventsType::WarPreparation,
+        };
+        int idx = (int)SDL_rand((int)allEvents.size());
+        return allEvents[idx];
+    }
+
     //Events Popup every each 12 to 24 rounds
     void RenderWorldEventInfoPopup() {
         if (!bWorldEventInfoPopup)return;
+        //call the WorldEvents database to get their infos
+        const WorldEventsData *events_data = GetWorldEventData(currentWorldsEvent);
+        if (!events_data) return;
 
         //border
         SDL_FRect WorldEventBorder = {650.f, 300.f, 700, 500};
@@ -5569,12 +5596,24 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         SDL_FRect WorldEventTitleBackground = {655.f, 305.f, 690, 50};
         SDL_SetRenderDrawColor(renderer, 130, 100, 0, 255);
         SDL_RenderFillRect(renderer, &WorldEventTitleBackground);
+        // Event Name -> need its own text
+        TTF_SetTextString(gameStatUITitleText, events_data->name.c_str(), 0);
+        TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
+        int titleW, titleH;
+        TTF_GetTextSize(gameStatUITitleText, &titleW, &titleH);
+        TTF_DrawRendererText(gameStatUITitleText,
+            WorldEventTitleBackground.x + (WorldEventTitleBackground.w - titleW) / 2.f,
+            WorldEventTitleBackground.y + (WorldEventTitleBackground.h - titleH) / 2.f);
         //Image in middle
         SDL_FRect WorldEventImageBackground = {700.f, 375.f, 600, 300};
         SDL_SetRenderDrawColor(renderer, 80,120,41,255);
         SDL_RenderFillRect(renderer, &WorldEventImageBackground);
         //Desc Bottom left
-
+        TTF_SetTextWrapWidth(gameBuildingDescriptionText, 620);
+        TTF_SetTextString(gameBuildingDescriptionText, events_data->description.c_str(), 0);
+        TTF_SetTextColor(gameBuildingDescriptionText, 20, 20, 20, 255);
+        TTF_DrawRendererText(gameBuildingDescriptionText, 665.f, 700.f);
+        TTF_SetTextWrapWidth(gameBuildingDescriptionText, 0); // reset
         //Effects bottom right
 
         //Return Button
@@ -6310,9 +6349,9 @@ public:
         return 1;
     }
 
-    // Rolls a random amount of turns (12 to 18) before the next world event
+    // Rolls a random amount of turns (6 - 12) before the next world event
     int RollWorldEventCountdown() {
-        return 12 + (int)SDL_rand(7); //range [12,18]
+        return 6 + (int)SDL_rand(5); //range [6,12]
     }
 
     //fonction to end a turn
@@ -6494,6 +6533,7 @@ public:
 
     worldEventCountdown --;
     if (worldEventCountdown <= 0) {
+        currentWorldsEvent = PickRandomWorldEvents();
         bWorldEventInfoPopup = true;
         worldEventCountdown = RollWorldEventCountdown();//restart
     }
