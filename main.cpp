@@ -5571,7 +5571,7 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
             WorldEventsType::FavorableWinds,
             WorldEventsType::Justice,
             WorldEventsType::NewInvension,
-            WorldEventsType::WarPreparation,
+            WorldEventsType::WarSign,
         };
         int idx = (int)SDL_rand((int)allEvents.size());
         return allEvents[idx];
