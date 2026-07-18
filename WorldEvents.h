@@ -29,7 +29,7 @@ enum class WorldEventsType{
     FavorableWinds,
     Justice,
     NewInvension,
-    WarPreparation
+    WarSign
 };
 enum class WorldEventCategory{
     Positive,
@@ -54,7 +54,7 @@ struct WorldEventsData {
     //HUMAN
     //-Justice (Huge criminal got arrested and brought to justice) more order public and better legitimicy(future).
     //-New Invension from inventors brings job and happyness to the population and increase productivity of buildings
-    //-War Preparation -> improve war stats
+    //-War Sign -> improve war stats
 
     std::string name;
     std::string description;
@@ -71,49 +71,83 @@ struct WorldEventsData {
 //Database of all Events
 inline const std::unordered_map<WorldEventsType, WorldEventsData>& GetWorldEventDatabase(){
     static const std::unordered_map<WorldEventsType, WorldEventsData> database = {
-        { WorldEventType::Storm, {
+        { WorldEventsType::Storm, {
             "Storm",
             "My lord, A violent storm batters the coastline. Ships are damaged and fishing ports produce no food.",
             WorldEventCategory::Negative,
             0, 1.0f, 0, 0, 0
         }},
-        { WorldEventType::Earthquake, {
+        { WorldEventsType::Earthquake, {
             "Earthquake",
             "My lord, A violent Earthquare",
             WorldEventCategory::Negative,
             0, 1.0f, 0, 0, 0
         }},
-        { WorldEventType::Drought, {
+        { WorldEventsType::Drought, {
             "Drought",
             "My Lord, It hasn't rained in 2 weeks, people are worried and the plantation is dying.",
             WorldEventCategory::Negative,
             0, 1.0f, 0, 0, 0
-        }};
-        { WorldEventType::Plague, {
+        }},
+        { WorldEventsType::Plague, {
             "Plague",
             "My lord, a plague has pread to a settlement. It will spread inside our kingdom if we dont do something",
             WorldEventCategory::Negative,
             0, 1.0f, 0, 0, 0
-        }};
-        { WorldEventType::Fire, {
+        }},
+        { WorldEventsType::Fire, {
             "Fire",
-            "My lord, a city.",
+            "My lord, a fire spread accros the land! we bust be careful for our population",
             WorldEventCategory::Negative,
             0, 1.0f, 0, 0, 0
-        }};
-
-        //    PoorPopulation,
-        //    //GoodEvent
-        //    GoodHarvest,
-        //    MiraculousFishCatch,
-        //    FavorableWinds,
-        //    Justice,
-        //    NewInvension,
-        //    WarPreparation
+        }},
+        { WorldEventsType::PoorPopulation, {
+            "Poor Population",
+            "My lord, our population is getting poorer everyday, the cost of war has a direct percution on them. We should reduce taxes to accomodate them",
+            WorldEventCategory::Negative,
+            0, 1.0f, 0, 0, 0
+        }},
+        //Good Events
+        { WorldEventsType::GoodHarvest,{
+            "Good Harvest",
+            "My lord, there's rumors of a good recolt from our farmers. We should make a feast !",
+            WorldEventCategory::Positive,
+            0, 1.0f, 0, 0, 0
+        }},
+        { WorldEventsType::MiraculousFishCatch, {
+            "Miraculous Fish Catch",
+            "My lord, our fishing recold is miraculus ! A real miracle from god.",
+                WorldEventCategory::Positive,
+            0, 1.0f, 0, 0, 0
+            }},
+        { WorldEventsType::FavorableWinds,{
+            "Favorable Winds",
+                "My lord, the wind is on our side, our trade merchants and ships will be faster.",
+            WorldEventCategory::Positive,
+            0, 1.0f, 0, 0, 0
+        }},
+        { WorldEventsType::Justice,{
+            "Justice",
+                "MY lord, the wanted man known has Vitzlek has been happrenended, justice has beena served. For the greater good",
+            WorldEventCategory::Positive,
+            0, 1.0f, 0, 0, 0
+        }},
+        { WorldEventsType::NewInvension,{
+            "New Invension",
+                "Sir, we have been aware that our guild masters made a new extraordinary object that will help to boost the production of our goods.",
+            WorldEventCategory::Positive,
+            0, 1.0f, 0, 0, 0
+        }},
+        { WorldEventsType::WarSign,{
+            "War Sign",
+            "Sir, Our watchers and other members of other kingdoms saw a crow on top of a hill, It may be a sign of war?",
+            WorldEventCategory::Positive,
+            0, 1.0f, 0, 0, 0
+        }},
     };
     return database;
 }
-inline const WorldEventData* GetWorldEventData(WorldEventType type) {
+inline const WorldEventsData* GetWorldEventData(WorldEventsType type) {
     const auto& db = GetWorldEventDatabase();
     auto it = db.find(type);
     return (it != db.end()) ? &it->second : nullptr;
