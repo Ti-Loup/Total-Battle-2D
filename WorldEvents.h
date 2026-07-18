@@ -73,10 +73,43 @@ inline const std::unordered_map<WorldEventsType, WorldEventsData>& GetWorldEvent
     static const std::unordered_map<WorldEventsType, WorldEventsData> database = {
         { WorldEventType::Storm, {
             "Storm",
-            "A violent storm batters the coastline. Ships are damaged and fishing ports produce no food.",
-            WorldEventCategory::Bad,
+            "My lord, A violent storm batters the coastline. Ships are damaged and fishing ports produce no food.",
+            WorldEventCategory::Negative,
             0, 1.0f, 0, 0, 0
         }},
+        { WorldEventType::Earthquake, {
+            "Earthquake",
+            "My lord, A violent Earthquare",
+            WorldEventCategory::Negative,
+            0, 1.0f, 0, 0, 0
+        }},
+        { WorldEventType::Drought, {
+            "Drought",
+            "My Lord, It hasn't rained in 2 weeks, people are worried and the plantation is dying.",
+            WorldEventCategory::Negative,
+            0, 1.0f, 0, 0, 0
+        }};
+        { WorldEventType::Plague, {
+            "Plague",
+            "My lord, a plague has pread to a settlement. It will spread inside our kingdom if we dont do something",
+            WorldEventCategory::Negative,
+            0, 1.0f, 0, 0, 0
+        }};
+        { WorldEventType::Fire, {
+            "Fire",
+            "My lord, a city.",
+            WorldEventCategory::Negative,
+            0, 1.0f, 0, 0, 0
+        }};
+
+        //    PoorPopulation,
+        //    //GoodEvent
+        //    GoodHarvest,
+        //    MiraculousFishCatch,
+        //    FavorableWinds,
+        //    Justice,
+        //    NewInvension,
+        //    WarPreparation
     };
     return database;
 }
