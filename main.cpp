@@ -439,6 +439,15 @@ public:
     float miniMapOriginX = 0.f;
     float miniMapOriginY = 0.f;
 
+    //Bool to access the Ui of each Topright buttons
+    bool bDecreesInfoPopup = false;
+    bool bWinConditionsInfoPopup = false;
+    bool bTreasuryInfoPopup = false;
+    //technology doesnt need it
+    bool bDiplomacyInfoPopup = false;
+    bool bFamilyHierarchyInfoPopup= false;
+    //resetCamera doesnt need it
+
     //texture of all buildings for different factions
     std::unordered_map<BuildingType, SDL_Texture *> buildingTypeTextures;
 
@@ -5727,6 +5736,12 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
      *
      */
     void RenderDecreesInfoPopup() {
+        if (!bDecreesInfoPopup) return;
+        //background
+        SDL_FRect DecreesBackGroundRect = {400.f, 200.f, 700, 500};
+        SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
+        SDL_RenderFillRect(renderer, &DecreesBackGroundRect);
+
 
     }
     void RenderWinConditionsInfoPopup() {
@@ -6299,6 +6314,12 @@ void RenderCategoryBuildingInfoUI() {
         RenderBuildingInfoUI();
         RenderCategoryBuildingInfoUI();
         RenderWorldEventInfoPopup();
+        RenderDecreesInfoPopup();
+        RenderWinConditionsInfoPopup();
+        RenderTreasuryInfoPopup();
+        RenderDiplomacyInfoPopup();
+        RenderFamilyHierarchyInfoPopup();
+
         // Tooltip public order
 if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
     const Settlement& sPO = settlements[hoveredPublicOrderSettlementIndex];
@@ -7165,20 +7186,24 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
     if (app.ClickInsideCircle(nouveauX, nouveauY, app.DecreesPannel)) {
         //log message for now -> ui poping on later
         SDL_LogWarn(0, "Clicked DecreesPannel");
+        app.bDecreesInfoPopup = true;
     }
     //WinAchivements Ui Button pressed
     if (app.ClickInsideCircle(nouveauX, nouveauY, app.WinConditionPannel)) {
          //log message for now -> ui poping on later
          SDL_LogWarn(0, "Clicked WinConditionPannel");
+        app.bWinConditionsInfoPopup = true;
     }
     //Treasury Ui button pressed
     if (app.ClickInsideCircle(nouveauX, nouveauY, app.TreasuryPannel)) {
         //log message for now -> ui poping on later
         SDL_LogWarn(0, "Clicked TreasuryPannel");
+        app.bTreasuryInfoPopup = true;
     }
     //Diplomacy UiButton pressed
     if (app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyPannel)) {
         SDL_LogWarn(0, "Clicked Diplomacy");
+        app.bDiplomacyInfoPopup = true;
     }
     //When button Technology is pressed it goes to the Technology State
     if (app.ClickInsideCircle(nouveauX, nouveauY, app.TechnologyPannel)) {
@@ -7189,11 +7214,13 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
     if (app.ClickInsideCircle(nouveauX, nouveauY, app.FamilyHierarchyPannel)) {
         //log message for now -> ui poping on later
         SDL_LogWarn(0, "Clicked FamilyHierarchy");
+        app.bFamilyHierarchyInfoPopup = true;
     }
     //Camera Zoom reset Ui Button Pressed
     if (app.ClickInsideCircle(nouveauX, nouveauY, app.CameraResetPannel)) {
         //log message for now -> ui poping on later
         SDL_LogWarn(0, "Clicked CameraResetPannel");
+        //Reset camera
     }
 
 }
