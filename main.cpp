@@ -442,6 +442,8 @@ public:
     //texture of all buildings for different factions
     std::unordered_map<BuildingType, SDL_Texture *> buildingTypeTextures;
 
+    //texture of all WorldEvents pictures
+    std::unordered_map<WorldEventsType, SDL_Texture *> worldEventsImageTextures;
     //texture of all settlements (On the Campaign map)
     struct SettlementTextureMap {
         FactionZone faction;
@@ -2853,6 +2855,11 @@ private://constructor
         for (auto& [key, tex] : settlementTextureCampaign)
             SDL_DestroyTexture(tex);
         settlementTextureCampaign.clear();
+        // ---------------------------------
+        for (auto &[eventType, texture] : worldEventsImageTextures) {
+            SDL_DestroyTexture(texture);
+        }
+        worldEventsImageTextures.clear();
     }
 
 
@@ -3034,9 +3041,14 @@ private://constructor
         }
         return nullptr;
     }
+    //textures for buildings & World events image
     SDL_Texture* GetBuildingTexture(BuildingType type) {
         auto it = buildingTypeTextures.find(type);
         return (it != buildingTypeTextures.end()) ? it->second : nullptr;
+    }
+    SDL_Texture* GetWorldEventTexture(WorldEventsType type) {
+        auto it = worldEventsImageTextures.find(type);
+        return (it != worldEventsImageTextures.end()) ? it->second : nullptr;
     }
 
     //For the rendering on screen of the settlements. Texture to do
@@ -5627,7 +5639,12 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         //Image in middle
         SDL_FRect WorldEventImageBackground = {700.f, 375.f, 600, 300};
         SDL_SetRenderDrawColor(renderer, 80,120,41,255);
-        SDL_RenderFillRect(renderer, &WorldEventImageBackground);
+        SDL_RenderFillRect(renderer, &WorldEventImageBackground); // fallback fill if texture missing
+
+        SDL_Texture* worldEventImageTexture = GetWorldEventTexture(currentWorldsEvent);
+        if (worldEventImageTexture) {
+            SDL_RenderTexture(renderer, worldEventImageTexture, nullptr, &WorldEventImageBackground);
+        }
         //Desc Bottom left
         TTF_SetTextWrapWidth(gameWorldEventsDescText, 620);
         TTF_SetTextString(gameWorldEventsDescText, events_data->description.c_str(), 0);
