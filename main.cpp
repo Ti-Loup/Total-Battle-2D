@@ -412,6 +412,10 @@ public:
     TTF_Text *gameStatUIText = nullptr;
     TTF_Font *gameBuildingDescriptionFont = nullptr;
     TTF_Text *gameBuildingDescriptionText = nullptr;
+    TTF_Font *gameWorldEventsTitleFont = nullptr;
+    TTF_Font *gameWorldEventsDescFont = nullptr;
+    TTF_Text *gameWorldEventsTitleText = nullptr;
+    TTF_Text *gameWorldEventsDescText = nullptr;
 
     //texture provinces when Unzoom
     SDL_Texture *provinceKnightBannerTexture = nullptr;
@@ -847,6 +851,8 @@ private://constructor
         gameCurrentPopulationUiFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         gameSeasonUiTitleFont = TTF_OpenFont("assets/Rubik.ttf", 19);
         gameSeasonUiSmallFont = TTF_OpenFont("assets/Rubik.ttf", 15);
+        gameWorldEventsTitleFont = TTF_OpenFont("assets/Rubik.ttf", 25);
+        gameWorldEventsDescFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         //same font has AnticipatedMoneyUiText
         gameCurrentFoodUiText = TTF_CreateText(textEngine, gameCurrentFoodUiFont, "", 25);
         if (gameCurrentFoodUiText == nullptr) {
@@ -899,6 +905,16 @@ private://constructor
         if (gameBuildingCategoriesNameText == nullptr) {
             SDL_LogWarn(0, "failed to load text gameBuildingCategoriesNameText" , SDL_GetError());
         }
+        //WorldEvents
+        gameWorldEventsTitleText = TTF_CreateText(textEngine, gameWorldEventsTitleFont, "", 25);
+        if (gameWorldEventsTitleText == nullptr) {
+            SDL_LogWarn(0, "failed to load text of gameWorldEventsTitleText", SDL_GetError);
+        }
+        gameWorldEventsDescText = TTF_CreateText(textEngine, gameWorldEventsDescFont, "", 25);
+        if (gameWorldEventsDescText == nullptr) {
+            SDL_LogWarn(0, "failed to load text gameWorldEventsDescText", SDL_GetError());
+        }
+
 
         //CREATION OF THE SETTLEMENTS
         //KNIGHT
@@ -2681,6 +2697,8 @@ private://constructor
         TTF_CloseFont(gameVersionFont);
         TTF_CloseFont(gameSeasonUiTitleFont);
         TTF_CloseFont(gameSeasonUiSmallFont);
+        TTF_CloseFont(gameWorldEventsTitleFont);
+        TTF_CloseFont(gameWorldEventsDescFont);
         // ---------------------------------
         TTF_DestroyText(fpsText);
         TTF_DestroyText(menuText);
@@ -2724,6 +2742,8 @@ private://constructor
         TTF_DestroyText(gameCurrentPopulationUiText);
         TTF_DestroyText(gameSeasonUiTitleText);
         TTF_DestroyText(gameSeasonUiSmallText);
+        TTF_DestroyText(gameWorldEventsTitleText);
+        TTF_DestroyText(gameWorldEventsDescText);
         // ---------------------------------
         SDL_DestroyTexture(provinceKnightBannerTexture);
         SDL_DestroyTexture(provinceVikingBannerTexture);
@@ -5597,11 +5617,11 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         SDL_SetRenderDrawColor(renderer, 130, 100, 0, 255);
         SDL_RenderFillRect(renderer, &WorldEventTitleBackground);
         // Event Name -> need its own text
-        TTF_SetTextString(gameStatUITitleText, events_data->name.c_str(), 0);
-        TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
+        TTF_SetTextString(gameWorldEventsTitleText, events_data->name.c_str(), 0);
+        TTF_SetTextColor(gameWorldEventsTitleText, 255, 255, 255, 255);
         int titleW, titleH;
-        TTF_GetTextSize(gameStatUITitleText, &titleW, &titleH);
-        TTF_DrawRendererText(gameStatUITitleText,
+        TTF_GetTextSize(gameWorldEventsTitleText, &titleW, &titleH);
+        TTF_DrawRendererText(gameWorldEventsTitleText,
             WorldEventTitleBackground.x + (WorldEventTitleBackground.w - titleW) / 2.f,
             WorldEventTitleBackground.y + (WorldEventTitleBackground.h - titleH) / 2.f);
         //Image in middle
@@ -5609,11 +5629,11 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         SDL_SetRenderDrawColor(renderer, 80,120,41,255);
         SDL_RenderFillRect(renderer, &WorldEventImageBackground);
         //Desc Bottom left
-        TTF_SetTextWrapWidth(gameBuildingDescriptionText, 620);
-        TTF_SetTextString(gameBuildingDescriptionText, events_data->description.c_str(), 0);
-        TTF_SetTextColor(gameBuildingDescriptionText, 20, 20, 20, 255);
-        TTF_DrawRendererText(gameBuildingDescriptionText, 665.f, 700.f);
-        TTF_SetTextWrapWidth(gameBuildingDescriptionText, 0); // reset
+        TTF_SetTextWrapWidth(gameWorldEventsDescText, 620);
+        TTF_SetTextString(gameWorldEventsDescText, events_data->description.c_str(), 0);
+        TTF_SetTextColor(gameWorldEventsDescText, 20, 20, 20, 255);
+        TTF_DrawRendererText(gameWorldEventsDescText, 665.f, 700.f);
+        TTF_SetTextWrapWidth(gameWorldEventsDescText, 0); // reset
         //Effects bottom right
 
         //Return Button
