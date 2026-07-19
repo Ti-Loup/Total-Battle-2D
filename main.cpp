@@ -1424,6 +1424,79 @@ private://constructor
         }
         SDL_SetTextureScaleMode(settlementTextureCampaign[{FactionZone::Samurai, SettlementType::Village,3}], SDL_SCALEMODE_NEAREST);
 
+        //Textures World Events Images UI
+        //World Events Textures
+        worldEventsImageTextures[WorldEventsType::Storm] = IMG_LoadTexture(renderer, "assets/WorldEvents/Storm.png");
+        if (worldEventsImageTextures[WorldEventsType::Storm] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsImageTextures Storm", SDL_GetError());
+    }
+        SDL_SetTextureScaleMode(worldEventsImageTextures[WorldEventsType::Storm], SDL_SCALEMODE_NEAREST);
+
+        worldEventsImageTextures[WorldEventsType::Earthquake] = IMG_LoadTexture(renderer, "assets/WorldEvents/Earthquake.png");
+        if (worldEventsImageTextures[WorldEventsType::Earthquake] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsImageTextures Earthquake", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsImageTextures[WorldEventsType::Earthquake], SDL_SCALEMODE_NEAREST);
+
+        worldEventsImageTextures[WorldEventsType::Drought] = IMG_LoadTexture(renderer, "assets/WorldEvents/Drought.png");
+        if (worldEventsImageTextures[WorldEventsType::Drought] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsImageTextures Drought", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsImageTextures[WorldEventsType::Drought], SDL_SCALEMODE_NEAREST);
+
+        worldEventsImageTextures[WorldEventsType::Plague] = IMG_LoadTexture(renderer, "assets/WorldEvents/Plague.png");
+        if (worldEventsImageTextures[WorldEventsType::Plague] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsImageTextures Plague", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsImageTextures[WorldEventsType::Plague], SDL_SCALEMODE_NEAREST);
+
+        worldEventsImageTextures[WorldEventsType::Fire] = IMG_LoadTexture(renderer, "assets/WorldEvents/Fire.png");
+        if (worldEventsImageTextures[WorldEventsType::Fire] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsImageTextures Fire", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsImageTextures[WorldEventsType::Fire], SDL_SCALEMODE_NEAREST);
+
+        worldEventsImageTextures[WorldEventsType::PoorPopulation] = IMG_LoadTexture(renderer, "assets/WorldEvents/PoorPopulation.png");
+        if (worldEventsImageTextures[WorldEventsType::PoorPopulation] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsImageTextures PoorPopulation", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsImageTextures[WorldEventsType::PoorPopulation], SDL_SCALEMODE_NEAREST);
+
+        worldEventsImageTextures[WorldEventsType::GoodHarvest] = IMG_LoadTexture(renderer, "assets/WorldEvents/GoodHarvest.png");
+        if (worldEventsImageTextures[WorldEventsType::GoodHarvest] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsImageTextures GoodHarvest", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsImageTextures[WorldEventsType::GoodHarvest], SDL_SCALEMODE_NEAREST);
+
+        worldEventsImageTextures[WorldEventsType::MiraculousFishCatch] = IMG_LoadTexture(renderer, "assets/WorldEvents/MiraculousFishCatch.png");
+        if (worldEventsImageTextures[WorldEventsType::MiraculousFishCatch] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsImageTextures MiraculousFishCatch", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsImageTextures[WorldEventsType::MiraculousFishCatch], SDL_SCALEMODE_NEAREST);
+
+        worldEventsImageTextures[WorldEventsType::FavorableWinds] = IMG_LoadTexture(renderer, "assets/WorldEvents/FavorableWinds.png");
+        if (worldEventsImageTextures[WorldEventsType::FavorableWinds] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsImageTextures FavorableWinds", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsImageTextures[WorldEventsType::FavorableWinds], SDL_SCALEMODE_NEAREST);
+
+        worldEventsImageTextures[WorldEventsType::Justice] = IMG_LoadTexture(renderer, "assets/WorldEvents/Justice.png");
+        if (worldEventsImageTextures[WorldEventsType::Justice] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsImageTextures Justice", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsImageTextures[WorldEventsType::Justice], SDL_SCALEMODE_NEAREST);
+
+        worldEventsImageTextures[WorldEventsType::NewInvension] = IMG_LoadTexture(renderer, "assets/WorldEvents/NewInvension.png");
+        if (worldEventsImageTextures[WorldEventsType::NewInvension] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsImageTextures NewInvension", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsImageTextures[WorldEventsType::NewInvension], SDL_SCALEMODE_NEAREST);
+
+        worldEventsImageTextures[WorldEventsType::WarSign] = IMG_LoadTexture(renderer, "assets/WorldEvents/WarSign.png");
+        if (worldEventsImageTextures[WorldEventsType::WarSign] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsImageTextures WarSign", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsImageTextures[WorldEventsType::WarSign], SDL_SCALEMODE_NEAREST);
 
 
         // BUILDING UIS
