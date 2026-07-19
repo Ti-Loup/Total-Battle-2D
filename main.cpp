@@ -4787,7 +4787,6 @@ private://constructor
             if (srcRect.y + srcRect.h > texH) srcRect.y = texH - srcRect.h;
 
             // Crop is square and box is square -> this always fills the box exactly,
-            // no overflow, no bars, no clip rect needed.
             miniMapDrawRect = miniMapBoxRect;
 
             float scale = miniMapBoxRect.w / cropSize;
@@ -5727,6 +5726,37 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
      *UI for each Ui Buttons that spawn when pressed on button
      *
      */
+    void RenderDecreesInfoPopup() {
+
+    }
+    void RenderWinConditionsInfoPopup() {
+
+    }
+    void RenderTreasuryInfoPopup() {
+
+    }
+    //Technology tree
+    void TechnologyTree(float deltaTime) {
+
+        UpdateBackgroundTint(deltaTime);
+        //Clear everything
+        SDL_SetRenderDrawColor(renderer, 0,0,0,255);
+        SDL_RenderClear(renderer);
+
+        //Render Return Button
+        SDL_SetRenderDrawColor(renderer, 255,255,255,255);
+        RenderBoutonCercle(GeneralCheckButtonReturnGame,nullptr, nullptr, 255,255,255);
+        SDL_RenderPresent(renderer);
+    }
+    void RenderDiplomacyInfoPopup() {
+
+    }
+    void RenderFamilyHierarchyInfoPopup() {
+
+    }
+    //Reset button only reset the camera position. no need a fonction for that
+
+
 
     //Fonction to pick a random WorldEvent
     WorldEventsType PickRandomWorldEvents() {
@@ -6405,22 +6435,6 @@ if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
         SDL_RenderPresent(renderer);
     }
 
-    //Technology tree
-    void TechnologyTree(float deltaTime) {
-
-        UpdateBackgroundTint(deltaTime);
-        //Clear everything
-        SDL_SetRenderDrawColor(renderer, 0,0,0,255);
-        SDL_RenderClear(renderer);
-
-        //Render Return Button
-        SDL_SetRenderDrawColor(renderer, 255,255,255,255);
-        RenderBoutonCercle(GeneralCheckButtonReturnGame,nullptr, nullptr, 255,255,255);
-
-
-
-        SDL_RenderPresent(renderer);
-    }
 
     //Tutorial
     void Tutorial (float deltaTime) {
