@@ -48,7 +48,7 @@
  * Fixed | issue with vikings religious buildings crashing the game
  * Fixed | camera never stop when touch edge
  * Fixed | Viking Unzoom Texture added
- * To Fix | the population need to start with a baseamount, not 0
+ * Fixed | the population need to start with a baseamount, not 0
  * --------------------------------------------
  * 0.3.0
  * RESSOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
@@ -265,7 +265,7 @@ public:
     SDL_Texture *cameraResetPannelTexture = nullptr;
 
     //Circle to return to game when in technology section
-    Circle TechnologyReturnGame = {900.f, 1000.f, 35};
+    Circle GeneralCheckButtonReturnGame = {900.f, 1000.f, 35};
 
     //Circle to bring World events info popup to false again
     Circle WorlEventsButtonReturnGame = {1000.f, 770.f, 20};
@@ -574,6 +574,11 @@ public:
     float populationTooltipY = 0.0f;
     int hoveredPopulationType = -1;
 
+    //Different UI Buttons Hovered Ui
+    bool bMouseOnHoveredTopRightButtons = false;
+    float hoveredTopRightButtonsTooltipX = 0.0f;
+    float hoveredTopRightButtonsTooltipY = 0.0f;
+    int hoveredTopRightButtonIndex = -1;
     //toggle tax province
     //bool bToggleCollectIncome = true; is global and for each settlement i need to use Province.h
     SDL_FRect toggleTaxIncomeCollect = {0.f,0.f,14.f,14.f};
@@ -2719,10 +2724,10 @@ private://constructor
         fpsTimerID = SDL_AddTimer(250, TimerCallback, &shouldUpdateText);
 
 
-        //calcul current population / Need Bonus from buildings
-        player.currentPeasantryAmount = player.basePeasantryBirth - player.basePeasantryDeath;
-        player.currentNobilityAmount = player.baseNobilityBirth - player.baseNobilityDeath;
-        player.currentClergyAmount = player.baseClergyGrowth - player.baseClergyDeath;
+        //calcul current population / Need Bonus from buildings + base start
+        player.currentPeasantryAmount = player.basePeasantryBirth - player.basePeasantryDeath + 1000;
+        player.currentNobilityAmount = player.baseNobilityBirth - player.baseNobilityDeath + 100;
+        player.currentClergyAmount = player.baseClergyGrowth - player.baseClergyDeath + 10;
 
         //RNG WorldEvent random
         SDL_srand(0);
@@ -4585,6 +4590,8 @@ private://constructor
         seasonTooltipX = lenghtXSeason;
         seasonTooltipY = lenghtYSeason;
 
+
+
         //circle  button for the NextTurn Button
         SDL_SetRenderDrawColor(renderer, 0,80,255,0);
         RenderBoutonCercle(NextTurnButton, nullptr, gameNextTurnTexture,180, 180, 180);
@@ -4593,6 +4600,34 @@ private://constructor
         SDL_FRect topRightUiButtons = {1625.f, 0.f,295.f ,40.f};
         SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
         SDL_RenderFillRect(renderer, &topRightUiButtons);
+
+        // list every circle button + its label
+        struct TopRightButtonInfo { Circle* circle; const char* name; };
+        TopRightButtonInfo topRightButtons[] = {
+            { &DecreesPannel, "Decrees" },
+            { &WinConditionPannel, "Win Conditions" },
+            { &TreasuryPannel, "Treasury" },
+            { &TechnologyPannel, "Technology" },
+            { &DiplomacyPannel, "Diplomacy" },
+            { &FamilyHierarchyPannel, "Family Hierarchy" },
+            { &CameraResetPannel, "Reset Camera" },
+        };
+        const int topRightButtonCount = 7;
+
+        // mouse position in logical coords
+        float mouseXBtn, mouseYBtn;
+        SDL_GetMouseState(&mouseXBtn, &mouseYBtn);
+        float lxBtn, lyBtn;
+        SDL_RenderCoordinatesFromWindow(renderer, mouseXBtn, mouseYBtn, &lxBtn, &lyBtn);
+
+        hoveredTopRightButtonIndex = -1;
+        for (int i = 0; i < topRightButtonCount; i++) {
+            if (ClickInsideCircle(lxBtn, lyBtn, *topRightButtons[i].circle)) {
+                hoveredTopRightButtonIndex = i;
+                break;
+            }
+        }
+
         //Circle for Degrees
         SDL_SetRenderDrawColor(renderer, 0, 0,144,255);
         RenderBoutonCercle(DecreesPannel, nullptr, nullptr, 180, 180, 180);
@@ -4614,6 +4649,35 @@ private://constructor
         //Circle for Reset Camera
         SDL_SetRenderDrawColor(renderer, 20, 244,50,255);
         RenderBoutonCercle(CameraResetPannel, nullptr, nullptr, 180, 180, 180);
+        // Draw the name tooltip for whichever button is hovered
+        if (hoveredTopRightButtonIndex >= 0) {
+            const TopRightButtonInfo& info = topRightButtons[hoveredTopRightButtonIndex];
+
+            TTF_SetTextString(gameStatUIText, info.name, 0);
+            int nameW = 0, nameH = 0;
+            TTF_GetTextSize(gameStatUIText, &nameW, &nameH);
+
+            float padX = 8.f, padY = 5.f;
+            float tw = nameW + padX * 2.f;
+            float th = nameH + padY * 2.f;
+
+            float tx = lxBtn + 15.f;   // offset to the right of the cursor
+            float ty = lyBtn - th / 2.f; // vertically centered on the cursor
+            if (tx + tw > 1915.f) tx = lxBtn - tw - 15.f; // flip to the left if it'd go off-screen
+            if (ty < 5.f) ty = 5.f;
+            if (ty + th > 1075.f) ty = 1075.f - th;
+
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+            SDL_FRect tooltipBg = {tx, ty, tw, th};
+            SDL_RenderFillRect(renderer, &tooltipBg);
+            SDL_SetRenderDrawColor(renderer, 110, 90, 40, 255);
+            SDL_RenderRect(renderer, &tooltipBg);
+
+            TTF_SetTextColor(gameStatUIText, 240, 240, 240, 255);
+            TTF_DrawRendererText(gameStatUIText, tx + padX, ty + padY);
+        }
+
         // --------------------------------
         // UI under the contentRect for The growth of the farmers, nobility and church prest.
         //thickness 5.f
@@ -4703,9 +4767,6 @@ private://constructor
         SDL_GetTextureSize(tileMapTexture, &texW, &texH);
 
         if (texW > 0.f && texH > 0.f) {
-            // Crop is always a SQUARE (matches the square box). Since the map is
-            // wider than it is tall, a square crop naturally leaves slack on the
-            // wide axis -> that slack is what lets the minimap pan left/right.
             float baseCropSize = std::min(texW, texH);
             float cropSize = baseCropSize / miniMapZoom;
 
@@ -5662,6 +5723,11 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         }
     }
 
+    /**
+     *UI for each Ui Buttons that spawn when pressed on button
+     *
+     */
+
     //Fonction to pick a random WorldEvent
     WorldEventsType PickRandomWorldEvents() {
         std::vector<WorldEventsType> allEvents = {
@@ -6349,7 +6415,7 @@ if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
 
         //Render Return Button
         SDL_SetRenderDrawColor(renderer, 255,255,255,255);
-        RenderBoutonCercle(TechnologyReturnGame,nullptr, nullptr, 255,255,255);
+        RenderBoutonCercle(GeneralCheckButtonReturnGame,nullptr, nullptr, 255,255,255);
 
 
 
@@ -7127,7 +7193,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
         //TECHNOLOGYTREE SECTION
         if (app.StateActuel == State::Technology) {
-            if (app.ClickInsideCircle(nouveauX, nouveauY, app.TechnologyReturnGame)) {
+            if (app.ClickInsideCircle(nouveauX, nouveauY, app.GeneralCheckButtonReturnGame)) {
                 app.StateActuel = State::Game;
                 return SDL_APP_CONTINUE;
             }
