@@ -43,7 +43,7 @@
  * fishing ports gives food and produce fish in 0.3.0!
  * If time -> pannel buttons popup ui element for each .exemple -> Add some win Achievements
  * If Time -> work on the ai to build buildings strategicly based on what they're missing.
- *
+ * If Time -> Make the Income based on Farm,Commerce,Industry,Religion and not just all income instantly.
  *
  * Fixed | issue with vikings religious buildings crashing the game
  * Fixed | camera never stop when touch edge

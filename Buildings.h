@@ -249,7 +249,71 @@ enum class BuildingCategory {
     Economy,
     Religion
 };
+enum class TaxCategory {
+    None,
+    Farm,       // green
+    Commerce,   // yellow
+    Industry,   // grey
+    Religious   // purple
+};
 
+inline TaxCategory GetTaxCategory(BuildingType buildingType) {
+    switch (buildingType) {
+        // ── FARM (green) ──
+        case BuildingType::PeasantryGrowth_T1: case BuildingType::PeasantryGrowth_T2: case BuildingType::PeasantryGrowth_T3:
+        case BuildingType::NobilityEstate_T1:  case BuildingType::NobilityEstate_T2:  case BuildingType::NobilityEstate_T3:
+        case BuildingType::Economy_T1:         case BuildingType::Economy_T2:         case BuildingType::Economy_T3:
+        case BuildingType::PeasantryVikingGrowth_T1: case BuildingType::PeasantryVikingGrowth_T2: case BuildingType::PeasantryVikingGrowth_T3:
+        case BuildingType::NobilityVikingEstate_T1:  case BuildingType::NobilityVikingEstate_T2:  case BuildingType::NobilityVikingEstate_T3:
+        case BuildingType::SlaveMarket_T1:     case BuildingType::SlaveMarket_T2:     case BuildingType::SlaveMarket_T3:
+        case BuildingType::PeasantrySamuraiGrowth_T1: case BuildingType::PeasantrySamuraiGrowth_T2: case BuildingType::PeasantrySamuraiGrowth_T3:
+        case BuildingType::NobilitySamuraiEstate_T1:  case BuildingType::NobilitySamuraiEstate_T2:  case BuildingType::NobilitySamuraiEstate_T3:
+        case BuildingType::Market_T1:          case BuildingType::Market_T2:          case BuildingType::Market_T3:
+            return TaxCategory::Farm;
+
+        // ── COMMERCE (yellow) ──
+        case BuildingType::KnightWareHouse_T3: case BuildingType::KnightWareHouse_T4: case BuildingType::KnightWareHouse_T5:
+        case BuildingType::KnightMint_T1:      case BuildingType::KnightMint_T2:      case BuildingType::KnightMint_T3:
+        case BuildingType::KnightTavern_T1:
+        case BuildingType::VikingWareHouse_T3: case BuildingType::VikingWareHouse_T4: case BuildingType::VikingWareHouse_T5:
+        case BuildingType::VikingMint_T1:      case BuildingType::VikingMint_T2:      case BuildingType::VikingMint_T3:
+        case BuildingType::VikingTavern_T1:
+        case BuildingType::SamuraiWareHouse_T3:case BuildingType::SamuraiWareHouse_T4:case BuildingType::SamuraiWareHouse_T5:
+        case BuildingType::SamuraiMint_T1:     case BuildingType::SamuraiMint_T2:     case BuildingType::SamuraiMint_T3:
+        case BuildingType::SamuraiTavern_T1:
+            return TaxCategory::Commerce;
+
+        // ── INDUSTRY (grey) ──
+        case BuildingType::KnightCarpentry_T1: case BuildingType::KnightCarpentry_T2:
+        case BuildingType::KnightArtisan_T1:   case BuildingType::KnightArtisan_T2:   case BuildingType::KnightArtisan_T3:
+        case BuildingType::KnightForge_T2:     case BuildingType::KnightForge_T3:     case BuildingType::KnightForge_T4:
+        case BuildingType::KnightJeweller_T3:  case BuildingType::KnightJeweller_T4:  case BuildingType::KnightJeweller_T5:
+        case BuildingType::VikingCarpentry_T1: case BuildingType::VikingCarpentry_T2:
+        case BuildingType::VikingArtisan_T1:   case BuildingType::VikingArtisan_T2:   case BuildingType::VikingArtisan_T3:
+        case BuildingType::VikingForge_T2:     case BuildingType::VikingForge_T3:     case BuildingType::VikingForge_T4:
+        case BuildingType::VikingJeweller_T3:  case BuildingType::VikingJeweller_T4:  case BuildingType::VikingJeweller_T5:
+        case BuildingType::SamuraiCarpentry_T1:case BuildingType::SamuraiCarpentry_T2:
+        case BuildingType::SamuraiArtisan_T1:  case BuildingType::SamuraiArtisan_T2:  case BuildingType::SamuraiArtisan_T3:
+        case BuildingType::SamuraiForge_T2:    case BuildingType::SamuraiForge_T3:    case BuildingType::SamuraiForge_T4:
+        case BuildingType::SamuraiJeweller_T3: case BuildingType::SamuraiJeweller_T4: case BuildingType::SamuraiJeweller_T5:
+            return TaxCategory::Industry;
+
+        // ── RELIGIOUS (purple) ──
+        case BuildingType::KnightAlmsHouse_T1: case BuildingType::KnightAlmsHouse_T2:
+        case BuildingType::KnightBeeKeeper_T1: case BuildingType::KnightBeeKeeper_T2: case BuildingType::KnightBeeKeeper_T3:
+        case BuildingType::KnightChurch_T3:    case BuildingType::KnightChurch_T4:    case BuildingType::KnightChurch_T5:
+        case BuildingType::VikingShrine_T1:    case BuildingType::VikingShrine_T2:
+        case BuildingType::VikingBrewKeeper_T1:case BuildingType::VikingBrewKeeper_T2:case BuildingType::VikingBrewKeeper_T3:
+        case BuildingType::VikingSacrificeRitual_T3: case BuildingType::VikingSacrificeRitual_T4: case BuildingType::VikingSacrificeRitual_T5:
+        case BuildingType::SamuraiHospital_T1: case BuildingType::SamuraiHospital_T2:
+        case BuildingType::SamuraiTeaDry_T1:   case BuildingType::SamuraiTeaDry_T2:   case BuildingType::SamuraiTeaDry_T3:
+        case BuildingType::SamuraiChapel_T3:   case BuildingType::SamuraiChapel_T4:   case BuildingType::SamuraiChapel_T5:
+            return TaxCategory::Religious;
+
+        default:
+            return TaxCategory::None;
+    }
+}
 inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     switch (buildingType){
     case BuildingType::Barracks_T1:
