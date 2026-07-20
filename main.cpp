@@ -5745,10 +5745,11 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
 
     }
     void RenderWinConditionsInfoPopup() {
-
+        if (!bWinConditionsInfoPopup) return;
+        //Background
     }
     void RenderTreasuryInfoPopup() {
-
+        if (!bTreasuryInfoPopup) return;
     }
     //Technology tree
     void TechnologyTree(float deltaTime) {
@@ -5764,10 +5765,10 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         SDL_RenderPresent(renderer);
     }
     void RenderDiplomacyInfoPopup() {
-
+        if (!bDiplomacyInfoPopup) return;
     }
     void RenderFamilyHierarchyInfoPopup() {
-
+        if (!bFamilyHierarchyInfoPopup) return;
     }
     //Reset button only reset the camera position. no need a fonction for that
 
