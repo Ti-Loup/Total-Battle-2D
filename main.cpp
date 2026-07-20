@@ -66,9 +66,13 @@
  *
  * --------------------------------------------
  * 0.4.0
- *
+ * Kingdom -> different houses from 1 kingdom. Logo next to castle name
+ * ~ Battle Conquests of settlements and battle army ~
+ * Creation of lods and armies, Unit cards
+ * Different Movement Army stance
  * --------------------------------------------
  * 0.4.5
+ * Ai uses everything implemented
  *
  * --------------------------------------------
  * 0.5.0
@@ -5804,8 +5808,89 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         int idx = (int)SDL_rand((int)allEvents.size());
         return allEvents[idx];
     }
+    // counts how many effect rows a worldEvent has
+    int AmountWorldEventsEffectRows(const WorldEventsData *events_data) {
+        int count = 1;//duration of effect always shown
+        if (events_data->publicOrderModifier != 0) count++;
+        if (events_data->foodProductionMultiplier != 1.0f) count++;
+        if (events_data->foodFlatBonus != 0) count++;
+        if (events_data->goldIncomeMultiplier != 1.0f) count++;
+        if (events_data->goldFlatBonus != 0) count++;
+        if (events_data->populationGrowthMultiplier != 1.0f) count++;
+        if (events_data->durationTurns != 0) count++;
+    }
+// draws icon + label + value for every non-default field of a world event
+void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float rightEdge, float startY) {
+    float lineY = startY;
+    const float rowH = 26.f;
+    const float iconSize = 18.f;
 
-    //Events Popup every each 12 to 24 rounds
+    auto drawRow = [&](SDL_Texture* icon, const char* label, const std::string& valStr, bool positive) {
+        SDL_FRect iconRect = {x, lineY, iconSize, iconSize};
+        if (icon) SDL_RenderTexture(renderer, icon, nullptr, &iconRect);
+
+        TTF_SetTextString(gameWorldEventsDescText, label, 0);
+        TTF_SetTextColor(gameWorldEventsDescText, 20, 20, 20, 255);
+        TTF_DrawRendererText(gameWorldEventsDescText, x + iconSize + 6.f, lineY + 1.f);
+
+        TTF_SetTextString(gameWorldEventsDescText, valStr.c_str(), 0);
+        if (positive) TTF_SetTextColor(gameWorldEventsDescText, 30, 140, 30, 255);
+        else          TTF_SetTextColor(gameWorldEventsDescText, 180, 30, 30, 255);
+        int vw, vh;
+        TTF_GetTextSize(gameWorldEventsDescText, &vw, &vh);
+        TTF_DrawRendererText(gameWorldEventsDescText, rightEdge - vw, lineY + 1.f);
+
+        lineY += rowH;
+    };
+
+    // Duration always shown neutral color
+    {
+        std::string durStr = std::to_string(data->durationTurns) + " turns";
+        SDL_FRect iconRect = {x, lineY, iconSize, iconSize};
+        SDL_RenderTexture(renderer, gameTurnAmountTexture, nullptr, &iconRect);
+        TTF_SetTextString(gameWorldEventsDescText, "Duration", 0);
+        TTF_SetTextColor(gameWorldEventsDescText, 20, 20, 20, 255);
+        TTF_DrawRendererText(gameWorldEventsDescText, x + iconSize + 6.f, lineY + 1.f);
+        TTF_SetTextString(gameWorldEventsDescText, durStr.c_str(), 0);
+        TTF_SetTextColor(gameWorldEventsDescText, 60, 60, 60, 255);
+        int vw, vh;
+        TTF_GetTextSize(gameWorldEventsDescText, &vw, &vh);
+        TTF_DrawRendererText(gameWorldEventsDescText, rightEdge - vw, lineY + 1.f);
+        lineY += rowH;
+    }
+
+    if (data->publicOrderModifier != 0) {
+        bool pos = data->publicOrderModifier > 0;
+        std::string v = (pos ? "+" : "") + std::to_string(data->publicOrderModifier);
+        drawRow(pos ? gamePublicOrderPositifTexture : gamePublicOrderNegatifTexture, "Public Order", v, pos);
+    }
+    if (data->foodProductionMultiplier != 1.0f) {
+        int pct = (int)std::round((data->foodProductionMultiplier - 1.0f) * 100.f);
+        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
+        drawRow(gameFoodIconUi, "Food Production", v, pct >= 0);
+    }
+    if (data->foodFlatBonus != 0) {
+        bool pos = data->foodFlatBonus > 0;
+        std::string v = (pos ? "+" : "") + std::to_string(data->foodFlatBonus);
+        drawRow(gameFoodIconUi, "Food Bonus", v, pos);
+    }
+    if (data->goldIncomeMultiplier != 1.0f) {
+        int pct = (int)std::round((data->goldIncomeMultiplier - 1.0f) * 100.f);
+        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
+        drawRow(gameCoinMoneyTexture, "Gold Income", v, pct >= 0);
+    }
+    if (data->goldFlatBonus != 0) {
+        bool pos = data->goldFlatBonus > 0;
+        std::string v = (pos ? "+" : "") + std::to_string(data->goldFlatBonus);
+        drawRow(gameCoinMoneyTexture, "Gold Bonus", v, pos);
+    }
+    if (data->populationGrowthMultiplier != 1.0f) {
+        int pct = (int)std::round((data->populationGrowthMultiplier - 1.0f) * 100.f);
+        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
+        drawRow(gamePopulationGrowth, "Population Growth", v, pct >= 0);
+    }
+}
+    //Events Popup every each random rounds
     void RenderWorldEventInfoPopup() {
         if (!bWorldEventInfoPopup)return;
         //call the WorldEvents database to get their infos
@@ -5847,7 +5932,13 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         TTF_SetTextColor(gameWorldEventsDescText, 20, 20, 20, 255);
         TTF_DrawRendererText(gameWorldEventsDescText, 665.f, 700.f);
         TTF_SetTextWrapWidth(gameWorldEventsDescText, 0); // reset
-        //Effects bottom right. lambda
+        //Effects bottom right from lambda script
+        float effectsX = 1100.f;
+        float effectsRightEdge = 1335.f;
+        float effectsY = 665.f;
+        //call the render of Effects fonction
+        RenderWorldEventEffectRows(events_data, effectsX, effectsRightEdge, effectsY + 30.f);
+
 
         //Return Button
         RenderBoutonCercle(WorlEventsButtonReturnGame, nullptr, nullptr, 0, 180, 10);
