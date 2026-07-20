@@ -264,8 +264,15 @@ public:
     Circle CameraResetPannel = {1895.f, 18.f, 15};
     SDL_Texture *cameraResetPannelTexture = nullptr;
 
+
+    //Circles to return to game - - - - -
+    Circle DecreesButtonReturnGame = {1000.f, 900.f, 25};
+    Circle WinConditionButtonReturnGame = {1000.f, 900.f, 25};
+    Circle TreasuryButtonReturnGame = {1000.f, 900.f, 25};
+    Circle DiplomacyButtonReturnGame = {1000.f, 900.f, 25};
+    Circle FamilyHierarchyButtonReturnGame = {1000.f, 900.f, 25};
     //Circle to return to game when in technology section
-    Circle GeneralCheckButtonReturnGame = {900.f, 1000.f, 35};
+    Circle TechnologyButtonReturnGame = {900.f, 1000.f, 25};
 
     //Circle to bring World events info popup to false again
     Circle WorlEventsButtonReturnGame = {1000.f, 770.f, 20};
@@ -5738,10 +5745,14 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
     void RenderDecreesInfoPopup() {
         if (!bDecreesInfoPopup) return;
         //background
-        SDL_FRect DecreesBackGroundRect = {400.f, 200.f, 700, 500};
         SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
+        SDL_FRect DecreesBackGroundRect = {500.f, 150.f, 1000, 800};
+
         SDL_RenderFillRect(renderer, &DecreesBackGroundRect);
 
+        //ButtonToReturn
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        RenderBoutonCercle(DecreesButtonReturnGame, nullptr, nullptr, 255, 255, 255);
 
     }
     void RenderWinConditionsInfoPopup() {
@@ -5761,7 +5772,7 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
 
         //Render Return Button
         SDL_SetRenderDrawColor(renderer, 255,255,255,255);
-        RenderBoutonCercle(GeneralCheckButtonReturnGame,nullptr, nullptr, 255,255,255);
+        RenderBoutonCercle(TechnologyButtonReturnGame,nullptr, nullptr, 255,255,255);
         SDL_RenderPresent(renderer);
     }
     void RenderDiplomacyInfoPopup() {
@@ -5831,12 +5842,12 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
             SDL_RenderTexture(renderer, worldEventImageTexture, nullptr, &WorldEventImageBackground);
         }
         //Desc Bottom left
-        TTF_SetTextWrapWidth(gameWorldEventsDescText, 620);
+        TTF_SetTextWrapWidth(gameWorldEventsDescText, 300);
         TTF_SetTextString(gameWorldEventsDescText, events_data->description.c_str(), 0);
         TTF_SetTextColor(gameWorldEventsDescText, 20, 20, 20, 255);
         TTF_DrawRendererText(gameWorldEventsDescText, 665.f, 700.f);
         TTF_SetTextWrapWidth(gameWorldEventsDescText, 0); // reset
-        //Effects bottom right
+        //Effects bottom right. lambda
 
         //Return Button
         RenderBoutonCercle(WorlEventsButtonReturnGame, nullptr, nullptr, 0, 180, 10);
@@ -7232,10 +7243,25 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             return SDL_APP_CONTINUE;
         }
 
-
+        //CheckButtonReturn
+        if (app.ClickInsideCircle(nouveauX,nouveauY, app.DecreesButtonReturnGame)) {
+            app.bDecreesInfoPopup = false;
+        }
+        if (app.ClickInsideCircle(nouveauX, nouveauY, app.WinConditionButtonReturnGame)) {
+            app.bWinConditionsInfoPopup = false;
+        }
+        if (app.ClickInsideCircle(nouveauX, nouveauY, app.TreasuryButtonReturnGame)) {
+            app.bTreasuryInfoPopup = false;
+        }
+        if (app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyButtonReturnGame)) {
+            app.bDiplomacyInfoPopup = false;
+        }
+        if (app.ClickInsideCircle(nouveauX, nouveauY, app.FamilyHierarchyButtonReturnGame)) {
+            app.bFamilyHierarchyInfoPopup = false;
+        }
         //TECHNOLOGYTREE SECTION
         if (app.StateActuel == State::Technology) {
-            if (app.ClickInsideCircle(nouveauX, nouveauY, app.GeneralCheckButtonReturnGame)) {
+            if (app.ClickInsideCircle(nouveauX, nouveauY, app.TechnologyButtonReturnGame)) {
                 app.StateActuel = State::Game;
                 return SDL_APP_CONTINUE;
             }
