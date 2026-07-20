@@ -4898,8 +4898,13 @@ private://constructor
             if (mainBuilding) mainUpkeep += mainBuilding->upkeep;
 
             if (provinces[s.settlementData.provinceID].bToggleCollectIncome) {
-                taxIncome += s.settlementData.baseIncome;
-                for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
+                switch (GetTaxCategory(s.settlementData.buildings[0])) {
+                    case TaxCategory::Farm:      farmIncome      += s.settlementData.baseIncome; break;
+                    case TaxCategory::Commerce:  commerceIncome  += s.settlementData.baseIncome; break;
+                    case TaxCategory::Industry:  industryIncome  += s.settlementData.baseIncome; break;
+                    case TaxCategory::Religious: religiousIncome += s.settlementData.baseIncome; break;
+                    default:                     taxIncome       += s.settlementData.baseIncome; break;
+                }                for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
                     BuildingType bt = s.settlementData.buildings[b];
                     if (bt == BuildingType::None) continue;
                     const BuildingData* building_data = GetBuildingData(bt);
@@ -5839,6 +5844,7 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         if (events_data->goldFlatBonus != 0) count++;
         if (events_data->populationGrowthMultiplier != 1.0f) count++;
         if (events_data->durationTurns != 0) count++;
+        return count;
     }
 // draws icon + label + value for every non-default field of a world event
 void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float rightEdge, float startY) {
@@ -6006,7 +6012,7 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
         return count;
     }
 // draws all stats not null of a building
-void RenderBuildingStatRows(const BuildingData* data, float tooltipX, float rightEdge, float startY) {
+void RenderBuildingStatRows(const BuildingData* data, BuildingType type, float tooltipX, float rightEdge, float startY) {
     float lineY = startY;
     const float rowH = 22.f;
     const float iconSize = 14.f;
@@ -6031,8 +6037,17 @@ void RenderBuildingStatRows(const BuildingData* data, float tooltipX, float righ
     if (data->cost != 0)
         drawRow(gameCoinMoneyTexture, "Cost:", std::to_string(data->cost), {220, 180, 40, 255});
 
-    if (data->incomeBonus != 0)
-        drawRow(gameCoinMoneyTexture, "Income:", (data->incomeBonus >= 0 ? "+" : "") + std::to_string(data->incomeBonus), {180, 230, 100, 255});
+   if (data->incomeBonus != 0) {
+       const char* incomeLabel = "Income:";
+       switch (GetTaxCategory(type)) {
+           case TaxCategory::Farm:      incomeLabel = "Income(Farm):";      break;
+           case TaxCategory::Commerce:  incomeLabel = "Income(Commerce):";  break;
+           case TaxCategory::Industry:  incomeLabel = "Income(Industry):";  break;
+           case TaxCategory::Religious: incomeLabel = "Income(Religious):"; break;
+           default: break;
+       }
+       drawRow(gameCoinMoneyTexture, incomeLabel,(data->incomeBonus >= 0 ? "+" : "") + std::to_string(data->incomeBonus),{180, 230, 100, 255});
+   }
 
     if (data->upkeep != 0)
         drawRow(gameCoinMoneyTexture, "Upkeep:", "-" + std::to_string(data->upkeep), {220, 60, 60, 255});
@@ -6126,7 +6141,7 @@ void RenderBuildingStatRows(const BuildingData* data, float tooltipX, float righ
         lineY += descGap;
 
         // all != null stats
-        RenderBuildingStatRows(data, tooltipX, rightEdge, lineY);
+        RenderBuildingStatRows(data, buildingType, tooltipX, rightEdge, lineY);
 }
 void RenderCategoryBuildingInfoUI() {
     if (hoveredCategoryBuildingType == BuildingType::None) return;
@@ -6180,7 +6195,7 @@ void RenderCategoryBuildingInfoUI() {
     }
         lineY += descGap;
 
-    RenderBuildingStatRows(data, tooltipX, rightEdge, lineY);
+    RenderBuildingStatRows(data, hoveredCategoryBuildingType ,tooltipX, rightEdge, lineY);
 }
 
     void UpdateBackgroundTint(const float deltaTime) {

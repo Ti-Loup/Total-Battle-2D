@@ -260,6 +260,9 @@ enum class TaxCategory {
 inline TaxCategory GetTaxCategory(BuildingType buildingType) {
     switch (buildingType) {
         // ── FARM (green) ──
+        case BuildingType::Settlement_Village_Knight_T1:  case BuildingType::Settlement_Village_Knight_T2:  case BuildingType::Settlement_Village_Knight_T3:
+        case BuildingType::Settlement_Village_Viking_T1:  case BuildingType::Settlement_Village_Viking_T2:  case BuildingType::Settlement_Village_Viking_T3:
+        case BuildingType::Settlement_Village_Samurai_T1: case BuildingType::Settlement_Village_Samurai_T2: case BuildingType::Settlement_Village_Samurai_T3://villages produce farm money
         case BuildingType::PeasantryGrowth_T1: case BuildingType::PeasantryGrowth_T2: case BuildingType::PeasantryGrowth_T3:
         case BuildingType::NobilityEstate_T1:  case BuildingType::NobilityEstate_T2:  case BuildingType::NobilityEstate_T3:
         case BuildingType::Economy_T1:         case BuildingType::Economy_T2:         case BuildingType::Economy_T3:
