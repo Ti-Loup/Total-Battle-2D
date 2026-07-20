@@ -4419,7 +4419,10 @@ private://constructor
                     for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
                         if (s.settlementData.buildings[b] != BuildingType::None) {
                             const BuildingData* bd = GetBuildingData(s.settlementData.buildings[b]);
-                            if (bd) player.nextTurnGold += bd->incomeBonus;
+                            if (bd) {
+                                player.nextTurnGold += bd->incomeBonus;
+                                player.nextTurnGold -= bd->upkeep;
+                            }
                         }
                     }
                 }
