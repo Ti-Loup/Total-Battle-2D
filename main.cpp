@@ -4899,11 +4899,11 @@ private://constructor
 
             if (provinces[s.settlementData.provinceID].bToggleCollectIncome) {
                 switch (GetTaxCategory(s.settlementData.buildings[0])) {
-                    case TaxCategory::Farm:      farmIncome      += s.settlementData.baseIncome; break;
-                    case TaxCategory::Commerce:  commerceIncome  += s.settlementData.baseIncome; break;
-                    case TaxCategory::Industry:  industryIncome  += s.settlementData.baseIncome; break;
+                    case TaxCategory::Farm: farmIncome += s.settlementData.baseIncome; break;
+                    case TaxCategory::Commerce: commerceIncome += s.settlementData.baseIncome; break;
+                    case TaxCategory::Industry: industryIncome += s.settlementData.baseIncome; break;
                     case TaxCategory::Religious: religiousIncome += s.settlementData.baseIncome; break;
-                    default:                     taxIncome       += s.settlementData.baseIncome; break;
+                    default: taxIncome += s.settlementData.baseIncome; break;
                 }                for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
                     BuildingType bt = s.settlementData.buildings[b];
                     if (bt == BuildingType::None) continue;
@@ -4913,9 +4913,9 @@ private://constructor
                     buildingMaintenance += building_data->upkeep;
 
                     switch (GetTaxCategory(bt)) {
-                        case TaxCategory::Farm:      farmIncome      += building_data->incomeBonus; break;
-                        case TaxCategory::Commerce:  commerceIncome  += building_data->incomeBonus; break;
-                        case TaxCategory::Industry:  industryIncome  += building_data->incomeBonus; break;
+                        case TaxCategory::Farm:  farmIncome += building_data->incomeBonus; break;
+                        case TaxCategory::Commerce: commerceIncome += building_data->incomeBonus; break;
+                        case TaxCategory::Industry: industryIncome += building_data->incomeBonus; break;
                         case TaxCategory::Religious: religiousIncome += building_data->incomeBonus; break;
                         default: break; // uncategorized buildings just don't show a tax row
                     }
