@@ -40,15 +40,16 @@
  *
  * 3. create randoms events that pop on (plague, exceed food production, thunder)
  * Add Ports buildings If a main settlement or village is close to the sea it has a port. For villages/Fishing port, and Main settlements military port.
- * fishing ports gives food and produce fish in 0.3.0!
- * If time -> pannel buttons popup ui element for each .exemple -> Add some win Achievements
+ * fishing ports gives food / produce fish in 0.3.0!
+ * Currently -> pannel buttons popup ui element for each .exemple -> Add some win Achievements
  * If Time -> work on the ai to build buildings strategicly based on what they're missing.
- * If Time -> Make the Income based on Farm,Commerce,Industry,Religion and not just all income instantly.
+ * Done -> Make the Income based on Farm,Commerce,Industry,Religion and not just all income instantly.
  *
  * Fixed | issue with vikings religious buildings crashing the game
  * Fixed | camera never stop when touch edge
  * Fixed | Viking Unzoom Texture added
  * Fixed | the population need to start with a baseamount, not 0
+ * Fixed | building maintenants shown but didnt actually work
  * --------------------------------------------
  * 0.3.0
  * RESSOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
@@ -4878,35 +4879,45 @@ private://constructor
     void RenderMoneyTooltip() {
     if (!bMouseOnMoneyIcon) return;
 
-    int taxIncome = 0;
-    int buildingIncome = 0;
-    int mainUpkeep = 0;
-    int buildingMaintenance = 0;
+        int taxIncome = 0;
+        int farmIncome = 0;
+        int commerceIncome = 0;
+        int industryIncome = 0;
+        int religiousIncome = 0;
+        int mainUpkeep = 0;
+        int buildingMaintenance = 0;
+        int armyUpkeep = 0;
 
-    for (const auto& s : settlements) {
-        if (provinces[s.settlementData.provinceID].owner != player.faction) continue; //must be the playerfaction
+        for (const auto& s : settlements) {
+            if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
 
-        //mainBuilding
-        const BuildingData* mainBuilding = GetBuildingData(s.settlementData.buildings[0]);
-        if (mainBuilding) mainUpkeep += mainBuilding->upkeep;
-        //income
-        if (provinces[s.settlementData.provinceID].bToggleCollectIncome) {
-            taxIncome += s.settlementData.baseIncome;
-            for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
-                if (s.settlementData.buildings[b] != BuildingType::None) {
-                    const BuildingData* building_data = GetBuildingData(s.settlementData.buildings[b]);
-                    if (building_data) {
-                        buildingIncome += building_data->incomeBonus;
-                        buildingMaintenance += building_data->upkeep;
+            const BuildingData* mainBuilding = GetBuildingData(s.settlementData.buildings[0]);
+            if (mainBuilding) mainUpkeep += mainBuilding->upkeep;
+
+            if (provinces[s.settlementData.provinceID].bToggleCollectIncome) {
+                taxIncome += s.settlementData.baseIncome;
+                for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
+                    BuildingType bt = s.settlementData.buildings[b];
+                    if (bt == BuildingType::None) continue;
+                    const BuildingData* building_data = GetBuildingData(bt);
+                    if (!building_data) continue;
+
+                    buildingMaintenance += building_data->upkeep;
+
+                    switch (GetTaxCategory(bt)) {
+                        case TaxCategory::Farm:      farmIncome      += building_data->incomeBonus; break;
+                        case TaxCategory::Commerce:  commerceIncome  += building_data->incomeBonus; break;
+                        case TaxCategory::Industry:  industryIncome  += building_data->incomeBonus; break;
+                        case TaxCategory::Religious: religiousIncome += building_data->incomeBonus; break;
+                        default: break; // uncategorized buildings just don't show a tax row
                     }
                 }
             }
         }
-    }
-    //income total + Expense total
-    int totalIncome  = taxIncome + buildingIncome;
-    int totalExpense = mainUpkeep + buildingMaintenance;
-    int goldNextTurn = totalIncome - totalExpense;
+
+        int totalIncome  = taxIncome + farmIncome + commerceIncome + industryIncome + religiousIncome;
+        int totalExpense = mainUpkeep + buildingMaintenance;
+        int goldNextTurn = totalIncome - totalExpense;
 
     // Calcul dynamique de la hauteur
     float rowH   = 24.f;
@@ -4917,11 +4928,15 @@ private://constructor
 
     //The Row shows if its not 0 and has a value
     int incomeRows = 0;
-    if (taxIncome != 0) incomeRows++;
-    if (buildingIncome != 0) incomeRows++;
+    if (taxIncome != 0)       incomeRows++;
+    if (farmIncome != 0)      incomeRows++;
+    if (commerceIncome != 0)  incomeRows++;
+    if (industryIncome != 0)  incomeRows++;
+    if (religiousIncome != 0) incomeRows++;
 
     int expenseRows = 0;
     if (mainUpkeep != 0) expenseRows++;
+    if (armyUpkeep != 0) expenseRows++;
     if (buildingMaintenance != 0) expenseRows++;
 
     float incomeSepH  = 0.f;
@@ -5024,12 +5039,15 @@ private://constructor
     };
 
     // Incomes
-    drawRow("Taxes",           taxIncome,      false);
-    drawRow("Building Income", buildingIncome, false);
+    drawRow("Tax (Province)",  taxIncome,       false);
+    drawRow("Tax (Farm)",      farmIncome,      false);
+    drawRow("Tax (Commerce)",  commerceIncome,  false);
+    drawRow("Tax (Industry)",  industryIncome,  false);
+    drawRow("Tax (Religious)", religiousIncome, false);
     if (incomeRows > 0) drawSep();
 
     // Expenses
-    drawRow("Army Upkeep",     mainUpkeep,          true);
+    drawRow("Army Upkeep",     armyUpkeep,          true);
     drawRow("Building Maint.", buildingMaintenance, true);
     if (expenseRows > 0) drawSep();
 
