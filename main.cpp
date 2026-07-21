@@ -50,6 +50,7 @@
  * Fixed | Viking Unzoom Texture added
  * Fixed | the population need to start with a baseamount, not 0
  * Fixed | building maintenants shown but didnt actually work
+ * Fixed | Food storage was stuck at 0
  * --------------------------------------------
  * 0.3.0
  * RESSOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
@@ -4461,6 +4462,7 @@ private://constructor
                 if (!building_data) continue;
                 rawFoodTotal += building_data->foodProduced;
                 player.nextTurnFood -= building_data->foodUpkeep;
+                player.foodStorage += building_data->foodStorage;
             }
         }
         Date::Season foodSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
