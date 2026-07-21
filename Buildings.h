@@ -84,6 +84,17 @@ KnightChurch_T3,//public order
 KnightChurch_T4,
 KnightChurch_T5,
 
+//For Main Buildings ports Knight
+KnightMilitaryPort_T1,
+KnightMilitaryPort_T2,
+KnightMilitaryPort_T3,
+KnightMilitaryPort_T4,
+KnightMilitaryPort_T5,
+//For Small villages ports Knight
+KnightFishingPort_T1,
+KnightFishingPort_T2,
+KnightFishingPort_T3,
+
 //  -> VIKINGS BUILDINGS <-
 Settlement_Village_Viking_T1,
 Settlement_Village_Viking_T2,
@@ -153,6 +164,16 @@ VikingSacrificeRitual_T3,//Public order (Shaman)
 VikingSacrificeRitual_T4,
 VikingSacrificeRitual_T5,
 
+//For Main Buildings ports Viking
+VikingMilitaryPort_T1,
+VikingMilitaryPort_T2,
+VikingMilitaryPort_T3,
+VikingMilitaryPort_T4,
+VikingMilitaryPort_T5,
+//For Small villages ports Viking
+VikingFishingPort_T1,
+VikingFishingPort_T2,
+VikingFishingPort_T3,
 //  -> SAMURAI BUILDINGS <-
 Settlement_Village_Samurai_T1,
 Settlement_Village_Samurai_T2,
@@ -228,18 +249,18 @@ SamuraiChapel_T3,//public orders
 SamuraiChapel_T4,
 SamuraiChapel_T5,
 
-//UNIQUE Buildings
+//For Main Buildings ports Samurai
+SamuraiMilitaryPort_T1,
+SamuraiMilitaryPort_T2,
+SamuraiMilitaryPort_T3,
+SamuraiMilitaryPort_T4,
+SamuraiMilitaryPort_T5,
+//For Small villages ports Samurai
+SamuraiFishingPort_T1,
+SamuraiFishingPort_T2,
+SamuraiFishingPort_T3,
 
-    //For Main Buildings ports
-MilitaryPort_T1,
-MilitaryPort_T2,
-MilitaryPort_T3,
-MilitaryPort_T4,
-MilitaryPort_T5,
-    //For Small villages ports
-FishingPort_T1,
-FishingPort_T2,
-FishingPort_T3,
+
 };
 
 enum class BuildingCategory {

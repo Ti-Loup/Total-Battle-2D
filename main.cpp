@@ -1915,6 +1915,47 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture KnightChurch_T5", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightChurch_T5], SDL_SCALEMODE_NEAREST);
+        //ports
+        buildingTypeTextures[BuildingType::KnightMilitaryPort_T1] = IMG_LoadTexture(renderer, "assets/Knight/MilitaryPortTier1.png");
+        if (buildingTypeTextures[BuildingType::KnightMilitaryPort_T1] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightMilitaryPort_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightMilitaryPort_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightMilitaryPort_T2] = IMG_LoadTexture(renderer, "assets/Knight/MilitaryPortTier2.png");
+        if (buildingTypeTextures[BuildingType::KnightMilitaryPort_T2] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightMilitaryPort_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightMilitaryPort_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightMilitaryPort_T3] = IMG_LoadTexture(renderer, "assets/Knight/MilitaryPortTier3.png");
+        if (buildingTypeTextures[BuildingType::KnightMilitaryPort_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightMilitaryPort_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightMilitaryPort_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightMilitaryPort_T4] = IMG_LoadTexture(renderer, "assets/Knight/MilitaryPortTier4.png");
+        if (buildingTypeTextures[BuildingType::KnightMilitaryPort_T4] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightMilitaryPort_T4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightMilitaryPort_T4], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightMilitaryPort_T5] = IMG_LoadTexture(renderer, "assets/Knight/MilitaryPortTier5.png");
+        if (buildingTypeTextures[BuildingType::KnightMilitaryPort_T5] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightMilitaryPort_T5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightMilitaryPort_T5], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightFishingPort_T1] = IMG_LoadTexture(renderer, "assets/Knight/FishingPortTier1.png");
+        if (buildingTypeTextures[BuildingType::KnightFishingPort_T1] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightFishingPort_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightFishingPort_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightFishingPort_T2] = IMG_LoadTexture(renderer, "assets/Knight/FishingPortTier2.png");
+        if (buildingTypeTextures[BuildingType::KnightFishingPort_T2] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightFishingPort_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightFishingPort_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightFishingPort_T3] = IMG_LoadTexture(renderer, "assets/Knight/FishingPortTier3.png");
+        if (buildingTypeTextures[BuildingType::KnightFishingPort_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightFishingPort_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightFishingPort_T3], SDL_SCALEMODE_NEAREST);
 
         //                  ! VIKING !
         //capitals
@@ -2311,7 +2352,47 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture VikingSacrificeRitual_T5", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingSacrificeRitual_T5], SDL_SCALEMODE_NEAREST);
-
+        //Ports
+        buildingTypeTextures[BuildingType::VikingMilitaryPort_T1] = IMG_LoadTexture(renderer, "assets/Viking/MilitaryPortTier1.png");
+        if (buildingTypeTextures[BuildingType::VikingMilitaryPort_T1] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingMilitaryPort_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingMilitaryPort_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingMilitaryPort_T2] = IMG_LoadTexture(renderer, "assets/Viking/MilitaryPortTier2.png");
+        if (buildingTypeTextures[BuildingType::VikingMilitaryPort_T2] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingMilitaryPort_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingMilitaryPort_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingMilitaryPort_T3] = IMG_LoadTexture(renderer, "assets/Viking/MilitaryPortTier3.png");
+        if (buildingTypeTextures[BuildingType::VikingMilitaryPort_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingMilitaryPort_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingMilitaryPort_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingMilitaryPort_T4] = IMG_LoadTexture(renderer, "assets/Viking/MilitaryPortTier4.png");
+        if (buildingTypeTextures[BuildingType::VikingMilitaryPort_T4] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingMilitaryPort_T4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingMilitaryPort_T4], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingMilitaryPort_T5] = IMG_LoadTexture(renderer, "assets/Viking/MilitaryPortTier5.png");
+        if (buildingTypeTextures[BuildingType::VikingMilitaryPort_T5] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingMilitaryPort_T5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingMilitaryPort_T5], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingFishingPort_T1] = IMG_LoadTexture(renderer, "assets/Viking/FishingPortTier1.png");
+        if (buildingTypeTextures[BuildingType::VikingFishingPort_T1] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingFishingPort_T1", SDL_GetError);
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingFishingPort_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingFishingPort_T2] = IMG_LoadTexture(renderer, "assets/Viking/FishingPortTier2.png");
+        if (buildingTypeTextures[BuildingType::VikingFishingPort_T2] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingFishingPort_T2", SDL_GetError);
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingFishingPort_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingFishingPort_T3] = IMG_LoadTexture(renderer, "assets/Viking/FishingPortTier3.png");
+        if (buildingTypeTextures[BuildingType::VikingFishingPort_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingFishingPort_T3", SDL_GetError);
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingFishingPort_T3], SDL_SCALEMODE_NEAREST);
         //                  ! SAMURAI !
         //capitals
         capitalBuildingUpgrade1Samurai = IMG_LoadTexture(renderer, "assets/Samurai/CapitalBuildingUpgrade1Samurai.png");
@@ -2715,7 +2796,47 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture SamuraiChapel_T5", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiChapel_T5], SDL_SCALEMODE_NEAREST);
-
+        //Ports
+        buildingTypeTextures[BuildingType::SamuraiMilitaryPort_T1] = IMG_LoadTexture(renderer, "assets/Samurai/MilitaryPortTier1.png");
+        if (buildingTypeTextures[BuildingType::SamuraiMilitaryPort_T1] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiMilitaryPort_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiMilitaryPort_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiMilitaryPort_T2] = IMG_LoadTexture(renderer, "assets/Samurai/MilitaryPortTier2.png");
+        if (buildingTypeTextures[BuildingType::SamuraiMilitaryPort_T2] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiMilitaryPort_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiMilitaryPort_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiMilitaryPort_T3] = IMG_LoadTexture(renderer, "assets/Samurai/MilitaryPortTier3.png");
+        if (buildingTypeTextures[BuildingType::SamuraiMilitaryPort_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiMilitaryPort_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiMilitaryPort_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiMilitaryPort_T4] = IMG_LoadTexture(renderer, "assets/Samurai/MilitaryPortTier4.png");
+        if (buildingTypeTextures[BuildingType::SamuraiMilitaryPort_T4] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiMilitaryPort_T4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiMilitaryPort_T4], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiMilitaryPort_T5] = IMG_LoadTexture(renderer, "assets/Samurai/MilitaryPortTier5.png");
+        if (buildingTypeTextures[BuildingType::SamuraiMilitaryPort_T5] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiMilitaryPort_T5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiMilitaryPort_T5], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiFishingPort_T1] = IMG_LoadTexture(renderer, "assets/Samurai/FishingPortTier1.png");
+        if (buildingTypeTextures[BuildingType::SamuraiFishingPort_T1] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiFishingPort_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiFishingPort_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiFishingPort_T2] = IMG_LoadTexture(renderer, "assets/Samurai/FishingPortTier2.png");
+        if (buildingTypeTextures[BuildingType::SamuraiFishingPort_T2] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiFishingPort_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiFishingPort_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiFishingPort_T3] = IMG_LoadTexture(renderer, "assets/Samurai/FishingPortTier3.png");
+        if (buildingTypeTextures[BuildingType::SamuraiFishingPort_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiFishingPort_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiFishingPort_T3], SDL_SCALEMODE_NEAREST);
 
         // -> CREDITS <-
         creditsTitleFont = TTF_OpenFont("assets/font.ttf", 50);
