@@ -37,14 +37,15 @@
  * DeathRate : YES
  * 2. make a Mini Map in the corner right + a rect inside to show camera current view.
  * Add Church candle building + craft
- *
  * 3. create randoms events that pop on (plague, exceed food production, thunder)
  * Add Ports buildings If a main settlement or village is close to the sea it has a port. For villages/Fishing port, and Main settlements military port.
+ *
  * 3.5 make the Worldevents works with buildings and world Population
  * fishing ports gives food / produce fish in 0.3.0!
  * Currently -> pannel buttons popup ui element for each .exemple -> Add some win Achievements
- * If Time -> work on the ai to build buildings strategicly based on what they're missing.
  * Done -> Make the Income based on Farm,Commerce,Industry,Religion and not just all income instantly.
+ *
+ * * If Time -> work on the ai to build buildings strategicly based on what they're missing.
  *
  * Fixed | issue with vikings religious buildings crashing the game
  * Fixed | camera never stop when touch edge
@@ -52,6 +53,7 @@
  * Fixed | the population need to start with a baseamount, not 0
  * Fixed | building maintenants shown but didnt actually work
  * Fixed | Food storage was stuck at 0
+ * Fixed | When building Tier Max, should stop showing the upgradable popup
  * --------------------------------------------
  * 0.3.0
  * RESSOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
@@ -4162,146 +4164,150 @@ private://constructor
                 if (provinceSettl->settlementData.type == SettlementType::Castle || provinceSettl->settlementData.type == SettlementType::Capital) {
                     maxTier = 5;
                 }
+            //If same tier has max the popup wont show.
+                if (currentTier < maxTier) {
+                    float tileW  = 64.f;
+                    float tileH  = 64.f;
+                    float arrowH = 22.f;
+                    float totalH = maxTier * tileH + (maxTier - 1) * arrowH;
 
+                    float popX = mainBuildingSlotRects[hoveredCardIndex].x + (mainBuildingSlotRects[hoveredCardIndex].w - tileW) / 2.f;
+                    float popY = mainBuildingSlotRects[hoveredCardIndex].y - totalH - 15.f;
+                    if (popY < 5.f) popY = 5.f;
 
-                float tileW  = 64.f;
-                float tileH  = 64.f;
-                float arrowH = 22.f;
-                float totalH = maxTier * tileH + (maxTier - 1) * arrowH;
+                    // Background of popup
+                    SDL_SetRenderDrawColor(renderer, 10, 10, 10, 230);
+                    SDL_FRect bgRect = {popX - 12.f, popY - 8.f, tileW + 24.f, totalH + 16.f};
+                    SDL_RenderFillRect(renderer, &bgRect);
+                    mainBuildingPopupRect = bgRect;
+                    SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 120);
+                    SDL_RenderRect(renderer, &bgRect);
 
-                float popX = mainBuildingSlotRects[hoveredCardIndex].x + (mainBuildingSlotRects[hoveredCardIndex].w - tileW) / 2.f;
-                float popY = mainBuildingSlotRects[hoveredCardIndex].y - totalH - 15.f;
-                if (popY < 5.f) popY = 5.f;
+                    // Tier 5 is UP → Tier 1 if down
+                    for (int t = maxTier; t >= 1; t--) {
+                        int idx = maxTier - t;  // 0 = tier5(top), 4 = tier1(down)
+                        float tierSquareY = popY + idx * (tileH + arrowH);
 
-                // Background of popup
-                SDL_SetRenderDrawColor(renderer, 10, 10, 10, 230);
-                SDL_FRect bgRect = {popX - 12.f, popY - 8.f, tileW + 24.f, totalH + 16.f};
-                SDL_RenderFillRect(renderer, &bgRect);
-                mainBuildingPopupRect = bgRect;
-                SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 120);
-                SDL_RenderRect(renderer, &bgRect);
+                        bool isCurrent  = (t == currentTier);
+                        bool isNext = t == currentTier + 1 && currentTier < maxTier;
+                        bool isUnlocked = (t < currentTier);
 
-                // Tier 5 is UP → Tier 1 if down
-                for (int t = maxTier; t >= 1; t--) {
-                    int idx = maxTier - t;  // 0 = tier5(top), 4 = tier1(down)
-                    float tierSquareY = popY + idx * (tileH + arrowH);
-
-                    bool isCurrent  = (t == currentTier);
-                    bool isNext = t == currentTier + 1 && currentTier < maxTier;
-                    bool isUnlocked = (t < currentTier);
-
-                    // square of tier
-                    if (isCurrent) {
-                        SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 255);
-                    }
-                    else if (isNext) {
-                        SDL_SetRenderDrawColor(renderer, factionColor.r/2,factionColor.g/2,factionColor.b/2,255);
-                    }
-                    else if (isUnlocked) {
-                        SDL_SetRenderDrawColor(renderer, factionColor.r,factionColor.g,factionColor.b,255);
-                    }
-                    else
-                        SDL_SetRenderDrawColor(renderer, 22, 22, 22, 255);
-
-                    SDL_FRect tierRect = {popX, tierSquareY, tileW, tileH};
-                    SDL_RenderFillRect(renderer, &tierRect);
-
-                    //textures of the building
-                    SDL_Texture* textureBuilding = GetSettlementBuildingUpgradeTexture(province.owner,provinceSettl->settlementData.type, t );
-                    if (textureBuilding) {
-                        Uint8 alpha = isCurrent ? 255 : (isNext ? 180 : 60);
-                        SDL_SetTextureAlphaMod(textureBuilding, alpha);
-                        SDL_RenderTexture(renderer, textureBuilding, nullptr, &tierRect);
-                        SDL_SetTextureAlphaMod(textureBuilding, 255); // reset
-                    }
-                    // Bordure
-                    SDL_SetRenderDrawColor(renderer,
-                        isCurrent ? factionColor.r : 65,
-                        isCurrent ? factionColor.g : 65,
-                        isCurrent ? factionColor.b : 65, 255);
-                    SDL_RenderRect(renderer, &tierRect);
-                    // Chiffre romain
-                    const char* rn[] = {"I", "II", "III", "IV", "V"};
-                    TTF_SetTextString(gameStatUIText, rn[t - 1], 0);
-                    Uint8 la = isCurrent ? 255 : (isUnlocked ? 180 : 80);
-                    TTF_SetTextColor(gameStatUIText, la, la, la, 255);
-                    int tw = 0, th = 0;
-                    TTF_GetTextSize(gameStatUIText, &tw, &th);
-                    TTF_DrawRendererText(gameStatUIText,popX + (tileW - tw) / 2.f,tierSquareY + tileH - th - 5.f);
-
-
-                    if (t > currentTier && t <= maxTier) {
-                        BuildingType buildingAtTier = GetSettlementBuildingType(provinceSettl->settlementData.type, province.owner, t - 1);
-
-                        const BuildingData* tierData = GetBuildingData(buildingAtTier);
-                        const BuildingData* nextData = (tierData && tierData->upgradesTo != BuildingType::None)? GetBuildingData(tierData->upgradesTo) : nullptr;
-                        int cost = nextData ? nextData->cost : 123456; // if the cost cannot be get from the dataBuilding section it returns 123456 (error)
-                        int constructionTurns = nextData ? nextData->constructionTurns : 1;
-
-                        std::string costString = std::to_string(cost);
-                        TTF_SetTextString(gameBuildingCostUIText, costString.c_str(), 0);
-
-                        //green if can purchase and red if to expensive
-                        if (player.currentGold >= cost) {
-                            TTF_SetTextColor(gameBuildingCostUIText, 127, 255, 0, 255);
-                        }else {
-                            TTF_SetTextColor(gameBuildingCostUIText, 220, 60, 60, 255);
+                        // square of tier
+                        if (isCurrent) {
+                            SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 255);
                         }
-                        int costW = 0, costH = 0;
-                        TTF_GetTextSize(gameBuildingCostUIText, &costW, &costH);
-                        TTF_DrawRendererText(gameBuildingCostUIText,popX + (tileW - costW) -2.f,tierSquareY + 45.f);
+                        else if (isNext) {
+                            SDL_SetRenderDrawColor(renderer, factionColor.r/2,factionColor.g/2,factionColor.b/2,255);
+                        }
+                        else if (isUnlocked) {
+                            SDL_SetRenderDrawColor(renderer, factionColor.r,factionColor.g,factionColor.b,255);
+                        }
+                        else
+                            SDL_SetRenderDrawColor(renderer, 22, 22, 22, 255);
 
-                        //texture gold
-                        float iconSize = 12.f;
-                        float totalRowW = iconSize + 3.f + costW;
-                        float rowStartX = popX + (tileW - totalRowW) / 2.f;
+                        SDL_FRect tierRect = {popX, tierSquareY, tileW, tileH};
+                        SDL_RenderFillRect(renderer, &tierRect);
 
-                        SDL_FRect goldUI = {rowStartX + 57.f, tierSquareY + 48.f, iconSize, iconSize};
-                        // SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
-                        // SDL_RenderFillRect(renderer, &goldUI);
-                        // SDL_SetRenderDrawColor(renderer, 180, 140, 20, 255);
-                        // SDL_RenderRect(renderer, &goldUI);
-                        SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &goldUI);
+                        //textures of the building
+                        SDL_Texture* textureBuilding = GetSettlementBuildingUpgradeTexture(province.owner,provinceSettl->settlementData.type, t );
+                        if (textureBuilding) {
+                            Uint8 alpha = isCurrent ? 255 : (isNext ? 180 : 60);
+                            SDL_SetTextureAlphaMod(textureBuilding, alpha);
+                            SDL_RenderTexture(renderer, textureBuilding, nullptr, &tierRect);
+                            SDL_SetTextureAlphaMod(textureBuilding, 255); // reset
+                        }
+                        // Bordure
+                        SDL_SetRenderDrawColor(renderer,
+                            isCurrent ? factionColor.r : 65,
+                            isCurrent ? factionColor.g : 65,
+                            isCurrent ? factionColor.b : 65, 255);
+                        SDL_RenderRect(renderer, &tierRect);
+                        // Chiffre romain
+                        const char* rn[] = {"I", "II", "III", "IV", "V"};
+                        TTF_SetTextString(gameStatUIText, rn[t - 1], 0);
+                        Uint8 la = isCurrent ? 255 : (isUnlocked ? 180 : 80);
+                        TTF_SetTextColor(gameStatUIText, la, la, la, 255);
+                        int tw = 0, th = 0;
+                        TTF_GetTextSize(gameStatUIText, &tw, &th);
+                        TTF_DrawRendererText(gameStatUIText,popX + (tileW - tw) / 2.f,tierSquareY + tileH - th - 5.f);
 
-                        //Show the amount of turn before the building is constructed.
-                        std::string timeConstructionAmountString = std::to_string(constructionTurns);
-                        TTF_SetTextString(gameBuildingConstructionTimeText, timeConstructionAmountString.c_str(), 0);
-                        int turnW = 0, turnH = 0;
-                        TTF_GetTextSize(gameBuildingConstructionTimeText, &turnW, &turnH);
-                        TTF_DrawRendererText(gameBuildingConstructionTimeText, popX + (tileW - turnW) -5.f,tierSquareY + 1.f);
-                        //texture TurnTime Icon
-                        float TurnIconSize = 12.f;
-                        float TotalTurnRowW = TurnIconSize + 3.f + turnW;
-                        float rowTurnStartX = popX + (tileW - TotalTurnRowW) / 2.f;
 
-                        SDL_FRect turnUI = {rowTurnStartX + 43.f, tierSquareY + 5.f, TurnIconSize, TurnIconSize};
-                        // SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
-                        // SDL_RenderFillRect(renderer, &turnUI);
-                        // SDL_SetRenderDrawColor(renderer, 180, 180, 180, 255);
-                        // SDL_RenderFillRect(renderer, &turnUI);
-                        SDL_RenderTexture(renderer, gameTurnAmountTexture, nullptr, &turnUI);
+                        if (t > currentTier && t <= maxTier) {
+                            BuildingType buildingAtTier = GetSettlementBuildingType(provinceSettl->settlementData.type, province.owner, t - 1);
 
+                            const BuildingData* tierData = GetBuildingData(buildingAtTier);
+                            const BuildingData* nextData = (tierData && tierData->upgradesTo != BuildingType::None)? GetBuildingData(tierData->upgradesTo) : nullptr;
+                            int cost = nextData ? nextData->cost : 123456; // if the cost cannot be get from the dataBuilding section it returns 123456 (error)
+                            int constructionTurns = nextData ? nextData->constructionTurns : 1;
+
+                            std::string costString = std::to_string(cost);
+                            TTF_SetTextString(gameBuildingCostUIText, costString.c_str(), 0);
+
+                            //green if can purchase and red if to expensive
+                            if (player.currentGold >= cost) {
+                                TTF_SetTextColor(gameBuildingCostUIText, 127, 255, 0, 255);
+                            }else {
+                                TTF_SetTextColor(gameBuildingCostUIText, 220, 60, 60, 255);
+                            }
+                            int costW = 0, costH = 0;
+                            TTF_GetTextSize(gameBuildingCostUIText, &costW, &costH);
+                            TTF_DrawRendererText(gameBuildingCostUIText,popX + (tileW - costW) -2.f,tierSquareY + 45.f);
+
+                            //texture gold
+                            float iconSize = 12.f;
+                            float totalRowW = iconSize + 3.f + costW;
+                            float rowStartX = popX + (tileW - totalRowW) / 2.f;
+
+                            SDL_FRect goldUI = {rowStartX + 57.f, tierSquareY + 48.f, iconSize, iconSize};
+                            // SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
+                            // SDL_RenderFillRect(renderer, &goldUI);
+                            // SDL_SetRenderDrawColor(renderer, 180, 140, 20, 255);
+                            // SDL_RenderRect(renderer, &goldUI);
+                            SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &goldUI);
+
+                            //Show the amount of turn before the building is constructed.
+                            std::string timeConstructionAmountString = std::to_string(constructionTurns);
+                            TTF_SetTextString(gameBuildingConstructionTimeText, timeConstructionAmountString.c_str(), 0);
+                            int turnW = 0, turnH = 0;
+                            TTF_GetTextSize(gameBuildingConstructionTimeText, &turnW, &turnH);
+                            TTF_DrawRendererText(gameBuildingConstructionTimeText, popX + (tileW - turnW) -5.f,tierSquareY + 1.f);
+                            //texture TurnTime Icon
+                            float TurnIconSize = 12.f;
+                            float TotalTurnRowW = TurnIconSize + 3.f + turnW;
+                            float rowTurnStartX = popX + (tileW - TotalTurnRowW) / 2.f;
+
+                            SDL_FRect turnUI = {rowTurnStartX + 43.f, tierSquareY + 5.f, TurnIconSize, TurnIconSize};
+                            // SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
+                            // SDL_RenderFillRect(renderer, &turnUI);
+                            // SDL_SetRenderDrawColor(renderer, 180, 180, 180, 255);
+                            // SDL_RenderFillRect(renderer, &turnUI);
+                            SDL_RenderTexture(renderer, gameTurnAmountTexture, nullptr, &turnUI);
+
+                        }
+
+
+                        // up arrow between this current and next building upgrade
+                        if (t > 1) {
+                            float cx  = popX + tileW / 2.f;
+                            float tipY = tierSquareY + tileH + 2.f;
+                            float baseY = tierSquareY + tileH + arrowH - 2.f;
+                            SDL_SetRenderDrawColor(renderer, 0, 180, 0, 200);
+                            SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)cx, (int)baseY);
+                            SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)(cx - 6), (int)(tipY + 8));
+                            SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)(cx + 6), (int)(tipY + 8));
+                        }
+                        // Save the rect to detect the clic
+                        if ((int)tierPopupRects.size() < maxTier)
+                            tierPopupRects.resize(maxTier);
+                        tierPopupRects[t - 1] = tierRect;
+                        tierPopupMaxTier = maxTier;
                     }
-
-
-                    // up arrow between this current and next building upgrade
-                    if (t > 1) {
-                        float cx  = popX + tileW / 2.f;
-                        float tipY = tierSquareY + tileH + 2.f;
-                        float baseY = tierSquareY + tileH + arrowH - 2.f;
-                        SDL_SetRenderDrawColor(renderer, 0, 180, 0, 200);
-                        SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)cx, (int)baseY);
-                        SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)(cx - 6), (int)(tipY + 8));
-                        SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)(cx + 6), (int)(tipY + 8));
-                    }
-                    // Save the rect to detect the clic
-                    if ((int)tierPopupRects.size() < maxTier)
-                        tierPopupRects.resize(maxTier);
-                    tierPopupRects[t - 1] = tierRect;
-                    tierPopupMaxTier = maxTier;
                 }
+                else {
+                    mainBuildingPopupRect = {0.f, 0.f, 0.f, 0.f}; // hide the popup rect
                 }
             }
+        }
 
         if (bButtonUIGarrisonIsPressed) {
             //To Do later the garrison with Their Unit cards
