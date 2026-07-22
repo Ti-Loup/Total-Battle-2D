@@ -610,15 +610,15 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::Settlement_Capital_Knight_T5, {"Royal Capital", "The glorious center of the kingdom,\nruled by powerful lords and nobility. ", 8000, 300, 0, 3, 5, 12, 40, 0, 50, 0, 0, 0, BuildingType::None});
 
     // ── PORTS (KNIGHT) ──
-    add(BuildingType::KnightMilitaryPort_T1, {"Naval Yard", "Modest docks where light vessels\nare built to patrol the coast\nand ferry troops abroad.", 500, 20, 50, 0, 1, 3, 0,0,0, 0,0,0, BuildingType::KnightMilitaryPort_T2});
-    add(BuildingType::KnightMilitaryPort_T2, {"War Harbor", "Expanded shipyards turn out sturdier\nhulls, built to withstand the\nrigors of naval combat.", 900, 35, 90, 0, 2, 4, 0,0,0, 0,0,0, BuildingType::KnightMilitaryPort_T3});
-    add(BuildingType::KnightMilitaryPort_T3, {"War Port", "A proper port of war, its docks\nnever idle as new warships are\nlaunched for the King's fleet.", 1400, 55, 140, 0, 3, 5, 0,0,0, 0,0,0, BuildingType::KnightMilitaryPort_T4});
-    add(BuildingType::KnightMilitaryPort_T4, {"Grand War Port", "A vast harbor bristling with\nwarships, standing ready to\ndefend the realm's shores.", 2000, 80, 200, 0, 4, 6, 0,0,0, 0,0,0, BuildingType::KnightMilitaryPort_T5});
-    add(BuildingType::KnightMilitaryPort_T5, {"Royal Shipyard", "The kingdom's greatest naval yard,\ncapable of arming an entire fleet\nin the King's name.", 2800, 110, 270, 0, 5, 8, 0,0,0, 0,0,0, BuildingType::None});
+    add(BuildingType::KnightMilitaryPort_T1, {"Naval Yard", "Modest docks where light vessels\nare built to patrol the coast\nand ferry troops abroad.", 500, 10, 0, 0, 1, 4, 0,0,5, 0,0,0, BuildingType::KnightMilitaryPort_T2});
+    add(BuildingType::KnightMilitaryPort_T2, {"War Harbor", "Expanded shipyards turn out sturdier\nhulls, built to withstand the\nrigors of naval combat.", 900, 15, 0, 0, 2, 5, 0,0,10, 0,0,0, BuildingType::KnightMilitaryPort_T3});
+    add(BuildingType::KnightMilitaryPort_T3, {"War Port", "A proper port of war, its docks\nnever idle as new warships are\nlaunched for the King's fleet.", 1400, 25, 0, 0, 3, 6, 0,0,15, 0,0,0, BuildingType::KnightMilitaryPort_T4});
+    add(BuildingType::KnightMilitaryPort_T4, {"Grand War Port", "A vast harbor bristling with\nwarships, standing ready to\ndefend the realm's shores.", 2000, 40, 0, 0, 4, 8, 0,0,20, 0,0,0, BuildingType::KnightMilitaryPort_T5});
+    add(BuildingType::KnightMilitaryPort_T5, {"Royal Shipyard", "The kingdom's greatest naval yard,\ncapable of arming an entire fleet\nin the King's name.", 3200, 50, 0, 0, 5, 10, 0,0,25, 0,0,0, BuildingType::None});
 
-    add(BuildingType::KnightFishingPort_T1, {"Fishing Dock", "Small boats set out at dawn,\nbringing in just enough to\nfeed the village.", 300, 0, 15, 0, 1, 2, 0, 8, 0, 0,0,0, BuildingType::KnightFishingPort_T2});
-    add(BuildingType::KnightFishingPort_T2, {"Fishing Harbor", "An enlarged fleet of fishing boats\nbrings a steady bounty in from\nthe surrounding waters.", 500, 0, 25, 0, 2, 3, 0, 14, 0, 0,0,0, BuildingType::KnightFishingPort_T3});
-    add(BuildingType::KnightFishingPort_T3, {"Grand Fishing Harbor", "A thriving harbor where fishermen\nreturn each day with catches\nenough to feed the whole province.", 750, 0, 40, 0, 3, 4, 0, 20, 0, 0,0,0, BuildingType::None});
+    add(BuildingType::KnightFishingPort_T1, {"Fishing Dock", "Small boats set out at dawn,\nbringing in just enough to\nfeed the village.", 400, 0, 15, 0, 1, 3, 0, 9, 0, 0,0,0, BuildingType::KnightFishingPort_T2});
+    add(BuildingType::KnightFishingPort_T2, {"Fishing Harbor", "An enlarged fleet of fishing boats\nbrings a steady bounty in from\nthe surrounding waters.", 700, 0, 25, 0, 2, 4, 0, 15, 0, 0,0,0, BuildingType::KnightFishingPort_T3});
+    add(BuildingType::KnightFishingPort_T3, {"Grand Fishing Harbor", "A thriving harbor where fishermen\nreturn each day with catches\nenough to feed the whole province.", 1100, 0, 40, 0, 3, 6, 0, 25, 0, 0,0,0, BuildingType::None});
 
     // ── VIKING SETTLEMENTS ──
     add(BuildingType::Settlement_Village_Viking_T1, {"Small Settlement", "A small farm built by\nhardworking northern clans.", 0, 0, 25,  0, 1, 1, 0, 5, 0, 0, 0, 0, BuildingType::Settlement_Village_Viking_T2});
@@ -636,15 +636,15 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::Settlement_Capital_Viking_T5, {"Jarl's Capital",   "The glorious capital of the Jarls,\nruling the northern kingdoms.", 0, 0, 1100, 0, 5, 1, 40, 0, 50, 0, 0, 0, BuildingType::None});
 
     // ── PORTS (VIKING) ──
-    add(BuildingType::VikingMilitaryPort_T1, {"Drakkar Yard", "A raw shipyard where young longships\nare hewn from northern timber,\nready for raid and plunder.", 500, 20, 50, 0, 1, 3, 0,0,0, 0,0,0, BuildingType::VikingMilitaryPort_T2});
-    add(BuildingType::VikingMilitaryPort_T2, {"Raiding Harbor", "Sturdier drakkars leave these docks,\ncarrying warriors far across\nthe cold northern seas.", 900, 35, 90, 0, 2, 4, 0,0,0, 0,0,0, BuildingType::VikingMilitaryPort_T3});
-    add(BuildingType::VikingMilitaryPort_T3, {"War Fjord", "A sheltered fjord turned shipyard\nof war, launching drakkars built\nfor battle upon the waves.", 1400, 55, 140, 0, 3, 5, 0,0,0, 0,0,0, BuildingType::VikingMilitaryPort_T4});
-    add(BuildingType::VikingMilitaryPort_T4, {"Grand Longship Yard", "Rows of longships crowd the harbor,\na fleet fierce enough to strike\nfear into distant shores.", 2000, 80, 200, 0, 4, 6, 0,0,0, 0,0,0, BuildingType::VikingMilitaryPort_T5});
-    add(BuildingType::VikingMilitaryPort_T5, {"Jarl's Shipyard", "The greatest shipyard of the north,\nwhere the Jarl's fleet is forged\nto conquer the seas themselves.", 2800, 110, 270, 0, 5, 8, 0,0,0, 0,0,0, BuildingType::None});
+    add(BuildingType::VikingMilitaryPort_T1, {"Drakkar Yard", "A raw shipyard where young longships\nare hewn from northern timber,\nready for raid and plunder.", 500, 10, 0, 0, 1, 4, 0,0,5, 0,0,0, BuildingType::VikingMilitaryPort_T2});
+    add(BuildingType::VikingMilitaryPort_T2, {"Raiding Harbor", "Sturdier drakkars leave these docks,\ncarrying warriors far across\nthe cold northern seas.", 900, 15, 0, 0, 2, 5, 0,0,10, 0,0,0, BuildingType::VikingMilitaryPort_T3});
+    add(BuildingType::VikingMilitaryPort_T3, {"War Fjord", "A sheltered fjord turned shipyard\nof war, launching drakkars built\nfor battle upon the waves.", 1400, 25, 0, 0, 3, 6, 0,0,15, 0,0,0, BuildingType::VikingMilitaryPort_T4});
+    add(BuildingType::VikingMilitaryPort_T4, {"Grand Longship Yard", "Rows of longships crowd the harbor,\na fleet fierce enough to strike\nfear into distant shores.", 2000, 40, 0, 0, 4, 8, 0,0,20, 0,0,0, BuildingType::VikingMilitaryPort_T5});
+    add(BuildingType::VikingMilitaryPort_T5, {"Jarl's Shipyard", "The greatest shipyard of the north,\nwhere the Jarl's fleet is forged\nto conquer the seas themselves.", 3200, 50, 0, 0, 5, 10, 0,0,25, 0,0,0, BuildingType::None});
 
-    add(BuildingType::VikingFishingPort_T1, {"Fishing Camp", "A handful of boats brave the cold\nwaters each morning, bringing back\njust enough to feed the settlement.", 300, 0, 15, 0, 1, 2, 0, 8, 0, 0,0,0, BuildingType::VikingFishingPort_T2});
-    add(BuildingType::VikingFishingPort_T2, {"Fishing Cove", "A growing fleet works the coastal\nwaters, hauling in a steady\nbounty for the clan.", 500, 0, 25, 0, 2, 3, 0, 14, 0, 0,0,0, BuildingType::VikingFishingPort_T3});
-    add(BuildingType::VikingFishingPort_T3, {"Grand Fishing Fjord", "A bustling fjord harbor where\nfishermen return laden with catch,\nfeeding villages up and down the coast.", 750, 0, 40, 0, 3, 4, 0, 20, 0, 0,0,0, BuildingType::None});
+    add(BuildingType::VikingFishingPort_T1, {"Fishing Camp", "A handful of boats brave the cold\nwaters each morning, bringing back\njust enough to feed the settlement.", 400, 0, 15, 0, 1, 3, 0, 9, 0, 0,0,0, BuildingType::VikingFishingPort_T2});
+    add(BuildingType::VikingFishingPort_T2, {"Fishing Cove", "A growing fleet works the coastal\nwaters, hauling in a steady\nbounty for the clan.", 700, 0, 25, 0, 2, 4, 0, 15, 0, 0,0,0,BuildingType::VikingFishingPort_T3});
+    add(BuildingType::VikingFishingPort_T3, {"Grand Fishing Fjord", "A bustling fjord harbor where\nfishermen return laden with catch,\nfeeding villages up and down the coast.", 1100, 0, 40, 0, 3, 6, 0, 25, 0, 0,0,0, BuildingType::None});
 
     // ── SAMURAI SETTLEMENTS ──
     add(BuildingType::Settlement_Village_Samurai_T1, {"Small Village", "A peaceful village surrounded\nby rice flields and farmers.", 0, 0, 25,  0, 1, 1, 0, 5, 0, 0, 0, 0, BuildingType::Settlement_Village_Samurai_T2});
@@ -662,15 +662,15 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::Settlement_Capital_Samurai_T5, {"Shogun's Capital", "The glorious seat of the Shogun,\nruling the empire with honor.", 0, 0, 1100, 0, 5, 1, 40, 0, 50, 0, 0, 0, BuildingType::None});
 
     // ── PORTS (SAMURAI) ──
-    add(BuildingType::SamuraiMilitaryPort_T1, {"Coastal Shipwright", "A modest wharf where shipwrights\ncraft light vessels to guard\nthe coastline and ferry troops.", 500, 20, 50, 0, 1, 3, 0,0,0, 0,0,0, BuildingType::SamuraiMilitaryPort_T2});
-    add(BuildingType::SamuraiMilitaryPort_T2, {"War Harbor", "Reinforced hulls leave this busier\nharbor, built to serve the\ndaimyo's growing ambitions.", 900, 35, 90, 0, 2, 4, 0,0,0, 0,0,0, BuildingType::SamuraiMilitaryPort_T3});
-    add(BuildingType::SamuraiMilitaryPort_T3, {"Naval Stronghold", "A fortified harbor turning out\nwarships worthy of the Shogunate's\nnaval traditions.", 1400, 55, 140, 0, 3, 5, 0,0,0, 0,0,0, BuildingType::SamuraiMilitaryPort_T4});
-    add(BuildingType::SamuraiMilitaryPort_T4, {"Grand Fleet Harbor", "An imposing harbor housing a fleet\nlarge enough to project the\nclan's power across the seas.", 2000, 80, 200, 0, 4, 6, 0,0,0, 0,0,0, BuildingType::SamuraiMilitaryPort_T5});
-    add(BuildingType::SamuraiMilitaryPort_T5, {"Shogun's Armada", "The empire's mightiest shipyard,\nwhere the Shogun's armada is\nbuilt to rule the surrounding waters.", 2800, 110, 270, 0, 5, 8, 0,0,0, 0,0,0, BuildingType::None});
+    add(BuildingType::SamuraiMilitaryPort_T1, {"Coastal Shipwright", "A modest wharf where shipwrights\ncraft light vessels to guard\nthe coastline and ferry troops.", 500, 10, 0, 0, 1, 4, 0,0,5, 0,0,0, BuildingType::SamuraiMilitaryPort_T2});
+    add(BuildingType::SamuraiMilitaryPort_T2, {"War Harbor", "Reinforced hulls leave this busier\nharbor, built to serve the\ndaimyo's growing ambitions.", 900, 15, 0, 0, 2, 5, 0,0,10, 0,0,0, BuildingType::SamuraiMilitaryPort_T3});
+    add(BuildingType::SamuraiMilitaryPort_T3, {"Naval Stronghold", "A fortified harbor turning out\nwarships worthy of the Shogunate's\nnaval traditions.", 1400, 25, 0, 0, 3, 6, 0,0,15, 0,0,0, BuildingType::SamuraiMilitaryPort_T4});
+    add(BuildingType::SamuraiMilitaryPort_T4, {"Grand Fleet Harbor", "An imposing harbor housing a fleet\nlarge enough to project the\nclan's power across the seas.", 2000, 40, 0, 0, 4, 8, 0,0,20, 0,0,0, BuildingType::SamuraiMilitaryPort_T5});
+    add(BuildingType::SamuraiMilitaryPort_T5, {"Shogun's Armada", "The empire's mightiest shipyard,\nwhere the Shogun's armada is\nbuilt to rule the surrounding waters.", 3200, 50, 0, 0, 5, 10, 0,0,25, 0,0,0, BuildingType::None});
 
-    add(BuildingType::SamuraiFishingPort_T1, {"Fishing Village Dock", "Small fishing boats set out at\ndawn, bringing back a modest\ncatch for the village.", 300, 0, 15, 0, 1, 2, 0, 8, 0, 0,0,0, BuildingType::SamuraiFishingPort_T2});
-    add(BuildingType::SamuraiFishingPort_T2, {"Fishing Harbor", "An expanded fleet of fishing boats\nbrings home a steady harvest\nfrom the surrounding waters.", 500, 0, 25, 0, 2, 3, 0, 14, 0, 0,0,0, BuildingType::SamuraiFishingPort_T3});
-    add(BuildingType::SamuraiFishingPort_T3, {"Grand Fishing Harbor", "A prosperous harbor where the\ndaily catch is plentiful enough\nto sustain the whole province.", 750, 0, 40, 0, 3, 4, 0, 20, 0, 0,0,0, BuildingType::None});
+    add(BuildingType::SamuraiFishingPort_T1, {"Fishing Village Dock", "Small fishing boats set out at\ndawn, bringing back a modest\ncatch for the village.", 400, 0, 15, 0, 1, 3, 0, 9, 0, 0,0,0,BuildingType::SamuraiFishingPort_T2});
+    add(BuildingType::SamuraiFishingPort_T2, {"Fishing Harbor", "An expanded fleet of fishing boats\nbrings home a steady harvest\nfrom the surrounding waters.", 700, 0, 25, 0, 2, 4, 0, 15, 0, 0,0,0, BuildingType::SamuraiFishingPort_T3});
+    add(BuildingType::SamuraiFishingPort_T3, {"Grand Fishing Harbor", "A prosperous harbor where the\ndaily catch is plentiful enough\nto sustain the whole province.", 1100, 0, 40, 0, 3, 6, 0, 25, 0, 0,0,0,BuildingType::None});
     // ── KNIGHT ECONOMY ──
     add(BuildingType::KnightWareHouse_T3, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 3, 5, 0, 0, 25, 0, 0, 0, BuildingType::KnightWareHouse_T4}); //store 25 food
     add(BuildingType::KnightWareHouse_T4, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 4, 5, 0, 0, 50, 0, 0, 0, BuildingType::KnightWareHouse_T5}); // store 50 food
