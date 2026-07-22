@@ -54,6 +54,8 @@
  * Fixed | building maintenants shown but didnt actually work
  * Fixed | Food storage was stuck at 0
  * Fixed | When building Tier Max, should stop showing the upgradable popup
+ * Fixed | Both branches assign 120. So regardless of unlocked/built/locked status, every non-hovered tile renders at the same dim alpha.
+ * Fixed | settlementTier only tells the maximum tier the settlement allows you to build
  * --------------------------------------------
  * 0.3.0
  * RESSOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
@@ -4333,6 +4335,15 @@ private://constructor
         if (categoryPopupCardIndex>= (int)provS.size()) return;
         const Settlement* cardSett = provS[categoryPopupCardIndex];
         int settlementTier = cardSett->settlementData.settlementTier;
+        // find what's actually constructed in this slot
+        int currentBuiltTier = 0;
+        if (buildMenuSlotIndex > 0 && buildMenuSlotIndex < (int)cardSett->settlementData.buildings.size()) {
+            BuildingType builtHere = cardSett->settlementData.buildings[buildMenuSlotIndex];
+            if (builtHere != BuildingType::None) {
+                const BuildingData* builtData = GetBuildingData(builtHere);
+                if (builtData) currentBuiltTier = builtData->Tier;
+            }
+        }
 
         // faction color
         SDL_Color fc;
@@ -4426,35 +4437,35 @@ private://constructor
 
                 int rowIndex = maxTierOverall - data->Tier; // 0 = top (tier le plus haut)
                 float tileY = popY + rowIndex * (tileH + arrowH);
-                bool isUnlocked = (data->Tier <= settlementTier);
+                bool isBuilt = (data->Tier <= currentBuiltTier);
+                bool isNextAvailable = (data->Tier == currentBuiltTier + 1) && (data->Tier <= settlementTier);
 
-                // Fond de la tuile
-                if (isUnlocked)
-                    SDL_SetRenderDrawColor(renderer, fc.r / 3, fc.g / 3, fc.b / 3, 255);
+                // background
+                if (isBuilt)
+                    SDL_SetRenderDrawColor(renderer, fc.r, fc.g, fc.b, 255);
+                else if (isNextAvailable)
+                    SDL_SetRenderDrawColor(renderer, fc.r / 2, fc.g / 2, fc.b / 2, 255);
                 else
                     SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
                 SDL_FRect tileRect = {colX, tileY, tileW, tileH};
                 SDL_RenderFillRect(renderer, &tileRect);
 
-                //textures
+                // texture
                 SDL_Texture* texture = GetBuildingTexture(bt);
                 if (texture) {
                     Uint8 alpha;
-                    if (bt == hoveredCategoryBuildingType) {
-                        alpha = 255; // mouse on top
-                    } else if (isUnlocked) {
-                        alpha = 120;
-                    } else {
-                        alpha = 120; // locked
-                    }
+                    if (bt == hoveredCategoryBuildingType) alpha = 255;
+                    else if (isBuilt) alpha = 255;//when built
+                    else if (isNextAvailable) alpha = 180; // Next one to be bought
+                    else alpha = 60; // Building Locked
                     SDL_SetTextureAlphaMod(texture, alpha);
                     SDL_RenderTexture(renderer, texture, nullptr, &tileRect);
-                    SDL_SetTextureAlphaMod(texture, 255); // reset
+                    SDL_SetTextureAlphaMod(texture, 255);
                 }
 
                 std::string tierStr = "T" + std::to_string(data->Tier);
                 TTF_SetTextString(gameStatUIText, tierStr.c_str(), 0);
-                Uint8 tierAlpha = isUnlocked ? 255 : 120;
+                Uint8 tierAlpha = isBuilt ? 255 : (isNextAvailable ? 200 : 120);
                 TTF_SetTextColor(gameStatUIText, tierAlpha, tierAlpha, tierAlpha, 255);
                 TTF_DrawRendererText(gameStatUIText, colX - 5.f, tileY + tileH - 18.f);
                 categoryEvolutionTileRects.push_back({tileRect, bt});//detection click
