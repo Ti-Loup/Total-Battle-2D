@@ -4801,25 +4801,25 @@ private://constructor
 
         //Circle for Degrees
         SDL_SetRenderDrawColor(renderer, 0, 0,144,255);
-        RenderBoutonCercle(DecreesPannel, nullptr, nullptr, 180, 180, 180);
+        RenderBoutonCercle(DecreesPannel, nullptr, decreesPannelTexture, 180, 180, 180);
         //Circle for Win conditions
         SDL_SetRenderDrawColor(renderer, 0, 0,144,255);
-        RenderBoutonCercle(WinConditionPannel, nullptr, nullptr, 180, 180, 180);
+        RenderBoutonCercle(WinConditionPannel, nullptr, winConditionPannelTexture, 180, 180, 180);
         //Circle for treasury and taxation
         SDL_SetRenderDrawColor(renderer, 0, 144,0,255);
-        RenderBoutonCercle(TreasuryPannel, nullptr, nullptr, 180, 180, 180);
+        RenderBoutonCercle(TreasuryPannel, nullptr, treasuryPannelTexture, 180, 180, 180);
         //Circle for the Technology Button
         SDL_SetRenderDrawColor(renderer, 0, 144,144,255);
-        RenderBoutonCercle(TechnologyPannel, nullptr, nullptr, 180, 180, 180);
+        RenderBoutonCercle(TechnologyPannel, nullptr, technologyPannelTexture, 180, 180, 180);
         //Circle for diplomacy
         SDL_SetRenderDrawColor(renderer, 240, 0,144,255);
-        RenderBoutonCercle(DiplomacyPannel, nullptr, nullptr, 180, 180, 180);
+        RenderBoutonCercle(DiplomacyPannel, nullptr, diplomacyPannelTexture, 180, 180, 180);
         //Circle for Family/hierarchy
         SDL_SetRenderDrawColor(renderer, 0, 244,0,255);
-        RenderBoutonCercle(FamilyHierarchyPannel, nullptr, nullptr, 180, 180, 180);
+        RenderBoutonCercle(FamilyHierarchyPannel, nullptr, familyHierarchyPannelTexture, 180, 180, 180);
         //Circle for Reset Camera
         SDL_SetRenderDrawColor(renderer, 20, 244,50,255);
-        RenderBoutonCercle(CameraResetPannel, nullptr, nullptr, 180, 180, 180);
+        RenderBoutonCercle(CameraResetPannel, nullptr, cameraResetPannelTexture, 180, 180, 180);
         // Draw the name tooltip for whichever button is hovered
         if (hoveredTopRightButtonIndex >= 0) {
             const TopRightButtonInfo& info = topRightButtons[hoveredTopRightButtonIndex];
