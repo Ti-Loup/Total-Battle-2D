@@ -275,7 +275,8 @@ enum class TaxCategory {
     Farm,       // green
     Commerce,   // yellow
     Industry,   // grey
-    Religious   // purple
+    Religious,   // purple
+    Maritime        //Blue
 };
 
 inline TaxCategory GetTaxCategory(BuildingType buildingType) {
@@ -293,16 +294,6 @@ inline TaxCategory GetTaxCategory(BuildingType buildingType) {
         case BuildingType::PeasantrySamuraiGrowth_T1: case BuildingType::PeasantrySamuraiGrowth_T2: case BuildingType::PeasantrySamuraiGrowth_T3:
         case BuildingType::NobilitySamuraiEstate_T1: case BuildingType::NobilitySamuraiEstate_T2:  case BuildingType::NobilitySamuraiEstate_T3:
         case BuildingType::Market_T1: case BuildingType::Market_T2: case BuildingType::Market_T3:
-        // ── PORTS  ──
-        case BuildingType::KnightMilitaryPort_T1: case BuildingType::KnightMilitaryPort_T2: case BuildingType::KnightMilitaryPort_T3:
-        case BuildingType::KnightMilitaryPort_T4: case BuildingType::KnightMilitaryPort_T5:
-        case BuildingType::KnightFishingPort_T1:  case BuildingType::KnightFishingPort_T2:  case BuildingType::KnightFishingPort_T3:
-        case BuildingType::VikingMilitaryPort_T1: case BuildingType::VikingMilitaryPort_T2: case BuildingType::VikingMilitaryPort_T3:
-        case BuildingType::VikingMilitaryPort_T4: case BuildingType::VikingMilitaryPort_T5:
-        case BuildingType::VikingFishingPort_T1:  case BuildingType::VikingFishingPort_T2:  case BuildingType::VikingFishingPort_T3:
-        case BuildingType::SamuraiMilitaryPort_T1: case BuildingType::SamuraiMilitaryPort_T2: case BuildingType::SamuraiMilitaryPort_T3:
-        case BuildingType::SamuraiMilitaryPort_T4: case BuildingType::SamuraiMilitaryPort_T5:
-        case BuildingType::SamuraiFishingPort_T1:  case BuildingType::SamuraiFishingPort_T2:  case BuildingType::SamuraiFishingPort_T3:
             return TaxCategory::Farm;
 
         // ── COMMERCE (yellow) ──
@@ -343,6 +334,19 @@ inline TaxCategory GetTaxCategory(BuildingType buildingType) {
         case BuildingType::SamuraiTeaDry_T1:   case BuildingType::SamuraiTeaDry_T2:   case BuildingType::SamuraiTeaDry_T3:
         case BuildingType::SamuraiChapel_T3:   case BuildingType::SamuraiChapel_T4:   case BuildingType::SamuraiChapel_T5:
             return TaxCategory::Religious;
+
+        //Port Tax Type
+            // ── PORTS  ──
+        case BuildingType::KnightMilitaryPort_T1: case BuildingType::KnightMilitaryPort_T2: case BuildingType::KnightMilitaryPort_T3:
+        case BuildingType::KnightMilitaryPort_T4: case BuildingType::KnightMilitaryPort_T5:
+        case BuildingType::KnightFishingPort_T1:  case BuildingType::KnightFishingPort_T2:  case BuildingType::KnightFishingPort_T3:
+        case BuildingType::VikingMilitaryPort_T1: case BuildingType::VikingMilitaryPort_T2: case BuildingType::VikingMilitaryPort_T3:
+        case BuildingType::VikingMilitaryPort_T4: case BuildingType::VikingMilitaryPort_T5:
+        case BuildingType::VikingFishingPort_T1:  case BuildingType::VikingFishingPort_T2:  case BuildingType::VikingFishingPort_T3:
+        case BuildingType::SamuraiMilitaryPort_T1: case BuildingType::SamuraiMilitaryPort_T2: case BuildingType::SamuraiMilitaryPort_T3:
+        case BuildingType::SamuraiMilitaryPort_T4: case BuildingType::SamuraiMilitaryPort_T5:
+        case BuildingType::SamuraiFishingPort_T1:  case BuildingType::SamuraiFishingPort_T2:  case BuildingType::SamuraiFishingPort_T3:
+            return TaxCategory::Maritime;
 
         default:
             return TaxCategory::None;

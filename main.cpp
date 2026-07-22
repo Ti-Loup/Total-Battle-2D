@@ -5034,6 +5034,7 @@ private://constructor
         int commerceIncome = 0;
         int industryIncome = 0;
         int religiousIncome = 0;
+        int maritimeIncome = 0;
         int mainUpkeep = 0;
         int buildingMaintenance = 0;
         int armyUpkeep = 0;
@@ -5050,6 +5051,7 @@ private://constructor
                     case TaxCategory::Commerce: commerceIncome += s.settlementData.baseIncome; break;
                     case TaxCategory::Industry: industryIncome += s.settlementData.baseIncome; break;
                     case TaxCategory::Religious: religiousIncome += s.settlementData.baseIncome; break;
+                    case TaxCategory::Maritime: maritimeIncome += s.settlementData.baseIncome; break;
                     default: taxIncome += s.settlementData.baseIncome; break;
                 }                for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
                     BuildingType bt = s.settlementData.buildings[b];
@@ -5064,13 +5066,14 @@ private://constructor
                         case TaxCategory::Commerce: commerceIncome += building_data->incomeBonus; break;
                         case TaxCategory::Industry: industryIncome += building_data->incomeBonus; break;
                         case TaxCategory::Religious: religiousIncome += building_data->incomeBonus; break;
+                        case TaxCategory::Maritime: maritimeIncome += building_data->incomeBonus; break;
                         default: break; // uncategorized buildings just don't show a tax row
                     }
                 }
             }
         }
 
-        int totalIncome  = taxIncome + farmIncome + commerceIncome + industryIncome + religiousIncome;
+        int totalIncome  = taxIncome + farmIncome + commerceIncome + industryIncome + religiousIncome + maritimeIncome;
         int totalExpense = mainUpkeep + buildingMaintenance;
         int goldNextTurn = totalIncome - totalExpense;
 
@@ -5088,6 +5091,7 @@ private://constructor
     if (commerceIncome != 0)  incomeRows++;
     if (industryIncome != 0)  incomeRows++;
     if (religiousIncome != 0) incomeRows++;
+    if (maritimeIncome != 0) incomeRows++;
 
     int expenseRows = 0;
     if (mainUpkeep != 0) expenseRows++;
@@ -5199,6 +5203,8 @@ private://constructor
     drawRow("Tax (Commerce)",  commerceIncome,  false);
     drawRow("Tax (Industry)",  industryIncome,  false);
     drawRow("Tax (Religious)", religiousIncome, false);
+    drawRow("Tax (Maritime)", maritimeIncome, false);
+
     if (incomeRows > 0) drawSep();
 
     // Expenses
