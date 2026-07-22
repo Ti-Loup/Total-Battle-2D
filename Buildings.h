@@ -281,18 +281,28 @@ enum class TaxCategory {
 inline TaxCategory GetTaxCategory(BuildingType buildingType) {
     switch (buildingType) {
         // ── FARM (green) ──
-        case BuildingType::Settlement_Village_Knight_T1:  case BuildingType::Settlement_Village_Knight_T2:  case BuildingType::Settlement_Village_Knight_T3:
-        case BuildingType::Settlement_Village_Viking_T1:  case BuildingType::Settlement_Village_Viking_T2:  case BuildingType::Settlement_Village_Viking_T3:
+        case BuildingType::Settlement_Village_Knight_T1: case BuildingType::Settlement_Village_Knight_T2: case BuildingType::Settlement_Village_Knight_T3:
+        case BuildingType::Settlement_Village_Viking_T1: case BuildingType::Settlement_Village_Viking_T2: case BuildingType::Settlement_Village_Viking_T3:
         case BuildingType::Settlement_Village_Samurai_T1: case BuildingType::Settlement_Village_Samurai_T2: case BuildingType::Settlement_Village_Samurai_T3://villages produce farm money
         case BuildingType::PeasantryGrowth_T1: case BuildingType::PeasantryGrowth_T2: case BuildingType::PeasantryGrowth_T3:
-        case BuildingType::NobilityEstate_T1:  case BuildingType::NobilityEstate_T2:  case BuildingType::NobilityEstate_T3:
-        case BuildingType::Economy_T1:         case BuildingType::Economy_T2:         case BuildingType::Economy_T3:
+        case BuildingType::NobilityEstate_T1: case BuildingType::NobilityEstate_T2: case BuildingType::NobilityEstate_T3:
+        case BuildingType::Economy_T1: case BuildingType::Economy_T2: case BuildingType::Economy_T3:
         case BuildingType::PeasantryVikingGrowth_T1: case BuildingType::PeasantryVikingGrowth_T2: case BuildingType::PeasantryVikingGrowth_T3:
-        case BuildingType::NobilityVikingEstate_T1:  case BuildingType::NobilityVikingEstate_T2:  case BuildingType::NobilityVikingEstate_T3:
-        case BuildingType::SlaveMarket_T1:     case BuildingType::SlaveMarket_T2:     case BuildingType::SlaveMarket_T3:
+        case BuildingType::NobilityVikingEstate_T1: case BuildingType::NobilityVikingEstate_T2: case BuildingType::NobilityVikingEstate_T3:
+        case BuildingType::SlaveMarket_T1:     case BuildingType::SlaveMarket_T2: case BuildingType::SlaveMarket_T3:
         case BuildingType::PeasantrySamuraiGrowth_T1: case BuildingType::PeasantrySamuraiGrowth_T2: case BuildingType::PeasantrySamuraiGrowth_T3:
-        case BuildingType::NobilitySamuraiEstate_T1:  case BuildingType::NobilitySamuraiEstate_T2:  case BuildingType::NobilitySamuraiEstate_T3:
-        case BuildingType::Market_T1:          case BuildingType::Market_T2:          case BuildingType::Market_T3:
+        case BuildingType::NobilitySamuraiEstate_T1: case BuildingType::NobilitySamuraiEstate_T2:  case BuildingType::NobilitySamuraiEstate_T3:
+        case BuildingType::Market_T1: case BuildingType::Market_T2: case BuildingType::Market_T3:
+        // ── PORTS  ──
+        case BuildingType::KnightMilitaryPort_T1: case BuildingType::KnightMilitaryPort_T2: case BuildingType::KnightMilitaryPort_T3:
+        case BuildingType::KnightMilitaryPort_T4: case BuildingType::KnightMilitaryPort_T5:
+        case BuildingType::KnightFishingPort_T1:  case BuildingType::KnightFishingPort_T2:  case BuildingType::KnightFishingPort_T3:
+        case BuildingType::VikingMilitaryPort_T1: case BuildingType::VikingMilitaryPort_T2: case BuildingType::VikingMilitaryPort_T3:
+        case BuildingType::VikingMilitaryPort_T4: case BuildingType::VikingMilitaryPort_T5:
+        case BuildingType::VikingFishingPort_T1:  case BuildingType::VikingFishingPort_T2:  case BuildingType::VikingFishingPort_T3:
+        case BuildingType::SamuraiMilitaryPort_T1: case BuildingType::SamuraiMilitaryPort_T2: case BuildingType::SamuraiMilitaryPort_T3:
+        case BuildingType::SamuraiMilitaryPort_T4: case BuildingType::SamuraiMilitaryPort_T5:
+        case BuildingType::SamuraiFishingPort_T1:  case BuildingType::SamuraiFishingPort_T2:  case BuildingType::SamuraiFishingPort_T3:
             return TaxCategory::Farm;
 
         // ── COMMERCE (yellow) ──
@@ -504,6 +514,53 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
         return BuildingCategory::Economy;
     }
 }
+//To get the right port if Village or Castle
+inline BuildingType GetPortBuildingType(SettlementType type, FactionZone faction, int tier) {
+    if (type == SettlementType::Village) {
+        if (faction == FactionZone::Knight) {
+            if (tier == 1) return BuildingType::KnightFishingPort_T1;
+            if (tier == 2) return BuildingType::KnightFishingPort_T2;
+            if (tier == 3) return BuildingType::KnightFishingPort_T3;
+        }
+        else if (faction == FactionZone::Viking) {
+            if (tier == 1) return BuildingType::VikingFishingPort_T1;
+            if (tier == 2) return BuildingType::VikingFishingPort_T2;
+            if (tier == 3) return BuildingType::VikingFishingPort_T3;
+        }
+        else if (faction == FactionZone::Samurai) {
+            if (tier == 1) return BuildingType::SamuraiFishingPort_T1;
+            if (tier == 2) return BuildingType::SamuraiFishingPort_T2;
+            if (tier == 3) return BuildingType::SamuraiFishingPort_T3;
+        }
+    }
+    else { // Castle ou Capital -> port militaire
+        if (faction == FactionZone::Knight) {
+            if (tier == 1) return BuildingType::KnightMilitaryPort_T1;
+            if (tier == 2) return BuildingType::KnightMilitaryPort_T2;
+            if (tier == 3) return BuildingType::KnightMilitaryPort_T3;
+            if (tier == 4) return BuildingType::KnightMilitaryPort_T4;
+            if (tier == 5) return BuildingType::KnightMilitaryPort_T5;
+        }
+        else if (faction == FactionZone::Viking) {
+            if (tier == 1) return BuildingType::VikingMilitaryPort_T1;
+            if (tier == 2) return BuildingType::VikingMilitaryPort_T2;
+            if (tier == 3) return BuildingType::VikingMilitaryPort_T3;
+            if (tier == 4) return BuildingType::VikingMilitaryPort_T4;
+            if (tier == 5) return BuildingType::VikingMilitaryPort_T5;
+        }
+        else if (faction == FactionZone::Samurai) {
+            if (tier == 1) return BuildingType::SamuraiMilitaryPort_T1;
+            if (tier == 2) return BuildingType::SamuraiMilitaryPort_T2;
+            if (tier == 3) return BuildingType::SamuraiMilitaryPort_T3;
+            if (tier == 4) return BuildingType::SamuraiMilitaryPort_T4;
+            if (tier == 5) return BuildingType::SamuraiMilitaryPort_T5;
+        }
+    }
+    return BuildingType::None;
+}
+
+
+
 
 struct BuildingData {
     std::string name;
@@ -548,6 +605,17 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::Settlement_Capital_Knight_T4, {"Large Capital", "Great districts and stone roads\nshape the mighty capital.", 6900, 220, 0,  2, 4, 10, 20, 0, 50, 0, 0, 0, BuildingType::Settlement_Capital_Knight_T5});
     add(BuildingType::Settlement_Capital_Knight_T5, {"Royal Capital", "The glorious center of the kingdom,\nruled by powerful lords and nobility. ", 8000, 300, 0, 3, 5, 12, 40, 0, 50, 0, 0, 0, BuildingType::None});
 
+    // ── PORTS (KNIGHT) ──
+    add(BuildingType::KnightMilitaryPort_T1, {"Naval Yard", "Modest docks where light vessels\nare built to patrol the coast\nand ferry troops abroad.", 500, 20, 50, 0, 1, 3, 0,0,0, 0,0,0, BuildingType::KnightMilitaryPort_T2});
+    add(BuildingType::KnightMilitaryPort_T2, {"War Harbor", "Expanded shipyards turn out sturdier\nhulls, built to withstand the\nrigors of naval combat.", 900, 35, 90, 0, 2, 4, 0,0,0, 0,0,0, BuildingType::KnightMilitaryPort_T3});
+    add(BuildingType::KnightMilitaryPort_T3, {"War Port", "A proper port of war, its docks\nnever idle as new warships are\nlaunched for the King's fleet.", 1400, 55, 140, 0, 3, 5, 0,0,0, 0,0,0, BuildingType::KnightMilitaryPort_T4});
+    add(BuildingType::KnightMilitaryPort_T4, {"Grand War Port", "A vast harbor bristling with\nwarships, standing ready to\ndefend the realm's shores.", 2000, 80, 200, 0, 4, 6, 0,0,0, 0,0,0, BuildingType::KnightMilitaryPort_T5});
+    add(BuildingType::KnightMilitaryPort_T5, {"Royal Shipyard", "The kingdom's greatest naval yard,\ncapable of arming an entire fleet\nin the King's name.", 2800, 110, 270, 0, 5, 8, 0,0,0, 0,0,0, BuildingType::None});
+
+    add(BuildingType::KnightFishingPort_T1, {"Fishing Dock", "Small boats set out at dawn,\nbringing in just enough to\nfeed the village.", 300, 0, 15, 0, 1, 2, 0, 8, 0, 0,0,0, BuildingType::KnightFishingPort_T2});
+    add(BuildingType::KnightFishingPort_T2, {"Fishing Harbor", "An enlarged fleet of fishing boats\nbrings a steady bounty in from\nthe surrounding waters.", 500, 0, 25, 0, 2, 3, 0, 14, 0, 0,0,0, BuildingType::KnightFishingPort_T3});
+    add(BuildingType::KnightFishingPort_T3, {"Grand Fishing Harbor", "A thriving harbor where fishermen\nreturn each day with catches\nenough to feed the whole province.", 750, 0, 40, 0, 3, 4, 0, 20, 0, 0,0,0, BuildingType::None});
+
     // ── VIKING SETTLEMENTS ──
     add(BuildingType::Settlement_Village_Viking_T1, {"Small Settlement", "A small farm built by\nhardworking northern clans.", 0, 0, 25,  0, 1, 1, 0, 5, 0, 0, 0, 0, BuildingType::Settlement_Village_Viking_T2});
     add(BuildingType::Settlement_Village_Viking_T2, {"Settlement",       "Wooden homes and fishing docks\nsupport the growing community.", 0, 0, 50,  0, 2, 1, 0, 10, 0, 0, 0, 0, BuildingType::Settlement_Village_Viking_T3});
@@ -563,21 +631,42 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::Settlement_Capital_Viking_T4, {"Viking City Capital", "A prosperous northern city built\nthrough trade and conquest.", 0, 0, 800,  0, 4, 1, 20, 0, 50, 0, 0, 0,BuildingType::Settlement_Capital_Viking_T5});
     add(BuildingType::Settlement_Capital_Viking_T5, {"Jarl's Capital",   "The glorious capital of the Jarls,\nruling the northern kingdoms.", 0, 0, 1100, 0, 5, 1, 40, 0, 50, 0, 0, 0, BuildingType::None});
 
+    // ── PORTS (VIKING) ──
+    add(BuildingType::VikingMilitaryPort_T1, {"Drakkar Yard", "A raw shipyard where young longships\nare hewn from northern timber,\nready for raid and plunder.", 500, 20, 50, 0, 1, 3, 0,0,0, 0,0,0, BuildingType::VikingMilitaryPort_T2});
+    add(BuildingType::VikingMilitaryPort_T2, {"Raiding Harbor", "Sturdier drakkars leave these docks,\ncarrying warriors far across\nthe cold northern seas.", 900, 35, 90, 0, 2, 4, 0,0,0, 0,0,0, BuildingType::VikingMilitaryPort_T3});
+    add(BuildingType::VikingMilitaryPort_T3, {"War Fjord", "A sheltered fjord turned shipyard\nof war, launching drakkars built\nfor battle upon the waves.", 1400, 55, 140, 0, 3, 5, 0,0,0, 0,0,0, BuildingType::VikingMilitaryPort_T4});
+    add(BuildingType::VikingMilitaryPort_T4, {"Grand Longship Yard", "Rows of longships crowd the harbor,\na fleet fierce enough to strike\nfear into distant shores.", 2000, 80, 200, 0, 4, 6, 0,0,0, 0,0,0, BuildingType::VikingMilitaryPort_T5});
+    add(BuildingType::VikingMilitaryPort_T5, {"Jarl's Shipyard", "The greatest shipyard of the north,\nwhere the Jarl's fleet is forged\nto conquer the seas themselves.", 2800, 110, 270, 0, 5, 8, 0,0,0, 0,0,0, BuildingType::None});
+
+    add(BuildingType::VikingFishingPort_T1, {"Fishing Camp", "A handful of boats brave the cold\nwaters each morning, bringing back\njust enough to feed the settlement.", 300, 0, 15, 0, 1, 2, 0, 8, 0, 0,0,0, BuildingType::VikingFishingPort_T2});
+    add(BuildingType::VikingFishingPort_T2, {"Fishing Cove", "A growing fleet works the coastal\nwaters, hauling in a steady\nbounty for the clan.", 500, 0, 25, 0, 2, 3, 0, 14, 0, 0,0,0, BuildingType::VikingFishingPort_T3});
+    add(BuildingType::VikingFishingPort_T3, {"Grand Fishing Fjord", "A bustling fjord harbor where\nfishermen return laden with catch,\nfeeding villages up and down the coast.", 750, 0, 40, 0, 3, 4, 0, 20, 0, 0,0,0, BuildingType::None});
+
     // ── SAMURAI SETTLEMENTS ──
     add(BuildingType::Settlement_Village_Samurai_T1, {"Small Village", "A peaceful village surrounded\nby rice flields and farmers.", 0, 0, 25,  0, 1, 1, 0, 5, 0, 0, 0, 0, BuildingType::Settlement_Village_Samurai_T2});
-    add(BuildingType::Settlement_Village_Samurai_T2, {"Village",       "Growing farms and skilled workers\nsupport the local clan.", 0, 0, 50,  0, 2, 1, 0, 10, 0, 0, 0, 0, BuildingType::Settlement_Village_Samurai_T3});
+    add(BuildingType::Settlement_Village_Samurai_T2, {"Village", "Growing farms and skilled workers\nsupport the local clan.", 0, 0, 50,  0, 2, 1, 0, 10, 0, 0, 0, 0, BuildingType::Settlement_Village_Samurai_T3});
     add(BuildingType::Settlement_Village_Samurai_T3, {"Large Village", "Prosperous lands and busy markets\nbring honor to the Shogun", 0, 0, 100, 0, 3, 1, 0, 15, 0, 0, 0, 0,BuildingType::None});
     add(BuildingType::Settlement_Castle_Samurai_T1,  {"Small Yashiro", "A modest stronghold guardgin\nthe nearby population", 0, 0, 100, 0, 1, 1, 5, 0, 25, 0, 0, 0, BuildingType::Settlement_Castle_Samurai_T2});
-    add(BuildingType::Settlement_Castle_Samurai_T2,  {"Yashiro",       "Samurai warriors defend the clan\nfrom behind sturdy walls.", 0, 0, 175, 0, 2, 1, 10, 0, 25, 0, 0, 0,BuildingType::Settlement_Castle_Samurai_T3});
-    add(BuildingType::Settlement_Castle_Samurai_T3,  {"Castle",        "A respected castle housing\nwhere study and tradition meet protection.", 0, 0, 275, 0, 3, 1, 15, 0, 25, 0, 0, 0, BuildingType::Settlement_Castle_Samurai_T4});
-    add(BuildingType::Settlement_Castle_Samurai_T4,  {"Large Castle",  "Tall towers and fortified gates\nprotect the province.", 0, 0, 400, 0, 4, 1, 20, 0, 25, 0, 0, 0, BuildingType::Settlement_Castle_Samurai_T5});
-    add(BuildingType::Settlement_Castle_Samurai_T5,  {"Fortress",      "An immense fortress symbolizing\nthe power of the daimyo.", 0, 0, 550, 0, 5, 1, 25, 0, 25, 0, 0, 0, BuildingType::None});
-    add(BuildingType::Settlement_Capital_Samurai_T1, {"Small Town Capital",       "A growing Capital where merchants\nand farmers gather", 0, 0, 200,  0, 1, 1, 5, 0, 50, 0, 0, 0,BuildingType::Settlement_Capital_Samurai_T2});
-    add(BuildingType::Settlement_Capital_Samurai_T2, {"Town Capital",      "Bustling streets and temples\nculture and military power.", 0, 0, 350,  0, 2, 1, 10, 0, 50, 0, 0, 0, BuildingType::Settlement_Capital_Samurai_T3});
-    add(BuildingType::Settlement_Capital_Samurai_T3, {"City Capital",      "A wealthy Capital known for trade,\nculture and military power.", 0, 0, 550,  0, 3, 1, 15, 0, 50, 0, 0, 0, BuildingType::Settlement_Capital_Samurai_T4});
-    add(BuildingType::Settlement_Capital_Samurai_T4, {"Large City Capital",       "Great districts and noble estates\nshape the mighty city", 0, 0, 800,  0, 4, 1, 20, 0, 50, 0, 0, 0, BuildingType::Settlement_Capital_Samurai_T5});
+    add(BuildingType::Settlement_Castle_Samurai_T2,  {"Yashiro", "Samurai warriors defend the clan\nfrom behind sturdy walls.", 0, 0, 175, 0, 2, 1, 10, 0, 25, 0, 0, 0,BuildingType::Settlement_Castle_Samurai_T3});
+    add(BuildingType::Settlement_Castle_Samurai_T3,  {"Castle", "A respected castle housing\nwhere study and tradition meet protection.", 0, 0, 275, 0, 3, 1, 15, 0, 25, 0, 0, 0, BuildingType::Settlement_Castle_Samurai_T4});
+    add(BuildingType::Settlement_Castle_Samurai_T4,  {"Large Castle", "Tall towers and fortified gates\nprotect the province.", 0, 0, 400, 0, 4, 1, 20, 0, 25, 0, 0, 0, BuildingType::Settlement_Castle_Samurai_T5});
+    add(BuildingType::Settlement_Castle_Samurai_T5,  {"Fortress", "An immense fortress symbolizing\nthe power of the daimyo.", 0, 0, 550, 0, 5, 1, 25, 0, 25, 0, 0, 0, BuildingType::None});
+    add(BuildingType::Settlement_Capital_Samurai_T1, {"Small Town Capital", "A growing Capital where merchants\nand farmers gather", 0, 0, 200,  0, 1, 1, 5, 0, 50, 0, 0, 0,BuildingType::Settlement_Capital_Samurai_T2});
+    add(BuildingType::Settlement_Capital_Samurai_T2, {"Town Capital", "Bustling streets and temples\nculture and military power.", 0, 0, 350,  0, 2, 1, 10, 0, 50, 0, 0, 0, BuildingType::Settlement_Capital_Samurai_T3});
+    add(BuildingType::Settlement_Capital_Samurai_T3, {"City Capital", "A wealthy Capital known for trade,\nculture and military power.", 0, 0, 550,  0, 3, 1, 15, 0, 50, 0, 0, 0, BuildingType::Settlement_Capital_Samurai_T4});
+    add(BuildingType::Settlement_Capital_Samurai_T4, {"Large City Capital", "Great districts and noble estates\nshape the mighty city", 0, 0, 800,  0, 4, 1, 20, 0, 50, 0, 0, 0, BuildingType::Settlement_Capital_Samurai_T5});
     add(BuildingType::Settlement_Capital_Samurai_T5, {"Shogun's Capital", "The glorious seat of the Shogun,\nruling the empire with honor.", 0, 0, 1100, 0, 5, 1, 40, 0, 50, 0, 0, 0, BuildingType::None});
 
+    // ── PORTS (SAMURAI) ──
+    add(BuildingType::SamuraiMilitaryPort_T1, {"Coastal Shipwright", "A modest wharf where shipwrights\ncraft light vessels to guard\nthe coastline and ferry troops.", 500, 20, 50, 0, 1, 3, 0,0,0, 0,0,0, BuildingType::SamuraiMilitaryPort_T2});
+    add(BuildingType::SamuraiMilitaryPort_T2, {"War Harbor", "Reinforced hulls leave this busier\nharbor, built to serve the\ndaimyo's growing ambitions.", 900, 35, 90, 0, 2, 4, 0,0,0, 0,0,0, BuildingType::SamuraiMilitaryPort_T3});
+    add(BuildingType::SamuraiMilitaryPort_T3, {"Naval Stronghold", "A fortified harbor turning out\nwarships worthy of the Shogunate's\nnaval traditions.", 1400, 55, 140, 0, 3, 5, 0,0,0, 0,0,0, BuildingType::SamuraiMilitaryPort_T4});
+    add(BuildingType::SamuraiMilitaryPort_T4, {"Grand Fleet Harbor", "An imposing harbor housing a fleet\nlarge enough to project the\nclan's power across the seas.", 2000, 80, 200, 0, 4, 6, 0,0,0, 0,0,0, BuildingType::SamuraiMilitaryPort_T5});
+    add(BuildingType::SamuraiMilitaryPort_T5, {"Shogun's Armada", "The empire's mightiest shipyard,\nwhere the Shogun's armada is\nbuilt to rule the surrounding waters.", 2800, 110, 270, 0, 5, 8, 0,0,0, 0,0,0, BuildingType::None});
+
+    add(BuildingType::SamuraiFishingPort_T1, {"Fishing Village Dock", "Small fishing boats set out at\ndawn, bringing back a modest\ncatch for the village.", 300, 0, 15, 0, 1, 2, 0, 8, 0, 0,0,0, BuildingType::SamuraiFishingPort_T2});
+    add(BuildingType::SamuraiFishingPort_T2, {"Fishing Harbor", "An expanded fleet of fishing boats\nbrings home a steady harvest\nfrom the surrounding waters.", 500, 0, 25, 0, 2, 3, 0, 14, 0, 0,0,0, BuildingType::SamuraiFishingPort_T3});
+    add(BuildingType::SamuraiFishingPort_T3, {"Grand Fishing Harbor", "A prosperous harbor where the\ndaily catch is plentiful enough\nto sustain the whole province.", 750, 0, 40, 0, 3, 4, 0, 20, 0, 0,0,0, BuildingType::None});
     // ── KNIGHT ECONOMY ──
     add(BuildingType::KnightWareHouse_T3, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 3, 5, 0, 0, 25, 0, 0, 0, BuildingType::KnightWareHouse_T4}); //store 25 food
     add(BuildingType::KnightWareHouse_T4, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 4, 5, 0, 0, 50, 0, 0, 0, BuildingType::KnightWareHouse_T5}); // store 50 food

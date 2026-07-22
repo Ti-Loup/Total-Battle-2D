@@ -40,6 +40,7 @@
  *
  * 3. create randoms events that pop on (plague, exceed food production, thunder)
  * Add Ports buildings If a main settlement or village is close to the sea it has a port. For villages/Fishing port, and Main settlements military port.
+ * 3.5 make the Worldevents works with buildings and world Population
  * fishing ports gives food / produce fish in 0.3.0!
  * Currently -> pannel buttons popup ui element for each .exemple -> Add some win Achievements
  * If Time -> work on the ai to build buildings strategicly based on what they're missing.
@@ -954,12 +955,13 @@ private://constructor
         settlements.back().settlementData.cityName = "Village1Name";
         settlements.emplace_back(SettlementType::Village, 0, 52, 42, FactionZone::Knight);
         settlements.back().settlementData.cityName = "Village2Name";
-        settlements.emplace_back(SettlementType::Village, 0, 37, 61, FactionZone::Knight);
+        settlements.emplace_back(SettlementType::Village, 0, 39, 63, FactionZone::Knight);
         settlements.back().settlementData.cityName = "Village3Name";
         //NORTH REGION
-        settlements.emplace_back(SettlementType::Castle, 1, 22, 28, FactionZone::Knight);
+        settlements.emplace_back(SettlementType::Castle, 1, 28, 23, FactionZone::Knight);
         settlements.back().settlementData.cityName = "Castle1Name";
-        settlements.emplace_back(SettlementType::Village, 1, 16, 12, FactionZone::Knight);
+        settlements.back().bIsPort = true;
+        settlements.emplace_back(SettlementType::Village, 1, 18, 19, FactionZone::Knight);
         settlements.back().settlementData.cityName = "Village1Name";
         settlements.emplace_back(SettlementType::Village, 1, 29, 34, FactionZone::Knight);
         settlements.back().settlementData.cityName = "Village2Name";
@@ -968,24 +970,28 @@ private://constructor
         //SOUTH REGION
         settlements.emplace_back(SettlementType::Castle, 2, 61,56, FactionZone::Knight);
         settlements.back().settlementData.cityName = "Castle1Name";
-        settlements.emplace_back(SettlementType::Village, 2, 67, 50, FactionZone::Knight);
+        settlements.emplace_back(SettlementType::Village, 2, 67, 48, FactionZone::Knight);
         settlements.back().settlementData.cityName = "Village2Name";
+        settlements.back().bIsPort = true;
         settlements.emplace_back(SettlementType::Village, 2, 56, 67, FactionZone::Knight);
         settlements.back().settlementData.cityName = "Village3Name";
         // Vikings
         //NORTH CAPITAL
         settlements.emplace_back(SettlementType::Capital, 3, 60, 10, FactionZone::Viking);
         settlements.back().settlementData.cityName = "CapitalName";
+        settlements.back().bIsPort = true;
         settlements.emplace_back(SettlementType::Village, 3, 50, 15, FactionZone::Viking);
         settlements.back().settlementData.cityName = "Village1Name";
+        settlements.back().bIsPort = true;
         settlements.emplace_back(SettlementType::Village, 3, 70, 8, FactionZone::Viking);
         settlements.back().settlementData.cityName = "Village2Name";
+        settlements.back().bIsPort = true;
         settlements.emplace_back(SettlementType::Village, 3, 83, 15, FactionZone::Viking);
         settlements.back().settlementData.cityName = "Village3Name";
         //OUEST REGION
         settlements.emplace_back(SettlementType::Castle, 4, 63, 25, FactionZone::Viking);
         settlements.back().settlementData.cityName = "Castle1Name";
-        settlements.emplace_back(SettlementType::Village, 4, 36, 21, FactionZone::Viking);
+        settlements.emplace_back(SettlementType::Village, 4, 37, 20, FactionZone::Viking);
         settlements.back().settlementData.cityName = "Village1Name";
         settlements.emplace_back(SettlementType::Village, 4, 64, 34, FactionZone::Viking);
         settlements.back().settlementData.cityName = "Village2Name";
@@ -994,6 +1000,7 @@ private://constructor
         //EST REGION
         settlements.emplace_back(SettlementType::Castle, 5, 78, 34, FactionZone::Viking);
         settlements.back().settlementData.cityName = "Castle1Name";
+        settlements.back().bIsPort = true;
         settlements.emplace_back(SettlementType::Village, 5, 88, 30, FactionZone::Viking);
         settlements.back().settlementData.cityName = "Village1Name";
         settlements.emplace_back(SettlementType::Village, 5, 97, 24, FactionZone::Viking);
@@ -1015,17 +1022,20 @@ private://constructor
         settlements.back().settlementData.cityName = "Castle1Name";
         settlements.emplace_back(SettlementType::Village, 7, 72, 62, FactionZone::Samurai);
         settlements.back().settlementData.cityName = "Village1Name";
-        settlements.emplace_back(SettlementType::Village, 7, 80, 71, FactionZone::Samurai);
+        settlements.emplace_back(SettlementType::Village, 7, 81, 73, FactionZone::Samurai);
         settlements.back().settlementData.cityName = "Village12Name";
+        settlements.back().bIsPort = true;
         settlements.emplace_back(SettlementType::Village, 7, 87, 64, FactionZone::Samurai);
         settlements.back().settlementData.cityName = "Village3Name";
         //OUEST REGION
-        settlements.emplace_back(SettlementType::Castle, 8, 107, 29, FactionZone::Samurai);
+        settlements.emplace_back(SettlementType::Castle, 8, 105, 28, FactionZone::Samurai);
         settlements.back().settlementData.cityName = "Castle1Name";
+        settlements.back().bIsPort = true;
         settlements.emplace_back(SettlementType::Village, 8, 119, 59, FactionZone::Samurai);
         settlements.back().settlementData.cityName = "Village1Name";
         settlements.emplace_back(SettlementType::Village, 8, 118, 18, FactionZone::Samurai);
         settlements.back().settlementData.cityName = "Village2Name";
+        settlements.back().bIsPort = true;
 
         // Initialize buildings[0] and baseIncome for spawned tier
         for (auto& s : settlements) {
@@ -1034,6 +1044,12 @@ private://constructor
                 s.settlementData.type, faction, s.settlementData.settlementTier);
             const BuildingData* data = GetBuildingData(s.settlementData.buildings[0]);
             if (data) s.settlementData.baseIncome = data->incomeBonus;
+            //if you have a port
+            //if you have a port -> always starts at tier 1, then upgrades independently
+            if (s.bIsPort) {
+                s.settlementData.buildings[1] = GetPortBuildingType(//take the building position 1.
+                    s.settlementData.type, faction, 1);
+            }
         }
         gameKingdomNameFont = TTF_OpenFont("assets/KnightFont.ttf", 40);
         gameKingdomKnightNameText = TTF_CreateText(textEngine, gameKingdomNameFont, "Knight\nKingdom", 25);
@@ -3837,11 +3853,14 @@ private://constructor
                                     // Hammer if upgradable...
                                     if (bd->upgradesTo != BuildingType::None && hammerUIBuildingUpgradeTexture && provinces[s->settlementData.provinceID].owner == player.faction) {
                                         const BuildingData* nextBd = GetBuildingData(bd->upgradesTo);
-                                        if (nextBd && nextBd->Tier <= s->settlementData.settlementTier) {
-                                            if (player.currentGold >= nextBd->cost) {
+                                        if (nextBd) {
+                                            bool tierUnlocked = (nextBd->Tier <= s->settlementData.settlementTier);
+                                            if (tierUnlocked && player.currentGold >= nextBd->cost) {
                                                 SDL_FRect hammerRect = { sx + slotSize - 30.f, sy + 4.f, 35.f, 35.f };
                                                 SDL_RenderTexture(renderer, hammerUIBuildingUpgradeTexture, nullptr, &hammerRect);
                                             }
+                                            // always register the slot so the chain popup can be hovered/previewed,
+                                            // even if the next tier isn't unlocked yet
                                             availableSlotRects.push_back(slot);
                                             availableSlotInfo.push_back({i, b});
                                         }
@@ -3863,7 +3882,6 @@ private://constructor
                             }
                         }
                         else if (slotAvailable && s->settlementData.pendingBuildings[b] == BuildingType::None) {
-                            // Show texture available
                             if (province.owner == FactionZone::Knight)
                                 SDL_RenderTexture(renderer, gameAvailableSlotKnight, nullptr, &slot);
                             else if (province.owner == FactionZone::Viking)
@@ -3871,8 +3889,11 @@ private://constructor
                             else if (province.owner == FactionZone::Samurai)
                                 SDL_RenderTexture(renderer, gameAvailableSlotSamurai, nullptr, &slot);
 
-                            availableSlotRects.push_back(slot);
-                            availableSlotInfo.push_back({i, b});
+                            // Only register it as hoverable/clickable if its the settlement
+                            if (province.owner == player.faction) {
+                                availableSlotRects.push_back(slot);
+                                availableSlotInfo.push_back({i, b});
+                            }
                         }
                         else if (slotAvailable && s->settlementData.pendingBuildings[b] != BuildingType::None) {
                             // Texture pending building
@@ -4129,7 +4150,7 @@ private://constructor
         bool mouseOnExistingPopup = mainBuildingPopupRect.w > 0 && SDL_PointInRectFloat(&msPtTier, &expandedMainPopup);
 
         if ((mainHoveredCard >= 0 || mouseOnExistingPopup) && bButtonUIBuildingIsPressed
-            && categoryButtonsPopupRect.w <= 0 && categoryEvolutionPopupRect.w <= 0) {
+            && categoryButtonsPopupRect.w <= 0 && categoryEvolutionPopupRect.w <= 0 && province.owner == player.faction) {
             if (mainHoveredCard >= 0) hoveredCardIndex = mainHoveredCard;
 
             if (hoveredCardIndex >= 0 && hoveredCardIndex < (int)provinceSettlements.size()) {
@@ -4315,17 +4336,14 @@ private://constructor
 
 
         BuildingCategory cat = (BuildingCategory)hoveredBuildingCategoryIndex;
-        std::vector<BuildingType> rootBuildings = GetBuildingsForCategory(cat, faction, 5);
-        if (rootBuildings.empty()) return;
-        // if we hovered an existing building we show its evolutions
+        std::vector<BuildingType> rootBuildings;
         if (hoveredBuildingSlotUpgradable && upgradableSlotRootBuilding != BuildingType::None) {
-            rootBuildings.erase(
-                std::remove_if(rootBuildings.begin(), rootBuildings.end(),
-                    [&](BuildingType bt) { return bt != upgradableSlotRootBuilding; }),
-                rootBuildings.end()
-            );
-            if (rootBuildings.empty()) return;
+            rootBuildings = { upgradableSlotRootBuilding };
+        } else {
+            rootBuildings = GetBuildingsForCategory(cat, faction, 5);
         }
+        if (rootBuildings.empty()) return;
+
         // upgrade chain chain.tiers[0]=T1, [last]=T_max
         struct Chain { std::vector<BuildingType> tiers; };
         std::vector<Chain> chains;

@@ -16,6 +16,8 @@ class Settlement : public Entity {
 
     Settlement(SettlementType type, int provinceID, int col, int row,FactionZone faction);
 
+    //If village&castle close to ocean
+    bool bIsPort = false;
 
 };
 
