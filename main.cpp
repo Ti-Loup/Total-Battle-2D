@@ -360,6 +360,7 @@ public:
     SDL_Texture *gameBuildingTypesGroupingAdvMilitaryKnight = nullptr;
     SDL_Texture *gameBuildingTypesGroupingDefenceKnight = nullptr;
     SDL_Texture *gameBuildingTypesGroupingEconomyKnight = nullptr;
+    SDL_Texture *gameBuildingTypesGroupingIndustryKnight = nullptr;
     SDL_Texture *gameBuildingTypesGroupingReligionKnight = nullptr;
     //                 ~ VIKING ~
     //capital
@@ -387,6 +388,7 @@ public:
     SDL_Texture *gameBuildingTypesGroupingAdvMilitaryViking = nullptr;
     SDL_Texture *gameBuildingTypesGroupingDefenceViking = nullptr;
     SDL_Texture *gameBuildingTypesGroupingEconomyViking = nullptr;
+    SDL_Texture *gameBuildingTypesGroupingIndustryViking = nullptr;
     SDL_Texture *gameBuildingTypesGroupingReligionViking = nullptr;
     //                 ~ SAMURAI ~
     //capital
@@ -414,6 +416,7 @@ public:
     SDL_Texture *gameBuildingTypesGroupingAdvMilitarySamurai = nullptr;
     SDL_Texture *gameBuildingTypesGroupingDefenceSamurai= nullptr;
     SDL_Texture *gameBuildingTypesGroupingEconomySamurai = nullptr;
+    SDL_Texture *gameBuildingTypesGroupingIndustrySamurai = nullptr;
     SDL_Texture *gameBuildingTypesGroupingReligionSamurai = nullptr;
     //food icon Texture
     SDL_Texture *gameFoodIconUi = nullptr;
@@ -449,6 +452,10 @@ public:
     SDL_Texture *provinceKnightBannerTexture = nullptr;
     SDL_Texture *provinceVikingBannerTexture = nullptr;
     SDL_Texture *provinceSamuraiBannerTexture = nullptr;
+
+    // ~ TEXTURES RESOURCES ~
+    SDL_Texture *gameResourceFishIconTexture = nullptr;
+
 
     //Texture of the tilemap for the minimap
     SDL_Texture *tileMapTexture = nullptr;
@@ -1659,6 +1666,11 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture of gameBuildingTypesGroupingEconomyKnight", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameBuildingTypesGroupingEconomyKnight, SDL_SCALEMODE_NEAREST);
+        gameBuildingTypesGroupingIndustryKnight = IMG_LoadTexture(renderer, "assets/Knight/BuildingTypesGroupingIndustryKnight.png");
+        if (gameBuildingTypesGroupingIndustryKnight == nullptr) {
+            SDL_LogWarn(0, "failed to load texture of gameBuildingTypesGroupingIndustryKnight", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameBuildingTypesGroupingIndustryKnight, SDL_SCALEMODE_NEAREST);
         gameBuildingTypesGroupingReligionKnight = IMG_LoadTexture(renderer, "assets/Knight/BuildingTypesGroupingReligionKnight.png");
         if (gameBuildingTypesGroupingReligionKnight == nullptr) {
             SDL_LogWarn(0, "failed to load texture gameBuildingTypesGroupingReligionKnight",SDL_GetError());
@@ -1844,6 +1856,21 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture NobilityEstate_T3", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::NobilityEstate_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightGranary_T3] = IMG_LoadTexture(renderer, "assets/Knight/GranaryTier3.png");
+        if (buildingTypeTextures[BuildingType::KnightGranary_T3] == nullptr) {
+            SDL_LogWarn (0, "failed to load texture KnightGranary_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightGranary_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightGranary_T4] = IMG_LoadTexture(renderer, "assets/Knight/GranaryTier4.png");
+        if (buildingTypeTextures[BuildingType::KnightGranary_T4] == nullptr) {
+            SDL_LogWarn (0, "failed to load texture KnightGranary_T4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightGranary_T4], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightGranary_T5] = IMG_LoadTexture(renderer, "assets/Knight/GranaryTier5.png");
+        if (buildingTypeTextures[BuildingType::KnightGranary_T5] == nullptr) {
+            SDL_LogWarn (0, "failed to load texture KnightGranary_T5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightGranary_T5], SDL_SCALEMODE_NEAREST);
 
         //Industry
         buildingTypeTextures[BuildingType::KnightCarpentry_T1] = IMG_LoadTexture(renderer, "assets/Knight/CarpentryTier1.png");
@@ -2090,6 +2117,11 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture of gameBuildingTypesGroupingEconomyViking", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameBuildingTypesGroupingEconomyViking, SDL_SCALEMODE_NEAREST);
+        gameBuildingTypesGroupingIndustryViking = IMG_LoadTexture(renderer, "assets/Viking/BuildingTypesGroupingIndustryViking.png");
+        if (gameBuildingTypesGroupingIndustryViking == nullptr) {
+            SDL_LogWarn(0, "failed to load texture of gameBuildingTypesGroupingIndutryViking", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameBuildingTypesGroupingIndustryViking, SDL_SCALEMODE_NEAREST);
         gameBuildingTypesGroupingReligionViking = IMG_LoadTexture(renderer, "assets/Viking/BuildingTypesGroupingReligionViking.png");
         if (gameBuildingTypesGroupingReligionViking == nullptr) {
             SDL_LogWarn(0, "failed to load texture gameBuildingTypesGroupingReligionViking",SDL_GetError());
@@ -2280,6 +2312,23 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture NobilityVikingEstate_T3", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::NobilityVikingEstate_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingGranary_T3] = IMG_LoadTexture(renderer, "assets/Viking/GranaryTier3.png");
+        if (buildingTypeTextures[BuildingType::VikingGranary_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingGranary_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingGranary_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingGranary_T4] = IMG_LoadTexture(renderer, "assets/Viking/GranaryTier4.png");
+        if (buildingTypeTextures[BuildingType::VikingGranary_T4] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingGranary_T4", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingGranary_T4], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::VikingGranary_T5] = IMG_LoadTexture(renderer, "assets/Viking/GranaryTier5.png");
+        if (buildingTypeTextures[BuildingType::VikingGranary_T5] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture VikingGranary_T5", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingGranary_T5], SDL_SCALEMODE_NEAREST);
+
+
         //Industry
         buildingTypeTextures[BuildingType::VikingCarpentry_T1] = IMG_LoadTexture(renderer, "assets/Viking/CarpentryTier1.png");
         if (buildingTypeTextures[BuildingType::VikingCarpentry_T1]  == nullptr) {
@@ -2526,6 +2575,11 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture of gameBuildingTypesGroupingEconomySamurai", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameBuildingTypesGroupingEconomySamurai, SDL_SCALEMODE_NEAREST);
+        gameBuildingTypesGroupingIndustrySamurai = IMG_LoadTexture(renderer, "assets/Samurai/BuildingTypesGroupingIndustrySamurai.png");
+        if (gameBuildingTypesGroupingIndustrySamurai == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameBuildingTypesGroupingIndustrySamurai", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameBuildingTypesGroupingIndustrySamurai, SDL_SCALEMODE_NEAREST);
         gameBuildingTypesGroupingReligionSamurai = IMG_LoadTexture(renderer, "assets/Samurai/BuildingTypesGroupingReligionSamurai.png");
         if (gameBuildingTypesGroupingReligionSamurai == nullptr) {
             SDL_LogWarn(0, "failed to load texture gameBuildingTypesGroupingReligionSamurai",SDL_GetError());
@@ -2722,6 +2776,21 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture NobilitySamuraiEstate_T3", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::NobilitySamuraiEstate_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiGranary_T3] = IMG_LoadTexture(renderer, "assets/Samurai/GranaryTier3.png");
+        if (buildingTypeTextures[BuildingType::SamuraiGranary_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiGranary_T3", SDL_GetError);
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiGranary_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiGranary_T4] = IMG_LoadTexture(renderer, "assets/Samurai/GranaryTier4.png");
+        if (buildingTypeTextures[BuildingType::SamuraiGranary_T4] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiGranary_T4", SDL_GetError);
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiGranary_T4], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SamuraiGranary_T5] = IMG_LoadTexture(renderer, "assets/Samurai/GranaryTier5.png");
+        if (buildingTypeTextures[BuildingType::SamuraiGranary_T5] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SamuraiGranary_T5", SDL_GetError);
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiGranary_T5], SDL_SCALEMODE_NEAREST);
 
         //Industry
 
@@ -2867,6 +2936,14 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture SamuraiFishingPort_T3", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiFishingPort_T3], SDL_SCALEMODE_NEAREST);
+
+        // RESOURCES TEXTURES
+        gameResourceFishIconTexture = IMG_LoadTexture(renderer, "assets/Resources/FishIcon.png");
+        if (gameResourceFishIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameResourceFishIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameResourceFishIconTexture, SDL_SCALEMODE_NEAREST);
+
 
         // -> CREDITS <-
         creditsTitleFont = TTF_OpenFont("assets/font.ttf", 50);
@@ -3056,16 +3133,19 @@ private://constructor
         SDL_DestroyTexture(gameBuildingTypesGroupingAdvMilitaryKnight);
         SDL_DestroyTexture(gameBuildingTypesGroupingDefenceKnight);
         SDL_DestroyTexture(gameBuildingTypesGroupingEconomyKnight);
+        SDL_DestroyTexture(gameBuildingTypesGroupingIndustryKnight);
         SDL_DestroyTexture(gameBuildingTypesGroupingReligionKnight);
         SDL_DestroyTexture(gameBuildingTypesGroupingMilitaryViking);
         SDL_DestroyTexture(gameBuildingTypesGroupingAdvMilitaryViking);
         SDL_DestroyTexture(gameBuildingTypesGroupingDefenceViking);
         SDL_DestroyTexture(gameBuildingTypesGroupingEconomyViking);
+        SDL_DestroyTexture(gameBuildingTypesGroupingIndustryViking);
         SDL_DestroyTexture(gameBuildingTypesGroupingReligionViking);
         SDL_DestroyTexture(gameBuildingTypesGroupingMilitarySamurai);
         SDL_DestroyTexture(gameBuildingTypesGroupingAdvMilitarySamurai);
         SDL_DestroyTexture(gameBuildingTypesGroupingDefenceSamurai);
         SDL_DestroyTexture(gameBuildingTypesGroupingEconomySamurai);
+        SDL_DestroyTexture(gameBuildingTypesGroupingIndustrySamurai);
         SDL_DestroyTexture(gameBuildingTypesGroupingReligionSamurai);
         SDL_DestroyTexture(gameCoinMoneyTexture);
         SDL_DestroyTexture(gameTurnAmountTexture);
@@ -3094,6 +3174,7 @@ private://constructor
         SDL_DestroyTexture(technologyPannelTexture);
         SDL_DestroyTexture(familyHierarchyPannelTexture);
         SDL_DestroyTexture(cameraResetPannelTexture);
+        SDL_DestroyTexture(gameResourceFishIconTexture);
         // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
