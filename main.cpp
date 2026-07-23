@@ -4615,21 +4615,14 @@ private://constructor
     }
 
     //Returns the texture for the current Season currently just the color
-    SDL_Color GetSeasonTexture(Date::Season currentSeason) {
+    SDL_Texture *GetSeasonTexture(Date::Season currentSeason) {
         switch (currentSeason) {
-            case Date::Season::Winter: return {
-                70, 130, 220, 255
-            };
-            case Date::Season::Spring: return {
-                110, 200, 90, 255
-            };
-            case Date::Season::Summer: return {
-                230, 200, 60, 255
-            };
-            case Date::Season::Autumn: return {
-                200, 110, 40, 255
-            };
+            case Date::Season::Winter: return gameSeasonWinterIconUiTexture;
+            case Date::Season::Spring: return gameSeasonSpringIconUiTexture;
+            case Date::Season::Summer: return gameSeasonSummerIconUiTexture;
+            case Date::Season::Autumn: return gameSeasonAutumnIconUiTexture;
         }
+        return nullptr;
     }
 
     //The top UI bar for the money / turn area
@@ -4816,6 +4809,14 @@ private://constructor
                 (int)(arrowCX + halfW), (int)(tipY + dy));
         }
 
+        //GOODS Indication UI TOP
+        //Icone
+        SDL_FRect wareHouseAmountIndicator = {contentRect.x + 475.f, contentRect.y, 30.f,30.f};
+        SDL_SetRenderDrawColor(renderer, 230,124,121,255);
+        SDL_RenderFillRect(renderer, &wareHouseAmountIndicator);
+
+
+
         //GOODS STORAGE SECTION
         player.goodsStorage = 0;
         int goodsProducedThisTurn = 0;
@@ -4864,10 +4865,15 @@ private://constructor
 
         //Current Season inducator (TOP RIGHT OF UI)
         Date::Season currentSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
-        SDL_Color seasonColor = GetSeasonTexture(currentSeason);
-        SDL_FRect seasonIconRect = {contentRect.x + 650.f, contentRect.y + 10.f, 60.f,60.f};
-        SDL_SetRenderDrawColor(renderer, seasonColor.r, seasonColor.g, seasonColor.b, seasonColor.a);
-        SDL_RenderFillRect(renderer, &seasonIconRect);
+        SDL_FRect seasonIconRect = {contentRect.x + 650.f, contentRect.y + 10.f, 60.f, 60.f};
+
+        SDL_Texture* seasonTex = GetSeasonTexture(currentSeason);
+        if (seasonTex) {
+            SDL_RenderTexture(renderer, seasonTex, nullptr, &seasonIconRect);
+        } else {
+            SDL_SetRenderDrawColor(renderer, 150, 150, 150, 255);
+            SDL_RenderFillRect(renderer, &seasonIconRect);
+        }
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderRect(renderer, &seasonIconRect);
 
