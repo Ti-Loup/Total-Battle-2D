@@ -614,7 +614,7 @@ struct BuildingData {
 
     //From Resources.h
     std::vector<ResourceAmount> resourcesProduced;
-
+    int resourcesStorage = 0;//Fish and others share this storage. Must be bigger than the food storage
 };
 
 inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase() {
@@ -927,6 +927,54 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     db[BuildingType::SamuraiFishingPort_T1].resourcesProduced = {{ResourceType::Fish, 4}};
     db[BuildingType::SamuraiFishingPort_T2].resourcesProduced = {{ResourceType::Fish, 9}};
     db[BuildingType::SamuraiFishingPort_T3].resourcesProduced = {{ResourceType::Fish, 14}};
+
+
+    // ── GOODS STORAGE CAPACITY ──
+    // Capitals (base 100 slot each)
+    db[BuildingType::Settlement_Capital_Knight_T1].resourcesStorage = 100;
+    db[BuildingType::Settlement_Capital_Knight_T2].resourcesStorage = 100;
+    db[BuildingType::Settlement_Capital_Knight_T3].resourcesStorage = 100;
+    db[BuildingType::Settlement_Capital_Knight_T4].resourcesStorage = 100;
+    db[BuildingType::Settlement_Capital_Knight_T5].resourcesStorage = 100;
+    db[BuildingType::Settlement_Capital_Viking_T1].resourcesStorage = 100;
+    db[BuildingType::Settlement_Capital_Viking_T2].resourcesStorage = 100;
+    db[BuildingType::Settlement_Capital_Viking_T3].resourcesStorage = 100;
+    db[BuildingType::Settlement_Capital_Viking_T4].resourcesStorage = 100;
+    db[BuildingType::Settlement_Capital_Viking_T5].resourcesStorage = 100;
+    db[BuildingType::Settlement_Capital_Samurai_T1].resourcesStorage = 100;
+    db[BuildingType::Settlement_Capital_Samurai_T2].resourcesStorage = 100;
+    db[BuildingType::Settlement_Capital_Samurai_T3].resourcesStorage = 100;
+    db[BuildingType::Settlement_Capital_Samurai_T4].resourcesStorage = 100;
+    db[BuildingType::Settlement_Capital_Samurai_T5].resourcesStorage = 100;
+
+    // Castles (base 50 slot each)
+    db[BuildingType::Settlement_Castle_Knight_T1].resourcesStorage = 50;
+    db[BuildingType::Settlement_Castle_Knight_T2].resourcesStorage = 50;
+    db[BuildingType::Settlement_Castle_Knight_T3].resourcesStorage = 50;
+    db[BuildingType::Settlement_Castle_Knight_T4].resourcesStorage = 50;
+    db[BuildingType::Settlement_Castle_Knight_T5].resourcesStorage = 50;
+    db[BuildingType::Settlement_Castle_Viking_T1].resourcesStorage = 50;
+    db[BuildingType::Settlement_Castle_Viking_T2].resourcesStorage = 50;
+    db[BuildingType::Settlement_Castle_Viking_T3].resourcesStorage = 50;
+    db[BuildingType::Settlement_Castle_Viking_T4].resourcesStorage = 50;
+    db[BuildingType::Settlement_Castle_Viking_T5].resourcesStorage = 50;
+    db[BuildingType::Settlement_Castle_Samurai_T1].resourcesStorage = 50;
+    db[BuildingType::Settlement_Castle_Samurai_T2].resourcesStorage = 50;
+    db[BuildingType::Settlement_Castle_Samurai_T3].resourcesStorage = 50;
+    db[BuildingType::Settlement_Castle_Samurai_T4].resourcesStorage = 50;
+    db[BuildingType::Settlement_Castle_Samurai_T5].resourcesStorage = 50;
+
+    // Warehouses (adds on top of Capital/Castle base)
+    db[BuildingType::KnightWareHouse_T3].resourcesStorage = 100;
+    db[BuildingType::KnightWareHouse_T4].resourcesStorage = 150;
+    db[BuildingType::KnightWareHouse_T5].resourcesStorage = 250;
+    db[BuildingType::VikingWareHouse_T3].resourcesStorage = 100;
+    db[BuildingType::VikingWareHouse_T4].resourcesStorage = 150;
+    db[BuildingType::VikingWareHouse_T5].resourcesStorage = 250;
+    db[BuildingType::SamuraiWareHouse_T3].resourcesStorage = 100;
+    db[BuildingType::SamuraiWareHouse_T4].resourcesStorage = 150;
+    db[BuildingType::SamuraiWareHouse_T5].resourcesStorage = 250;
+
     return db;
 }
 //data of a building

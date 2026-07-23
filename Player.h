@@ -18,6 +18,9 @@ public :
     //Food Storage
     int foodStorage = 0;// 50 base storage per Capital Main settlement and 25 for Castle Main settlement.
     int foodStored = 0; // for stored each turn. Cant go higher than the food Storage available
+    //Goods Storage
+    int currentGoods = 0;
+    int goodsStorage = 0;
     //Improved Growth
     //peasantry Random
     int basePeasantryBirth = 70 + rand() % 21;   // 70-90

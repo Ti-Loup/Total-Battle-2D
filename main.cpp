@@ -47,6 +47,7 @@
  *
  * Update Season to work with money
  * If Time -> work on the ai to build buildings strategicly based on what they're missing.
+ *Add Missing Textures
  *
  * Fixed | issue with vikings religious buildings crashing the game
  * Fixed | camera never stop when touch edge
@@ -68,9 +69,12 @@
  *  Forged Steel Production, FISH, medicine plants, Candle
 
  * THE RESSOURCES ARE STORED IN (warehouse or castle)
- *
  * Some industrial buildings can only be buy if you have the raw material
  * Settlement next to the name shows a texture of mine to show its a mine + fish for a fish port and boat for military ...
+ *
+ * If you have less paysants than the nobility amount your buildings doesnt work has much. See paysantry/Nobility  description
+ *
+ *
  * --------------------------------------------
  * 0.3.5
  * DIPLOMACY & EXCHANGE
@@ -301,7 +305,8 @@ public:
 
     //filled Segment of food -> each segment change the food stored per turn
     int filledSegs;
-
+    //GoodsProduced each turn
+    int goodsProducedThisTurn = 0;
 
     //Texture coin + Turn time
     SDL_Texture *gameCoinMoneyTexture = nullptr;
@@ -4630,6 +4635,7 @@ private://constructor
                 player.foodStorage += building_data->foodStorage;
             }
         }
+
         Date::Season foodSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
         SeasonModifiers foodMods = GetSeasonModifiers(foodSeason);
         player.nextTurnFood += (int)std::round(rawFoodTotal * foodMods.foodProductionMultiplier);
@@ -4729,6 +4735,23 @@ private://constructor
                 (int)(arrowCX + halfW), (int)(tipY + dy));
         }
 
+        //GOODS STORAGE SECTION
+        player.goodsStorage = 0;
+        int goodsProducedThisTurn = 0;
+        for (const auto &s : settlements) {
+            if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
+            for (BuildingType bt : s.settlementData.buildings) {
+                if (bt == BuildingType::None) continue;
+                const BuildingData* bd = GetBuildingData(bt);
+                if (!bd) continue;
+                player.goodsStorage += bd->resourcesStorage;
+                for (const auto& res : bd->resourcesProduced) {
+                    goodsProducedThisTurn += res.amount; // Fish now
+                }
+            }
+        }
+
+        //TIME PERIOD SECTION
         //far Rect to display the time period
         SDL_FRect dateBorderRect = {1775.f, 960.f, 145, 80};
         SDL_SetRenderDrawColor(renderer, 20, 20,20,255);
@@ -6177,6 +6200,11 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
         if (building_data->foodStorage != 0) {
             count++;
         }
+        // raw resources produced
+        count += (int)building_data->resourcesProduced.size();
+        if (building_data->resourcesStorage != 0) {
+            count++;
+        }
         if (building_data->peasantryBornBonus != 0) {
             count++;
         }
@@ -6239,11 +6267,28 @@ void RenderBuildingStatRows(const BuildingData* data, BuildingType type, float t
     if (data->foodProduced != 0)
         drawRow(gameFoodIconUi, "Food Produced:", "+" + std::to_string(data->foodProduced), {127, 255, 0, 255});
 
+    //Fish Resource
+    for (const auto& res : data->resourcesProduced) {
+        const char* resLabel = "Resource Produced:";
+        SDL_Texture* resIcon = gameFoodIconUi; //
+        switch (res.type) {
+            case ResourceType::Fish:
+                resLabel = "Fish Produced:";
+                break;
+            default:
+                break;
+        }
+        drawRow(resIcon, resLabel, "+" + std::to_string(res.amount), {127, 255, 0, 255});
+    }
+
     if (data->foodUpkeep != 0)
         drawRow(gameFoodIconUi, "Food Upkeep:", "-" + std::to_string(data->foodUpkeep), {220, 60, 60, 255});
 
     if (data->foodStorage != 0)
         drawRow(gameStorageUiIcon, "Food Storage:", "+" + std::to_string(data->foodStorage), {180, 230, 100, 255});
+
+    if (data->resourcesStorage != 0)
+        drawRow(gameStorageUiIcon, "Goods Storage:", "+" + std::to_string(data->resourcesStorage), {180, 230, 100, 255});
 
     if (data->peasantryBornBonus != 0)
         drawRow(gamePeasantryIconUi, "Peasantry Growth:", "+" + std::to_string(data->peasantryBornBonus), {180, 230, 100, 255});
@@ -6994,6 +7039,11 @@ public:
             player.foodStored = std::min(player.foodStored+9, player.foodStorage);
         }
 
+        //GOODS STORAGE
+        player.currentGoods = std::min(player.currentGoods + goodsProducedThisTurn, player.goodsStorage);
+
+
+        //POPULATION
         //population increase each turn based on base random bonus + building bonus
         int buildingPeasantryBonus = 0;
         int buildingNobilityBonus = 0;
