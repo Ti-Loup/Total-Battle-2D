@@ -793,7 +793,7 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
 
     // ── VIKING ECONOMY ──
 
-    add(BuildingType::VikingWareHouse_T3, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 3, 5, 0, 0, 0, 0, 0, 0, BuildingType::VikingWareHouse_T4}); 
+    add(BuildingType::VikingWareHouse_T3, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 3, 5, 0, 0, 0, 0, 0, 0, BuildingType::VikingWareHouse_T4});
     add(BuildingType::VikingWareHouse_T4, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 4, 5, 0, 0, 0, 0, 0, 0, BuildingType::VikingWareHouse_T5});
     add(BuildingType::VikingWareHouse_T5, {"Great Warehouse", "All goods can be stored,\nsafe from the weather", 1000, 80, 0, 0, 5, 7, 0, 0, 0, 0, 0, 0, BuildingType::None});
     add(BuildingType::VikingMint_T1, {"Mint", "Coins hold power beyond wealth.\nThey are legitimacy.\nThey are loyalty.", 600, 5, 0, 0, 1, 11, 0, 0, 0, 0, 0, 0, BuildingType::VikingMint_T2}); 
