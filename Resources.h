@@ -18,13 +18,12 @@ enum class ResourceType {
 struct ResourceData{
     std::string name;
     std::string description;
-    int buildingStorage; //how much one building can store that resource
     std::string iconPath;
 };
 
 inline const std::unordered_map<ResourceType, ResourceData>& GetResourceDatabase() {
     static const std::unordered_map<ResourceType, ResourceData> database = {
-        { ResourceType::Fish, { "Fish", "Caught by fishing ports. Feeds the population and can be traded.", 25, "assets/Resources/Fish.png" } }
+        { ResourceType::Fish, { "Fish", "Caught by fishing ports. Feeds the population and can be traded.", "assets/Resources/Fish.png" } }
 
     };
     return database;

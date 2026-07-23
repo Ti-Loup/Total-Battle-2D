@@ -702,9 +702,9 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::SamuraiFishingPort_T2, {"Fishing Harbor", "An expanded fleet of fishing boats\nbrings home a steady harvest\nfrom the surrounding waters.", 700, 0, 25, 0, 2, 4, 0, 15, 0, 0,0,0, BuildingType::SamuraiFishingPort_T3});
     add(BuildingType::SamuraiFishingPort_T3, {"Grand Fishing Harbor", "A prosperous harbor where the\ndaily catch is plentiful enough\nto sustain the whole province.", 1100, 0, 40, 0, 3, 6, 0, 25, 0, 0,0,0,BuildingType::None});
     // ── KNIGHT ECONOMY ──
-    add(BuildingType::KnightWareHouse_T3, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 3, 5, 0, 0, 25, 0, 0, 0, BuildingType::KnightWareHouse_T4}); //store 25 food
-    add(BuildingType::KnightWareHouse_T4, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 4, 5, 0, 0, 50, 0, 0, 0, BuildingType::KnightWareHouse_T5}); // store 50 food
-    add(BuildingType::KnightWareHouse_T5, {"Great Warehouse", "All goods can be stored,\nsafe from the weather", 1000, 80, 0, 0, 5, 7, 0, 0, 75, 0, 0, 0, BuildingType::None}); // store 75 food
+    add(BuildingType::KnightWareHouse_T3, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 3, 5, 0, 0, 0, 0, 0, 0, BuildingType::KnightWareHouse_T4}); //store 25 food
+    add(BuildingType::KnightWareHouse_T4, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 4, 5, 0, 0, 0, 0, 0, 0, BuildingType::KnightWareHouse_T5}); // store 50 food
+    add(BuildingType::KnightWareHouse_T5, {"Great Warehouse", "All goods can be stored,\nsafe from the weather", 1000, 80, 0, 0, 5, 7, 0, 0, 0, 0, 0, 0, BuildingType::None}); // store 75 food
     add(BuildingType::KnightMint_T1, {"Mint", "Coins hold power beyond wealth.\nThey are legitimacy.\nThey are loyalty.", 600, 5, 0, 0, 1, 11, 0, 0, 0, 0, 0, 0, BuildingType::KnightMint_T2}); 
     add(BuildingType::KnightMint_T2, {"Royal Mint", "When your face is everywhere,\nthere can be no doubt \nwho rules.", 750, 10, 0, 0, 2, 4, 0, 0, 0, 0, 0, 0, BuildingType::KnightMint_T3}); 
     add(BuildingType::KnightMint_T3, {"Treasury", "The coffers of the state, from \nwhich funds are drawn \naccording to need and favour.", 900, 15, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, BuildingType::None});
@@ -722,6 +722,7 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::KnightGranary_T3, {"Granary", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 3, 5, 0, 0, 25, 0, 0, 0, BuildingType::KnightGranary_T4});
     add(BuildingType::KnightGranary_T4, {"Grand Granary", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 4, 5, 0, 0, 50, 0, 0, 0, BuildingType::KnightGranary_T5});
     add(BuildingType::KnightGranary_T5, {"Royal Granary", "All goods can be stored,\nsafe from the weather", 1000, 80, 0, 0, 5, 7, 0, 0, 75, 0, 0, 0, BuildingType::None});
+
     // ── KNIGHT INDUSTRY ──
 
     add(BuildingType::KnightCarpentry_T1, {"Carpenter", "Natural shelter from the elements\ncan be found here, as well as\nprecious timber reserves.", 450, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::KnightCarpentry_T2});
@@ -792,9 +793,9 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
 
     // ── VIKING ECONOMY ──
 
-    add(BuildingType::VikingWareHouse_T3, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 3, 5, 0, 0, 25, 0, 0, 0, BuildingType::VikingWareHouse_T4}); //store 25 food
-    add(BuildingType::VikingWareHouse_T4, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 4, 5, 0, 0, 50, 0, 0, 0, BuildingType::VikingWareHouse_T5}); // store 50 food
-    add(BuildingType::VikingWareHouse_T5, {"Great Warehouse", "All goods can be stored,\nsafe from the weather", 1000, 80, 0, 0, 5, 7, 0, 0, 75, 0, 0, 0, BuildingType::None}); // store 75 food
+    add(BuildingType::VikingWareHouse_T3, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 3, 5, 0, 0, 0, 0, 0, 0, BuildingType::VikingWareHouse_T4}); 
+    add(BuildingType::VikingWareHouse_T4, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 4, 5, 0, 0, 0, 0, 0, 0, BuildingType::VikingWareHouse_T5});
+    add(BuildingType::VikingWareHouse_T5, {"Great Warehouse", "All goods can be stored,\nsafe from the weather", 1000, 80, 0, 0, 5, 7, 0, 0, 0, 0, 0, 0, BuildingType::None});
     add(BuildingType::VikingMint_T1, {"Mint", "Coins hold power beyond wealth.\nThey are legitimacy.\nThey are loyalty.", 600, 5, 0, 0, 1, 11, 0, 0, 0, 0, 0, 0, BuildingType::VikingMint_T2}); 
     add(BuildingType::VikingMint_T2, {"Royal Mint", "When your face is everywhere,\nthere can be no doubt \nwho rules.", 750, 10, 0, 0, 2, 4, 0, 0, 0, 0, 0, 0, BuildingType::VikingMint_T3}); 
     add(BuildingType::VikingMint_T3, {"Treasury", "The coffers of the state, from \nwhich funds are drawn \naccording to need and favour.", 900, 15, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, BuildingType::None});
@@ -864,9 +865,9 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
 
     // ── SAMURAI ECONOMY ──
 
-    add(BuildingType::SamuraiWareHouse_T3, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 3, 5, 0, 0, 25, 0, 0, 0, BuildingType::SamuraiWareHouse_T4}); //store 25 food
-    add(BuildingType::SamuraiWareHouse_T4, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 4, 5, 0, 0, 50, 0, 0, 0, BuildingType::SamuraiWareHouse_T5}); // store 50 food
-    add(BuildingType::SamuraiWareHouse_T5, {"Great Warehouse", "All goods can be stored,\nsafe from the weather", 1000, 80, 0, 0, 5, 7, 0, 0, 75, 0, 0, 0, BuildingType::None}); // store 75 food
+    add(BuildingType::SamuraiWareHouse_T3, {"Storehouse", "Not everything can be sold\nstraight away, must be stored.", 700, 40, 0, 0, 3, 5, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiWareHouse_T4});
+    add(BuildingType::SamuraiWareHouse_T4, {"Warehouse", "A large storage of goods \nready to be sold", 850, 60, 0, 0, 4, 5, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiWareHouse_T5});
+    add(BuildingType::SamuraiWareHouse_T5, {"Great Warehouse", "All goods can be stored,\nsafe from the weather", 1000, 80, 0, 0, 5, 7, 0, 0, 0, 0, 0, 0, BuildingType::None});
     add(BuildingType::SamuraiMint_T1, {"Mint", "Coins hold power beyond wealth.\nThey are legitimacy.\nThey are loyalty.", 600, 5, 0, 0, 1, 11, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiMint_T2});
     add(BuildingType::SamuraiMint_T2, {"Royal Mint", "When your face is everywhere,\nthere can be no doubt \nwho rules.", 750, 10, 0, 0, 2, 4, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiMint_T3}); 
     add(BuildingType::SamuraiMint_T3, {"Treasury", "The coffers of the state, from \nwhich funds are drawn \naccording to need and favour.", 900, 15, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, BuildingType::None});
