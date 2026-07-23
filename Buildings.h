@@ -9,6 +9,7 @@
 #include <vector>
 #include "Province.h"
 #include "State.h"
+#include "Resources.h"
 #include <unordered_map>
 
 enum class BuildingType{
@@ -267,7 +268,8 @@ enum class BuildingCategory {
     Military,
     AdvancedMilitary,
     Defence,
-    Economy,
+    Economy, //economy + Farm
+    Industry, //gray Buildings
     Religion
 };
 enum class TaxCategory {
@@ -421,17 +423,6 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::KnightMint_T2:
     case BuildingType::KnightMint_T3:
     case BuildingType::KnightTavern_T1:
-    case BuildingType::KnightCarpentry_T1:
-    case BuildingType::KnightCarpentry_T2:
-    case BuildingType::KnightArtisan_T1:
-    case BuildingType::KnightArtisan_T2:
-    case BuildingType::KnightArtisan_T3:
-    case BuildingType::KnightForge_T2:
-    case BuildingType::KnightForge_T3:
-    case BuildingType::KnightForge_T4:
-    case BuildingType::KnightJeweller_T3:
-    case BuildingType::KnightJeweller_T4:
-    case BuildingType::KnightJeweller_T5:
     case BuildingType::SlaveMarket_T1:
     case BuildingType::SlaveMarket_T2:
     case BuildingType::SlaveMarket_T3:
@@ -448,17 +439,6 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::VikingMint_T2:
     case BuildingType::VikingMint_T3:
     case BuildingType::VikingTavern_T1:
-    case BuildingType::VikingCarpentry_T1:
-    case BuildingType::VikingCarpentry_T2:
-    case BuildingType::VikingArtisan_T1:
-    case BuildingType::VikingArtisan_T2:
-    case BuildingType::VikingArtisan_T3:
-    case BuildingType::VikingForge_T2:
-    case BuildingType::VikingForge_T3:
-    case BuildingType::VikingForge_T4:
-    case BuildingType::VikingJeweller_T3:
-    case BuildingType::VikingJeweller_T4:
-    case BuildingType::VikingJeweller_T5:
     case BuildingType::Market_T1:
     case BuildingType::Market_T2:
     case BuildingType::Market_T3:
@@ -475,6 +455,30 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::SamuraiMint_T2:
     case BuildingType::SamuraiMint_T3:
     case BuildingType::SamuraiTavern_T1:
+        return BuildingCategory::Economy;
+
+    case BuildingType::KnightCarpentry_T1:
+    case BuildingType::KnightCarpentry_T2:
+    case BuildingType::KnightArtisan_T1:
+    case BuildingType::KnightArtisan_T2:
+    case BuildingType::KnightArtisan_T3:
+    case BuildingType::KnightForge_T2:
+    case BuildingType::KnightForge_T3:
+    case BuildingType::KnightForge_T4:
+    case BuildingType::KnightJeweller_T3:
+    case BuildingType::KnightJeweller_T4:
+    case BuildingType::KnightJeweller_T5:
+    case BuildingType::VikingCarpentry_T1:
+    case BuildingType::VikingCarpentry_T2:
+    case BuildingType::VikingArtisan_T1:
+    case BuildingType::VikingArtisan_T2:
+    case BuildingType::VikingArtisan_T3:
+    case BuildingType::VikingForge_T2:
+    case BuildingType::VikingForge_T3:
+    case BuildingType::VikingForge_T4:
+    case BuildingType::VikingJeweller_T3:
+    case BuildingType::VikingJeweller_T4:
+    case BuildingType::VikingJeweller_T5:
     case BuildingType::SamuraiCarpentry_T1:
     case BuildingType::SamuraiCarpentry_T2:
     case BuildingType::SamuraiArtisan_T1:
@@ -486,7 +490,7 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::SamuraiJeweller_T3:
     case BuildingType::SamuraiJeweller_T4:
     case BuildingType::SamuraiJeweller_T5:
-        return BuildingCategory::Economy;
+        return BuildingCategory::Industry;
 
     case BuildingType::KnightAlmsHouse_T1:
     case BuildingType::KnightAlmsHouse_T2:
@@ -580,11 +584,16 @@ struct BuildingData {
     int foodUpkeep;
     int foodProduced;
     int foodStorage;
+    //Resources
     //Growth
     int peasantryBornBonus;
     int nobilityBornBonus;
     int clergyTrainedBonus;
     BuildingType upgradesTo;
+
+    //From Resources.h
+    std::vector<ResourceAmount> resourcesProduced;
+
 };
 
 inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase() {
@@ -610,11 +619,11 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::Settlement_Capital_Knight_T5, {"Royal Capital", "The glorious center of the kingdom,\nruled by powerful lords and nobility. ", 8000, 300, 0, 3, 5, 12, 40, 0, 50, 0, 0, 0, BuildingType::None});
 
     // ── PORTS (KNIGHT) ──
-    add(BuildingType::KnightMilitaryPort_T1, {"Naval Yard", "Modest docks where light vessels\nare built to patrol the coast\nand ferry troops abroad.", 500, 10, 0, 0, 1, 4, 0,0,5, 0,0,0, BuildingType::KnightMilitaryPort_T2});
-    add(BuildingType::KnightMilitaryPort_T2, {"War Harbor", "Expanded shipyards turn out sturdier\nhulls, built to withstand the\nrigors of naval combat.", 900, 15, 0, 0, 2, 5, 0,0,10, 0,0,0, BuildingType::KnightMilitaryPort_T3});
-    add(BuildingType::KnightMilitaryPort_T3, {"War Port", "A proper port of war, its docks\nnever idle as new warships are\nlaunched for the King's fleet.", 1400, 25, 0, 0, 3, 6, 0,0,15, 0,0,0, BuildingType::KnightMilitaryPort_T4});
-    add(BuildingType::KnightMilitaryPort_T4, {"Grand War Port", "A vast harbor bristling with\nwarships, standing ready to\ndefend the realm's shores.", 2000, 40, 0, 0, 4, 8, 0,0,20, 0,0,0, BuildingType::KnightMilitaryPort_T5});
-    add(BuildingType::KnightMilitaryPort_T5, {"Royal Shipyard", "The kingdom's greatest naval yard,\ncapable of arming an entire fleet\nin the King's name.", 3200, 50, 0, 0, 5, 10, 0,0,25, 0,0,0, BuildingType::None});
+    add(BuildingType::KnightMilitaryPort_T1, {"Naval Yard", "Modest docks where light vessels\nare built to patrol the coast\nand ferry troops abroad.", 500, 10, 0, 0, 1, 4, 0,0, 0, 0,0,0, BuildingType::KnightMilitaryPort_T2});
+    add(BuildingType::KnightMilitaryPort_T2, {"War Harbor", "Expanded shipyards turn out sturdier\nhulls, built to withstand the\nrigors of naval combat.", 900, 15, 0, 0, 2, 5, 0,0, 0, 0,0,0, BuildingType::KnightMilitaryPort_T3});
+    add(BuildingType::KnightMilitaryPort_T3, {"War Port", "A proper port of war, its docks\nnever idle as new warships are\nlaunched for the King's fleet.", 1400, 25, 0, 0, 3, 6, 0,0, 0, 0,0,0, BuildingType::KnightMilitaryPort_T4});
+    add(BuildingType::KnightMilitaryPort_T4, {"Grand War Port", "A vast harbor bristling with\nwarships, standing ready to\ndefend the realm's shores.", 2000, 40, 0, 0, 4, 8, 0,0, 0, 0,0,0, BuildingType::KnightMilitaryPort_T5});
+    add(BuildingType::KnightMilitaryPort_T5, {"Royal Shipyard", "The kingdom's greatest naval yard,\ncapable of arming an entire fleet\nin the King's name.", 3200, 50, 0, 0, 5, 10, 0,0, 0, 0,0,0, BuildingType::None});
 
     add(BuildingType::KnightFishingPort_T1, {"Fishing Dock", "Small boats set out at dawn,\nbringing in just enough to\nfeed the village.", 400, 0, 15, 0, 1, 3, 0, 9, 0, 0,0,0, BuildingType::KnightFishingPort_T2});
     add(BuildingType::KnightFishingPort_T2, {"Fishing Harbor", "An enlarged fleet of fishing boats\nbrings a steady bounty in from\nthe surrounding waters.", 700, 0, 25, 0, 2, 4, 0, 15, 0, 0,0,0, BuildingType::KnightFishingPort_T3});
@@ -636,11 +645,11 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::Settlement_Capital_Viking_T5, {"Jarl's Capital",   "The glorious capital of the Jarls,\nruling the northern kingdoms.", 0, 0, 1100, 0, 5, 1, 40, 0, 50, 0, 0, 0, BuildingType::None});
 
     // ── PORTS (VIKING) ──
-    add(BuildingType::VikingMilitaryPort_T1, {"Drakkar Yard", "A raw shipyard where young longships\nare hewn from northern timber,\nready for raid and plunder.", 500, 10, 0, 0, 1, 4, 0,0,5, 0,0,0, BuildingType::VikingMilitaryPort_T2});
-    add(BuildingType::VikingMilitaryPort_T2, {"Raiding Harbor", "Sturdier drakkars leave these docks,\ncarrying warriors far across\nthe cold northern seas.", 900, 15, 0, 0, 2, 5, 0,0,10, 0,0,0, BuildingType::VikingMilitaryPort_T3});
-    add(BuildingType::VikingMilitaryPort_T3, {"War Fjord", "A sheltered fjord turned shipyard\nof war, launching drakkars built\nfor battle upon the waves.", 1400, 25, 0, 0, 3, 6, 0,0,15, 0,0,0, BuildingType::VikingMilitaryPort_T4});
-    add(BuildingType::VikingMilitaryPort_T4, {"Grand Longship Yard", "Rows of longships crowd the harbor,\na fleet fierce enough to strike\nfear into distant shores.", 2000, 40, 0, 0, 4, 8, 0,0,20, 0,0,0, BuildingType::VikingMilitaryPort_T5});
-    add(BuildingType::VikingMilitaryPort_T5, {"Jarl's Shipyard", "The greatest shipyard of the north,\nwhere the Jarl's fleet is forged\nto conquer the seas themselves.", 3200, 50, 0, 0, 5, 10, 0,0,25, 0,0,0, BuildingType::None});
+    add(BuildingType::VikingMilitaryPort_T1, {"Drakkar Yard", "A raw shipyard where young longships\nare hewn from northern timber,\nready for raid and plunder.", 500, 10, 0, 0, 1, 4, 0,0,0, 0,0,0, BuildingType::VikingMilitaryPort_T2});
+    add(BuildingType::VikingMilitaryPort_T2, {"Raiding Harbor", "Sturdier drakkars leave these docks,\ncarrying warriors far across\nthe cold northern seas.", 900, 15, 0, 0, 2, 5, 0,0,0, 0,0,0, BuildingType::VikingMilitaryPort_T3});
+    add(BuildingType::VikingMilitaryPort_T3, {"War Fjord", "A sheltered fjord turned shipyard\nof war, launching drakkars built\nfor battle upon the waves.", 1400, 25, 0, 0, 3, 6, 0,0, 0, 0,0,0, BuildingType::VikingMilitaryPort_T4});
+    add(BuildingType::VikingMilitaryPort_T4, {"Grand Longship Yard", "Rows of longships crowd the harbor,\na fleet fierce enough to strike\nfear into distant shores.", 2000, 40, 0, 0, 4, 8, 0,0,0, 0,0,0, BuildingType::VikingMilitaryPort_T5});
+    add(BuildingType::VikingMilitaryPort_T5, {"Jarl's Shipyard", "The greatest shipyard of the north,\nwhere the Jarl's fleet is forged\nto conquer the seas themselves.", 3200, 50, 0, 0, 5, 10, 0,0, 0, 0,0,0, BuildingType::None});
 
     add(BuildingType::VikingFishingPort_T1, {"Fishing Camp", "A handful of boats brave the cold\nwaters each morning, bringing back\njust enough to feed the settlement.", 400, 0, 15, 0, 1, 3, 0, 9, 0, 0,0,0, BuildingType::VikingFishingPort_T2});
     add(BuildingType::VikingFishingPort_T2, {"Fishing Cove", "A growing fleet works the coastal\nwaters, hauling in a steady\nbounty for the clan.", 700, 0, 25, 0, 2, 4, 0, 15, 0, 0,0,0,BuildingType::VikingFishingPort_T3});
@@ -662,11 +671,11 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::Settlement_Capital_Samurai_T5, {"Shogun's Capital", "The glorious seat of the Shogun,\nruling the empire with honor.", 0, 0, 1100, 0, 5, 1, 40, 0, 50, 0, 0, 0, BuildingType::None});
 
     // ── PORTS (SAMURAI) ──
-    add(BuildingType::SamuraiMilitaryPort_T1, {"Coastal Shipwright", "A modest wharf where shipwrights\ncraft light vessels to guard\nthe coastline and ferry troops.", 500, 10, 0, 0, 1, 4, 0,0,5, 0,0,0, BuildingType::SamuraiMilitaryPort_T2});
-    add(BuildingType::SamuraiMilitaryPort_T2, {"War Harbor", "Reinforced hulls leave this busier\nharbor, built to serve the\ndaimyo's growing ambitions.", 900, 15, 0, 0, 2, 5, 0,0,10, 0,0,0, BuildingType::SamuraiMilitaryPort_T3});
-    add(BuildingType::SamuraiMilitaryPort_T3, {"Naval Stronghold", "A fortified harbor turning out\nwarships worthy of the Shogunate's\nnaval traditions.", 1400, 25, 0, 0, 3, 6, 0,0,15, 0,0,0, BuildingType::SamuraiMilitaryPort_T4});
-    add(BuildingType::SamuraiMilitaryPort_T4, {"Grand Fleet Harbor", "An imposing harbor housing a fleet\nlarge enough to project the\nclan's power across the seas.", 2000, 40, 0, 0, 4, 8, 0,0,20, 0,0,0, BuildingType::SamuraiMilitaryPort_T5});
-    add(BuildingType::SamuraiMilitaryPort_T5, {"Shogun's Armada", "The empire's mightiest shipyard,\nwhere the Shogun's armada is\nbuilt to rule the surrounding waters.", 3200, 50, 0, 0, 5, 10, 0,0,25, 0,0,0, BuildingType::None});
+    add(BuildingType::SamuraiMilitaryPort_T1, {"Coastal Shipwright", "A modest wharf where shipwrights\ncraft light vessels to guard\nthe coastline and ferry troops.", 500, 10, 0, 0, 1, 4, 0,0,0, 0,0,0, BuildingType::SamuraiMilitaryPort_T2});
+    add(BuildingType::SamuraiMilitaryPort_T2, {"War Harbor", "Reinforced hulls leave this busier\nharbor, built to serve the\ndaimyo's growing ambitions.", 900, 15, 0, 0, 2, 5, 0,0, 0, 0,0,0, BuildingType::SamuraiMilitaryPort_T3});
+    add(BuildingType::SamuraiMilitaryPort_T3, {"Naval Stronghold", "A fortified harbor turning out\nwarships worthy of the Shogunate's\nnaval traditions.", 1400, 25, 0, 0, 3, 6, 0,0, 0, 0,0,0, BuildingType::SamuraiMilitaryPort_T4});
+    add(BuildingType::SamuraiMilitaryPort_T4, {"Grand Fleet Harbor", "An imposing harbor housing a fleet\nlarge enough to project the\nclan's power across the seas.", 2000, 40, 0, 0, 4, 8, 0,0,0, 0,0,0, BuildingType::SamuraiMilitaryPort_T5});
+    add(BuildingType::SamuraiMilitaryPort_T5, {"Shogun's Armada", "The empire's mightiest shipyard,\nwhere the Shogun's armada is\nbuilt to rule the surrounding waters.", 3200, 50, 0, 0, 5, 10, 0,0,0, 0,0,0, BuildingType::None});
 
     add(BuildingType::SamuraiFishingPort_T1, {"Fishing Village Dock", "Small fishing boats set out at\ndawn, bringing back a modest\ncatch for the village.", 400, 0, 15, 0, 1, 3, 0, 9, 0, 0,0,0,BuildingType::SamuraiFishingPort_T2});
     add(BuildingType::SamuraiFishingPort_T2, {"Fishing Harbor", "An expanded fleet of fishing boats\nbrings home a steady harvest\nfrom the surrounding waters.", 700, 0, 25, 0, 2, 4, 0, 15, 0, 0,0,0, BuildingType::SamuraiFishingPort_T3});
@@ -689,6 +698,8 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::NobilityEstate_T1,  {"Small private farm", "Grows population.", 80,  0,  15,  2, 1, 2, 0, 6, 0, 0, 3, 0, BuildingType::NobilityEstate_T2});//Nobility generate less food but more money
     add(BuildingType::NobilityEstate_T2,  {"Lord's Fields", "Grows population faster.", 200, 0,  30,  4, 2, 3, 0, 10, 0, 0, 5, 0, BuildingType::NobilityEstate_T3});
     add(BuildingType::NobilityEstate_T3,  {"Grand Manor Farm", "Major growth bonus.", 400, 0, 45,  6, 3, 4, 0, 14, 0, 0, 8, 0, BuildingType::None});
+
+    // ── KNIGHT INDUSTRY ──
 
     add(BuildingType::KnightCarpentry_T1, {"Carpenter", "Natural shelter from the elements\ncan be found here, as well as\nprecious timber reserves.", 450, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::KnightCarpentry_T2});
     add(BuildingType::KnightCarpentry_T2, {"Woodshop", "The forest itself provides the\n handle for the woodcutter's axe.", 700, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
@@ -776,6 +787,8 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::NobilityVikingEstate_T2,  {"Town Market", "Grows population faster.", 200, 0,  30,  4, 2, 3, 0, 10, 0,  0, 5, 0, BuildingType::NobilityVikingEstate_T3});
     add(BuildingType::NobilityVikingEstate_T3,  {"Grand Market", "Major growth bonus.", 400, 0, 45,  6, 3, 4, 0, 14, 0, 0, 8, 0, BuildingType::None});
 
+    // ── VIKING INDUSTRY ──
+
     add(BuildingType::VikingCarpentry_T1, {"Carpenter", "Natural shelter from the elements\ncan be found here, as well as\nprecious timber reserves.", 450, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::VikingCarpentry_T2});
     add(BuildingType::VikingCarpentry_T2, {"Woodshop", "The forest itself provides the\n handle for the woodcutter's axe.", 700, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
     add(BuildingType::VikingArtisan_T1, {"Artisan", "If you've got made-goods to sell,\nthe chances are that this man\ncan find you a buyer.", 750, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::VikingArtisan_T2});
@@ -843,6 +856,8 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::NobilitySamuraiEstate_T2,  {"Town Market",       "Grows population faster.", 200, 0,  30,  4, 2, 3, 0, 10, 0, 0, 5, 0, BuildingType::NobilitySamuraiEstate_T3});
     add(BuildingType::NobilitySamuraiEstate_T3,  {"Grand Market",      "Major growth bonus.", 400, 0, 45,  6, 3, 4, 0, 14, 0, 0, 8, 0, BuildingType::None});
 
+    // ── SAMURAI INDUSTRY ──
+
     add(BuildingType::SamuraiCarpentry_T1, {"Carpenter", "Natural shelter from the elements\ncan be found here, as well as\nprecious timber reserves.", 450, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiCarpentry_T2});
     add(BuildingType::SamuraiCarpentry_T2, {"Woodshop", "The forest itself provides the\n handle for the woodcutter's axe.", 700, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, BuildingType::None });
     add(BuildingType::SamuraiArtisan_T1, {"Artisan", "If you've got made-goods to sell,\nthe chances are that this man\ncan find you a buyer.", 750, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiArtisan_T2});
@@ -857,17 +872,31 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
 
     // ── SAMURAI RELIGION ──
     //reconstitution
-    add(BuildingType::SamuraiHospital_T1, {"Field Hospital", "Heals troops.",       100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiHospital_T2});
-    add(BuildingType::SamuraiHospital_T2, {"Hospital",       "Better healing.",     250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 0, BuildingType::None});
+    add(BuildingType::SamuraiHospital_T1, {"Field Hospital", "Heals troops.", 100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiHospital_T2});
+    add(BuildingType::SamuraiHospital_T2, {"Hospital", "Better healing.", 250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 0, BuildingType::None});
     //Tea Dry
-    add(BuildingType::SamuraiTeaDry_T1, {"small religious tea dry",    "Improves public order.",  100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, BuildingType::SamuraiTeaDry_T2});
-    add(BuildingType::SamuraiTeaDry_T2, {"Medium religious tea dry",    "Strong public order.",    250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 3, BuildingType::SamuraiTeaDry_T3});
-    add(BuildingType::SamuraiTeaDry_T3, {"Large religious tea dry", "Major public order.",     500, 15, 0, 4, 3, 4, 0, 0, 0, 0, 0, 5, BuildingType::None});
+    add(BuildingType::SamuraiTeaDry_T1, {"small religious tea dry", "Improves public order.",  100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, BuildingType::SamuraiTeaDry_T2});
+    add(BuildingType::SamuraiTeaDry_T2, {"Medium religious tea dry", "Strong public order.", 250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 3, BuildingType::SamuraiTeaDry_T3});
+    add(BuildingType::SamuraiTeaDry_T3, {"Large religious tea dry", "Major public order.", 500, 15, 0, 4, 3, 4, 0, 0, 0, 0, 0, 5, BuildingType::None});
     //public order
-    add(BuildingType::SamuraiChapel_T3,   {"Shinto Shrine",  "Basic worship.",      100,  5, 0,  1, 3, 2, 0, 0, 0, 0, 0, 1, BuildingType::SamuraiChapel_T4});
-    add(BuildingType::SamuraiChapel_T4,   {"Shinto Temple",  "Greater worship.",    250, 10, 0, 1, 4, 3, 0, 0, 0, 0, 0, 3, BuildingType::SamuraiChapel_T5});
-    add(BuildingType::SamuraiChapel_T5,   {"Grand Shrine",   "Divine blessing.",    500, 15, 0, 2, 5, 4, 0, 0, 0, 0, 0, 5, BuildingType::None});
+    add(BuildingType::SamuraiChapel_T3, {"Shinto Shrine", "Basic worship.", 100, 5, 0,  1, 3, 2, 0, 0, 0, 0, 0, 1, BuildingType::SamuraiChapel_T4});
+    add(BuildingType::SamuraiChapel_T4, {"Shinto Temple", "Greater worship.", 250, 10, 0, 1, 4, 3, 0, 0, 0, 0, 0, 3, BuildingType::SamuraiChapel_T5});
+    add(BuildingType::SamuraiChapel_T5, {"Grand Shrine", "Divine blessing.", 500, 15, 0, 2, 5, 4, 0, 0, 0, 0, 0, 5, BuildingType::None});
 
+
+
+    // ── RESOURCE PRODUCTION ──
+    db[BuildingType::KnightFishingPort_T1].resourcesProduced = {{ResourceType::Fish, 4}};
+    db[BuildingType::KnightFishingPort_T2].resourcesProduced = {{ResourceType::Fish, 9}};
+    db[BuildingType::KnightFishingPort_T3].resourcesProduced = {{ResourceType::Fish, 14}};
+
+    db[BuildingType::VikingFishingPort_T1].resourcesProduced = {{ResourceType::Fish, 4}};
+    db[BuildingType::VikingFishingPort_T2].resourcesProduced = {{ResourceType::Fish, 9}};
+    db[BuildingType::VikingFishingPort_T3].resourcesProduced = {{ResourceType::Fish, 14}};
+
+    db[BuildingType::SamuraiFishingPort_T1].resourcesProduced = {{ResourceType::Fish, 4}};
+    db[BuildingType::SamuraiFishingPort_T2].resourcesProduced = {{ResourceType::Fish, 9}};
+    db[BuildingType::SamuraiFishingPort_T3].resourcesProduced = {{ResourceType::Fish, 14}};
     return db;
 }
 //data of a building
@@ -912,16 +941,21 @@ inline std::vector<BuildingType> GetBuildingsForCategory(BuildingCategory catego
 
         case BuildingCategory::Economy:
             if (faction == FactionZone::Knight)
-                results = {BuildingType::KnightWareHouse_T3,BuildingType::KnightMint_T1, BuildingType::KnightTavern_T1, BuildingType::Economy_T1, BuildingType::PeasantryGrowth_T1, BuildingType::NobilityEstate_T1,
-              BuildingType::KnightCarpentry_T1, BuildingType::KnightArtisan_T1, BuildingType:: KnightForge_T2, BuildingType::KnightJeweller_T3};
+                results = {BuildingType::KnightWareHouse_T3,BuildingType::KnightMint_T1, BuildingType::KnightTavern_T1, BuildingType::Economy_T1, BuildingType::PeasantryGrowth_T1, BuildingType::NobilityEstate_T1};
             else if (faction == FactionZone::Viking)
-                results = {BuildingType::VikingWareHouse_T3,BuildingType::VikingMint_T1, BuildingType::VikingTavern_T1, BuildingType::SlaveMarket_T1, BuildingType::PeasantryVikingGrowth_T1, BuildingType::NobilityVikingEstate_T1,
-             BuildingType::VikingCarpentry_T1, BuildingType::VikingArtisan_T1, BuildingType:: VikingForge_T2, BuildingType::VikingJeweller_T3};
+                results = {BuildingType::VikingWareHouse_T3,BuildingType::VikingMint_T1, BuildingType::VikingTavern_T1, BuildingType::SlaveMarket_T1, BuildingType::PeasantryVikingGrowth_T1, BuildingType::NobilityVikingEstate_T1};
             else if (faction == FactionZone::Samurai)
-                results = {BuildingType::SamuraiWareHouse_T3, BuildingType::SamuraiMint_T1, BuildingType::SamuraiTavern_T1, BuildingType::Market_T1, BuildingType::PeasantrySamuraiGrowth_T1, BuildingType::NobilitySamuraiEstate_T1,
-            BuildingType::SamuraiCarpentry_T1, BuildingType::SamuraiArtisan_T1, BuildingType:: SamuraiForge_T2, BuildingType::SamuraiJeweller_T3};
+                results = {BuildingType::SamuraiWareHouse_T3, BuildingType::SamuraiMint_T1, BuildingType::SamuraiTavern_T1, BuildingType::Market_T1, BuildingType::PeasantrySamuraiGrowth_T1, BuildingType::NobilitySamuraiEstate_T1};
             break;
 
+        case BuildingCategory::Industry:
+        if (faction == FactionZone::Knight)
+              results = {BuildingType::KnightCarpentry_T1, BuildingType::KnightArtisan_T1, BuildingType:: KnightForge_T2, BuildingType::KnightJeweller_T3};
+        else if (faction == FactionZone::Viking)
+              results = {BuildingType::VikingCarpentry_T1, BuildingType::VikingArtisan_T1, BuildingType:: VikingForge_T2, BuildingType::VikingJeweller_T3};
+        else if (faction == FactionZone::Samurai)
+              results = { BuildingType::SamuraiCarpentry_T1, BuildingType::SamuraiArtisan_T1, BuildingType:: SamuraiForge_T2, BuildingType::SamuraiJeweller_T3};
+            break;
         case BuildingCategory::Religion:
             if (faction == FactionZone::Knight)
                 results = {BuildingType::KnightAlmsHouse_T1, BuildingType::KnightBeeKeeper_T1, BuildingType::KnightChurch_T3};

@@ -32,6 +32,8 @@ add_executable(TotalBattle2D main.cpp
         Date.h
         WorldEvents.cpp
         WorldEvents.h
+        Resources.cpp
+        Resources.h
 )
 
 target_include_directories(TotalBattle2D PRIVATE "${MIXER_PATH}/include")

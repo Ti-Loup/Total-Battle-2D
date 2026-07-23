@@ -45,7 +45,8 @@
  * Currently -> pannel buttons popup ui element for each .exemple -> Add some win Achievements
  * Done -> Make the Income based on Farm,Commerce,Industry,Religion and not just all income instantly.
  *
- * * If Time -> work on the ai to build buildings strategicly based on what they're missing.
+ * Update Season to work with money
+ * If Time -> work on the ai to build buildings strategicly based on what they're missing.
  *
  * Fixed | issue with vikings religious buildings crashing the game
  * Fixed | camera never stop when touch edge
@@ -60,9 +61,13 @@
  * 0.3.0
  * RESSOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
  *
- * fishing ports gives food and produce fish !
- * 1 MINE, Forged Steel Production, FISH, medicine plants, Candle
- * 3 THE RESSOURCES ARE STORED IN (warehouse ?)
+ *  ~ Production Mecanique ~
+ *  fishing ports gives food and produce fish !
+ *  MINEs -> produced their own orb
+ *      If you have the raw material you can then construct industrial buildings from this material.(gold mine -> jewlery)
+ *  Forged Steel Production, FISH, medicine plants, Candle
+
+ * THE RESSOURCES ARE STORED IN (warehouse or castle)
  *
  * Some industrial buildings can only be buy if you have the raw material
  * Settlement next to the name shows a texture of mine to show its a mine + fish for a fish port and boat for military ...
@@ -4035,18 +4040,19 @@ private://constructor
         // ~ Buildings Categories ~
         //military, Adv military, Defence, Economy, Religion,
         if (hoveredAvailableSlot >=0) {
-            //const char* categoryNames[] = {"Mil", "Adv", "Def", "Eco", "Rel"};
+            //const char* categoryNames[] = {"Mil", "Adv", "Def", "Eco","Industry", "Rel"};
             SDL_Color categoryColors[] = {
                 {255, 26,  26,  255},
                 {93, 23,  255,  255},
                 {255,  255,  23, 255},
                 {0, 131, 57,  255},
+                {130, 130, 130, 255},
                 {152, 0,  198, 255},
             };
             float buttonW = 65.f;
             float buttonH = 65.f;
             float buttonGap = 4.f;
-            float totalButtonW = 5 * buttonW + 4 * buttonGap;
+            float totalButtonW = 6 * buttonW + 5 * buttonGap;
             float buttonStartX = hoveredAvailableSlotRect.x + (hoveredAvailableSlotRect.w - totalButtonW) / 2.f;
             float buttonY = hoveredAvailableSlotRect.y - buttonH - 6.f;
 
@@ -4057,7 +4063,7 @@ private://constructor
             bool mouseOnEvolutionPopup = categoryEvolutionPopupRect.w > 0 && SDL_PointInRectFloat(&mousePt, &expandedEvolCheck);
 
             if (!hoveredBuildingSlotUpgradable) {
-                for (int k = 0; k < 5; k++) {
+                for (int k = 0; k < 6; k++) {
                     SDL_FRect buttonsRect = {buttonStartX + k * (buttonW + buttonGap), buttonY, buttonW, buttonH};
                     //font de la couleur
                     SDL_SetRenderDrawColor(renderer, categoryColors[k].r, categoryColors[k].g, categoryColors[k].b, 200);
@@ -4071,21 +4077,24 @@ private://constructor
                         else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitaryKnight, nullptr, &buttonsRect);
                         else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceKnight, nullptr, &buttonsRect);
                         else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomyKnight, nullptr, &buttonsRect);
-                        else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionKnight, nullptr, &buttonsRect);
+                        else if (k == 4) SDL_RenderTexture(renderer, nullptr, nullptr, &buttonsRect);
+                        else if (k == 5) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionKnight, nullptr, &buttonsRect);
                     }
                     else if (province.owner == FactionZone::Viking) {
                         if (k == 0) SDL_RenderTexture(renderer, gameBuildingTypesGroupingMilitaryViking, nullptr, &buttonsRect);
                         else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitaryViking, nullptr, &buttonsRect);
                         else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceViking, nullptr, &buttonsRect);
                         else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomyViking, nullptr, &buttonsRect);
-                        else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionViking, nullptr, &buttonsRect);
+                        else if (k == 4) SDL_RenderTexture(renderer, nullptr, nullptr, &buttonsRect);
+                        else if (k == 5) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionViking, nullptr, &buttonsRect);
                     }
                     else if (province.owner == FactionZone::Samurai) {
                         if (k == 0) SDL_RenderTexture(renderer, gameBuildingTypesGroupingMilitarySamurai, nullptr, &buttonsRect);
                         else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitarySamurai, nullptr, &buttonsRect);
                         else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceSamurai, nullptr, &buttonsRect);
                         else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomySamurai, nullptr, &buttonsRect);
-                        else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionSamurai, nullptr, &buttonsRect);
+                        else if (k == 4) SDL_RenderTexture(renderer, nullptr, nullptr, &buttonsRect);
+                        else if (k == 5) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionSamurai, nullptr, &buttonsRect);
                     }
 
                     // //TTF_SetTextString(gameStatUIText, categoryNames[k], 0);
@@ -4097,7 +4106,7 @@ private://constructor
             }
             if (!mouseOnEvolutionPopup && !hoveredBuildingSlotUpgradable) {
                 hoveredBuildingCategoryIndex = -1;
-                for (int k = 0; k < 5; k++) {
+                for (int k = 0; k < 6; k++) {
                     SDL_FRect buttonsRect = {buttonStartX + k * (buttonW + buttonGap), buttonY, buttonW, buttonH};
                     if (SDL_PointInRectFloat(&mousePt, &buttonsRect)) {
                         hoveredBuildingCategoryIndex = k;
@@ -4105,8 +4114,8 @@ private://constructor
                 }
             }
             // INDICATOR ON TOP OF THE BUILDING CATEGORIES
-            if (hoveredBuildingCategoryIndex >= 0 && hoveredBuildingCategoryIndex < 5 && !mouseOnEvolutionPopup && !hoveredBuildingSlotUpgradable) {
-                const char* categoryNames[] = {"Military", "Adv. Military", "Defence", "Economy", "Religion"};
+            if (hoveredBuildingCategoryIndex >= 0 && hoveredBuildingCategoryIndex < 6 && !mouseOnEvolutionPopup && !hoveredBuildingSlotUpgradable) {
+                const char* categoryNames[] = {"Military", "Adv. Military", "Defence", "Economy", "Industry","Religion"};
 
                 int tw = 0, th = 0;
                 TTF_GetTextSize(gameBuildingCategoriesNameText, &tw, &th);
@@ -4127,8 +4136,8 @@ private://constructor
 
 
             //to stock their rectangles
-            categoryButtonsRects.resize(5);
-            for (int k = 0; k < 5; k++) {
+            categoryButtonsRects.resize(6);
+            for (int k = 0; k < 6; k++) {
                 categoryButtonsRects[k] = {buttonStartX + k * (buttonW + buttonGap), buttonY, buttonW, buttonH};
             }
         }
@@ -6004,6 +6013,7 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         if (events_data->publicOrderModifier != 0) count++;
         if (events_data->foodProductionMultiplier != 1.0f) count++;
         if (events_data->foodFlatBonus != 0) count++;
+        if (events_data->resourceFishingProductionMultiplier != 1.0f) count++;
         if (events_data->goldIncomeMultiplier != 1.0f) count++;
         if (events_data->goldFlatBonus != 0) count++;
         if (events_data->populationGrowthMultiplier != 1.0f) count++;
@@ -6065,6 +6075,12 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
         std::string v = (pos ? "+" : "") + std::to_string(data->foodFlatBonus);
         drawRow(gameFoodIconUi, "Food Bonus", v, pos);
     }
+    if (data->resourceFishingProductionMultiplier != 0) {
+        int pct = (int)std::round((data->resourceFishingProductionMultiplier - 1.0f) * 100.f);
+        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
+        drawRow(nullptr, "Fish Production", v, pct >= 0);
+    }
+
     if (data->goldIncomeMultiplier != 1.0f) {
         int pct = (int)std::round((data->goldIncomeMultiplier - 1.0f) * 100.f);
         std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
