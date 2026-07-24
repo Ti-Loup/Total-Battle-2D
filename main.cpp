@@ -427,8 +427,9 @@ public:
     //Positive and negative UI Icon to put on top of diffrent Icons
     SDL_Texture *gamePositiveUiIcon = nullptr;
     SDL_Texture *gameNegativeUiIcon = nullptr;
-    //Texture Storage
-    SDL_Texture *gameStorageUiIcon = nullptr;
+    //Texture Storages
+    SDL_Texture *gameFoodStorageUiIcon = nullptr;
+    SDL_Texture *gameGoodsStorageUiIcon = nullptr;
     //Textures for the 4 seasons Icons
     SDL_Texture *gameSeasonWinterIconUiTexture = nullptr;
     SDL_Texture *gameSeasonSpringIconUiTexture = nullptr;
@@ -1153,12 +1154,17 @@ private://constructor
         }
         SDL_SetTextureScaleMode(gameNegativeUiIcon, SDL_SCALEMODE_NEAREST);
         //Texture Food Storage Ui
-        gameStorageUiIcon = IMG_LoadTexture(renderer, "assets/StorageUiLogo.png");
-        if (gameStorageUiIcon == nullptr) {
+        gameFoodStorageUiIcon = IMG_LoadTexture(renderer, "assets/FoodStorageUiLogo.png");
+        if (gameFoodStorageUiIcon == nullptr) {
             SDL_LogWarn(0, "failed to load texture gameStorageUiIcon", SDL_GetError());
         }
-        SDL_SetTextureScaleMode(gameStorageUiIcon, SDL_SCALEMODE_NEAREST);
-
+        SDL_SetTextureScaleMode(gameFoodStorageUiIcon, SDL_SCALEMODE_NEAREST);
+        //Texture Goods Storage Ui
+        gameGoodsStorageUiIcon = IMG_LoadTexture(renderer, "assets/GoodsStorageUiLogo.png");
+        if (gameGoodsStorageUiIcon == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameGoodsStorageUiIcon", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameGoodsStorageUiIcon, SDL_SCALEMODE_NEAREST);
         //Texture construction Hammer
         hammerUIBuildingUpgradeTexture = IMG_LoadTexture(renderer, "assets/UIHammer.png");
         if (hammerUIBuildingUpgradeTexture == nullptr) {
@@ -3161,7 +3167,8 @@ private://constructor
         SDL_DestroyTexture(gamePositiveUiIcon);
         SDL_DestroyTexture(gameNegativeUiIcon);
         SDL_DestroyTexture(gamePopulationGrowth);
-        SDL_DestroyTexture(gameStorageUiIcon);
+        SDL_DestroyTexture(gameFoodStorageUiIcon);
+        SDL_DestroyTexture(gameGoodsStorageUiIcon);
         SDL_DestroyTexture(gameSeasonWinterIconUiTexture);
         SDL_DestroyTexture(gameSeasonSummerIconUiTexture);
         SDL_DestroyTexture(gameSeasonSpringIconUiTexture);
@@ -5430,7 +5437,7 @@ private://constructor
         TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, tooltipY + 40.f);
         //Texture Food Stored
         SDL_FRect foodStoredRect = {tooltipX + 210.f, tooltipY + 38.f, 25.f, 25.f};
-        SDL_RenderTexture(renderer, gameStorageUiIcon, nullptr, &foodStoredRect);
+        SDL_RenderTexture(renderer, gameFoodStorageUiIcon, nullptr, &foodStoredRect);
         //surplus
         int foodSurplus = 0;
         switch (filledSegs) {
@@ -6371,10 +6378,10 @@ void RenderBuildingStatRows(const BuildingData* data, BuildingType type, float t
         drawRow(gameFoodIconUi, "Food Upkeep:", "-" + std::to_string(data->foodUpkeep), {220, 60, 60, 255});
 
     if (data->foodStorage != 0)
-        drawRow(gameStorageUiIcon, "Food Storage:", "+" + std::to_string(data->foodStorage), {180, 230, 100, 255});
+        drawRow(gameFoodStorageUiIcon, "Food Storage:", "+" + std::to_string(data->foodStorage), {180, 230, 100, 255});
 
     if (data->resourcesStorage != 0)
-        drawRow(gameStorageUiIcon, "Goods Storage:", "+" + std::to_string(data->resourcesStorage), {180, 230, 100, 255});
+        drawRow(gameGoodsStorageUiIcon, "Goods Storage:", "+" + std::to_string(data->resourcesStorage), {180, 230, 100, 255});
 
     if (data->peasantryBornBonus != 0)
         drawRow(gamePeasantryIconUi, "Peasantry Growth:", "+" + std::to_string(data->peasantryBornBonus), {180, 230, 100, 255});
