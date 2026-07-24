@@ -617,6 +617,11 @@ public:
     float seasonTooltipX = 0.0f;
     float seasonTooltipY = 0.0f;
 
+    //Goods Stored hovered New Ui
+    bool bMouseOnGoodsStorageIcon = false;
+    float goodsStorageTooltipX = 0.0f;
+    float goodsStorageTooltipY = 0.0f;
+
     //Population Mouse Hovered UI
     bool bMouseOnPopulationIcon = false;
     float populationTooltipX = 0.0f;
@@ -4832,7 +4837,7 @@ private://constructor
 
         //GOODS STORAGE SECTION
         player.goodsStorage = 0;
-        int goodsProducedThisTurn = 0;
+        goodsProducedThisTurn = 0;
         for (const auto &s : settlements) {
             if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
             for (BuildingType bt : s.settlementData.buildings) {
@@ -4846,13 +4851,29 @@ private://constructor
             }
         }
 
+
         //GOODS Indication UI TOP
         //Icone
         SDL_FRect wareHouseAmountIndicator = {contentRect.x + 465.f, contentRect.y, 30.f,30.f};
         SDL_RenderTexture(renderer,gameGoodsStorageUiIcon, nullptr, &wareHouseAmountIndicator);
         //current and max storage amount next to texture
         std::string currentMaxGoodsStorageStr = std::to_string(player.currentGoods) + "/" + std::to_string(player.goodsStorage);
-        
+        TTF_SetTextString(gameGoodsStorageUiTitleText, currentMaxGoodsStorageStr.c_str(), 0);
+        TTF_SetTextColor(gameGoodsStorageUiTitleText, 255,255,255,255);
+        TTF_DrawRendererText(gameGoodsStorageUiTitleText, contentRect.x + 500.f, contentRect.y + 3.f);
+
+        //Hovered Goods Indicator
+        SDL_FRect goodsStorageHoveredZone = {contentRect.x + 465.f, contentRect.y, 90.f, 25.f};
+        float mouseXGoodsStorage;
+        float mouseYGoodsStorage;
+        SDL_GetMouseState(&mouseXGoodsStorage, &mouseYGoodsStorage);
+        float lenghtXGoodsStorage;
+        float lenghtYGoodsStorage;
+        SDL_RenderCoordinatesFromWindow(renderer, mouseXGoodsStorage, mouseYGoodsStorage, &lenghtXGoodsStorage, &lenghtYGoodsStorage);
+        SDL_FPoint mousePointGoodsStorage = {lenghtXGoodsStorage, lenghtYGoodsStorage};
+        bMouseOnGoodsStorageIcon = SDL_PointInRectFloat(&mousePointGoodsStorage, &goodsStorageHoveredZone);
+        goodsStorageTooltipX = lenghtXGoodsStorage;
+        goodsStorageTooltipY = lenghtYGoodsStorage;
 
 
         //TIME PERIOD SECTION
@@ -6073,6 +6094,25 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         }
     }
 
+    //Tooptip for the goods storage
+    void RenderGoodsStorageTooltip() {
+        if (!bMouseOnGoodsStorageIcon) return;
+
+        float tooltipW = 260.f;
+        float tooltipH = 260.f;
+        float tooltipX = goodsStorageTooltipX + 30.f;
+        float tooltipY = goodsStorageTooltipY - tooltipH + 290.f;
+
+        if (tooltipX + tooltipW > 1910.f) tooltipX = goodsStorageTooltipX - tooltipW - 12.f;
+        if (tooltipY < 5.f) tooltipY = 5.f;
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        // Background
+        SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+        SDL_FRect background = {tooltipX, tooltipY, tooltipW, tooltipH};
+        SDL_RenderFillRect(renderer, &background);
+    }
+
+
     /**
      *UI for each Ui Buttons that spawn when pressed on button
      *
@@ -6783,6 +6823,7 @@ void RenderCategoryBuildingInfoUI() {
         RenderFoodTooltip();
         RenderPopulationTooltip();
         RenderSeasonTooltip();
+        RenderGoodsStorageTooltip();
         RenderBuildingInfoUI();
         RenderCategoryBuildingInfoUI();
         RenderWorldEventInfoPopup();
