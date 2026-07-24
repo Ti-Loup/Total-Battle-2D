@@ -252,6 +252,10 @@ public:
     TTF_Font *gameSeasonUiSmallFont = nullptr;
     TTF_Text *gameSeasonUiTitleText = nullptr;
     TTF_Text *gameSeasonUiSmallText = nullptr;
+    TTF_Font *gameGoodsStorageUiTitleFont = nullptr;
+    TTF_Font *gameGoodsStorageUiDescFont = nullptr;
+    TTF_Text *gameGoodsStorageUiTitleText = nullptr;
+    TTF_Text *gameGoodsStorageUiDescText = nullptr;
     //Buttons UI
     bool bButtonUIBuildingIsPressed = true;
     bool bButtonUIGarrisonIsPressed = false;
@@ -905,6 +909,8 @@ private://constructor
         gameSeasonUiSmallFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         gameWorldEventsTitleFont = TTF_OpenFont("assets/Rubik.ttf", 25);
         gameWorldEventsDescFont = TTF_OpenFont("assets/Rubik.ttf", 15);
+        gameGoodsStorageUiTitleFont = TTF_OpenFont("assets/Rubik.ttf", 19);
+        gameGoodsStorageUiDescFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         //same font has AnticipatedMoneyUiText
         gameCurrentFoodUiText = TTF_CreateText(textEngine, gameCurrentFoodUiFont, "", 25);
         if (gameCurrentFoodUiText == nullptr) {
@@ -966,7 +972,15 @@ private://constructor
         if (gameWorldEventsDescText == nullptr) {
             SDL_LogWarn(0, "failed to load text gameWorldEventsDescText", SDL_GetError());
         }
-
+        //Goods Storage Text
+        gameGoodsStorageUiTitleText = TTF_CreateText(textEngine, gameGoodsStorageUiTitleFont, "", 25);
+        if (gameGoodsStorageUiTitleText == nullptr) {
+            SDL_LogWarn(0, "failed to load text gameGoodsStorageUiTitleText", SDL_GetError());
+        }
+        gameGoodsStorageUiDescText = TTF_CreateText(textEngine, gameGoodsStorageUiDescFont, "", 25);
+        if (gameGoodsStorageUiDescText == nullptr) {
+            SDL_LogWarn(0, "failed to load text game GoodsStorageUiDescText", SDL_GetError);
+        }
 
         //CREATION OF THE SETTLEMENTS
         //KNIGHT
