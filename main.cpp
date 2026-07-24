@@ -4816,14 +4816,6 @@ private://constructor
                 (int)(arrowCX + halfW), (int)(tipY + dy));
         }
 
-        //GOODS Indication UI TOP
-        //Icone
-        SDL_FRect wareHouseAmountIndicator = {contentRect.x + 475.f, contentRect.y, 30.f,30.f};
-        SDL_SetRenderDrawColor(renderer, 230,124,121,255);
-        SDL_RenderFillRect(renderer, &wareHouseAmountIndicator);
-
-
-
         //GOODS STORAGE SECTION
         player.goodsStorage = 0;
         int goodsProducedThisTurn = 0;
@@ -4839,6 +4831,15 @@ private://constructor
                 }
             }
         }
+
+        //GOODS Indication UI TOP
+        //Icone
+        SDL_FRect wareHouseAmountIndicator = {contentRect.x + 465.f, contentRect.y, 30.f,30.f};
+        SDL_RenderTexture(renderer,gameGoodsStorageUiIcon, nullptr, &wareHouseAmountIndicator);
+        //current and max storage amount next to texture
+        std::string currentMaxGoodsStorageStr = std::to_string(player.currentGoods) + "/" + std::to_string(player.goodsStorage);
+        
+
 
         //TIME PERIOD SECTION
         //far Rect to display the time period
