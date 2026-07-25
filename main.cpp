@@ -4751,9 +4751,9 @@ private://constructor
         SDL_RenderTexture(renderer, gameFoodIconUi, nullptr, &foodIconUIRect);
         //food amount
         std::string foodAmountStr = std::to_string(player.currentFood);
-        TTF_SetTextString(gameCurrentFoodUiText, foodAmountStr.c_str(), 0);
-        TTF_SetTextColor(gameCurrentFoodUiText, 255,255,255,255);
-        TTF_DrawRendererText(gameCurrentFoodUiText, contentRect.x + 256.f, contentRect.y + 4.f);
+        TTF_SetTextString(gameFoodIndicatorUiText, foodAmountStr.c_str(), 0);
+        TTF_SetTextColor(gameFoodIndicatorUiText, 255,255,255,255);
+        TTF_DrawRendererText(gameFoodIndicatorUiText, contentRect.x + 256.f, contentRect.y + 4.f);
 
         //hovered food Zone
         SDL_FRect foodHoveredZone = {contentRect.x + 235.f, borderRect.y, 40.f, 40.f};
