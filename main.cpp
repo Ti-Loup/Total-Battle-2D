@@ -288,7 +288,6 @@ public:
     Circle CameraResetPannel = {1895.f, 18.f, 15};
     SDL_Texture *cameraResetPannelTexture = nullptr;
 
-
     //Circles to return to game - - - - -
     Circle DecreesButtonReturnGame = {1000.f, 900.f, 25};
     Circle WinConditionButtonReturnGame = {1000.f, 900.f, 25};
@@ -300,6 +299,9 @@ public:
 
     //Circle to bring World events info popup to false again
     Circle WorlEventsButtonReturnGame = {1000.f, 770.f, 20};
+
+    //Circle for goods Production manager
+    Circle GoodsProductionMaganerButton = {1182.f, 20.f, 12};
 
     //End Turn
     int currentTurn = 1;
@@ -4881,7 +4883,9 @@ private://constructor
         goodsStorageTooltipX = lenghtXGoodsStorage;
         goodsStorageTooltipY = lenghtYGoodsStorage;
 
+        //Goods Production manager Button
 
+        RenderBoutonCercle(GoodsProductionMaganerButton, nullptr, nullptr, 139, 69, 19);
         //TIME PERIOD SECTION
         //far Rect to display the time period
         SDL_FRect dateBorderRect = {1775.f, 960.f, 145, 80};
