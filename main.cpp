@@ -311,6 +311,10 @@ public:
     int filledSegs;
     //GoodsProduced each turn
     int goodsProducedThisTurn = 0;
+    //Per-resourcetype
+    //maps pick it up automatically
+    std::unordered_map<ResourceType, int> goodsProducedThisTurnByType;
+    std::unordered_map<ResourceType, int> goodsStoredByType;
 
     //Texture coin + Turn time
     SDL_Texture *gameCoinMoneyTexture = nullptr;
@@ -4838,6 +4842,7 @@ private://constructor
         //GOODS STORAGE SECTION
         player.goodsStorage = 0;
         goodsProducedThisTurn = 0;
+        goodsProducedThisTurnByType.clear();
         for (const auto &s : settlements) {
             if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
             for (BuildingType bt : s.settlementData.buildings) {
@@ -4847,6 +4852,7 @@ private://constructor
                 player.goodsStorage += bd->resourcesStorage;
                 for (const auto& res : bd->resourcesProduced) {
                     goodsProducedThisTurn += res.amount; // Fish now
+                    goodsProducedThisTurnByType[res.type] += res.amount; // per-type goods tooltip
                 }
             }
         }
@@ -6094,23 +6100,98 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         }
     }
 
-    //Tooptip for the goods storage
-    void RenderGoodsStorageTooltip() {
-        if (!bMouseOnGoodsStorageIcon) return;
 
-        float tooltipW = 260.f;
-        float tooltipH = 260.f;
-        float tooltipX = goodsStorageTooltipX + 30.f;
-        float tooltipY = goodsStorageTooltipY - tooltipH + 290.f;
-
-        if (tooltipX + tooltipW > 1910.f) tooltipX = goodsStorageTooltipX - tooltipW - 12.f;
-        if (tooltipY < 5.f) tooltipY = 5.f;
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        // Background
-        SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
-        SDL_FRect background = {tooltipX, tooltipY, tooltipW, tooltipH};
-        SDL_RenderFillRect(renderer, &background);
+    //Texture for a resource type. expendable
+    SDL_Texture* GetResourceTypeIcon(ResourceType type) {
+        switch (type) {
+            case ResourceType::Fish: return gameResourceFishIconTexture;
+            default: return nullptr;
+        }
     }
+    //Display name for a resource type
+    const char* GetResourceTypeName(ResourceType type) {
+        switch (type) {
+            case ResourceType::Fish: return "Fish";
+            default: return "Goods";
+        }
+    }
+    //Tooptip for the goods storage
+   void RenderGoodsStorageTooltip() {
+    if (!bMouseOnGoodsStorageIcon) return;
+
+    // Stable ordering so rows don't jump around frame to frame
+    std::vector<std::pair<ResourceType,int>> sortedGoods(goodsStoredByType.begin(), goodsStoredByType.end());
+    std::sort(sortedGoods.begin(), sortedGoods.end(),
+        [](const auto& a, const auto& b) { return (int)a.first < (int)b.first; });
+
+    const float rowH   = 26.f;
+    const float titleH = 28.f;
+    const float padTop = 10.f;
+    const float padBot = 10.f;
+
+    int rowCount = sortedGoods.empty() ? 1 : (int)sortedGoods.size();
+    float tooltipW = 220.f;
+    float tooltipH = titleH + padTop + rowCount * rowH + padBot;
+
+    float tooltipX = goodsStorageTooltipX + 30.f;
+    float tooltipY = goodsStorageTooltipY - tooltipH + 100.f;
+    if (tooltipX + tooltipW > 1910.f) tooltipX = goodsStorageTooltipX - tooltipW - 12.f;
+    if (tooltipY < 5.f) tooltipY = 5.f;
+
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+    // Background
+    SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+    SDL_FRect background = {tooltipX, tooltipY, tooltipW, tooltipH};
+    SDL_RenderFillRect(renderer, &background);
+
+    // Title bar
+    SDL_SetRenderDrawColor(renderer, 25, 65, 55, 255);
+    SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, titleH};
+    SDL_RenderFillRect(renderer, &titleBar);
+
+    SDL_SetRenderDrawColor(renderer, 90, 170, 140, 255);
+    SDL_RenderRect(renderer, &background);
+
+    // Title
+    TTF_SetTextString(gameGoodsStorageUiTitleText, "Goods Stored", 0);
+    TTF_SetTextColor(gameGoodsStorageUiTitleText, 255, 255, 255, 255);
+    int titleW, titleH2;
+    TTF_GetTextSize(gameGoodsStorageUiTitleText, &titleW, &titleH2);
+    TTF_DrawRendererText(gameGoodsStorageUiTitleText,
+        tooltipX + (tooltipW - titleW) / 2.f, tooltipY + (titleH - titleH2) / 2.f);
+
+    float lineY     = tooltipY + titleH + padTop / 2.f;
+    float rightEdge = tooltipX + tooltipW - 10.f;
+    const float iconSize = 18.f;
+
+    if (sortedGoods.empty()) {
+        TTF_SetTextString(gameGoodsStorageUiDescText, "No goods stored yet.", 0);
+        TTF_SetTextColor(gameGoodsStorageUiDescText, 180, 180, 180, 255);
+        TTF_DrawRendererText(gameGoodsStorageUiDescText, tooltipX + 10.f, lineY);
+    } else {
+        for (auto& [type, amount] : sortedGoods) {
+            SDL_Texture* icon = GetResourceTypeIcon(type);
+            if (icon) {
+                SDL_FRect iconRect = {tooltipX + 8.f, lineY, iconSize, iconSize};
+                SDL_RenderTexture(renderer, icon, nullptr, &iconRect);
+            }
+
+            TTF_SetTextString(gameGoodsStorageUiDescText, GetResourceTypeName(type), 0);
+            TTF_SetTextColor(gameGoodsStorageUiDescText, 200, 200, 200, 255);
+            TTF_DrawRendererText(gameGoodsStorageUiDescText, tooltipX + iconSize + 14.f, lineY);
+
+            std::string amountStr = std::to_string(amount);
+            TTF_SetTextString(gameGoodsStorageUiDescText, amountStr.c_str(), 0);
+            TTF_SetTextColor(gameGoodsStorageUiDescText, 180, 230, 100, 255);
+            int aw, ah;
+            TTF_GetTextSize(gameGoodsStorageUiDescText, &aw, &ah);
+            TTF_DrawRendererText(gameGoodsStorageUiDescText, rightEdge - aw, lineY);
+
+            lineY += rowH;
+        }
+    }
+}
 
 
     /**
@@ -7188,9 +7269,18 @@ public:
             player.foodStored = std::min(player.foodStored+9, player.foodStorage);
         }
 
-        //GOODS STORAGE
-        player.currentGoods = std::min(player.currentGoods + goodsProducedThisTurn, player.goodsStorage);
+        //GOODS STORAGE (per-type, expandable with more goods type)
+        int totalGoodsStored = 0;
+        for (auto& [type, amount] : goodsStoredByType) totalGoodsStored += amount;
 
+        for (auto& [type, producedAmount] : goodsProducedThisTurnByType) {
+            int spaceLeft = player.goodsStorage - totalGoodsStored;
+            if (spaceLeft <= 0) break; // warehouse full can't get more
+            int toAdd = std::min(producedAmount, spaceLeft);
+            goodsStoredByType[type] += toAdd;
+            totalGoodsStored += toAdd;
+        }
+        player.currentGoods = totalGoodsStored;
 
         //POPULATION
         //population increase each turn based on base random bonus + building bonus
