@@ -60,6 +60,7 @@
  * Fixed | When building Tier Max, should stop showing the upgradable popup
  * Fixed | Both branches assign 120. So regardless of unlocked/built/locked status, every non-hovered tile renders at the same dim alpha.
  * Fixed | settlementTier only tells the maximum tier the settlement allows you to build
+ * Fixed | Income Tooltip Wrong TTF Size compare to others Tooltips
  * --------------------------------------------
  * 0.3.0
  * RESSOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
@@ -234,6 +235,7 @@ public:
     TTF_Text *gameKingdomVikingNameText = nullptr;
     TTF_Text *gameKingdomSamuraiNameText = nullptr;
     TTF_Font *gameGeneralFont = nullptr;
+    TTF_Font *gameCurrentMoneyUiFont = nullptr;
     TTF_Text *gameCurrentMoneyUiText = nullptr;
     TTF_Text *gameAnticipatedMoneyUiText = nullptr;
     TTF_Font *gameCurrentFoodUiFont = nullptr;
@@ -910,7 +912,8 @@ private://constructor
             SDL_LogWarn(0,"failed to create the text gameStatUIText",SDL_GetError());
         }
         gameGeneralFont = TTF_OpenFont("assets/Rubik.ttf", 20);
-        gameCurrentMoneyUiText = TTF_CreateText(textEngine, gameGeneralFont, "0", 25);
+        gameCurrentMoneyUiFont = TTF_OpenFont("assets/Rubik.ttf", 19);
+        gameCurrentMoneyUiText = TTF_CreateText(textEngine, gameCurrentMoneyUiFont, "0", 25);
         if (gameCurrentMoneyUiText == nullptr) {
             SDL_LogWarn(0, "failed to create the text gameCurrentMoneyUiText",SDL_GetError());
         }
@@ -920,7 +923,7 @@ private://constructor
         }
         gameCurrentFoodUiFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         gameFoodIndicatorUiFont = TTF_OpenFont ("assets/Rubik.ttf", 19);
-        gameMoneyIndicatorUiFont = TTF_OpenFont("assets/Rubik.ttf", 19);
+        gameMoneyIndicatorUiFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         gamePopulationIndicatorUiFont = TTF_OpenFont("assets/Rubik.ttf", 19);
         gameCurrentPopulationUiFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         gameSeasonUiTitleFont = TTF_OpenFont("assets/Rubik.ttf", 19);
@@ -3057,6 +3060,7 @@ private://constructor
         TTF_CloseFont(gameBuildingDescriptionFont);
         TTF_CloseFont(gameBuildingCategoriesNameFont);
         TTF_CloseFont(gameCurrentFoodUiFont);
+        TTF_CloseFont(gameCurrentMoneyUiFont);
         TTF_CloseFont(gameMoneyIndicatorUiFont);
         TTF_CloseFont(gameFoodIndicatorUiFont);
         TTF_CloseFont(gamePopulationIndicatorUiFont);
@@ -5267,7 +5271,8 @@ private://constructor
     if (!bMouseOnMoneyIcon) return;
 
         int taxIncome = 0;
-        int farmIncome = 0;
+        int farmIncomeBased = 0; //The base income from buildings
+        int farmIncomeModified = 0; // Modified income from buildings (caused -> Seasons.)
         int commerceIncome = 0;
         int industryIncome = 0;
         int religiousIncome = 0;
@@ -5287,7 +5292,10 @@ private://constructor
 
             if (provinces[s.settlementData.provinceID].bToggleCollectIncome) {
                 switch (GetTaxCategory(s.settlementData.buildings[0])) {
-                    case TaxCategory::Farm: farmIncome += (int)std::round(s.settlementData.baseIncome * coinTooltipSeasonModifier.incomeFarmMultiplier); break; //with season multiplier
+                    case TaxCategory::Farm:
+                        farmIncomeBased += s.settlementData.baseIncome;
+                        farmIncomeModified += (int)std::round(s.settlementData.baseIncome * coinTooltipSeasonModifier.incomeFarmMultiplier);
+                        break;//with season multiplier
                     case TaxCategory::Commerce: commerceIncome += s.settlementData.baseIncome; break;
                     case TaxCategory::Industry: industryIncome += s.settlementData.baseIncome; break;
                     case TaxCategory::Religious: religiousIncome += s.settlementData.baseIncome; break;
@@ -5302,7 +5310,10 @@ private://constructor
                     buildingMaintenance += building_data->upkeep;
 
                     switch (GetTaxCategory(bt)) {
-                        case TaxCategory::Farm:  farmIncome += (int)std::round(building_data->incomeBonus * coinTooltipSeasonModifier.incomeFarmMultiplier); break;
+                        case TaxCategory::Farm:
+                            farmIncomeBased += building_data->incomeBonus;
+                            farmIncomeModified += (int)std::round(building_data->incomeBonus * coinTooltipSeasonModifier.incomeFarmMultiplier);
+                            break;
                         case TaxCategory::Commerce: commerceIncome += building_data->incomeBonus; break;
                         case TaxCategory::Industry: industryIncome += building_data->incomeBonus; break;
                         case TaxCategory::Religious: religiousIncome += building_data->incomeBonus; break;
@@ -5312,8 +5323,8 @@ private://constructor
                 }
             }
         }
-
-        int totalIncome  = taxIncome + farmIncome + commerceIncome + industryIncome + religiousIncome + maritimeIncome;
+        int farmSeasonBonus = farmIncomeModified - farmIncomeBased;//the bonus only
+        int totalIncome  = taxIncome + farmIncomeModified + commerceIncome + industryIncome + religiousIncome + maritimeIncome;
         int totalExpense = mainUpkeep + buildingMaintenance;
         int goldNextTurn = totalIncome - totalExpense;
 
@@ -5326,8 +5337,9 @@ private://constructor
 
     //The Row shows if its not 0 and has a value
     int incomeRows = 0;
-    if (taxIncome != 0)       incomeRows++;
-    if (farmIncome != 0)      incomeRows++;
+    if (taxIncome != 0) incomeRows++;
+    if (farmIncomeBased != 0) incomeRows++;
+    if (farmIncomeModified != 0) incomeRows++;
     if (commerceIncome != 0)  incomeRows++;
     if (industryIncome != 0)  incomeRows++;
     if (religiousIncome != 0) incomeRows++;
@@ -5374,8 +5386,7 @@ private://constructor
     TTF_SetTextColor(gameCurrentMoneyUiText, 255, 255, 255, 255);
     int textW, textH;
     TTF_GetTextSize(gameCurrentMoneyUiText, &textW, &textH);
-    TTF_DrawRendererText(gameCurrentMoneyUiText,tooltipX + 100.f, tooltipY + 3.f);
-
+    TTF_DrawRendererText(gameCurrentMoneyUiText,tooltipX + (tooltipW - textW) / 2.f, tooltipY + (titleH - textH) / 2.f);
     float lineY  = tooltipY + titleH + padTop;
     float labelX = tooltipX + 10.f;
     float rightX = tooltipX + tooltipW - 10.f;
@@ -5388,18 +5399,12 @@ private://constructor
         TTF_SetTextColor(gameMoneyIndicatorUiText, 175, 170, 150, 255);
         TTF_DrawRendererText(gameMoneyIndicatorUiText, labelX, lineY);
 
-        std::string operatorString = "";
-        if (isExpense) {
-            operatorString = "-" + std::to_string(std::abs(value));
-        } else {
-            operatorString = "+" + std::to_string(value);
-        }
+        std::string operatorString = (value >= 0 ? "+" : "") + std::to_string(value);
         TTF_SetTextString(gameMoneyIndicatorUiText, operatorString.c_str(), 0);
-        if (isExpense) {
-            TTF_SetTextColor(gameMoneyIndicatorUiText, 220, 60, 60, 255);
-        } else {
-            TTF_SetTextColor(gameMoneyIndicatorUiText, 100, 220, 60, 255);
-        }
+        TTF_SetTextColor(gameMoneyIndicatorUiText,
+            value >= 0 ? 100 : 220,
+            value >= 0 ? 220 : 60,
+            60, 255);
         int operatorStringW, operatorStringH;
         TTF_GetTextSize(gameMoneyIndicatorUiText, &operatorStringW, &operatorStringH);
         TTF_DrawRendererText(gameMoneyIndicatorUiText, rightX - operatorStringW, lineY);
@@ -5438,10 +5443,11 @@ private://constructor
     };
 
     // Incomes
-    drawRow("Tax (Province)",  taxIncome,       false);
-    drawRow("Tax (Farm)",      farmIncome,      false);
-    drawRow("Tax (Commerce)",  commerceIncome,  false);
-    drawRow("Tax (Industry)",  industryIncome,  false);
+    drawRow("Tax (Province)", taxIncome, false);
+    drawRow("Tax (Farm)", farmIncomeBased, false);
+    drawRow("Season Modifier (Farm)", farmSeasonBonus, false); //bonus = modified - based
+    drawRow("Tax (Commerce)", commerceIncome, false);
+    drawRow("Tax (Industry)", industryIncome, false);
     drawRow("Tax (Religious)", religiousIncome, false);
     drawRow("Tax (Maritime)", maritimeIncome, false);
 
