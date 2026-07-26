@@ -5399,11 +5399,13 @@ private://constructor
         TTF_SetTextColor(gameMoneyIndicatorUiText, 175, 170, 150, 255);
         TTF_DrawRendererText(gameMoneyIndicatorUiText, labelX, lineY);
 
-        std::string operatorString = (value >= 0 ? "+" : "") + std::to_string(value);
+
+        int displayValue = isExpense ? -std::abs(value) : value;
+        std::string operatorString = (displayValue >= 0 ? "+" : "") + std::to_string(displayValue);
         TTF_SetTextString(gameMoneyIndicatorUiText, operatorString.c_str(), 0);
         TTF_SetTextColor(gameMoneyIndicatorUiText,
-            value >= 0 ? 100 : 220,
-            value >= 0 ? 220 : 60,
+            displayValue >= 0 ? 100 : 220,
+            displayValue >= 0 ? 220 : 60,
             60, 255);
         int operatorStringW, operatorStringH;
         TTF_GetTextSize(gameMoneyIndicatorUiText, &operatorStringW, &operatorStringH);
