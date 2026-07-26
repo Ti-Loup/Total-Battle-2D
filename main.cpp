@@ -41,11 +41,13 @@
  * Add Ports buildings If a main settlement or village is close to the sea it has a port. For villages/Fishing port, and Main settlements military port.
  *
  * 3.5 make the Worldevents works with buildings and world Population
- * fishing ports gives food / produce fish in 0.3.0!
- * Currently -> pannel buttons popup ui element for each .exemple -> Add some win Achievements
+ * fishing ports gives food / produce fish -> stocked
+ * Done -> pannel buttons popup ui element for each .exemple -> Add some win Achievements (UPDATE THEM HERE IF TIME OTHER 0.3.0)
  * Done -> Make the Income based on Farm,Commerce,Industry,Religion and not just all income instantly.
  *
  * Update Season to work with money
+ * Make the Goods manager (To stop production, make a max amount an item can produce)
+
  * If Time -> work on the ai to build buildings strategicly based on what they're missing.
  *Add Missing Textures
  *
@@ -72,7 +74,9 @@
  * Some industrial buildings can only be buy if you have the raw material
  * Settlement next to the name shows a texture of mine to show its a mine + fish for a fish port and boat for military ...
  *
- * If you have less paysants than the nobility amount your buildings doesnt work has much. See paysantry/Nobility  description
+ *
+ * - Work on Degree, Win achievments, and more.
+ * - If you have less paysants than the nobility amount your buildings doesnt work has much. See paysantry/Nobility  description
  *
  *
  * --------------------------------------------
@@ -89,6 +93,7 @@
  * --------------------------------------------
  * 0.4.5
  * Ai uses everything implemented
+ * Technology Tree
  *
  * --------------------------------------------
  * 0.5.0
@@ -4685,8 +4690,10 @@ private://constructor
         TTF_SetTextColor(gameCurrentMoneyUiText, 255, 255, 255, 255); // keep in white
         TTF_DrawRendererText (gameCurrentMoneyUiText, contentRect.x + 70.f, contentRect.y + 4.f);
 
-        //calculate gold next turn
+        //calculate money next turn
         player.nextTurnGold = 0;
+        Date::Season coinSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
+        SeasonModifiers coinSeasonModifier = GetSeasonModifiers(coinSeason);
         for (const auto& s: settlements) {
             if (provinces[s.settlementData.provinceID].owner == player.faction) {
                 // Upkeep du main building toujours déduit (même sans collecte de taxe)
@@ -4694,12 +4701,20 @@ private://constructor
                 if (mainBd) player.nextTurnGold -= mainBd->upkeep;
 
                 if (provinces[s.settlementData.provinceID].bToggleCollectIncome) {
-                    player.nextTurnGold += s.settlementData.baseIncome;
+                    int mainIncome = s.settlementData.baseIncome;//main sourec of income (base)
+                    if (GetTaxCategory(s.settlementData.buildings[0]) == TaxCategory::Farm)
+                        mainIncome = (int)std::round(mainIncome * coinSeasonModifier.incomeFarmMultiplier);
+                    player.nextTurnGold += mainIncome;
+
+
                     for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
                         if (s.settlementData.buildings[b] != BuildingType::None) {
                             const BuildingData* bd = GetBuildingData(s.settlementData.buildings[b]);
                             if (bd) {
-                                player.nextTurnGold += bd->incomeBonus;
+                                int incomeBonus = bd->incomeBonus;
+                                if (GetTaxCategory(s.settlementData.buildings[b]) == TaxCategory::Farm)
+                                    incomeBonus = (int)std::round(incomeBonus * coinSeasonModifier.incomeFarmMultiplier);
+                                player.nextTurnGold += incomeBonus;
                                 player.nextTurnGold -= bd->upkeep;
                             }
                         }
@@ -5260,6 +5275,9 @@ private://constructor
         int mainUpkeep = 0;
         int buildingMaintenance = 0;
         int armyUpkeep = 0;
+        //Season Effect Ui Shows
+        Date::Season coinTooltipSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
+        SeasonModifiers coinTooltipSeasonModifier = GetSeasonModifiers(coinTooltipSeason);
 
         for (const auto& s : settlements) {
             if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
@@ -5269,7 +5287,7 @@ private://constructor
 
             if (provinces[s.settlementData.provinceID].bToggleCollectIncome) {
                 switch (GetTaxCategory(s.settlementData.buildings[0])) {
-                    case TaxCategory::Farm: farmIncome += s.settlementData.baseIncome; break;
+                    case TaxCategory::Farm: farmIncome += (int)std::round(s.settlementData.baseIncome * coinTooltipSeasonModifier.incomeFarmMultiplier); break; //with season multiplier
                     case TaxCategory::Commerce: commerceIncome += s.settlementData.baseIncome; break;
                     case TaxCategory::Industry: industryIncome += s.settlementData.baseIncome; break;
                     case TaxCategory::Religious: religiousIncome += s.settlementData.baseIncome; break;
@@ -5284,7 +5302,7 @@ private://constructor
                     buildingMaintenance += building_data->upkeep;
 
                     switch (GetTaxCategory(bt)) {
-                        case TaxCategory::Farm:  farmIncome += building_data->incomeBonus; break;
+                        case TaxCategory::Farm:  farmIncome += (int)std::round(building_data->incomeBonus * coinTooltipSeasonModifier.incomeFarmMultiplier); break;
                         case TaxCategory::Commerce: commerceIncome += building_data->incomeBonus; break;
                         case TaxCategory::Industry: industryIncome += building_data->incomeBonus; break;
                         case TaxCategory::Religious: religiousIncome += building_data->incomeBonus; break;
@@ -5977,13 +5995,14 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         float foodProductionMultiplier = 1.0f;//xfoodProduced
         float birthRateMultiplier = 1.0f;//xBirthrate
         float deathRateMultiplier = 1.0f;//xdeathRate
+        float incomeFarmMultiplier = 1.0f;//xIncome from farm modifier Income(Farm)
     };
     SeasonModifiers GetSeasonModifiers(Date::Season season) {
         switch (season) {
-            case Date::Season::Winter: return { -2, 0.50f, 0.75f, 1.25f };
-            case Date::Season::Spring: return {  1, 1.10f, 1.20f, 0.90f };
-            case Date::Season::Summer: return {  2, 1.25f, 1.10f, 0.85f };
-            case Date::Season::Autumn: return {  1, 1.50f, 1.05f, 0.95f };
+            case Date::Season::Winter: return { -2, 0.50f, 0.75f, 1.25f, 0.50f };
+            case Date::Season::Spring: return {  1, 1.10f, 1.20f, 0.90f, 1.00f };
+            case Date::Season::Summer: return {  2, 1.25f, 1.10f, 0.85f, 1.10f };
+            case Date::Season::Autumn: return {  1, 1.50f, 1.05f, 0.95f, 1.00f };
         }
     }
 
@@ -5993,7 +6012,7 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         if (!bMouseOnSeasonIcon) return;
 
         float tooltipW = 260.f;
-        float tooltipH = 260.f;
+        float tooltipH = 270.f;
         float tooltipX = seasonTooltipX + 30.f;
         float tooltipY = seasonTooltipY - tooltipH + 290.f;
 
@@ -6114,11 +6133,13 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         //Should display the different bonuses and negatives based on current season
         //Winter -> hardest time, cold so more death rate, people are unhappy by the cold , no food are produced, birthrate is then less than normal
         //Texture zoom is default 1.f if not modified/added
+        //INCOME Farm modifier. Winter less Income generated, Summer more. other 2 stay same
         if (currentSeason == Date::Season::Winter) {
             drawEffectRow(rowY, gamePublicOrderNegatifTexture, "Public Order","-2",220,60,60); rowY += rowH;
             drawEffectRow(rowY, gameFoodIconUi,"Food Production","-50%", 220, 60, 60, 1.4f); rowY += rowH;
             drawEffectRow(rowY, gamePopulationGrowth, "Birth Rate","-25%", 220, 60, 60, 1.4f); rowY += rowH;
             drawEffectRow(rowY, gamePopulationGrowth,"Death Rate", "+25%", 220, 60, 60,1.4f); rowY += rowH;
+            drawEffectRow(rowY, gameCoinMoneyTexture, "Income(Farm) Modifier", "-50%", 220, 60, 60, 1.0f); rowY += rowH;
         }
         //Spring -> mild weather, growth season, new life begins after winter
         else if (currentSeason == Date::Season::Spring) {
@@ -6127,12 +6148,13 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
             drawEffectRow(rowY, gamePopulationGrowth, "Birth Rate","+20%", 60, 220, 60, 1.4f); rowY += rowH;
             drawEffectRow(rowY, gamePopulationGrowth,"Death Rate","-10%",60, 220, 60, 1.4f); rowY += rowH;
         }
-        //Summer -> warm weather, good conditions, high morale
+        //Summer -> warm weather, good conditions, high morale, Farm income increased
         else if (currentSeason == Date::Season::Summer) {
             drawEffectRow(rowY, gamePublicOrderPositifTexture, "Public Order",   "+2",   60, 220, 60); rowY += rowH;
             drawEffectRow(rowY, gameFoodIconUi,"Food Production","+25%", 60, 220, 60, 1.4f); rowY += rowH;
             drawEffectRow(rowY, gamePopulationGrowth, "Birth Rate","+10%", 60, 220, 60, 1.4f); rowY += rowH;
             drawEffectRow(rowY, gamePopulationGrowth,"Death Rate", "-15%", 60, 220, 60, 1.4f); rowY += rowH;
+            drawEffectRow(rowY, gameCoinMoneyTexture, "Income(Farm) Modifier", "+10%", 60, 220, 60, 1.0f); rowY += rowH;
         }
         //Autumn -> harvest season, best food production, population still happy, calm before winter
         else if (currentSeason == Date::Season::Autumn) {
