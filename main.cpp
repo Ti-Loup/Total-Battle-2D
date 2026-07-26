@@ -302,7 +302,9 @@ public:
 
     //Circle for goods Production manager
     Circle GoodsProductionMaganerButton = {1182.f, 20.f, 12};
-
+    bool bGoodsProductionManagerPopup = false;
+    //Circle for goods Production manager Close
+    Circle GoodsProductionManagerReturnGame = {1000.f, 900.f, 25};
     //End Turn
     int currentTurn = 1;
     FactionZone currentFactionTurn = FactionZone::Knight;//start with player
@@ -4195,7 +4197,7 @@ private://constructor
                         else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitaryKnight, nullptr, &buttonsRect);
                         else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceKnight, nullptr, &buttonsRect);
                         else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomyKnight, nullptr, &buttonsRect);
-                        else if (k == 4) SDL_RenderTexture(renderer, nullptr, nullptr, &buttonsRect);
+                        else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingIndustryKnight, nullptr, &buttonsRect);
                         else if (k == 5) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionKnight, nullptr, &buttonsRect);
                     }
                     else if (province.owner == FactionZone::Viking) {
@@ -4203,7 +4205,7 @@ private://constructor
                         else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitaryViking, nullptr, &buttonsRect);
                         else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceViking, nullptr, &buttonsRect);
                         else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomyViking, nullptr, &buttonsRect);
-                        else if (k == 4) SDL_RenderTexture(renderer, nullptr, nullptr, &buttonsRect);
+                        else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingIndustryViking, nullptr, &buttonsRect);
                         else if (k == 5) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionViking, nullptr, &buttonsRect);
                     }
                     else if (province.owner == FactionZone::Samurai) {
@@ -4211,7 +4213,7 @@ private://constructor
                         else if (k == 1) SDL_RenderTexture(renderer, gameBuildingTypesGroupingAdvMilitarySamurai, nullptr, &buttonsRect);
                         else if (k == 2) SDL_RenderTexture(renderer, gameBuildingTypesGroupingDefenceSamurai, nullptr, &buttonsRect);
                         else if (k == 3) SDL_RenderTexture(renderer, gameBuildingTypesGroupingEconomySamurai, nullptr, &buttonsRect);
-                        else if (k == 4) SDL_RenderTexture(renderer, nullptr, nullptr, &buttonsRect);
+                        else if (k == 4) SDL_RenderTexture(renderer, gameBuildingTypesGroupingIndustrySamurai, nullptr, &buttonsRect);
                         else if (k == 5) SDL_RenderTexture(renderer, gameBuildingTypesGroupingReligionSamurai, nullptr, &buttonsRect);
                     }
 
@@ -4841,6 +4843,35 @@ private://constructor
                 (int)(arrowCX + halfW), (int)(tipY + dy));
         }
 
+        //Current Season inducator (TOP RIGHT OF UI)
+        Date::Season currentSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
+        SDL_FRect seasonIconRect = {contentRect.x + 800.f, contentRect.y + 10.f, 60.f, 60.f};
+
+        SDL_Texture* seasonTex = GetSeasonTexture(currentSeason);
+        if (seasonTex) {
+            SDL_RenderTexture(renderer, seasonTex, nullptr, &seasonIconRect);
+        } else {
+            SDL_SetRenderDrawColor(renderer, 150, 150, 150, 255);
+            SDL_RenderFillRect(renderer, &seasonIconRect);
+        }
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderRect(renderer, &seasonIconRect);
+
+        //Hovered Season Zone to show bonuses and debuff
+        SDL_FRect seasonHoveredZone = {contentRect.x + 800.f, contentRect.y + 10.f, 60.f, 60.f};
+        float mouseXSeason;
+        float mouseYSeason;
+        SDL_GetMouseState(&mouseXSeason, &mouseYSeason);
+        float lenghtXSeason;
+        float lenghtYSeason;
+        SDL_RenderCoordinatesFromWindow(renderer, mouseXSeason, mouseYSeason, &lenghtXSeason, &lenghtYSeason);
+        SDL_FPoint mousePointSeason = {lenghtXSeason, lenghtYSeason};
+        //bool if true (mouse on icon)
+        bMouseOnSeasonIcon = SDL_PointInRectFloat(&mousePointSeason, &seasonHoveredZone);
+        seasonTooltipX = lenghtXSeason;
+        seasonTooltipY = lenghtYSeason;
+
+
         //GOODS STORAGE SECTION
         player.goodsStorage = 0;
         goodsProducedThisTurn = 0;
@@ -4886,6 +4917,43 @@ private://constructor
         //Goods Production manager Button
 
         RenderBoutonCercle(GoodsProductionMaganerButton, nullptr, nullptr, 139, 69, 19);
+        // Hovered tooltip for the Goods Manager button
+        {
+            float mouseXGM, mouseYGM;
+            SDL_GetMouseState(&mouseXGM, &mouseYGM);
+            float lxGM, lyGM;
+            SDL_RenderCoordinatesFromWindow(renderer, mouseXGM, mouseYGM, &lxGM, &lyGM);
+
+            if (ClickInsideCircle(lxGM, lyGM, GoodsProductionMaganerButton)) {
+                const char* goodsManagerLabel = "Goods Manager";
+
+                TTF_SetTextString(gameStatUIText, goodsManagerLabel, 0);
+                int nameW = 0, nameH = 0;
+                TTF_GetTextSize(gameStatUIText, &nameW, &nameH);
+
+                float padX = 8.f, padY = 5.f;
+                float tw = nameW + padX * 2.f;
+                float th = nameH + padY * 2.f;
+
+                float tx = lxGM + 15.f;// offset to the right of the cursor
+                float ty = lyGM - th / 2.f;// vertically centered on the cursor
+                if (tx + tw > 1915.f) tx = lxGM - tw - 15.f; // flip left if it'd go off-screen
+                if (ty < 5.f) ty = 5.f;
+                if (ty + th > 1075.f) ty = 1075.f - th;
+
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+                SDL_FRect tooltipBg = {tx, ty, tw, th};
+                SDL_RenderFillRect(renderer, &tooltipBg);
+                SDL_SetRenderDrawColor(renderer, 110, 90, 40, 255);
+                SDL_RenderRect(renderer, &tooltipBg);
+
+                TTF_SetTextColor(gameStatUIText, 240, 240, 240, 255);
+                TTF_DrawRendererText(gameStatUIText, tx + padX, ty + padY);
+            }
+        }
+
+
         //TIME PERIOD SECTION
         //far Rect to display the time period
         SDL_FRect dateBorderRect = {1775.f, 960.f, 145, 80};
@@ -4915,35 +4983,6 @@ private://constructor
         TTF_SetTextString(gameTurnUiText, endTurn.c_str(), 0);
         TTF_SetTextColor(gameTurnUiText, 255, 255, 255, 255);
         TTF_DrawRendererText(gameTurnUiText, NextTurnButton.circleX+55.f, NextTurnButton.circleY + 5.f);
-
-        //Current Season inducator (TOP RIGHT OF UI)
-        Date::Season currentSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
-        SDL_FRect seasonIconRect = {contentRect.x + 650.f, contentRect.y + 10.f, 60.f, 60.f};
-
-        SDL_Texture* seasonTex = GetSeasonTexture(currentSeason);
-        if (seasonTex) {
-            SDL_RenderTexture(renderer, seasonTex, nullptr, &seasonIconRect);
-        } else {
-            SDL_SetRenderDrawColor(renderer, 150, 150, 150, 255);
-            SDL_RenderFillRect(renderer, &seasonIconRect);
-        }
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderRect(renderer, &seasonIconRect);
-
-        //Hovered Season Zone to show bonuses and debuff
-        SDL_FRect seasonHoveredZone = {contentRect.x + 650.f, contentRect.y + 10.f, 60.f, 60.f};
-        float mouseXSeason;
-        float mouseYSeason;
-        SDL_GetMouseState(&mouseXSeason, &mouseYSeason);
-        float lenghtXSeason;
-        float lenghtYSeason;
-        SDL_RenderCoordinatesFromWindow(renderer, mouseXSeason, mouseYSeason, &lenghtXSeason, &lenghtYSeason);
-        SDL_FPoint mousePointSeason = {lenghtXSeason, lenghtYSeason};
-        //bool if true (mouse on icon)
-        bMouseOnSeasonIcon = SDL_PointInRectFloat(&mousePointSeason, &seasonHoveredZone);
-        seasonTooltipX = lenghtXSeason;
-        seasonTooltipY = lenghtYSeason;
-
 
 
         //circle  button for the NextTurn Button
@@ -6123,19 +6162,36 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
    void RenderGoodsStorageTooltip() {
     if (!bMouseOnGoodsStorageIcon) return;
 
-    // Stable ordering so rows don't jump around frame to frame
-    std::vector<std::pair<ResourceType,int>> sortedGoods(goodsStoredByType.begin(), goodsStoredByType.end());
-    std::sort(sortedGoods.begin(), sortedGoods.end(),
-        [](const auto& a, const auto& b) { return (int)a.first < (int)b.first; });
+    // Split goods into raw materials vs transformed goods 2 vectors
+    std::vector<std::pair<ResourceType,int>> rawGoods;
+    std::vector<std::pair<ResourceType,int>> transformedGoods;
+    for (auto& [goodsType, amount] : goodsStoredByType) {
+        const ResourceData* resData = GetResourceData(goodsType);
+        bool isTransformed = resData && resData->goodsCategory == ResourceCategory::Transformed;
+        (isTransformed ? transformedGoods : rawGoods).push_back({goodsType, amount});
+    }
+    auto sortByType = [](const auto& a, const auto& b) { return (int)a.first < (int)b.first; };
+    std::sort(rawGoods.begin(), rawGoods.end(), sortByType);
+    std::sort(transformedGoods.begin(), transformedGoods.end(), sortByType);
 
-    const float rowH   = 26.f;
+    const float rowH = 26.f;
     const float titleH = 28.f;
+    const float subHeaderH = 22.f;
     const float padTop = 10.f;
     const float padBot = 10.f;
+    const float sectionGap = 8.f;
 
-    int rowCount = sortedGoods.empty() ? 1 : (int)sortedGoods.size();
+    bool hasRaw = !rawGoods.empty();
+    bool hasTransformed = !transformedGoods.empty();
+
+    float contentH = 0.f;
+    if (hasRaw) contentH += subHeaderH + (float)rawGoods.size() * rowH;
+    if (hasTransformed) contentH += subHeaderH + (float)transformedGoods.size() * rowH;
+    if (hasRaw && hasTransformed) contentH += sectionGap;
+    if (!hasRaw && !hasTransformed) contentH = rowH;
+
     float tooltipW = 220.f;
-    float tooltipH = titleH + padTop + rowCount * rowH + padBot;
+    float tooltipH = titleH + padTop + contentH + padBot;
 
     float tooltipX = goodsStorageTooltipX + 30.f;
     float tooltipY = goodsStorageTooltipY - tooltipH + 100.f;
@@ -6169,33 +6225,73 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
     float rightEdge = tooltipX + tooltipW - 10.f;
     const float iconSize = 18.f;
 
-    if (sortedGoods.empty()) {
+    if (!hasRaw && !hasTransformed) {
         TTF_SetTextString(gameGoodsStorageUiDescText, "No goods stored yet.", 0);
         TTF_SetTextColor(gameGoodsStorageUiDescText, 180, 180, 180, 255);
         TTF_DrawRendererText(gameGoodsStorageUiDescText, tooltipX + 10.f, lineY);
-    } else {
-        for (auto& [type, amount] : sortedGoods) {
-            SDL_Texture* icon = GetResourceTypeIcon(type);
-            if (icon) {
-                SDL_FRect iconRect = {tooltipX + 8.f, lineY, iconSize, iconSize};
-                SDL_RenderTexture(renderer, icon, nullptr, &iconRect);
-            }
+        return;
+    }
 
-            TTF_SetTextString(gameGoodsStorageUiDescText, GetResourceTypeName(type), 0);
-            TTF_SetTextColor(gameGoodsStorageUiDescText, 200, 200, 200, 255);
-            TTF_DrawRendererText(gameGoodsStorageUiDescText, tooltipX + iconSize + 14.f, lineY);
+    //small section header
+    auto drawSectionHeader = [&](const char* label, SDL_Color color) {
+        TTF_SetTextString(gameGoodsStorageUiDescText, label, 0);
+        TTF_SetTextColor(gameGoodsStorageUiDescText, color.r, color.g, color.b, 255);
+        TTF_DrawRendererText(gameGoodsStorageUiDescText, tooltipX + 8.f, lineY);
+        lineY += subHeaderH;
+    };
 
-            std::string amountStr = std::to_string(amount);
-            TTF_SetTextString(gameGoodsStorageUiDescText, amountStr.c_str(), 0);
-            TTF_SetTextColor(gameGoodsStorageUiDescText, 180, 230, 100, 255);
-            int aw, ah;
-            TTF_GetTextSize(gameGoodsStorageUiDescText, &aw, &ah);
-            TTF_DrawRendererText(gameGoodsStorageUiDescText, rightEdge - aw, lineY);
-
-            lineY += rowH;
+    // draws one goods row (icon, name, amount)
+    auto drawGoodsRow = [&](ResourceType type, int amount) {
+        SDL_Texture* icon = GetResourceTypeIcon(type);
+        if (icon) {
+            SDL_FRect iconRect = {tooltipX + 8.f, lineY, iconSize, iconSize};
+            SDL_RenderTexture(renderer, icon, nullptr, &iconRect);
         }
+
+        TTF_SetTextString(gameGoodsStorageUiDescText, GetResourceTypeName(type), 0);
+        TTF_SetTextColor(gameGoodsStorageUiDescText, 200, 200, 200, 255);
+        TTF_DrawRendererText(gameGoodsStorageUiDescText, tooltipX + iconSize + 14.f, lineY);
+
+        std::string amountStr = std::to_string(amount);
+        TTF_SetTextString(gameGoodsStorageUiDescText, amountStr.c_str(), 0);
+        TTF_SetTextColor(gameGoodsStorageUiDescText, 180, 230, 100, 255);
+        int aw, ah;
+        TTF_GetTextSize(gameGoodsStorageUiDescText, &aw, &ah);
+        TTF_DrawRendererText(gameGoodsStorageUiDescText, rightEdge - aw, lineY);
+
+        lineY += rowH;
+    };
+
+    if (hasRaw) {
+        drawSectionHeader("Raw Materials", {210, 180, 120, 255});
+        for (auto& [type, amount] : rawGoods) drawGoodsRow(type, amount);
+    }
+
+    if (hasRaw && hasTransformed) {
+        SDL_SetRenderDrawColor(renderer, 70, 90, 85, 200);
+        SDL_RenderLine(renderer, tooltipX + 6.f, lineY + 2.f, tooltipX + tooltipW - 6.f, lineY + 2.f);
+        lineY += sectionGap;
+    }
+
+    if (hasTransformed) {
+        drawSectionHeader("Transformed Goods", {130, 200, 190, 255});
+        for (auto& [type, amount] : transformedGoods) drawGoodsRow(type, amount);
     }
 }
+
+    //
+    void RenderGoodsManagerInfo() {
+        if (!bGoodsProductionManagerPopup) return;
+        //background
+        SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
+        SDL_FRect DecreesBackGroundRect = {500.f, 150.f, 1000, 800};
+
+        SDL_RenderFillRect(renderer, &DecreesBackGroundRect);
+
+        //Button To return
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        RenderBoutonCercle(GoodsProductionManagerReturnGame, nullptr, nullptr, 255, 255, 255);
+    }
 
 
     /**
@@ -6912,6 +7008,7 @@ void RenderCategoryBuildingInfoUI() {
         RenderBuildingInfoUI();
         RenderCategoryBuildingInfoUI();
         RenderWorldEventInfoPopup();
+        RenderGoodsManagerInfo();
         RenderDecreesInfoPopup();
         RenderWinConditionsInfoPopup();
         RenderTreasuryInfoPopup();
@@ -7794,6 +7891,13 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         return SDL_APP_CONTINUE;
     }
 
+     //Goods Button Manager pressed
+     if (app.ClickInsideCircle(nouveauX, nouveauY, app.GoodsProductionMaganerButton)) {
+         app.bGoodsProductionManagerPopup = true;
+     }
+
+
+
     //Decree Ui button pressed
     if (app.ClickInsideCircle(nouveauX, nouveauY, app.DecreesPannel)) {
         //log message for now -> ui poping on later
@@ -7841,6 +7945,11 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         if (app.ClickInsideCircle(nouveauX, nouveauY, app.WorlEventsButtonReturnGame)) {
             app.bWorldEventInfoPopup = false;
             return SDL_APP_CONTINUE;
+        }
+
+        //Goods Manager Return Button
+        if (app.ClickInsideCircle(nouveauX,nouveauY, app.GoodsProductionManagerReturnGame)) {
+            app.bGoodsProductionManagerPopup = false;
         }
 
         //CheckButtonReturn

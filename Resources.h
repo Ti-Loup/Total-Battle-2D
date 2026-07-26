@@ -14,16 +14,23 @@ enum class ResourceType {
     Fish
 };
 
+//If Raw or Transformed Goods
+enum class ResourceCategory{
+    Raw,
+    Transformed
+};
+
 //Data of Resources
 struct ResourceData{
     std::string name;
     std::string description;
     std::string iconPath;
+    ResourceCategory goodsCategory;
 };
 
 inline const std::unordered_map<ResourceType, ResourceData>& GetResourceDatabase() {
     static const std::unordered_map<ResourceType, ResourceData> database = {
-        { ResourceType::Fish, { "Fish", "Caught by fishing ports. Feeds the population and can be traded.", "assets/Resources/Fish.png" } }
+        { ResourceType::Fish, { "Fish", "Caught by fishing ports. Feeds the population and can be traded.", "assets/Resources/Fish.png", ResourceCategory::Raw} }
 
     };
     return database;
