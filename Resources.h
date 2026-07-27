@@ -26,11 +26,12 @@ struct ResourceData{
     std::string description;
     std::string iconPath;
     ResourceCategory goodsCategory;
+    int ResourceValue;
 };
 
 inline const std::unordered_map<ResourceType, ResourceData>& GetResourceDatabase() {
     static const std::unordered_map<ResourceType, ResourceData> database = {
-        { ResourceType::Fish, { "Fish", "Caught by fishing ports. Feeds the population and can be traded.", "assets/Resources/Fish.png", ResourceCategory::Raw} }
+        { ResourceType::Fish, { "Fish", "Caught by fishing ports. Feeds the population and can be traded.", "assets/Resources/Fish.png", ResourceCategory::Raw, 2} }
 
     };
     return database;

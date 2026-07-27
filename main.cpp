@@ -6401,7 +6401,7 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
             TTF_DrawRendererText(gameGoodsStorageUiTitleText, columnX, currentY);
             currentY += 34.f;
         };
-
+        //for each row
         auto drawGoodsRow = [&](ResourceType type) {
             int  storedAmount = goodsStoredByType.count(type) ? goodsStoredByType[type] : 0;
             int  maxProduction = goodsMaxProductionByType.count(type) ? goodsMaxProductionByType[type] : -1;
@@ -6417,6 +6417,26 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
             TTF_SetTextString(gameGoodsStorageUiDescText, nameLabel.c_str(), 0);
             TTF_SetTextColor(gameGoodsStorageUiDescText, 220, 220, 220, 255);
             TTF_DrawRendererText(gameGoodsStorageUiDescText, columnX + iconSize + 10.f, currentY + 4.f);
+
+            //Value per unit (gold worth of this resource) && fixed column
+            const ResourceData* resourceData = GetResourceData(type);
+            int resourceValue = resourceData ? resourceData->ResourceValue : 0;
+            float valueIconSize = 18.f;
+            float valueX = 750.f;
+            SDL_FRect valueIconRect = {valueX, currentY + 4.f, valueIconSize, valueIconSize};
+            SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &valueIconRect);
+
+            std::string valueStr = std::to_string(resourceValue);
+            TTF_SetTextString(gameGoodsStorageUiDescText, valueStr.c_str(), 0);
+            TTF_SetTextColor(gameGoodsStorageUiDescText, 220, 180, 40, 255);
+            TTF_DrawRendererText(gameGoodsStorageUiDescText, valueX + valueIconSize + 4.f, currentY + 4.f);
+            //Value Total of all the current good number
+            int totalGoldValue = resourceValue * storedAmount;
+            std::string totalValueStr = "(" + std::to_string(totalGoldValue) + ")";
+            TTF_SetTextString(gameGoodsStorageUiDescText, totalValueStr.c_str(), 0);
+            TTF_SetTextColor(gameGoodsStorageUiDescText, 220, 180, 40, 255);
+            TTF_DrawRendererText(gameGoodsStorageUiDescText, valueX + valueIconSize + 14.f, currentY + 4.f);
+
 
             //Minus button
             float minusX = 925.f;
