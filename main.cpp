@@ -326,7 +326,13 @@ public:
     //maps pick it up automatically
     std::unordered_map<ResourceType, int> goodsProducedThisTurnByType;
     std::unordered_map<ResourceType, int> goodsStoredByType;
-
+    //Goods Production Manager -> toggle to produce or not / Defautl -> True
+    std::unordered_map<ResourceType, int> goodsMaxProductionByType;
+    std::unordered_map<ResourceType, bool> goodsProductionEnabledByType;
+    //Click rects rebuilt every frame the Goods Manager popup is open
+    std::vector<std::pair<SDL_FRect, ResourceType>> goodsManagerMinusRects; // <-
+    std::vector<std::pair<SDL_FRect, ResourceType>> goodsManagerPlusRects; // ->
+    std::vector<std::pair<SDL_FRect, ResourceType>> goodsManagerToggleRects;
     //Texture coin + Turn time
     SDL_Texture *gameCoinMoneyTexture = nullptr;
     SDL_Texture *gameTurnAmountTexture = nullptr;
@@ -475,6 +481,11 @@ public:
 
     // ~ TEXTURES RESOURCES ~
     SDL_Texture *gameResourceFishIconTexture = nullptr;
+
+
+    // Texture Goods Manager <- ->
+    SDL_Texture *gameGoodsManagerMinusTexture = nullptr;
+    SDL_Texture *gameGoodsManagerPlusTexture = nullptr;
 
 
     //Texture of the tilemap for the minimap
@@ -2978,6 +2989,17 @@ private://constructor
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SamuraiFishingPort_T3], SDL_SCALEMODE_NEAREST);
 
+        //Goods Managers
+        gameGoodsManagerMinusTexture = IMG_LoadTexture(renderer, "assets/GoodsManagerMinusArrow.png");
+        if (gameGoodsManagerMinusTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameGoodsManagerMinusTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameGoodsManagerMinusTexture, SDL_SCALEMODE_NEAREST);
+        gameGoodsManagerPlusTexture = IMG_LoadTexture(renderer, "assets/GoodsManagerPlusArrow.png");
+        if (gameGoodsManagerPlusTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameGoodsManagerPlusTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameGoodsManagerPlusTexture, SDL_SCALEMODE_NEAREST);
         // RESOURCES TEXTURES
         gameResourceFishIconTexture = IMG_LoadTexture(renderer, "assets/Resources/FishIcon.png");
         if (gameResourceFishIconTexture == nullptr) {
@@ -3217,6 +3239,8 @@ private://constructor
         SDL_DestroyTexture(technologyPannelTexture);
         SDL_DestroyTexture(familyHierarchyPannelTexture);
         SDL_DestroyTexture(cameraResetPannelTexture);
+        SDL_DestroyTexture(gameGoodsManagerMinusTexture);
+        SDL_DestroyTexture(gameGoodsManagerPlusTexture);
         SDL_DestroyTexture(gameResourceFishIconTexture);
         // ---------------------------------
         SDL_DestroyCursor(cursor);
@@ -4903,12 +4927,20 @@ private://constructor
                 if (!bd) continue;
                 player.goodsStorage += bd->resourcesStorage;
                 for (const auto& res : bd->resourcesProduced) {
-                    goodsProducedThisTurn += res.amount; // Fish now
+                    // goodsProducedThisTurn += res.amount; // Fish now
                     goodsProducedThisTurnByType[res.type] += res.amount; // per-type goods tooltip
                 }
             }
         }
-
+        // Apply Goods Production Manager disabled goods production building enabled
+        for (auto& [type, amount] : goodsProducedThisTurnByType) {
+            bool enabled = goodsProductionEnabledByType.count(type) ? goodsProductionEnabledByType[type] : true;
+            if (!enabled) {
+                amount = 0;
+                continue;
+            }
+            goodsProducedThisTurn += amount;
+        }
 
         //GOODS Indication UI TOP
         //Icone
@@ -6310,13 +6342,138 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
 }
 
     //
-    void RenderGoodsManagerInfo() {
+     void RenderGoodsManagerInfo() {
         if (!bGoodsProductionManagerPopup) return;
-        //background
-        SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
-        SDL_FRect DecreesBackGroundRect = {500.f, 150.f, 1000, 800};
 
-        SDL_RenderFillRect(renderer, &DecreesBackGroundRect);
+        //Background
+        SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
+        SDL_FRect goodsManagerBackground = {500.f, 150.f, 1000.f, 800.f};
+        SDL_RenderFillRect(renderer, &goodsManagerBackground);
+        SDL_SetRenderDrawColor(renderer, 110, 90, 40, 255);
+        SDL_RenderRect(renderer, &goodsManagerBackground);
+
+        //Title bar
+        SDL_SetRenderDrawColor(renderer, 130, 100, 0, 255);
+        SDL_FRect goodsManagerTitleBar = {500.f, 150.f, 1000.f, 50.f};
+        SDL_RenderFillRect(renderer, &goodsManagerTitleBar);
+
+        TTF_SetTextString(gameGoodsStorageUiTitleText, "Goods Production Manager", 0);
+        TTF_SetTextColor(gameGoodsStorageUiTitleText, 255, 255, 255, 255);
+        int gmTitleW, gmTitleH;
+        TTF_GetTextSize(gameGoodsStorageUiTitleText, &gmTitleW, &gmTitleH);
+        TTF_DrawRendererText(gameGoodsStorageUiTitleText,
+            goodsManagerTitleBar.x + (goodsManagerTitleBar.w - gmTitleW) / 2.f,
+            goodsManagerTitleBar.y + (goodsManagerTitleBar.h - gmTitleH) / 2.f);
+
+        //Rebuild click rects this frame
+        goodsManagerMinusRects.clear();
+        goodsManagerPlusRects.clear();
+        goodsManagerToggleRects.clear();
+
+        //Gather every resource type
+        std::vector<ResourceType> knownGoodTypes;
+        auto addKnown = [&](ResourceType t) {
+            if (std::find(knownGoodTypes.begin(), knownGoodTypes.end(), t) == knownGoodTypes.end()) knownGoodTypes.push_back(t);
+        };
+        for (auto& [type, amount]  : goodsStoredByType) addKnown(type);
+        for (auto& [type, amount]  : goodsProducedThisTurnByType) addKnown(type);
+        for (auto& [type, amount]  : goodsMaxProductionByType) addKnown(type);
+        for (auto& [type, enabled] : goodsProductionEnabledByType) addKnown(type);
+
+        std::vector<ResourceType> rawGoodTypes;
+        std::vector<ResourceType> transformedTypes;
+        for (ResourceType t : knownGoodTypes) {
+            const ResourceData* resourceData = GetResourceData(t);
+            bool isTransformed = resourceData && resourceData->goodsCategory == ResourceCategory::Transformed;
+            (isTransformed ? transformedTypes : rawGoodTypes).push_back(t);
+        }
+        std::sort(rawGoodTypes.begin(), rawGoodTypes.end());
+        std::sort(transformedTypes.begin(), transformedTypes.end());
+
+        float columnX = 520.f;
+        float iconSize = 26.f;
+        float rowH = 46.f;
+        float currentY = 220.f;
+
+        auto drawSectionHeader = [&](const char* label) {
+            TTF_SetTextString(gameGoodsStorageUiTitleText, label, 0);
+            TTF_SetTextColor(gameGoodsStorageUiTitleText, 220, 200, 140, 255);
+            TTF_DrawRendererText(gameGoodsStorageUiTitleText, columnX, currentY);
+            currentY += 34.f;
+        };
+
+        auto drawGoodsRow = [&](ResourceType type) {
+            int  storedAmount = goodsStoredByType.count(type) ? goodsStoredByType[type] : 0;
+            int  maxProduction = goodsMaxProductionByType.count(type) ? goodsMaxProductionByType[type] : -1;
+            bool enabled = goodsProductionEnabledByType.count(type) ? goodsProductionEnabledByType[type] : true;
+
+            //Icon
+            SDL_Texture* icon = GetResourceTypeIcon(type);
+            SDL_FRect iconRect = {columnX, currentY, iconSize, iconSize};
+            if (icon) SDL_RenderTexture(renderer, icon, nullptr, &iconRect);
+
+            //Name + current stored amount
+            std::string nameLabel = std::string(GetResourceTypeName(type)) + " (" + std::to_string(storedAmount) + ")";
+            TTF_SetTextString(gameGoodsStorageUiDescText, nameLabel.c_str(), 0);
+            TTF_SetTextColor(gameGoodsStorageUiDescText, 220, 220, 220, 255);
+            TTF_DrawRendererText(gameGoodsStorageUiDescText, columnX + iconSize + 10.f, currentY + 4.f);
+
+            //Minus button
+            float minusX = 980.f;
+            SDL_FRect minusRect = {minusX, currentY, 28.f, 28.f};
+            SDL_RenderTexture(renderer, gameGoodsManagerMinusTexture, nullptr, &minusRect);
+            goodsManagerMinusRects.push_back({minusRect, type});
+
+            //Max production amount
+            std::string maxStr = (maxProduction < 0) ? "No Limit" : std::to_string(maxProduction);
+            TTF_SetTextString(gameGoodsStorageUiDescText, maxStr.c_str(), 0);
+            TTF_SetTextColor(gameGoodsStorageUiDescText, 230, 230, 150, 255);
+            int maxW, maxH;
+            TTF_GetTextSize(gameGoodsStorageUiDescText, &maxW, &maxH);
+            float maxNumX = minusX + 28.f + 10.f;
+            float maxNumW = 90.f;
+            TTF_DrawRendererText(gameGoodsStorageUiDescText,
+                maxNumX + (maxNumW - maxW) / 2.f, currentY + 4.f);
+
+            //Plus button
+            float plusX = maxNumX + maxNumW + 10.f;
+            SDL_FRect plusRect = {plusX, currentY, 28.f, 28.f};
+            SDL_RenderTexture(renderer, gameGoodsManagerPlusTexture, nullptr, &plusRect);
+            goodsManagerPlusRects.push_back({plusRect, type});
+
+            //Toggle: produce this good or not
+            float toggleX = plusX + 28.f + 30.f;
+            SDL_FRect toggleRect = {toggleX, currentY, 28.f, 28.f};
+            SDL_RenderTexture(renderer, enabled ? gameToggleTaxSettlementTrue : gameToggleTaxSettlementFalse, nullptr, &toggleRect);
+            goodsManagerToggleRects.push_back({toggleRect, type});
+
+            TTF_SetTextString(gameGoodsStorageUiDescText, "Produce", 0);
+            TTF_SetTextColor(gameGoodsStorageUiDescText, 180, 180, 180, 255);
+            TTF_DrawRendererText(gameGoodsStorageUiDescText, toggleX + 34.f, currentY + 4.f);
+            //Grey overlay covering the whole line when production is toggled off
+            if (!enabled) {
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                SDL_SetRenderDrawColor(renderer, 50, 50, 50, 160);
+                SDL_FRect disabledRowOverlay = {columnX - 10.f, currentY - 4.f, 1480.f - (columnX - 10.f), rowH - 6.f};
+                SDL_RenderFillRect(renderer, &disabledRowOverlay);
+            }
+            currentY += rowH;
+        };
+
+        if (!rawGoodTypes.empty()) {
+            drawSectionHeader("Raw Goods");
+            for (ResourceType t : rawGoodTypes) drawGoodsRow(t);
+            currentY += 10.f;
+        }
+        if (!transformedTypes.empty()) {
+            drawSectionHeader("Modified Goods");
+            for (ResourceType t : transformedTypes) drawGoodsRow(t);
+        }
+        if (rawGoodTypes.empty() && transformedTypes.empty()) {
+            TTF_SetTextString(gameGoodsStorageUiDescText, "No goods produced yet.", 0);
+            TTF_SetTextColor(gameGoodsStorageUiDescText, 180, 180, 180, 255);
+            TTF_DrawRendererText(gameGoodsStorageUiDescText, columnX, currentY);
+        }
 
         //Button To return
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -7400,14 +7557,23 @@ public:
             player.foodStored = std::min(player.foodStored+9, player.foodStorage);
         }
 
-        //GOODS STORAGE (per-type, expandable with more goods type)
+        //GOODS STORAGE (per-type, expandablemore goods type)
         int totalGoodsStored = 0;
         for (auto& [type, amount] : goodsStoredByType) totalGoodsStored += amount;
 
         for (auto& [type, producedAmount] : goodsProducedThisTurnByType) {
             int spaceLeft = player.goodsStorage - totalGoodsStored;
-            if (spaceLeft <= 0) break; // warehouse full can't get more
-            int toAdd = std::min(producedAmount, spaceLeft);
+            if (spaceLeft <= 0) break; // warehouse full overall, nothing more fits anywhere
+
+            int currentStoredForType = goodsStoredByType.count(type) ? goodsStoredByType[type] : 0;
+            int typeCap = goodsMaxProductionByType.count(type) ? goodsMaxProductionByType[type] : -1; // -1 = No Limit
+            int toAdd = producedAmount;
+            if (typeCap >= 0) {
+                int roomUnderCap = typeCap - currentStoredForType;
+                toAdd = std::min(toAdd, std::max(0, roomUnderCap));
+            }
+            toAdd = std::min(toAdd, spaceLeft);
+
             goodsStoredByType[type] += toAdd;
             totalGoodsStored += toAdd;
         }
@@ -7975,6 +8141,40 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         if (app.ClickInsideCircle(nouveauX, nouveauY, app.WorlEventsButtonReturnGame)) {
             app.bWorldEventInfoPopup = false;
             return SDL_APP_CONTINUE;
+        }
+
+        //Goods Manager: Minus / Over / toggle buttons
+        if (app.bGoodsProductionManagerPopup) {
+            for (auto& [rect, type] : app.goodsManagerMinusRects) {
+                if (SDL_PointInRectFloat(&MousePT, &rect)) {
+                    int current = app.goodsMaxProductionByType.count(type) ? app.goodsMaxProductionByType[type] : -1;
+                    current -= 5;
+                    if (current < 0) current = -1; // clamp down to no Limit
+                    app.goodsMaxProductionByType[type] = current;
+                    return SDL_APP_CONTINUE;
+                }
+            }
+            for (auto& [rect, type] : app.goodsManagerPlusRects) {
+                if (SDL_PointInRectFloat(&MousePT, &rect)) {
+                    int current = app.goodsMaxProductionByType.count(type) ? app.goodsMaxProductionByType[type] : -1;
+                    if (current < 0) current = 0; // leaving no Limit
+                    current += 5;
+                    app.goodsMaxProductionByType[type] = current;
+                    return SDL_APP_CONTINUE;
+                }
+            }
+            for (auto& [rect, type] : app.goodsManagerToggleRects) {
+                if (SDL_PointInRectFloat(&MousePT, &rect)) {
+                    bool current = app.goodsProductionEnabledByType.count(type) ? app.goodsProductionEnabledByType[type] : true;
+                    app.goodsProductionEnabledByType[type] = !current;
+                    return SDL_APP_CONTINUE;
+                }
+            }
+        }
+
+        //Goods Manager Return Button
+        if (app.ClickInsideCircle(nouveauX,nouveauY, app.GoodsProductionManagerReturnGame)) {
+            app.bGoodsProductionManagerPopup = false;
         }
 
         //Goods Manager Return Button
