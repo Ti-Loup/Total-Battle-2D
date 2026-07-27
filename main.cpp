@@ -263,6 +263,10 @@ public:
     TTF_Font *gameGoodsStorageUiDescFont = nullptr;
     TTF_Text *gameGoodsStorageUiTitleText = nullptr;
     TTF_Text *gameGoodsStorageUiDescText = nullptr;
+    TTF_Font *gameGoodsStorageManagerTitleFont = nullptr;
+    TTF_Font *gameGoodsStorageManagerDescFont = nullptr;
+    TTF_Text *gameGoodsStorageManagerTitleText = nullptr;
+    TTF_Text *gameGoodsStorageManagerDescText = nullptr;
     //Buttons UI
     bool bButtonUIBuildingIsPressed = true;
     bool bButtonUIGarrisonIsPressed = false;
@@ -309,6 +313,7 @@ public:
 
     //Circle for goods Production manager
     Circle GoodsProductionMaganerButton = {1182.f, 20.f, 12};
+    SDL_Texture *goodsProductionManagerButtonTexture = nullptr;
     bool bGoodsProductionManagerPopup = false;
     //Circle for goods Production manager Close
     Circle GoodsProductionManagerReturnGame = {1000.f, 900.f, 25};
@@ -486,7 +491,8 @@ public:
     // Texture Goods Manager <- ->
     SDL_Texture *gameGoodsManagerMinusTexture = nullptr;
     SDL_Texture *gameGoodsManagerPlusTexture = nullptr;
-
+    //TradeValue Texture
+    SDL_Texture *gameGoodsTradeValueTexture = nullptr;
 
     //Texture of the tilemap for the minimap
     SDL_Texture *tileMapTexture = nullptr;
@@ -943,6 +949,8 @@ private://constructor
         gameWorldEventsDescFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         gameGoodsStorageUiTitleFont = TTF_OpenFont("assets/Rubik.ttf", 19);
         gameGoodsStorageUiDescFont = TTF_OpenFont("assets/Rubik.ttf", 15);
+        gameGoodsStorageManagerTitleFont = TTF_OpenFont("assets/Rubik.ttf", 25);
+        gameGoodsStorageManagerDescFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         //same font has AnticipatedMoneyUiText
         gameCurrentFoodUiText = TTF_CreateText(textEngine, gameCurrentFoodUiFont, "", 25);
         if (gameCurrentFoodUiText == nullptr) {
@@ -1013,7 +1021,15 @@ private://constructor
         if (gameGoodsStorageUiDescText == nullptr) {
             SDL_LogWarn(0, "failed to load text game GoodsStorageUiDescText", SDL_GetError);
         }
-
+        //Goods Storage Manager
+        gameGoodsStorageManagerTitleText = TTF_CreateText(textEngine, gameGoodsStorageManagerTitleFont, "", 25);
+        if (gameGoodsStorageManagerTitleText == nullptr) {
+            SDL_LogWarn(0, "failed to load text gameGoodsStorageManagerTitleText", SDL_GetError());
+        }
+        gameGoodsStorageManagerDescText = TTF_CreateText(textEngine, gameGoodsStorageManagerDescFont, "", 25);
+        if (gameGoodsStorageManagerDescText == nullptr) {
+            SDL_LogWarn(0, "failed to load text gameGoodsStorageManagerDescText", SDL_GetError());
+        }
         //CREATION OF THE SETTLEMENTS
         //KNIGHT
         //CAPITAL REGION
@@ -3000,6 +3016,19 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture gameGoodsManagerPlusTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameGoodsManagerPlusTexture, SDL_SCALEMODE_NEAREST);
+        goodsProductionManagerButtonTexture = IMG_LoadTexture(renderer, "assets/GoodsProductionManagerButton.png");
+        if (goodsProductionManagerButtonTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture goodsProductionManagerButtonTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(goodsProductionManagerButtonTexture, SDL_SCALEMODE_NEAREST);
+        //Goods Value Icon
+        gameGoodsTradeValueTexture = IMG_LoadTexture(renderer, "assets/TradeValue.png");
+        if (gameGoodsTradeValueTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameGoodsTradeValueTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameGoodsTradeValueTexture, SDL_SCALEMODE_NEAREST);
+
+
         // RESOURCES TEXTURES
         gameResourceFishIconTexture = IMG_LoadTexture(renderer, "assets/Resources/FishIcon.png");
         if (gameResourceFishIconTexture == nullptr) {
@@ -3093,6 +3122,8 @@ private://constructor
         TTF_CloseFont(gameSeasonUiSmallFont);
         TTF_CloseFont(gameWorldEventsTitleFont);
         TTF_CloseFont(gameWorldEventsDescFont);
+        TTF_CloseFont(gameGoodsStorageManagerTitleFont);
+        TTF_CloseFont(gameGoodsStorageManagerDescFont);
         // ---------------------------------
         TTF_DestroyText(fpsText);
         TTF_DestroyText(menuText);
@@ -3138,6 +3169,8 @@ private://constructor
         TTF_DestroyText(gameSeasonUiSmallText);
         TTF_DestroyText(gameWorldEventsTitleText);
         TTF_DestroyText(gameWorldEventsDescText);
+        TTF_DestroyText(gameGoodsStorageManagerTitleText);
+        TTF_DestroyText(gameGoodsStorageManagerDescText);
         // ---------------------------------
         SDL_DestroyTexture(provinceKnightBannerTexture);
         SDL_DestroyTexture(provinceVikingBannerTexture);
@@ -3242,6 +3275,8 @@ private://constructor
         SDL_DestroyTexture(gameGoodsManagerMinusTexture);
         SDL_DestroyTexture(gameGoodsManagerPlusTexture);
         SDL_DestroyTexture(gameResourceFishIconTexture);
+        SDL_DestroyTexture(gameGoodsTradeValueTexture);
+        SDL_DestroyTexture(goodsProductionManagerButtonTexture);
         // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
@@ -4967,7 +5002,7 @@ private://constructor
 
         //Goods Production manager Button
 
-        RenderBoutonCercle(GoodsProductionMaganerButton, nullptr, nullptr, 139, 69, 19);
+        RenderBoutonCercle(GoodsProductionMaganerButton, nullptr, goodsProductionManagerButtonTexture, 139, 69, 19);
         // Hovered tooltip for the Goods Manager button
         {
             float mouseXGM, mouseYGM;
@@ -6357,11 +6392,11 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         SDL_FRect goodsManagerTitleBar = {500.f, 150.f, 1000.f, 50.f};
         SDL_RenderFillRect(renderer, &goodsManagerTitleBar);
 
-        TTF_SetTextString(gameGoodsStorageUiTitleText, "Goods Production Manager", 0);
-        TTF_SetTextColor(gameGoodsStorageUiTitleText, 255, 255, 255, 255);
+        TTF_SetTextString(gameGoodsStorageManagerTitleText, "Goods Production Manager", 0);
+        TTF_SetTextColor(gameGoodsStorageManagerTitleText, 255, 255, 255, 255);
         int gmTitleW, gmTitleH;
-        TTF_GetTextSize(gameGoodsStorageUiTitleText, &gmTitleW, &gmTitleH);
-        TTF_DrawRendererText(gameGoodsStorageUiTitleText,
+        TTF_GetTextSize(gameGoodsStorageManagerTitleText, &gmTitleW, &gmTitleH);
+        TTF_DrawRendererText(gameGoodsStorageManagerTitleText,
             goodsManagerTitleBar.x + (goodsManagerTitleBar.w - gmTitleW) / 2.f,
             goodsManagerTitleBar.y + (goodsManagerTitleBar.h - gmTitleH) / 2.f);
 
@@ -6395,10 +6430,11 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         float rowH = 46.f;
         float currentY = 220.f;
 
+        //sous Title
         auto drawSectionHeader = [&](const char* label) {
-            TTF_SetTextString(gameGoodsStorageUiTitleText, label, 0);
-            TTF_SetTextColor(gameGoodsStorageUiTitleText, 220, 200, 140, 255);
-            TTF_DrawRendererText(gameGoodsStorageUiTitleText, columnX, currentY);
+            TTF_SetTextString(gameGoodsStorageManagerTitleText, label, 0);
+            TTF_SetTextColor(gameGoodsStorageManagerTitleText, 220, 200, 140, 255);
+            TTF_DrawRendererText(gameGoodsStorageManagerTitleText, columnX, currentY);
             currentY += 34.f;
         };
         //for each row
@@ -6414,28 +6450,28 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
 
             //Name + current stored amount
             std::string nameLabel = std::string(GetResourceTypeName(type)) + " (" + std::to_string(storedAmount) + ")";
-            TTF_SetTextString(gameGoodsStorageUiDescText, nameLabel.c_str(), 0);
-            TTF_SetTextColor(gameGoodsStorageUiDescText, 220, 220, 220, 255);
-            TTF_DrawRendererText(gameGoodsStorageUiDescText, columnX + iconSize + 10.f, currentY + 4.f);
+            TTF_SetTextString(gameGoodsStorageManagerDescText, nameLabel.c_str(), 0);
+            TTF_SetTextColor(gameGoodsStorageManagerDescText, 220, 220, 220, 255);
+            TTF_DrawRendererText(gameGoodsStorageManagerDescText, columnX + iconSize + 10.f, currentY + 4.f);
 
             //Value per unit (gold worth of this resource) && fixed column
             const ResourceData* resourceData = GetResourceData(type);
             int resourceValue = resourceData ? resourceData->ResourceValue : 0;
-            float valueIconSize = 18.f;
+            float valueIconSize = 42.f;
             float valueX = 750.f;
-            SDL_FRect valueIconRect = {valueX, currentY + 4.f, valueIconSize, valueIconSize};
-            SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &valueIconRect);
+            SDL_FRect valueIconRect = {valueX, currentY - 8.f, valueIconSize, valueIconSize};
+            SDL_RenderTexture(renderer, gameGoodsTradeValueTexture, nullptr, &valueIconRect);
 
             std::string valueStr = std::to_string(resourceValue);
-            TTF_SetTextString(gameGoodsStorageUiDescText, valueStr.c_str(), 0);
-            TTF_SetTextColor(gameGoodsStorageUiDescText, 220, 180, 40, 255);
-            TTF_DrawRendererText(gameGoodsStorageUiDescText, valueX + valueIconSize + 4.f, currentY + 4.f);
+            TTF_SetTextString(gameGoodsStorageManagerDescText, valueStr.c_str(), 0);
+            TTF_SetTextColor(gameGoodsStorageManagerDescText, 220, 180, 40, 255);
+            TTF_DrawRendererText(gameGoodsStorageManagerDescText, valueX + valueIconSize - 8.f, currentY + 4.f);
             //Value Total of all the current good number
             int totalGoldValue = resourceValue * storedAmount;
             std::string totalValueStr = "(" + std::to_string(totalGoldValue) + ")";
-            TTF_SetTextString(gameGoodsStorageUiDescText, totalValueStr.c_str(), 0);
-            TTF_SetTextColor(gameGoodsStorageUiDescText, 220, 180, 40, 255);
-            TTF_DrawRendererText(gameGoodsStorageUiDescText, valueX + valueIconSize + 14.f, currentY + 4.f);
+            TTF_SetTextString(gameGoodsStorageManagerDescText, totalValueStr.c_str(), 0);
+            TTF_SetTextColor(gameGoodsStorageManagerDescText, 220, 180, 40, 255);
+            TTF_DrawRendererText(gameGoodsStorageManagerDescText, valueX + valueIconSize + 2.f, currentY + 4.f);
 
 
             //Minus button
@@ -6446,13 +6482,13 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
 
             //Max production amount
             std::string maxStr = (maxProduction < 0) ? "No Limit" : std::to_string(maxProduction);
-            TTF_SetTextString(gameGoodsStorageUiDescText, maxStr.c_str(), 0);
-            TTF_SetTextColor(gameGoodsStorageUiDescText, 230, 230, 150, 255);
+            TTF_SetTextString(gameGoodsStorageManagerDescText, maxStr.c_str(), 0);
+            TTF_SetTextColor(gameGoodsStorageManagerDescText, 230, 230, 150, 255);
             int maxW, maxH;
-            TTF_GetTextSize(gameGoodsStorageUiDescText, &maxW, &maxH);
+            TTF_GetTextSize(gameGoodsStorageManagerDescText, &maxW, &maxH);
             float maxNumX = minusX + 28.f + 10.f;
             float maxNumW = 90.f;
-            TTF_DrawRendererText(gameGoodsStorageUiDescText,
+            TTF_DrawRendererText(gameGoodsStorageManagerDescText,
                 maxNumX + (maxNumW - maxW) / 2.f, currentY + 4.f);
 
             //Plus button
@@ -6467,9 +6503,9 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
             SDL_RenderTexture(renderer, enabled ? gameToggleTaxSettlementTrue : gameToggleTaxSettlementFalse, nullptr, &toggleRect);
             goodsManagerToggleRects.push_back({toggleRect, type});
 
-            TTF_SetTextString(gameGoodsStorageUiDescText, "Produce", 0);
-            TTF_SetTextColor(gameGoodsStorageUiDescText, 180, 180, 180, 255);
-            TTF_DrawRendererText(gameGoodsStorageUiDescText, toggleX + 34.f, currentY + 4.f);
+            TTF_SetTextString(gameGoodsStorageManagerDescText, "Produce", 0);
+            TTF_SetTextColor(gameGoodsStorageManagerDescText, 180, 180, 180, 255);
+            TTF_DrawRendererText(gameGoodsStorageManagerDescText, toggleX + 34.f, currentY + 4.f);
             //Grey overlay covering the whole line when production is toggled off
             if (!enabled) {
                 SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -6490,9 +6526,9 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
             for (ResourceType t : transformedTypes) drawGoodsRow(t);
         }
         if (rawGoodTypes.empty() && transformedTypes.empty()) {
-            TTF_SetTextString(gameGoodsStorageUiDescText, "No goods produced yet.", 0);
-            TTF_SetTextColor(gameGoodsStorageUiDescText, 180, 180, 180, 255);
-            TTF_DrawRendererText(gameGoodsStorageUiDescText, columnX, currentY);
+            TTF_SetTextString(gameGoodsStorageManagerDescText, "No goods produced yet.", 0);
+            TTF_SetTextColor(gameGoodsStorageManagerDescText, 180, 180, 180, 255);
+            TTF_DrawRendererText(gameGoodsStorageManagerDescText, columnX, currentY);
         }
 
         //Button To return
