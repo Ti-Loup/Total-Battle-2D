@@ -24,7 +24,6 @@
 - [Features](#features)
 - [Factions](#factions)
 - [Game Systems](#game-systems)
-- [Architecture](#architecture)
 - [Getting Started](#getting-started)
 - [Project Files](#project-Files)
 - [Roadmap](#roadmap)
@@ -41,16 +40,20 @@ The game features a full turn-based campaign layer with real-time rendering with
 
 ## Features
 
--  **Three playable Cultures** : Knights, Vikings, and Samurai each with unique buildings, lore, and bonuses
--  **Province & settlement management** : Capitals, Castles, and Villages, each upgradable across multiple tiers
--  **Five building categories** : Military, Advanced Military, Defence, Economy, and Religion
--  **Economy system** : Money income, building upkeep, per-turn balance, and anticipated income UI
--  **Food storage system** : Food is produced, stored, and consumed, affecting public order
--  **Public order** : Per-province happiness tracked with visual indicators and tooltips
--  **Turn-based campaign** : End-turn button advances game state, triggering income, food, and AI turns
--  **Technology tree** : Dedicated tech panel accessible from the campaign map
--  **Audio** : Background music via SDL3_mixer with volume slider in options
--  **Custom UI** : Settlement panels, building slot popups, category selectors, cost tooltips
+-  **Three playable Cultures** : Knights, Vikings, and Samurai each with unique buildings, lore, and bonuses.
+-  **Province & settlement management** : Capitals, Castles, and Villages, each upgradable across multiple tiers.
+-  **Six building categories** : Military, Advanced Military, Defence, Economy, Industry, and Religion.
+-  **Economy system** : Money income, building upkeep, per-turn balance, and Goods Value.
+-  **Food storage system** : Food is produced, stored, and consumed, affecting public order and Birth/Death.
+-  **Public order** : Per-province happiness tracked with visual indicators and tooltips.
+-  **Turn-based campaign** : End-turn button advances game state, triggering income, food, and AI turns.
+-  **Technology tree** : Dedicated tech panel accessible from the campaign map.
+-  **Goods Manager** : Tooltip for the player to decide which goods they want to produce.
+-  **World Events** : An event that trigger every few rounds that affect every factions like plague or miraculous fishing.
+-  **Seasons** : Seasons affect the Food and Money(Farm) buildings. Also the BirthRate.
+-  **MiniMap** : To better orient yourself on the map.
+-  **Audio** : Background music via SDL3_mixer with volume slider in options.
+-  **Custom UI** : Settlement panels, building slot popups, category selectors, cost tooltips.
 
 ---
 
@@ -60,9 +63,9 @@ The game features a full turn-based campaign layer with real-time rendering with
 |---------|-----------|-----------------|
 | ⚔️ **Knights** | Balanced economy, strong crossbows & cavalry | Strong starting economy, Faith bonuses |
 | 🪓 **Vikings** | Aggressive raiders, powerful melee | Raiding bonuses, Berserkers, Odin's Chosen |
-| 🏯 **Samurai** | Ambush specialists, gunpowder access | Religion bonuses, powder units, siege engineering |
+| 🏯 **Samurai** | Ambush specialists, gunpowder access | Religion bonuses, siege engineering |
 
-Each faction has fully independent settlement textures across all tiers (T1–T5 for Capitals and Castles, T1–T3 for Villages) to bring more immersion for the player.
+Each faction has fully independent settlement textures across all tiers (T1–T5 for Capitals and Castles, T1–T3 for Villages) to bring more immersion.
 
 
 ---
@@ -75,12 +78,13 @@ The campaign map is divided into **9 provinces** (3 per faction), each containin
 
 ### Building System
 
-Buildings are organized into five categories, each with 2–5 upgrade levels:
+Buildings are organized into five categories, each with 1–5 upgrade levels:
 
 - **Military** : Train infantry, archers, and cavalry (Tier 1+)
 - **Advanced Military** : Siege engines, elite warriors, and gunpowder units (Tier 4+)
 - **Defence** : Reinforce walls, drakkars, or castle fortifications (Tier 3+)
 - **Economy** : Markets, farms, estates, and warehouses for food storage (Tier 1+)
+- **Industry** : Carpentry, Artisan, Forge, Jeweller (Tier 1+)
 - **Religion** : Churches, Shrines, Hospitals, and Shinto Chapels that improve public order (Tier 1+)
 
 ### Economy & Food
@@ -89,36 +93,17 @@ Buildings are organized into five categories, each with 2–5 upgrade levels:
 - Food is produced by farm-type buildings and consumed by military and structures.
 - A **food storage bar** tracks stored food; low food reduces public order
 - An **anticipated income Ui** shows the projected change before ending the turn
-
+- The income is now divided in 3 Categories. Money from Farm, Commerce and Industry.
 ---
-
-## Architecture
-
->GameApp (main.cpp)       — SDL3 init, game loop, rendering, input<br>
->State (.h/.cpp)          — Game state enum (Menu, Game, Options, Credits, Tech)<br>
->TileMap (.h/.cpp)        — To create the TileMap from a png.<br>
->Camera (.h/.cpp)         — Pan and zoom logic<br>
->Province (.h/.cpp)       — Province data and faction zone definitions<br>
->Settlements (.h/.cpp)    — Settlement types, tiers, and city data<br>
->Buildings (.h/.cpp)      — BuildingType enum, BuildingData struct, full database with all stats<br>
->TechnologyTree (.h/.cpp) — Technology research panel and tree<br>
->Player (.h/.cpp)         — Player state and resources<br>
->Entity (.h/.cpp)         — Base entity system<br>
->Components (.h/.cpp)     — ECS-style component data<br>
->UnitCardStats (.h/.cpp)  — Unit card statistics<br>
->FastNoiseLite.h          — Third-party header-only noise library
-
----
-
 ## Getting Started
 
 ### Prerequisites
 
 - **CMake** ≥ 3.12
-- **C++20** compatible compiler (GCC / MinGW recommended for Windows)
-- **SDL3** (core, SDL3_image, SDL3_ttf) installed and accessible by CMake
-- **SDL3_mixer 3.2.0** — bundled in `libs/SDL3_mixer-3.2.0/x86_64-w64-mingw32`
-- **SQLite3** — linked via system or bundled library
+- **C++20** 
+- **SDL3** (core, SDL3_image, SDL3_ttf) 
+- **SDL3_mixer 3.2.0** 
+- **SQLite3** 
 
 ### Building
 
@@ -134,7 +119,7 @@ Open Total Battle 2D, Go to cmake-build-release, find the .exe
 ## Project Files
 
 Total-Battle-2D/<br>
-assets/               # Textures, fonts, audio, tilemaps<br>
+assets/               # Textures, fonts, audio, tilemaps, Resources<br>
 -Knight               # Knight faction textures<br>
 -Viking               # Viking faction textures<br>
 -Samurai              # Samurai faction textures<br>
