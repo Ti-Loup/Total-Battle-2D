@@ -6419,7 +6419,7 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
             TTF_DrawRendererText(gameGoodsStorageUiDescText, columnX + iconSize + 10.f, currentY + 4.f);
 
             //Minus button
-            float minusX = 980.f;
+            float minusX = 925.f;
             SDL_FRect minusRect = {minusX, currentY, 28.f, 28.f};
             SDL_RenderTexture(renderer, gameGoodsManagerMinusTexture, nullptr, &minusRect);
             goodsManagerMinusRects.push_back({minusRect, type});
@@ -6442,7 +6442,7 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
             goodsManagerPlusRects.push_back({plusRect, type});
 
             //Toggle: produce this good or not
-            float toggleX = plusX + 28.f + 30.f;
+            float toggleX = plusX + 28.f + 30.f + 250.f;
             SDL_FRect toggleRect = {toggleX, currentY, 28.f, 28.f};
             SDL_RenderTexture(renderer, enabled ? gameToggleTaxSettlementTrue : gameToggleTaxSettlementFalse, nullptr, &toggleRect);
             goodsManagerToggleRects.push_back({toggleRect, type});
