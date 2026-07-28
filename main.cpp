@@ -45,9 +45,13 @@
  * Done -> pannel buttons popup ui element for each .exemple -> Add some win Achievements (UPDATE THEM HERE IF TIME OTHER 0.3.0)
  * Done -> Make the Income based on Farm,Commerce,Industry,Religion and not just all income instantly.
  * Done -> Different Food Production (Food From Farm, Food From Ports)
+ * Done ->Make the Goods manager (To stop production, make a max amount an item can produce)
+ *
+ * To Do -> Being able to destroy a constructed building.
+ * To Do -> if a building is damaged, it produce nothing and would need to wait for it to gradualy repair itself (4 to 6 turns) or / Instant repair (Cost 50% of the building price)
+ *
+ *
  * Update Season to work with money
- * Make the Goods manager (To stop production, make a max amount an item can produce)
-
  * If Time -> work on the ai to build buildings strategicly based on what they're missing.
  *Add Missing Textures
  *
