@@ -4844,7 +4844,7 @@ private://constructor
                     foodFromBuilding = (int)std::round(foodFromBuilding * worldEventFarmFoodMultiplier);
                 }
 
-                rawFoodTotal += building_data->foodProduced;
+                rawFoodTotal += foodFromBuilding;
                 player.nextTurnFood -= building_data->foodUpkeep;
                 player.foodStorage += building_data->foodStorage;
             }
@@ -5632,15 +5632,18 @@ private://constructor
             }
         }
         int unitsFoodTotal = 0; // placeholder
+        const WorldEventsData* activeFoodEvent = GetActiveWorldEventData();
         float worldEventFarmFoodMultiplier = 1.0f;
         float worldEventMaritimeFoodMultiplier = 1.0f;
-        if (const WorldEventsData* activeEvent = GetActiveWorldEventData()) {
-            worldEventFarmFoodMultiplier = activeEvent->foodProductionFarmMultiplier;
-            worldEventMaritimeFoodMultiplier = activeEvent->foodProductionMaritimeMultiplier;
+        if (activeFoodEvent) {
+            worldEventFarmFoodMultiplier = activeFoodEvent->foodProductionFarmMultiplier;
+            worldEventMaritimeFoodMultiplier = activeFoodEvent->foodProductionMaritimeMultiplier;
         }
-        int farmFoodProducedTotal = (int)std::round(rawFarmFoodProduced * worldEventFarmFoodMultiplier);
-        int maritimeFoodProducedTotal = (int)std::round(rawMaritimeFoodProduced * worldEventMaritimeFoodMultiplier);
+        int farmFoodProducedModified = (int)std::round(rawFarmFoodProduced * worldEventFarmFoodMultiplier);
+        int maritimeFoodProducedModified = (int)std::round(rawMaritimeFoodProduced * worldEventMaritimeFoodMultiplier);
 
+        // combined delta from both categories
+        int worldEventFoodDelta = (farmFoodProducedModified - rawFarmFoodProduced)+ (maritimeFoodProducedModified - rawMaritimeFoodProduced);
     //Food hoved Rectangle
         float tooltipW = 260.f;
         float tooltipH = 280.f;
@@ -5724,22 +5727,31 @@ TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, tooltipY + 82.f);
 }
 
         // Farm Production row
-        TTF_SetTextString(gameCurrentFoodUiText, "Farm Production", 0);
+        std::string farmLabel = "Farm Production";
+        if (activeFoodEvent && worldEventFarmFoodMultiplier != 1.0f) {
+            farmLabel += " (" + activeFoodEvent->name + ")";
+        }
+        TTF_SetTextString(gameCurrentFoodUiText, farmLabel.c_str(), 0);
         TTF_SetTextColor(gameCurrentFoodUiText, 255, 255, 255, 255);
         TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, tooltipY + 102.f);
         {
-        std::string prodStr = "+" + std::to_string(farmFoodProducedTotal);
+        std::string prodStr = "+" + std::to_string(farmFoodProducedModified);
         TTF_SetTextString(gameCurrentFoodUiText, prodStr.c_str(), 0);
         TTF_SetTextColor(gameCurrentFoodUiText, 127, 255, 0, 255);
         int vW, vH; TTF_GetTextSize(gameCurrentFoodUiText, &vW, &vH);
         TTF_DrawRendererText(gameCurrentFoodUiText, rightEdge - vW, tooltipY + 102.f);
         }
+
         // Maritime Production row
-        TTF_SetTextString(gameCurrentFoodUiText, "Maritime Production", 0);
+        std::string maritimeLabel = "Maritime Production";
+        if (activeFoodEvent && worldEventMaritimeFoodMultiplier != 1.0f) {
+            maritimeLabel += " (" + activeFoodEvent->name + ")";
+        }
+        TTF_SetTextString(gameCurrentFoodUiText, maritimeLabel.c_str(), 0);
         TTF_SetTextColor(gameCurrentFoodUiText, 255, 255, 255, 255);
         TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, tooltipY + 122.f);
         {
-        std::string maritimeProdStr = "+" + std::to_string(maritimeFoodProducedTotal);
+        std::string maritimeProdStr = "+" + std::to_string(maritimeFoodProducedModified);
         TTF_SetTextString(gameCurrentFoodUiText, maritimeProdStr.c_str(), 0);
         TTF_SetTextColor(gameCurrentFoodUiText, 127, 255, 0, 255);
         int vW, vH; TTF_GetTextSize(gameCurrentFoodUiText, &vW, &vH);
@@ -5777,6 +5789,7 @@ TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, tooltipY + 82.f);
         int vW, vH; TTF_GetTextSize(gameCurrentFoodUiText, &vW, &vH);
         TTF_DrawRendererText(gameCurrentFoodUiText, rightEdge - vW, tooltipY + 162.f);
         }
+
 
 // Effects to show the user
 TTF_SetTextString(gameFoodIndicatorUiText, "Effects", 0);
