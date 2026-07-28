@@ -281,6 +281,7 @@ enum class BuildingCategory {
     Industry, //gray Buildings
     Religion
 };
+//Income category Type
 enum class TaxCategory {
     None,
     Farm,       // green
@@ -289,7 +290,12 @@ enum class TaxCategory {
     Religious,   // purple
     Maritime        //Blue
 };
-
+//Food Category Type
+enum class FoodCategory{
+    None,
+    Farm,
+    Maritime
+};
 inline TaxCategory GetTaxCategory(BuildingType buildingType) {
     switch (buildingType) {
         // ── FARM (green) ──
@@ -366,6 +372,32 @@ inline TaxCategory GetTaxCategory(BuildingType buildingType) {
             return TaxCategory::None;
     }
 }
+
+inline FoodCategory GetFoodCategory(BuildingType buildingType){
+    switch (buildingType){
+
+    case BuildingType::Settlement_Village_Knight_T1: case BuildingType::Settlement_Village_Knight_T2: case BuildingType::Settlement_Village_Knight_T3:
+    case BuildingType::Settlement_Village_Viking_T1: case BuildingType::Settlement_Village_Viking_T2: case BuildingType::Settlement_Village_Viking_T3:
+    case BuildingType::Settlement_Village_Samurai_T1: case BuildingType::Settlement_Village_Samurai_T2: case BuildingType::Settlement_Village_Samurai_T3://villages produce food from farm
+    case BuildingType::PeasantryGrowth_T1: case BuildingType::PeasantryGrowth_T2: case BuildingType::PeasantryGrowth_T3:
+    case BuildingType::NobilityEstate_T1: case BuildingType::NobilityEstate_T2: case BuildingType::NobilityEstate_T3:
+    case BuildingType::PeasantryVikingGrowth_T1: case BuildingType::PeasantryVikingGrowth_T2: case BuildingType::PeasantryVikingGrowth_T3:
+    case BuildingType::NobilityVikingEstate_T1: case BuildingType::NobilityVikingEstate_T2: case BuildingType::NobilityVikingEstate_T3:
+    case BuildingType::PeasantrySamuraiGrowth_T1: case BuildingType::PeasantrySamuraiGrowth_T2: case BuildingType::PeasantrySamuraiGrowth_T3:
+    case BuildingType::NobilitySamuraiEstate_T1: case BuildingType::NobilitySamuraiEstate_T2:  case BuildingType::NobilitySamuraiEstate_T3:
+            return FoodCategory::Farm;
+
+    case BuildingType::KnightFishingPort_T1:  case BuildingType::KnightFishingPort_T2:  case BuildingType::KnightFishingPort_T3:
+    case BuildingType::VikingFishingPort_T1:  case BuildingType::VikingFishingPort_T2:  case BuildingType::VikingFishingPort_T3:
+    case BuildingType::SamuraiFishingPort_T1:  case BuildingType::SamuraiFishingPort_T2:  case BuildingType::SamuraiFishingPort_T3:
+            return FoodCategory::Maritime;
+
+        default:
+            return FoodCategory::None;
+    }
+}
+
+
 inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     switch (buildingType){
     case BuildingType::Barracks_T1:

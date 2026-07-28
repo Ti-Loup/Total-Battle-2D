@@ -8,6 +8,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "Buildings.h" // for TaxCategory && GetTaxCategory
 /**
  *
  *
@@ -63,8 +64,9 @@ struct WorldEventsData {
     //Effects
     //public Order
     int publicOrderModifier = 0;
-    //food production
-    float foodProductionMultiplier = 1.0f;
+    //food production based on its Category
+    float foodProductionFarmMultiplier = 1.0f;
+    float foodProductionMaritimeMultiplier = 1.0f;
     int foodFlatBonus = 0;
     // Ressources Production
     float resourceFishingProductionMultiplier = 1.0f;
@@ -86,74 +88,75 @@ inline const std::unordered_map<WorldEventsType, WorldEventsData>& GetWorldEvent
             //Food production 0
             //Fish Production 0
             //income 0
-            0, 0.0f, 0, 0.0f, 0.0f, 0, 1.0f, 5
+            //Food From farm stay the same -> Food from Maritime 0
+            0, 1.0f, 0.0f, 0, 0.0f, 0.0f, 0, 1.0f, 5
         }},
         { WorldEventsType::Earthquake, {
             "Earthquake",
             "My lord, A violent Earthquare has hit us. Hopefully none of our industries got affected.",
             WorldEventCategory::Negative,
-            0, 1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
         }},
         { WorldEventsType::Drought, {
             "Drought",
             "My Lord, It hasn't rained in 2 weeks, people are worried and the plantation is dying.",
             WorldEventCategory::Negative,
-            0, 1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
         }},
         { WorldEventsType::Plague, {
             "Plague",
             "My lord, a plague has pread to a settlement. It will spread inside our kingdom if we dont do something",
             WorldEventCategory::Negative,
-            0, 1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
         }},
         { WorldEventsType::Fire, {
             "Fire",
             "My lord, a fire spread accros the land! we bust be careful for our population",
             WorldEventCategory::Negative,
-            0, 1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
         }},
         { WorldEventsType::PoorPopulation, {
             "Poor Population",
             "My lord, our population is getting poorer everyday, the cost of war has a direct percution on them. We should reduce taxes to accomodate them",
             WorldEventCategory::Negative,
-            0, 1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
         }},
         //Good Events
         { WorldEventsType::GoodHarvest,{
             "Good Harvest",
             "My lord, there's rumors of a good recolt from our farmers. We should make a feast !",
             WorldEventCategory::Positive,
-            0, 1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
         }},
         { WorldEventsType::MiraculousFishCatch, {
             "Miraculous Fish Catch",
             "My lord, our fishing recold is miraculus ! A real miracle from god.",
                 WorldEventCategory::Positive,
-            0, 1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
             }},
         { WorldEventsType::FavorableWinds,{
             "Favorable Winds",
                 "My lord, the wind is on our side, our trade merchants and ships will be faster.",
             WorldEventCategory::Positive,
-            0, 1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
         }},
         { WorldEventsType::Justice,{
             "Justice",
                 "MY lord, the wanted man known has Vitzlek has been happrenended, justice has beena served. For the greater good",
             WorldEventCategory::Positive,
-            0, 1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
         }},
         { WorldEventsType::NewInvension,{
             "New Invension",
                 "Sir, we have been aware that our guild masters made a new extraordinary object that will help to boost the production of our goods.",
             WorldEventCategory::Positive,
-            0, 1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
         }},
         { WorldEventsType::WarSign,{
             "War Sign",
             "Sir, Our watchers and other members of other kingdoms saw a crow on top of a hill, It may be a sign of war?",
             WorldEventCategory::Positive,
-            0, 1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
         }},
     };
     return database;

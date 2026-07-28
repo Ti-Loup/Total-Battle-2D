@@ -4821,9 +4821,11 @@ private://constructor
         player.nextTurnFood = 0;
         player.foodStorage = 0;
         int rawFoodTotal = 0;
-        float worldEventPortsFoodMultiplier = 1.0f; // For World Event Storm
+        float worldEventFarmFoodMultiplier = 1.0f;
+        float worldEventMaritimeFoodMultiplier = 1.0f; // For World Event Storm
         if (const WorldEventsData *activeEvent = GetActiveWorldEventData()) {
-            worldEventPortsFoodMultiplier = activeEvent->foodProductionMultiplier;//Food production is stopped for the ports
+            worldEventFarmFoodMultiplier = activeEvent->foodProductionFarmMultiplier;
+            worldEventMaritimeFoodMultiplier = activeEvent->foodProductionMaritimeMultiplier;//Food production is stopped for the ports
         }
         for (const auto &s : settlements) {
             if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
@@ -4831,10 +4833,15 @@ private://constructor
                 if (building_type == BuildingType::None) continue;
                 const BuildingData *building_data = GetBuildingData(building_type);
                 if (!building_data) continue;
-                //For Storm Worl event
+                //For Storm World event, Farm and Maritime food react independently
                 int foodFromBuilding = building_data->foodProduced;
-                if (GetTaxCategory(building_type) == TaxCategory::Maritime) {
-                    foodFromBuilding = (int)std::round(foodFromBuilding * worldEventPortsFoodMultiplier);
+                FoodCategory food_category = GetFoodCategory(building_type);
+                //Maritime and Farm food is now seperated.
+                if (food_category == FoodCategory::Maritime) {
+                    foodFromBuilding = (int)std::round(foodFromBuilding * worldEventMaritimeFoodMultiplier);
+                }
+                else if (food_category == FoodCategory::Farm) {
+                    foodFromBuilding = (int)std::round(foodFromBuilding * worldEventFarmFoodMultiplier);
                 }
 
                 rawFoodTotal += building_data->foodProduced;
@@ -6646,7 +6653,8 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
     int AmountWorldEventsEffectRows(const WorldEventsData *events_data) {
         int count = 1;//duration of effect always shown
         if (events_data->publicOrderModifier != 0) count++;
-        if (events_data->foodProductionMultiplier != 1.0f) count++;
+        if (events_data->foodProductionFarmMultiplier != 1.0f) count++;
+        if (events_data->foodProductionMaritimeMultiplier != 1.0f) count++;
         if (events_data->foodFlatBonus != 0) count++;
         if (events_data->resourceFishingProductionMultiplier != 1.0f) count++;
         if (events_data->goldIncomeMultiplier != 1.0f) count++;
@@ -6700,10 +6708,15 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
         std::string v = (pos ? "+" : "") + std::to_string(data->publicOrderModifier);
         drawRow(pos ? gamePublicOrderPositifTexture : gamePublicOrderNegatifTexture, "Public Order", v, pos);
     }
-    if (data->foodProductionMultiplier != 1.0f) {
-        int pct = (int)std::round((data->foodProductionMultiplier - 1.0f) * 100.f);
+    if (data->foodProductionFarmMultiplier != 1.0f) {
+        int pct = (int)std::round((data->foodProductionFarmMultiplier - 1.0f) * 100.f);
         std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
-        drawRow(gameFoodIconUi, "Food Production", v, pct >= 0);
+        drawRow(gameFoodIconUi, "Food Production (Farm)", v, pct >= 0);
+    }
+    if (data->foodProductionMaritimeMultiplier != 1.0f) {
+        int pct = (int)std::round((data->foodProductionMaritimeMultiplier - 1.0f) * 100.f);
+        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
+        drawRow(gameFoodIconUi, "Food Production (Maritime)", v, pct >= 0);
     }
     if (data->foodFlatBonus != 0) {
         bool pos = data->foodFlatBonus > 0;
@@ -6876,8 +6889,15 @@ void RenderBuildingStatRows(const BuildingData* data, BuildingType type, float t
         drawRow(data->publicOrderBonus > 0 ? gamePublicOrderPositifTexture : gamePublicOrderNegatifTexture,
                 "Public Order:", (data->publicOrderBonus >= 0 ? "+" : "") + std::to_string(data->publicOrderBonus), {71, 255, 164, 255});
 
-    if (data->foodProduced != 0)
-        drawRow(gameFoodIconUi, "Food Produced:", "+" + std::to_string(data->foodProduced), {127, 255, 0, 255});
+    if (data->foodProduced != 0) {
+        const char* foodLabel = "Food Produced:";
+        switch (GetFoodCategory(type)) {
+            case FoodCategory::Farm: foodLabel = "Food(Farm):";     break;
+            case FoodCategory::Maritime: foodLabel = "Food(Maritime):"; break;
+             default: break;
+        }
+        drawRow(gameFoodIconUi, foodLabel, "+" + std::to_string(data->foodProduced), {127, 255, 0, 255});
+    }
 
     //Fish Resource
     for (const auto& res : data->resourcesProduced) {
