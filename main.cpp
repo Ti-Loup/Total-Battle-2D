@@ -331,9 +331,17 @@ public:
     //maps pick it up automatically
     std::unordered_map<ResourceType, int> goodsProducedThisTurnByType;
     std::unordered_map<ResourceType, int> goodsStoredByType;
+    //Goods actually sitting in each region's own warehouses: [provinceID][ResourceType] -> amount
+    std::unordered_map<int, std::unordered_map<ResourceType, int>> goodsStoredByProvinceAndType;
+    //Goods produced this turn per region: [provinceID][ResourceType] -> amount
+    std::unordered_map<int, std::unordered_map<ResourceType, int>> goodsProducedThisTurnByProvinceAndType;
+    //Storage capacity of each region (sum of resourcesStorage of its own buildings)
+    std::unordered_map<int, int> goodsStorageCapacityByProvince;
     //Goods Production Manager -> toggle to produce or not / Defautl -> True
     std::unordered_map<ResourceType, int> goodsMaxProductionByType;
     std::unordered_map<ResourceType, bool> goodsProductionEnabledByType;
+
+
     //Click rects rebuilt every frame the Goods Manager popup is open
     std::vector<std::pair<SDL_FRect, ResourceType>> goodsManagerMinusRects; // <-
     std::vector<std::pair<SDL_FRect, ResourceType>> goodsManagerPlusRects; // ->
@@ -3673,8 +3681,10 @@ private://constructor
         for (const auto& s : settlements)
             if (s.settlementData.provinceID == provinceID)provinceSettlements.push_back(&s);
 
+        //Provinces Own Income, Public order and stored Goods amount.
         int incomeTotal = 0;
         int publicOrderTotal = 0;
+        int provinceGoodsCapacity = 0;
         for (auto* s : provinceSettlements) {
             incomeTotal += s->settlementData.baseIncome;
             for (int b = 1; b < (int)s->settlementData.buildings.size(); b++) {
@@ -3684,7 +3694,23 @@ private://constructor
                 }
             }
             publicOrderTotal = s->settlementData.publicOrder;
+            //region own storage capacity . Capital/Castle base + warehouse amount
+            for (BuildingType bt : s->settlementData.buildings) {
+                if (bt == BuildingType::None) continue;
+                const BuildingData* bd = GetBuildingData(bt);
+                if (bd) provinceGoodsCapacity += bd->resourcesStorage;
+            }
         }
+
+        //what's inside that region warehouse right now
+        int provinceGoodsCurrent = 0;
+        if (goodsStoredByProvinceAndType.count(provinceID)) {
+            for (auto& [type, amount] : goodsStoredByProvinceAndType[provinceID])
+                provinceGoodsCurrent += amount;
+        }
+        player.perProvinceGoodsStorage = provinceGoodsCapacity;
+        player.perProvinceCurrentGoods = provinceGoodsCurrent;
+
         //set the color
         SDL_Color factionColor;
         if(province.owner == FactionZone::Knight) {
@@ -5011,8 +5037,10 @@ private://constructor
 
         //GOODS STORAGE SECTION
         player.goodsStorage = 0;
+        goodsStorageCapacityByProvince.clear();
         goodsProducedThisTurn = 0;
         goodsProducedThisTurnByType.clear();
+        goodsProducedThisTurnByProvinceAndType.clear();
 
         float worldEventFishMultiplier = 1.0f;
         if (const WorldEventsData* activeEvent = GetActiveWorldEventData()) {
@@ -5021,19 +5049,21 @@ private://constructor
 
         for (const auto &s : settlements) {
             if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
+            int provID = s.settlementData.provinceID;
             for (BuildingType bt : s.settlementData.buildings) {
                 if (bt == BuildingType::None) continue;
                 const BuildingData* bd = GetBuildingData(bt);
                 if (!bd) continue;
                 player.goodsStorage += bd->resourcesStorage;
+                goodsStorageCapacityByProvince[provID] += bd->resourcesStorage;
                 for (const auto& resource_amount : bd->resourcesProduced) {
                     int amount = resource_amount.amount;
                     //(For Storm World Event-> during this event no fish production)
                     if (resource_amount.type == ResourceType::Fish) {
                         amount = (int)std::round(amount * worldEventFishMultiplier);
                     }
-                    // goodsProducedThisTurn += resource_amount.amount; // Fish now
-                    goodsProducedThisTurnByType[resource_amount.type] += resource_amount.amount; // per-type goods tooltip
+                    goodsProducedThisTurnByType[resource_amount.type] += amount; // kingdom-wide tooltip total
+                    goodsProducedThisTurnByProvinceAndType[provID][resource_amount.type] += amount; // per-region total
                 }
             }
         }
@@ -5046,7 +5076,12 @@ private://constructor
             }
             goodsProducedThisTurn += amount;
         }
-
+        for (auto& [provID, typeMap] : goodsProducedThisTurnByProvinceAndType) {
+            for (auto& [type, amount] : typeMap) {
+                bool enabled = goodsProductionEnabledByType.count(type) ? goodsProductionEnabledByType[type] : true;
+                if (!enabled) amount = 0;
+            }
+        }
         //GOODS Indication UI TOP
         //Icone
         SDL_FRect wareHouseAmountIndicator = {contentRect.x + 465.f, contentRect.y, 30.f,30.f};
@@ -7762,26 +7797,41 @@ public:
         }
 
         //GOODS STORAGE (per-type, expandablemore goods type)
-        int totalGoodsStored = 0;
-        for (auto& [type, amount] : goodsStoredByType) totalGoodsStored += amount;
 
-        for (auto& [type, producedAmount] : goodsProducedThisTurnByType) {
-            int spaceLeft = player.goodsStorage - totalGoodsStored;
-            if (spaceLeft <= 0) break; // warehouse full overall, nothing more fits anywhere
+        for (auto& [provinceID, producedByType] : goodsProducedThisTurnByProvinceAndType) {
+            int capacity = goodsStorageCapacityByProvince.count(provinceID) ? goodsStorageCapacityByProvince[provinceID] : 0;
 
-            int currentStoredForType = goodsStoredByType.count(type) ? goodsStoredByType[type] : 0;
-            int typeCap = goodsMaxProductionByType.count(type) ? goodsMaxProductionByType[type] : -1; // -1 = No Limit
-            int toAdd = producedAmount;
-            if (typeCap >= 0) {
-                int roomUnderCap = typeCap - currentStoredForType;
-                toAdd = std::min(toAdd, std::max(0, roomUnderCap));
+            auto& provinceStock = goodsStoredByProvinceAndType[provinceID];
+            int currentStoredInProvince = 0;
+            for (auto& [type, amount] : provinceStock) currentStoredInProvince += amount;
+
+            for (auto& [type, producedAmount] : producedByType) {
+                int spaceLeft = capacity - currentStoredInProvince;
+                if (spaceLeft <= 0) break; // this region's warehouses are full, excess is lost here (not shared with other regions) ->Should go towards the next region to fill it.
+
+                int currentStoredForType = provinceStock.count(type) ? provinceStock[type] : 0;
+                int typeCap = goodsMaxProductionByType.count(type) ? goodsMaxProductionByType[type] : -1; // -1 = No Limit
+                int toAdd = producedAmount;
+                if (typeCap >= 0) {
+                    int roomUnderCap = typeCap - currentStoredForType;
+                    toAdd = std::min(toAdd, std::max(0, roomUnderCap));
+                }
+                toAdd = std::min(toAdd, spaceLeft);
+
+                provinceStock[type] += toAdd;
+                currentStoredInProvince += toAdd;
             }
-            toAdd = std::min(toAdd, spaceLeft);
-
-            goodsStoredByType[type] += toAdd;
-            totalGoodsStored += toAdd;
         }
-        player.currentGoods = totalGoodsStored;
+
+        // Rebuild kingdom-wide totals from the per-province stockpiles
+        player.currentGoods = 0;
+        goodsStoredByType.clear();
+        for (auto& [provinceID, typeMap] : goodsStoredByProvinceAndType) {
+            for (auto& [type, amount] : typeMap) {
+                player.currentGoods += amount;
+                goodsStoredByType[type] += amount;
+            }
+        }
 
         //POPULATION
         //population increase each turn based on base random bonus + building bonus
