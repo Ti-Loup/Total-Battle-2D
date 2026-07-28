@@ -5383,16 +5383,17 @@ private://constructor
         int industryIncome = 0;
         int religiousIncome = 0;
         int maritimeIncome = 0;
+        int maritimeIncomeModified = 0;
         int mainUpkeep = 0;
         int buildingMaintenance = 0;
         int armyUpkeep = 0;
         //Season Effect Ui Shows
         Date::Season coinTooltipSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
         SeasonModifiers coinTooltipSeasonModifier = GetSeasonModifiers(coinTooltipSeason);
-        //During a Storm it shows in the tooltip the effect
         float worldEventMaritimeGoldMultiplier = 1.0f;
-        if (const WorldEventsData* activeEvent = GetActiveWorldEventData()) {
-            worldEventMaritimeGoldMultiplier = activeEvent->goldIncomeMultiplier;
+        const WorldEventsData* activeGoldEvent = GetActiveWorldEventData();
+        if (activeGoldEvent) {
+            worldEventMaritimeGoldMultiplier = activeGoldEvent->goldIncomeMultiplier;
         }
         for (const auto& s : settlements) {
             if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
@@ -5409,7 +5410,10 @@ private://constructor
                     case TaxCategory::Commerce: commerceIncome += s.settlementData.baseIncome; break;
                     case TaxCategory::Industry: industryIncome += s.settlementData.baseIncome; break;
                     case TaxCategory::Religious: religiousIncome += s.settlementData.baseIncome; break;
-                    case TaxCategory::Maritime: maritimeIncome += (int)std::round(s.settlementData.baseIncome * worldEventMaritimeGoldMultiplier); break;
+                    case TaxCategory::Maritime:
+                        maritimeIncome += s.settlementData.baseIncome;
+                        maritimeIncomeModified += (int)std::round(s.settlementData.baseIncome * worldEventMaritimeGoldMultiplier);
+                        break;
                     default: taxIncome += s.settlementData.baseIncome; break;
                 }                for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
                     BuildingType bt = s.settlementData.buildings[b];
@@ -5427,15 +5431,19 @@ private://constructor
                         case TaxCategory::Commerce: commerceIncome += building_data->incomeBonus; break;
                         case TaxCategory::Industry: industryIncome += building_data->incomeBonus; break;
                         case TaxCategory::Religious: religiousIncome += building_data->incomeBonus; break;
-                        case TaxCategory::Maritime:maritimeIncome += (int)std::round(building_data->incomeBonus * worldEventMaritimeGoldMultiplier);break;
+                        case TaxCategory::Maritime:
+                            maritimeIncome += building_data->incomeBonus;
+                            maritimeIncomeModified += (int)std::round(building_data->incomeBonus * worldEventMaritimeGoldMultiplier);
+                            break;
                         default: break; // uncategorized buildings just don't show a tax row
                     }
                 }
             }
         }
         int farmSeasonBonus = farmIncomeModified - farmIncomeBased;//the bonus only
+        int worldEventGoldDelta = maritimeIncomeModified - maritimeIncome;
         int totalIncome  = taxIncome + farmIncomeModified + commerceIncome + industryIncome + religiousIncome + maritimeIncome;
-        int totalExpense = mainUpkeep + buildingMaintenance;
+        int totalExpense = mainUpkeep + buildingMaintenance - worldEventGoldDelta;
         int goldNextTurn = totalIncome - totalExpense;
 
     // Calcul dynamique de la hauteur
@@ -5459,6 +5467,7 @@ private://constructor
     if (mainUpkeep != 0) expenseRows++;
     if (armyUpkeep != 0) expenseRows++;
     if (buildingMaintenance != 0) expenseRows++;
+    if (worldEventGoldDelta != 0) expenseRows++;
 
     float incomeSepH  = 0.f;
     if (incomeRows  > 0) incomeSepH  = sepH;
@@ -5568,8 +5577,12 @@ private://constructor
     // Expenses
     drawRow("Army Upkeep",     armyUpkeep,          true);
     drawRow("Building Maint.", buildingMaintenance, true);
-    if (expenseRows > 0) drawSep();
+    std::string worldEventGoldLabel = activeGoldEvent
+    ? ("World Event (" + activeGoldEvent->name + ")")
+    : "World Event";
+    drawRow(worldEventGoldLabel.c_str(), worldEventGoldDelta, false);
 
+    if (expenseRows > 0) drawSep();
     // Totals
     drawTotal("Total Income",  totalIncome,  false);
     drawTotal("Total Expense", totalExpense, true);
