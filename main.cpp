@@ -3804,6 +3804,37 @@ private://constructor
         TTF_SetTextString(gameStatUIText, province.isCapital ? "Yes" : "No", 0);
         TTF_SetTextColor(gameStatUIText, 255, 215, 0, 255);
         TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
+        statY += 34.f;
+        //Goods Per settlements stock
+        if (province.owner == FactionZone::Knight) {
+            SDL_SetRenderDrawColor(renderer, 60, 40, 20, 200);
+        }
+        else if (province.owner == FactionZone::Viking) {
+            SDL_SetRenderDrawColor(renderer, 60, 20, 20, 200);
+        }
+        else if (province.owner == FactionZone::Samurai) {
+            SDL_SetRenderDrawColor(renderer, 20, 60, 45, 200);
+        }
+        SDL_FRect goodsStoragePerProvinceBar = {leftX + 5.f, statY, leftW - 10.f, 28.f};
+        SDL_RenderFillRect(renderer, &goodsStoragePerProvinceBar);
+        TTF_SetTextString(gameStatUITitleText, "Region Goods Stored", 0);
+        TTF_SetTextColor(gameStatUITitleText, 160, 160, 160, 255);
+        TTF_DrawRendererText(gameStatUITitleText, leftX + 5.f, statY + 2.f);
+        statY += 34.f;
+        //Province Goods
+        SDL_FRect goodsStorageIcon = {leftX + 55.f, statY, 28.f, 28.f};
+        SDL_RenderTexture(renderer, gameGoodsStorageUiIcon, nullptr, &goodsStorageIcon);
+        //per province stock
+        std::string perProvinceStockStr = std::to_string(player.perProvinceCurrentGoods) + "/" + std::to_string(player.perProvinceGoodsStorage);
+        TTF_SetTextString(gameStatUIText, perProvinceStockStr.c_str(), 0);
+        TTF_SetTextColor(gameStatUIText, 255, 255, 255, 255);
+        TTF_DrawRendererText(gameStatUIText, leftX + 85.f, statY + 5.f);
+        statY += 34.f;
+        //Icon of the icon being added + the number
+
+
+
+
 
         //Province UI Different Buttons (buildings, garrison, All buildings, recruit a lord, recruit a hero)
         //Render those Buttons

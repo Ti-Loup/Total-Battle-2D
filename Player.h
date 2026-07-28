@@ -21,6 +21,8 @@ public :
     //Goods Storage
     int currentGoods = 0;
     int goodsStorage = 0;
+    int perProvinceCurrentGoods = 0;
+    int perProvinceGoodsStorage = 0;
     //Improved Growth
     //peasantry Random
     int basePeasantryBirth = 70 + rand() % 21;   // 70-90
