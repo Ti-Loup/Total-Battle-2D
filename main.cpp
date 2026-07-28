@@ -3749,7 +3749,7 @@ private://constructor
         float goodsSectionReservedSpace = 86.f;
         float extraGoodsHeight = std::max(0.f, provinceGoodsRowCount * goodsRowH - goodsSectionReservedSpace);
         float leftW = 250.f, leftH = 380.f + extraGoodsHeight;//size
-        float leftX = 0.f, leftY = 1080.f - leftH;//position 
+        float leftX = 0.f, leftY = 1080.f - leftH;//position
 
         SDL_SetRenderDrawColor(renderer, 20, 20, 20, 210);
         SDL_FRect leftPanel = {leftX, leftY, leftW, leftH};
@@ -5139,6 +5139,12 @@ private://constructor
         TTF_SetTextString(gameGoodsStorageUiTitleText, currentMaxGoodsStorageStr.c_str(), 0);
         TTF_SetTextColor(gameGoodsStorageUiTitleText, 255,255,255,255);
         TTF_DrawRendererText(gameGoodsStorageUiTitleText, contentRect.x + 500.f, contentRect.y + 3.f);
+        //measure the text so the button follows it along
+        int goodsStorageTextW = 0;
+        int goodsStorageTextH = 0;
+        TTF_GetTextSize(gameGoodsStorageUiTitleText, &goodsStorageTextW, &goodsStorageTextH);
+        float goodsManagerButtonGap = 8.f; // room between text and button
+        GoodsProductionMaganerButton.circleX = contentRect.x + 500.f + (float)goodsStorageTextW+ goodsManagerButtonGap + GoodsProductionMaganerButton.radius;
 
         //Hovered Goods Indicator
         SDL_FRect goodsStorageHoveredZone = {contentRect.x + 465.f, contentRect.y, 90.f, 25.f};

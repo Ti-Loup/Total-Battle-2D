@@ -93,7 +93,8 @@ inline const std::unordered_map<WorldEventsType, WorldEventsData>& GetWorldEvent
         }},
         { WorldEventsType::Earthquake, {
             "Earthquake",
-            "My lord, A violent Earthquare has hit us. Hopefully none of our industries got affected.",
+            "My lord, A violent Earthquare has hit our land. Hopefully none of our industries got affected.",
+            //Buildings get damaged, nothing is produced if the building is damaged. must be repared first.
             WorldEventCategory::Negative,
             0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
         }},
