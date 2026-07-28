@@ -44,7 +44,7 @@
  * fishing ports gives food / produce fish -> stocked
  * Done -> pannel buttons popup ui element for each .exemple -> Add some win Achievements (UPDATE THEM HERE IF TIME OTHER 0.3.0)
  * Done -> Make the Income based on Farm,Commerce,Industry,Religion and not just all income instantly.
- *
+ * Done -> Different Food Production (Food From Farm, Food From Ports)
  * Update Season to work with money
  * Make the Goods manager (To stop production, make a max amount an item can produce)
 
@@ -5389,7 +5389,11 @@ private://constructor
         //Season Effect Ui Shows
         Date::Season coinTooltipSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
         SeasonModifiers coinTooltipSeasonModifier = GetSeasonModifiers(coinTooltipSeason);
-
+        //During a Storm it shows in the tooltip the effect
+        float worldEventMaritimeGoldMultiplier = 1.0f;
+        if (const WorldEventsData* activeEvent = GetActiveWorldEventData()) {
+            worldEventMaritimeGoldMultiplier = activeEvent->goldIncomeMultiplier;
+        }
         for (const auto& s : settlements) {
             if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
 
@@ -5405,7 +5409,7 @@ private://constructor
                     case TaxCategory::Commerce: commerceIncome += s.settlementData.baseIncome; break;
                     case TaxCategory::Industry: industryIncome += s.settlementData.baseIncome; break;
                     case TaxCategory::Religious: religiousIncome += s.settlementData.baseIncome; break;
-                    case TaxCategory::Maritime: maritimeIncome += s.settlementData.baseIncome; break;
+                    case TaxCategory::Maritime: maritimeIncome += (int)std::round(s.settlementData.baseIncome * worldEventMaritimeGoldMultiplier); break;
                     default: taxIncome += s.settlementData.baseIncome; break;
                 }                for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
                     BuildingType bt = s.settlementData.buildings[b];
@@ -5423,7 +5427,7 @@ private://constructor
                         case TaxCategory::Commerce: commerceIncome += building_data->incomeBonus; break;
                         case TaxCategory::Industry: industryIncome += building_data->incomeBonus; break;
                         case TaxCategory::Religious: religiousIncome += building_data->incomeBonus; break;
-                        case TaxCategory::Maritime: maritimeIncome += building_data->incomeBonus; break;
+                        case TaxCategory::Maritime:maritimeIncome += (int)std::round(building_data->incomeBonus * worldEventMaritimeGoldMultiplier);break;
                         default: break; // uncategorized buildings just don't show a tax row
                     }
                 }
