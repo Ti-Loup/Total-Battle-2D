@@ -696,6 +696,8 @@ public:
     WorldEventsType currentWorldsEvent = WorldEventsType::None;//Start with none event
     //World Events Calculate trigger each turn
     int worldEventCountdown = 0;
+    //How many turn the world event is active
+    int activeWorldEventTurnsRemaining = 0;
 
 
 
@@ -4757,6 +4759,12 @@ private://constructor
         player.nextTurnGold = 0;
         Date::Season coinSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
         SeasonModifiers coinSeasonModifier = GetSeasonModifiers(coinSeason);
+
+        //World Events Storm (Maritime buildings affected)
+        float worldEventMaritimeGoldMultiplier = 1.0f;
+        if (const WorldEventsData *activeEvent = GetActiveWorldEventData()) {
+            worldEventMaritimeGoldMultiplier = activeEvent -> goldIncomeMultiplier;//No income from ports during Storm * 0
+        }
         for (const auto& s: settlements) {
             if (provinces[s.settlementData.provinceID].owner == player.faction) {
                 // Upkeep du main building toujours déduit (même sans collecte de taxe)
@@ -4775,8 +4783,11 @@ private://constructor
                             const BuildingData* bd = GetBuildingData(s.settlementData.buildings[b]);
                             if (bd) {
                                 int incomeBonus = bd->incomeBonus;
-                                if (GetTaxCategory(s.settlementData.buildings[b]) == TaxCategory::Farm)
+                                TaxCategory cat = GetTaxCategory(s.settlementData.buildings[b]);
+                                if (cat == TaxCategory::Farm) //Coin Season modifier for Farm income
                                     incomeBonus = (int)std::round(incomeBonus * coinSeasonModifier.incomeFarmMultiplier);
+                                if (cat == TaxCategory::Maritime) // Coin World Event modifier for Maritime Income
+                                    incomeBonus = (int)std::round(incomeBonus * worldEventMaritimeGoldMultiplier);
                                 player.nextTurnGold += incomeBonus;
                                 player.nextTurnGold -= bd->upkeep;
                             }
@@ -4810,12 +4821,22 @@ private://constructor
         player.nextTurnFood = 0;
         player.foodStorage = 0;
         int rawFoodTotal = 0;
+        float worldEventPortsFoodMultiplier = 1.0f; // For World Event Storm
+        if (const WorldEventsData *activeEvent = GetActiveWorldEventData()) {
+            worldEventPortsFoodMultiplier = activeEvent->foodProductionMultiplier;//Food production is stopped for the ports
+        }
         for (const auto &s : settlements) {
             if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
             for (BuildingType building_type : s.settlementData.buildings) {
                 if (building_type == BuildingType::None) continue;
                 const BuildingData *building_data = GetBuildingData(building_type);
                 if (!building_data) continue;
+                //For Storm Worl event
+                int foodFromBuilding = building_data->foodProduced;
+                if (GetTaxCategory(building_type) == TaxCategory::Maritime) {
+                    foodFromBuilding = (int)std::round(foodFromBuilding * worldEventPortsFoodMultiplier);
+                }
+
                 rawFoodTotal += building_data->foodProduced;
                 player.nextTurnFood -= building_data->foodUpkeep;
                 player.foodStorage += building_data->foodStorage;
@@ -4954,6 +4975,12 @@ private://constructor
         player.goodsStorage = 0;
         goodsProducedThisTurn = 0;
         goodsProducedThisTurnByType.clear();
+
+        float worldEventFishMultiplier = 1.0f;
+        if (const WorldEventsData* activeEvent = GetActiveWorldEventData()) {
+            worldEventFishMultiplier = activeEvent->resourceFishingProductionMultiplier;
+        }
+
         for (const auto &s : settlements) {
             if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
             for (BuildingType bt : s.settlementData.buildings) {
@@ -4961,9 +4988,14 @@ private://constructor
                 const BuildingData* bd = GetBuildingData(bt);
                 if (!bd) continue;
                 player.goodsStorage += bd->resourcesStorage;
-                for (const auto& res : bd->resourcesProduced) {
-                    // goodsProducedThisTurn += res.amount; // Fish now
-                    goodsProducedThisTurnByType[res.type] += res.amount; // per-type goods tooltip
+                for (const auto& resource_amount : bd->resourcesProduced) {
+                    int amount = resource_amount.amount;
+                    //(For Storm World Event-> during this event no fish production)
+                    if (resource_amount.type == ResourceType::Fish) {
+                        amount = (int)std::round(amount * worldEventFishMultiplier);
+                    }
+                    // goodsProducedThisTurn += resource_amount.amount; // Fish now
+                    goodsProducedThisTurnByType[resource_amount.type] += resource_amount.amount; // per-type goods tooltip
                 }
             }
         }
@@ -6603,6 +6635,13 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         int idx = (int)SDL_rand((int)allEvents.size());
         return allEvents[idx];
     }
+
+
+    // Returns the data of the event currently affecting stats. nullptr if none
+    const WorldEventsData* GetActiveWorldEventData() const {
+        if (activeWorldEventTurnsRemaining <= 0) return nullptr;
+        return GetWorldEventData(currentWorldsEvent);
+    }
     // counts how many effect rows a worldEvent has
     int AmountWorldEventsEffectRows(const WorldEventsData *events_data) {
         int count = 1;//duration of effect always shown
@@ -7525,6 +7564,11 @@ public:
     Date::Season endTurnSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
     SeasonModifiers endTurnSeasonMods = GetSeasonModifiers(endTurnSeason);
     int seasonPublicOrderModifier = GetSeasonModifiers(endTurnSeason).publicOrderBonus;
+    //World Events Public Order modifier
+    int worldEventsPublicOrderModifier = 0;
+    if (const WorldEventsData *activeEvent = GetActiveWorldEventData()) {
+        worldEventsPublicOrderModifier = activeEvent->publicOrderModifier;
+    }
     for (auto& s : settlements) {
         int provID = s.settlementData.provinceID;
 
@@ -7538,7 +7582,8 @@ public:
         s.settlementData.publicOrder += provincePublicOrderBonus[provID];
         // season effect, applies to everyone
         s.settlementData.publicOrder += seasonPublicOrderModifier;
-
+        //Bonus from worldEvents
+        s.settlementData.publicOrder += worldEventsPublicOrderModifier;
         if (provinces[provID].owner == player.faction) {
             s.settlementData.publicOrder += foodPublicOrderModifier;
         }
@@ -7654,11 +7699,15 @@ public:
             }
         }
         float foodMultiplier = GetFoodPopulationGrowthMultiplier();
-
+        //Population Modification from World Events.
+        float worldEventPopulationMultiplier = 1.0f;
+        if (const WorldEventsData* activeEvent = GetActiveWorldEventData()) {
+            worldEventPopulationMultiplier = activeEvent->populationGrowthMultiplier;
+        }
         // Calcul global Birthrate (Base + buildings) multiplied by food AND season birth multiplier
-        int totalPeasantryBirths = (int)((float)(player.basePeasantryBirth + buildingPeasantryBonus) * foodMultiplier * endTurnSeasonMods.birthRateMultiplier);
-        int totalNobilityBirths  = (int)((float)(player.baseNobilityBirth + buildingNobilityBonus) * foodMultiplier * endTurnSeasonMods.birthRateMultiplier);
-        int totalClergyBirths = (int)((float)(player.baseClergyGrowth + buildingClergyBonus) * foodMultiplier * endTurnSeasonMods.birthRateMultiplier);
+        int totalPeasantryBirths = (int)((float)(player.basePeasantryBirth + buildingPeasantryBonus) * foodMultiplier * endTurnSeasonMods.birthRateMultiplier * worldEventPopulationMultiplier);
+        int totalNobilityBirths  = (int)((float)(player.baseNobilityBirth + buildingNobilityBonus) * foodMultiplier * endTurnSeasonMods.birthRateMultiplier * worldEventPopulationMultiplier);
+        int totalClergyBirths = (int)((float)(player.baseClergyGrowth + buildingClergyBonus) * foodMultiplier * endTurnSeasonMods.birthRateMultiplier * worldEventPopulationMultiplier);
 
         // deaths scaled by season death multiplier (winter = harsher, summer = milder)
         int totalPeasantryDeaths = (int)((float)player.basePeasantryDeath * endTurnSeasonMods.deathRateMultiplier);
@@ -7703,11 +7752,25 @@ public:
     currentTurn++;
     SDL_Log("Turn %d || your turn (%d)", currentTurn, (int)player.faction);
 
-    worldEventCountdown --;
-    if (worldEventCountdown <= 0) {
-        currentWorldsEvent = PickRandomWorldEvents();
-        bWorldEventInfoPopup = true;
-        worldEventCountdown = RollWorldEventCountdown();//restart
+    // Tick down the currently active event, if any
+    if (activeWorldEventTurnsRemaining > 0) {
+        activeWorldEventTurnsRemaining--;//decrease it after a turn
+        if (activeWorldEventTurnsRemaining <= 0) {
+            currentWorldsEvent = WorldEventsType::None; // go back to normal
+            SDL_Log("World event ended. For now :o");
+        }
+    }
+
+    // Only roll for a new event once no event is currently active
+    if (activeWorldEventTurnsRemaining <= 0) {
+        worldEventCountdown--;
+        if (worldEventCountdown <= 0) {
+           currentWorldsEvent = PickRandomWorldEvents();
+            const WorldEventsData* newEventData = GetWorldEventData(currentWorldsEvent);
+            activeWorldEventTurnsRemaining = newEventData ? newEventData->durationTurns : 1;
+            bWorldEventInfoPopup = true;
+            worldEventCountdown = RollWorldEventCountdown(); // countdown to the one after this
+        }
     }
 }
 
