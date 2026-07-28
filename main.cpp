@@ -3710,6 +3710,16 @@ private://constructor
         }
         player.perProvinceGoodsStorage = provinceGoodsCapacity;
         player.perProvinceCurrentGoods = provinceGoodsCurrent;
+        //breakdown of exactly what's stored here, for the icon+amount rows under "Region Goods Stored"
+        std::vector<std::pair<ResourceType,int>> provinceGoodsList;
+        if (goodsStoredByProvinceAndType.count(provinceID)) {
+            for (auto& [type, amount] : goodsStoredByProvinceAndType[provinceID]) {
+                if (amount > 0) provinceGoodsList.push_back({type, amount});
+            }
+        }
+        std::sort(provinceGoodsList.begin(), provinceGoodsList.end(),
+            [](const auto& a, const auto& b) { return (int)a.first < (int)b.first; });
+
 
         //set the color
         SDL_Color factionColor;
@@ -3729,8 +3739,17 @@ private://constructor
 
         // LEFT UI PART
         //PROVINCE
-        float leftW = 250.f, leftH = 380.f;//size
-        float leftX = 0.f, leftY = 700.f;//position
+        float goodsRowH = 26.f;
+        float goodsChipW = 55.f; // fixed slot per icon+number
+        float goodsUsableW = 250.f - 40.f;
+        int goodsChipsPerRow = std::max(1, (int)(goodsUsableW / goodsChipW));
+        int provinceGoodsRowCount = provinceGoodsList.empty()
+            ? 1
+            : (int)std::ceil((float)provinceGoodsList.size() / goodsChipsPerRow);
+        float goodsSectionReservedSpace = 86.f;
+        float extraGoodsHeight = std::max(0.f, provinceGoodsRowCount * goodsRowH - goodsSectionReservedSpace);
+        float leftW = 250.f, leftH = 380.f + extraGoodsHeight;//size
+        float leftX = 0.f, leftY = 1080.f - leftH;//position 
 
         SDL_SetRenderDrawColor(renderer, 20, 20, 20, 210);
         SDL_FRect leftPanel = {leftX, leftY, leftW, leftH};
@@ -3848,16 +3867,45 @@ private://constructor
         TTF_DrawRendererText(gameStatUITitleText, leftX + 5.f, statY + 2.f);
         statY += 34.f;
         //Province Goods
-        SDL_FRect goodsStorageIcon = {leftX + 55.f, statY, 28.f, 28.f};
+        SDL_FRect goodsStorageIcon = {leftX + 75.f, statY, 28.f, 28.f};
         SDL_RenderTexture(renderer, gameGoodsStorageUiIcon, nullptr, &goodsStorageIcon);
         //per province stock
         std::string perProvinceStockStr = std::to_string(player.perProvinceCurrentGoods) + "/" + std::to_string(player.perProvinceGoodsStorage);
         TTF_SetTextString(gameStatUIText, perProvinceStockStr.c_str(), 0);
         TTF_SetTextColor(gameStatUIText, 255, 255, 255, 255);
-        TTF_DrawRendererText(gameStatUIText, leftX + 85.f, statY + 5.f);
+        TTF_DrawRendererText(gameStatUIText, leftX + 105.f, statY + 5.f);
         statY += 34.f;
         //Icon of the icon being added + the number
+        if (provinceGoodsList.empty()) {
+            TTF_SetTextString(gameStatUIText, "No goods stored here.", 0);
+            TTF_SetTextColor(gameStatUIText, 140, 140, 140, 255);
+            TTF_DrawRendererText(gameStatUIText, leftX + 20.f, statY + 3.f);
+            statY += goodsRowH;
+        } else {
+            float chipCursorX = leftX + 20.f;
+            float chipCursorY = statY;
+            int chipsInRow = 0;
+            for (auto& [goodsType, goodsAmount] : provinceGoodsList) {
+                if (chipsInRow >= goodsChipsPerRow) {
+                    chipCursorX = leftX + 20.f;
+                    chipCursorY += goodsRowH;
+                    chipsInRow = 0;
+                }
 
+                SDL_Texture* goodsIcon = GetResourceTypeIcon(goodsType);
+                SDL_FRect chipIconRect = {chipCursorX, chipCursorY, 20.f, 20.f};
+                if (goodsIcon) SDL_RenderTexture(renderer, goodsIcon, nullptr, &chipIconRect);
+
+                TTF_SetTextString(gameStatUIText, std::to_string(goodsAmount).c_str(), 0);
+                TTF_SetTextColor(gameStatUIText, 180, 230, 100, 255);
+                TTF_DrawRendererText(gameStatUIText, chipCursorX + 24.f, chipCursorY + 2.f);
+
+                chipCursorX += goodsChipW;
+                chipsInRow++;
+            }
+            chipCursorY += goodsRowH;
+            statY = chipCursorY;
+        }
 
 
 
