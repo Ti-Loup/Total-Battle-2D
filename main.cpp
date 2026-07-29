@@ -117,7 +117,7 @@
  *----------------------------------------------
  *Character +Movement Maximum per turn
  *
- *Finished:
+ *       FINISHED:                    FINISHED:                     FINISHED:                        FINISHED:                   FINISHED:
  *TileMap
  *Camera (missing mouse touch edge)
  * Buildings of a region + UI of that region
@@ -3577,15 +3577,33 @@ private://constructor
                 TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
                 int nameW = 0, nameH = 0;
                 TTF_GetTextSize(gameStatUITitleText, &nameW, &nameH);
-                float nameX = centerX - nameW / 2.f;
+
+                bool isFishingVillage = (s.settlementData.type == SettlementType::Village && s.bIsPort);
+                float fishIconSize = 35.f;
+                float fishIconGap  = 0.f;
+                float extraWidth   = isFishingVillage ? (fishIconGap + fishIconSize) : 0.f;
+
+                float nameX = centerX - (nameW + extraWidth) / 2.f;
                 float nameY = barY - nameH - 2.f;
 
                 SDL_SetRenderDrawColor(renderer, 10, 10, 10, 200);
-                SDL_FRect nameBackground = {nameX - 4.f, nameY - 2.f, (float)nameW + 4.f, (float)nameH + 2.f};
+                SDL_FRect nameBackground = {nameX - 4.f, nameY - 2.f, (float)nameW + 4.f + extraWidth, (float)nameH + 2.f};
                 SDL_RenderFillRect(renderer, &nameBackground);
                 SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 160);
                 SDL_RenderRect(renderer, &nameBackground);
                 TTF_DrawRendererText(gameStatUITitleText, nameX, nameY);
+
+                // Fish icon sits right after the name text->inside blackbar
+                if (isFishingVillage) {
+                    SDL_FRect goodsFishProductionIcon = {
+                        nameX + nameW + fishIconGap,
+                        nameY + (nameH - fishIconSize) / 2.f,
+                        fishIconSize, fishIconSize
+                    };
+                    SDL_RenderTexture(renderer, gameResourceFishIconTexture, nullptr, &goodsFishProductionIcon);
+                }
+
+
 
                 // INFO BAR
                 SDL_SetRenderDrawColor(renderer, 10, 10, 10, 210);
@@ -3620,7 +3638,7 @@ private://constructor
                 std::string incomeStr = std::to_string(collectingIncome ? totalSettlementIncome : 0); // it shows 0 if the bool is true. otherwise it shows the base income for the ui settlement
                 TTF_SetTextString(gameStatUIText, incomeStr.c_str(), 0);
                 TTF_SetTextColor(gameStatUIText, 180, 230, 100, 255);
-                TTF_DrawRendererText(gameStatUIText, cursor, textY);
+                TTF_DrawRendererText(gameStatUIText, cursor, textY + 2.0f);
                 int incW = 0, incH = 0;
                 TTF_GetTextSize(gameStatUIText, &incW, &incH);
                 cursor += incW + 7.f;
@@ -3652,7 +3670,7 @@ private://constructor
                 std::string orderStr = std::to_string(publicOrder);
                 TTF_SetTextString(gameStatUIText, orderStr.c_str(), 0);
                 TTF_SetTextColor(gameStatUIText, poR, poG, 80, 255);
-                TTF_DrawRendererText(gameStatUIText, cursor, textY);
+                TTF_DrawRendererText(gameStatUIText, cursor, textY + 2.f);
 
                 int poTextW = 0, poTextH = 0;
                 TTF_GetTextSize(gameStatUIText, &poTextW, &poTextH);
