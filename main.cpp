@@ -3588,10 +3588,22 @@ private://constructor
                 int nameW = 0, nameH = 0;
                 TTF_GetTextSize(gameStatUITitleText, &nameW, &nameH);
 
-                bool isFishingVillage = (s.settlementData.type == SettlementType::Village && s.bIsPort);
-                float fishIconSize = 35.f;
-                float fishIconGap  = 0.f;
-                float extraWidth   = isFishingVillage ? (fishIconGap + fishIconSize) : 0.f;
+                //iconSize/Gap
+                struct NameBarIcon {
+                    SDL_Texture* texture;
+                    float size;
+                    float gap; // gap before this icon
+                };
+
+                bool bIsFishingVillage = (s.settlementData.type == SettlementType::Village && s.bIsPort);
+                bool bIsMilitaryPort = (s.settlementData.type == SettlementType::Capital || s.settlementData.type == SettlementType::Castle) && s.bIsPort;
+
+                std::vector<NameBarIcon> nameBarIcons;
+                if (bIsFishingVillage) nameBarIcons.push_back({ gameResourceFishIconTexture, 35.f, 0.f });
+                if (bIsMilitaryPort)   nameBarIcons.push_back({ gameMilitaryPortIconTexture, 28.f, 4.f });
+
+                float extraWidth = 0.f;
+                for (const auto& icon : nameBarIcons) extraWidth += icon.gap + icon.size;
 
                 float nameX = centerX - (nameW + extraWidth) / 2.f;
                 float nameY = barY - nameH - 2.f;
@@ -3603,16 +3615,18 @@ private://constructor
                 SDL_RenderRect(renderer, &nameBackground);
                 TTF_DrawRendererText(gameStatUITitleText, nameX, nameY);
 
-                // Fish icon sits right after the name text->inside blackbar
-                if (isFishingVillage) {
-                    SDL_FRect goodsFishProductionIcon = {
-                        nameX + nameW + fishIconGap,
-                        nameY + (nameH - fishIconSize) / 2.f,
-                        fishIconSize, fishIconSize
+                // Icons sit right after the name text, one after another, inside the black bar
+                float iconCursorX = nameX + nameW;
+                for (const auto& icon : nameBarIcons) {
+                    iconCursorX += icon.gap;
+                    SDL_FRect iconRect = {
+                        iconCursorX,
+                        nameY + (nameH - icon.size) / 2.f,
+                        icon.size, icon.size
                     };
-                    SDL_RenderTexture(renderer, gameResourceFishIconTexture, nullptr, &goodsFishProductionIcon);
+                    SDL_RenderTexture(renderer, icon.texture, nullptr, &iconRect);
+                    iconCursorX += icon.size;
                 }
-
 
 
                 // INFO BAR
