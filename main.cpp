@@ -47,6 +47,7 @@
  * Done -> Different Food Production (Food From Farm, Food From Ports)
  * Done ->Make the Goods manager (To stop production, make a max amount an item can produce)
  *
+ * To Do -> Rework the food system for the food stocks to be in the different castles instead of a general value.
  * To Do -> Being able to destroy a constructed building.
  * To Do -> if a building is damaged, it produce nothing and would need to wait for it to gradualy repair itself (4 to 6 turns) or / Instant repair (Cost 50% of the building price)
  *
@@ -496,6 +497,7 @@ public:
     SDL_Texture *provinceVikingBannerTexture = nullptr;
     SDL_Texture *provinceSamuraiBannerTexture = nullptr;
 
+    SDL_Texture *gameMilitaryPortIconTexture = nullptr;
     // ~ TEXTURES RESOURCES ~
     SDL_Texture *gameResourceFishIconTexture = nullptr;
 
@@ -3043,6 +3045,13 @@ private://constructor
         SDL_SetTextureScaleMode(gameGoodsTradeValueTexture, SDL_SCALEMODE_NEAREST);
 
 
+        //Military Port Icon
+        gameMilitaryPortIconTexture = IMG_LoadTexture(renderer, "assets/MilitaryPortIcon.png");
+        if (gameMilitaryPortIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameMilitaryPortIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameMilitaryPortIconTexture, SDL_SCALEMODE_NEAREST);
+
         // RESOURCES TEXTURES
         gameResourceFishIconTexture = IMG_LoadTexture(renderer, "assets/Resources/FishIcon.png");
         if (gameResourceFishIconTexture == nullptr) {
@@ -3288,6 +3297,7 @@ private://constructor
         SDL_DestroyTexture(cameraResetPannelTexture);
         SDL_DestroyTexture(gameGoodsManagerMinusTexture);
         SDL_DestroyTexture(gameGoodsManagerPlusTexture);
+        SDL_DestroyTexture(gameMilitaryPortIconTexture);
         SDL_DestroyTexture(gameResourceFishIconTexture);
         SDL_DestroyTexture(gameGoodsTradeValueTexture);
         SDL_DestroyTexture(goodsProductionManagerButtonTexture);
