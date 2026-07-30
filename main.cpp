@@ -345,7 +345,10 @@ public:
     //Goods Production Manager -> toggle to produce or not / Defautl -> True
     std::unordered_map<ResourceType, int> goodsMaxProductionByType;
     std::unordered_map<ResourceType, bool> goodsProductionEnabledByType;
-
+    //Food actually sitting in each region's own food storage ()granaries) [provinceID] -> amount
+    std::unordered_map<int, int> foodStoredByProvince;
+    // capacity of each region food storage
+    std::unordered_map<int, int> foodStorageCapacityByProvince;
 
     //Click rects rebuilt every frame the Goods Manager popup is open
     std::vector<std::pair<SDL_FRect, ResourceType>> goodsManagerMinusRects; // <-
@@ -3794,7 +3797,7 @@ private://constructor
             : (int)std::ceil((float)provinceGoodsList.size() / goodsChipsPerRow);
         float goodsSectionReservedSpace = 86.f;
         float extraGoodsHeight = std::max(0.f, provinceGoodsRowCount * goodsRowH - goodsSectionReservedSpace);
-        float leftW = 250.f, leftH = 380.f + extraGoodsHeight;//size
+        float leftW = 250.f, leftH = 380.f + extraGoodsHeight + 68;//size
         float leftX = 0.f, leftY = 1080.f - leftH;//position
 
         SDL_SetRenderDrawColor(renderer, 20, 20, 20, 210);
@@ -3896,6 +3899,39 @@ private://constructor
         TTF_SetTextColor(gameStatUIText, 255, 215, 0, 255);
         TTF_DrawRendererText(gameStatUIText, leftX + 170.f, statY);
         statY += 34.f;
+        //Food Per settlements stock
+        if (province.owner == FactionZone::Knight) {
+            SDL_SetRenderDrawColor(renderer, 60, 40, 20, 200);
+        }
+        else if (province.owner == FactionZone::Viking) {
+            SDL_SetRenderDrawColor(renderer, 60, 20, 20, 200);
+        }
+        else if (province.owner == FactionZone::Samurai) {
+            SDL_SetRenderDrawColor(renderer, 20, 60, 45, 200);
+        }
+        SDL_FRect foodStoragePerProvinceBar = {leftX + 5.f, statY, leftW - 10.f, 28.f};
+        SDL_RenderFillRect(renderer, &foodStoragePerProvinceBar);
+        TTF_SetTextString(gameStatUITitleText, "Region Food Stored", 0);
+        TTF_SetTextColor(gameStatUITitleText, 160, 160, 160, 255);
+        TTF_DrawRendererText(gameStatUITitleText, leftX + 5.f, statY + 2.f);
+        statY += 34.f;
+        //Province Food
+        int provinceFoodCurrent  = foodStoredByProvince.count(provinceID) ? foodStoredByProvince[provinceID] : 0;
+        int provinceFoodCapacity = foodStorageCapacityByProvince.count(provinceID) ? foodStorageCapacityByProvince[provinceID] : 0;
+        SDL_FRect foodStorageIcon = {leftX + 75.f, statY, 28.f, 28.f};
+        SDL_RenderTexture(renderer, gameFoodStorageUiIcon, nullptr, &foodStorageIcon);
+        std::string perProvinceFoodStockStr = std::to_string(provinceFoodCurrent) + "/" + std::to_string(provinceFoodCapacity);
+        TTF_SetTextString(gameStatUIText, perProvinceFoodStockStr.c_str(), 0);
+        TTF_SetTextColor(gameStatUIText,
+            provinceFoodCurrent >= 0 ? 255 : 220,
+            provinceFoodCurrent >= 0 ? 255 : 60,
+            provinceFoodCurrent >= 0 ? 255 : 60, 255);
+        TTF_DrawRendererText(gameStatUIText, leftX + 105.f, statY + 5.f);
+        statY += 34.f;
+
+
+
+
         //Goods Per settlements stock
         if (province.owner == FactionZone::Knight) {
             SDL_SetRenderDrawColor(renderer, 60, 40, 20, 200);
@@ -4971,6 +5007,7 @@ private://constructor
         //FOOD SECTION
         player.nextTurnFood = 0;
         player.foodStorage = 0;
+        foodStorageCapacityByProvince.clear();
         int rawFoodTotal = 0;
         float worldEventFarmFoodMultiplier = 1.0f;
         float worldEventMaritimeFoodMultiplier = 1.0f; // For World Event Storm
@@ -4998,6 +5035,7 @@ private://constructor
                 rawFoodTotal += foodFromBuilding;
                 player.nextTurnFood -= building_data->foodUpkeep;
                 player.foodStorage += building_data->foodStorage;
+                foodStorageCapacityByProvince[s.settlementData.provinceID] += building_data->foodStorage;
             }
         }
 
@@ -5524,6 +5562,20 @@ private://constructor
             default: return 0;
         }
     }
+    //So each province (castle) brings a +1 if food positive in their food storage. etc etc
+    //gaining or losing a province never changes what your existing provinces get.
+    int GetFoodSurplusPerProvince() {
+        switch (filledSegs) {
+            case 1: return -3;
+            case 2: return -2;
+            case 3: return -1;
+            case 4: return  1;
+            case 5: return  2;
+            case 6: return  3;
+            default: return 0;
+        }
+    }
+
     //PopulationGrowth modifier based on Food
     float GetFoodPopulationGrowthMultiplier() {
         switch (filledSegs) {
@@ -5853,19 +5905,14 @@ private://constructor
         SDL_FRect foodStoredRect = {tooltipX + 210.f, tooltipY + 38.f, 25.f, 25.f};
         SDL_RenderTexture(renderer, gameFoodStorageUiIcon, nullptr, &foodStoredRect);
         //surplus
-        int foodSurplus = 0;
-        switch (filledSegs) {
-            case 1: foodSurplus = -9; break;
-            case 2: foodSurplus = -6; break;
-            case 3: foodSurplus = -3; break;
-            case 4: foodSurplus =  3; break;
-            case 5: foodSurplus =  6; break;
-            case 6: foodSurplus =  9; break;
-        }
+        float rightEdge = tooltipX + tooltipW - 10.f;
 
-        TTF_SetTextString (gameCurrentFoodUiText, "Surplus:", 0);
+        //surplus is now a fixed amount applied to every owned province's granary, not a kingdom-wide bonus.
+        int foodSurplus = GetFoodSurplusPerProvince();
+
+        TTF_SetTextString (gameCurrentFoodUiText, "Surplus / Province:", 0);
         TTF_SetTextColor (gameCurrentFoodUiText, 255, 255, 255, 255);
-        TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f,tooltipY +60.f);
+        TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, tooltipY + 60.f);
 
         std::string foodSurplusString = (foodSurplus >= 0 ? std::string("+") : std::string("")) + std::to_string(foodSurplus);
         TTF_SetTextString(gameCurrentFoodUiText, foodSurplusString.c_str(), 0);
@@ -5875,10 +5922,11 @@ private://constructor
         else {
             TTF_SetTextColor (gameCurrentFoodUiText, 255, 0, 0, 255);
         }
-        TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 65.f, tooltipY + 60.f);
+        int fsW, fsH;
+        TTF_GetTextSize(gameCurrentFoodUiText, &fsW, &fsH);
+        TTF_DrawRendererText(gameCurrentFoodUiText, rightEdge - fsW, tooltipY + 60.f);
 
         // Units & Buildings
-float rightEdge = tooltipX + tooltipW - 10.f;
 
 TTF_SetTextString(gameCurrentFoodUiText, "Units Upkeep", 0);
 TTF_SetTextColor(gameCurrentFoodUiText, 255, 255, 255, 255);
@@ -7866,11 +7914,11 @@ public:
         }
     }
 
-    //Food
+    //Food (Old way)
         /*
          * if in segs 1,2,3 means produce less food than they consume.
          * foodStore gets negative. If reach 0, attrition, negative order, etc etc
-         */
+
         if (filledSegs == 1) {//consume food in storage before having famine
             if (player.foodStored > 0) {
                 player.foodStored -= 9;
@@ -7895,6 +7943,31 @@ public:
         else if (filledSegs == 6) { // increase food in storage
             player.foodStored = std::min(player.foodStored+9, player.foodStorage);
         }
+    */
+        //FOOD New Way
+        int foodSurplusPerProvince = GetFoodSurplusPerProvince();
+        for (int provID = 0; provID < (int)provinces.size(); provID++) {
+            if (provinces[provID].owner != player.faction) continue;
+
+            int capacity = foodStorageCapacityByProvince.count(provID) ? foodStorageCapacityByProvince[provID] : 0;
+            int& stock = foodStoredByProvince[provID]; // creates the entry at 0 the first time new province starts also empty
+
+            if (foodSurplusPerProvince < 0) {
+                if (stock > 0) {
+                    stock += foodSurplusPerProvince; // can dip below 0 -> famine, same behavior as before
+                }
+            }
+            else if (foodSurplusPerProvince > 0) {
+                stock = std::min(stock + foodSurplusPerProvince, capacity);
+            }
+        }
+
+        // Rebuild the kingdom-wide total from the per-province granaries
+        player.foodStored = 0;
+        for (auto& [provID, amount] : foodStoredByProvince) {
+            player.foodStored += amount;
+        }
+
 
         //GOODS STORAGE (per-type, expandablemore goods type)
 
