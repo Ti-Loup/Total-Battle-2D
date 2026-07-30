@@ -7946,18 +7946,46 @@ public:
     */
         //FOOD New Way
         int foodSurplusPerProvince = GetFoodSurplusPerProvince();
+
+        std::vector<int> ownedProvinceIDs;
         for (int provID = 0; provID < (int)provinces.size(); provID++) {
-            if (provinces[provID].owner != player.faction) continue;
+            if (provinces[provID].owner == player.faction) ownedProvinceIDs.push_back(provID);
+        }
 
-            int capacity = foodStorageCapacityByProvince.count(provID) ? foodStorageCapacityByProvince[provID] : 0;
-            int& stock = foodStoredByProvince[provID]; // creates the entry at 0 the first time new province starts also empty
+        if (foodSurplusPerProvince < 0 && !ownedProvinceIDs.empty()) {
+            int perProvinceDeficit = -foodSurplusPerProvince; // positive amount each province owes this turn
 
-            if (foodSurplusPerProvince < 0) {
-                if (stock > 0) {
-                    stock += foodSurplusPerProvince; // can dip below 0 -> famine, same behavior as before
+            //Each province Use its own granary food rests first
+            int totalShortfall = 0;
+            for (int provID : ownedProvinceIDs) {
+                int& stock = foodStoredByProvince[provID]; // creates entry at 0 the first time
+                if (stock >= perProvinceDeficit) {
+                    stock -= perProvinceDeficit;
+                } else {
+                    totalShortfall += (perProvinceDeficit - stock);
+                    stock = 0;
                 }
             }
-            else if (foodSurplusPerProvince > 0) {
+
+            //Any emplty granary gets pulled from whichever other still has some
+            // provinces still have food left, until covered or the whole kingdom is at 0.
+            if (totalShortfall > 0) {
+                for (int provID : ownedProvinceIDs) {
+                    if (totalShortfall <= 0) break;
+                    int& stock = foodStoredByProvince[provID];
+                    if (stock <= 0) continue;
+                    int take = std::min(stock, totalShortfall);
+                    stock -= take;
+                    totalShortfall -= take;
+                }
+            }
+            // penalty in GetFoodPublicOrderModifier() applies when all granaries are empty
+        }
+        else if (foodSurplusPerProvince > 0 && !ownedProvinceIDs.empty()) {
+            // Surplus: flat amount per province, capped at that province's own capacity
+            for (int provID : ownedProvinceIDs) {
+                int capacity = foodStorageCapacityByProvince.count(provID) ? foodStorageCapacityByProvince[provID] : 0;
+                int& stock = foodStoredByProvince[provID];
                 stock = std::min(stock + foodSurplusPerProvince, capacity);
             }
         }
