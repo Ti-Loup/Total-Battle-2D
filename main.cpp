@@ -47,8 +47,9 @@
  * Done -> Different Food Production (Food From Farm, Food From Ports)
  * Done ->Make the Goods manager (To stop production, make a max amount an item can produce)
  * Done -> Can now destroy constructed buildings.
- * To Do -> Rework the food system for the food stocks to be in the different castles instead of a general value.
- * To Do -> Being able to destroy a constructed building.
+ * Done -> Rework the food system for the food stocks to be in the different castles instead of a general value.
+ * Done -> Being able to destroy a constructed building.
+ * To Do -> Fix positionning
  * To Do -> if a building is damaged, it produce nothing and would need to wait for it to gradualy repair itself (4 to 6 turns) or / Instant repair (Cost 50% of the building price)
  *
  *
@@ -68,8 +69,9 @@
  * Fixed | Income Tooltip Wrong TTF Size compare to others Tooltips
  * --------------------------------------------
  * 0.3.0
- * RESSOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
  *
+ *  | AI | improvement -> Can build buildings, know which one to buy/Upgrade
+ * RESSOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
  *  ~ Production Mecanique ~
  *  fishing ports gives food and produce fish !
  *  MINEs -> produced their own orb
@@ -4291,27 +4293,7 @@ private://constructor
                                     //whole slot can be clicked to cancel the destruction
                                     cancelDestroyButtonRects.push_back({slot, {i, b}});
                                 }
-                                else if (!upgradePending && !isPortSlot &&provinces[s->settlementData.provinceID].owner == player.faction
-                                         && SDL_PointInRectFloat(&mpCheck, &slot)) {
-                                    // Destroy button, bottom-right. Bottom-left is reserved for a future Repair button.
-                                    float destroyBtnSize = 20.f;
-                                    SDL_FRect destroyButtonRect = {
-                                        sx + slotSize - destroyBtnSize - 2.f,
-                                        sy + slotSize - destroyBtnSize - 2.f,
-                                        destroyBtnSize, destroyBtnSize
-                                    };
-                                    SDL_SetRenderDrawColor(renderer, 150, 25, 25, 230);
-                                    SDL_RenderFillRect(renderer, &destroyButtonRect);
-                                    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-                                    SDL_RenderRect(renderer, &destroyButtonRect);
-                                    // simple X icon so no new texture asset is needed
-                                    SDL_RenderLine(renderer, destroyButtonRect.x + 4.f, destroyButtonRect.y + 4.f,
-                                                              destroyButtonRect.x + destroyBtnSize - 4.f, destroyButtonRect.y + destroyBtnSize - 4.f);
-                                    SDL_RenderLine(renderer, destroyButtonRect.x + destroyBtnSize - 4.f, destroyButtonRect.y + 4.f,
-                                                              destroyButtonRect.x + 4.f, destroyButtonRect.y + destroyBtnSize - 4.f);
 
-                                    destroyButtonRects.push_back({destroyButtonRect, {i, b}});
-                                }
                             }
                         }
                         else if (slotAvailable && s->settlementData.pendingBuildings[b] == BuildingType::None) {
@@ -4770,8 +4752,9 @@ private://constructor
         int settlementTier = cardSett->settlementData.settlementTier;
         // find what's actually constructed in this slot
         int currentBuiltTier = 0;
+        BuildingType builtHere = BuildingType::None;
         if (buildMenuSlotIndex > 0 && buildMenuSlotIndex < (int)cardSett->settlementData.buildings.size()) {
-            BuildingType builtHere = cardSett->settlementData.buildings[buildMenuSlotIndex];
+            builtHere = cardSett->settlementData.buildings[buildMenuSlotIndex];
             if (builtHere != BuildingType::None) {
                 const BuildingData* builtData = GetBuildingData(builtHere);
                 if (builtData) currentBuiltTier = builtData->Tier;
@@ -4828,8 +4811,30 @@ private://constructor
         int maxLen = 0;
         for (auto& c : chains) maxLen = std::max(maxLen, (int)c.tiers.size());
 
+        // APRÈS
         float totalW = (float)chains.size() * tileW + ((float)chains.size() - 1.f) * colGap;
-        float totalH = (float)maxTierOverall * tileH + ((float)(maxTierOverall - 1)) * arrowH;
+        float tilesTotalH = (float)maxTierOverall * tileH + ((float)(maxTierOverall - 1)) * arrowH;
+
+        // Le bouton Détruire ne s'affiche que sur un bâtiment existant, possédé, non-port, sans upgrade en cours
+        float destroyBtnSize = 26.f;
+        float destroyRowGap  = 14.f;
+        bool  bCanShowDestroy = false;
+        bool  bIsMarkedForDestruction = false;
+        int   destroyKeyValue = -1;
+        if (hoveredBuildingSlotUpgradable && builtHere != BuildingType::None &&
+            buildMenuSlotIndex > 0 && prov.owner == player.faction)
+        {
+            bool isPortSlot = (buildMenuSlotIndex == 1 && cardSett->bIsPort);
+            bool upgradePendingHere = cardSett->settlementData.pendingBuildings[buildMenuSlotIndex] != BuildingType::None;
+            if (!isPortSlot && !upgradePendingHere) {
+                bCanShowDestroy = true;
+                int globalSettlementIndex = (int)(cardSett - &settlements[0]);
+                destroyKeyValue = globalSettlementIndex * 100 + buildMenuSlotIndex;
+                bIsMarkedForDestruction = buildingsMarkedDestroyed.count(destroyKeyValue) > 0;
+            }
+        }
+        float extraDestroyHeight = bCanShowDestroy ? (destroyRowGap + destroyBtnSize) : 0.f;
+        float totalH = tilesTotalH + extraDestroyHeight;
 
         // Position on top
         float popX = 400.f, popY = 300.f;
@@ -4950,6 +4955,45 @@ private://constructor
                 }
             }
         }
+
+// Bouton Détruire, sous la colonne de tiers
+        if (bCanShowDestroy) {
+            float destroyBtnX = popX + (totalW - destroyBtnSize) / 2.f;
+            float destroyBtnY = popY + tilesTotalH + destroyRowGap;
+            SDL_FRect destroyButtonRect = {destroyBtnX, destroyBtnY, destroyBtnSize, destroyBtnSize};
+
+            if (bIsMarkedForDestruction) {
+                // affiche le décompte, cliquer annule la destruction
+                SDL_SetRenderDrawColor(renderer, 220, 60, 60, 230);
+                SDL_RenderFillRect(renderer, &destroyButtonRect);
+                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                SDL_RenderRect(renderer, &destroyButtonRect);
+
+                int turnsLeft = buildingsMarkedDestroyed.count(destroyKeyValue) ? buildingsMarkedDestroyed[destroyKeyValue] : 0;
+                std::string destroyTurnStr = std::to_string(turnsLeft);
+                TTF_SetTextString(gameBuildingConstructionTimeText, destroyTurnStr.c_str(), 0);
+                int dtw = 0, dth = 0;
+                TTF_GetTextSize(gameBuildingConstructionTimeText, &dtw, &dth);
+                TTF_DrawRendererText(gameBuildingConstructionTimeText,
+                    destroyButtonRect.x + (destroyBtnSize - dtw) / 2.f,
+                    destroyButtonRect.y + (destroyBtnSize - dth) / 2.f);
+
+                cancelDestroyButtonRects.push_back({destroyButtonRect, {categoryPopupCardIndex, buildMenuSlotIndex}});
+            } else {
+                SDL_SetRenderDrawColor(renderer, 150, 25, 25, 230);
+                SDL_RenderFillRect(renderer, &destroyButtonRect);
+                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                SDL_RenderRect(renderer, &destroyButtonRect);
+                // simple X, pas besoin de texture
+                SDL_RenderLine(renderer, destroyButtonRect.x + 5.f, destroyButtonRect.y + 5.f,
+                                          destroyButtonRect.x + destroyBtnSize - 5.f, destroyButtonRect.y + destroyBtnSize - 5.f);
+                SDL_RenderLine(renderer, destroyButtonRect.x + destroyBtnSize - 5.f, destroyButtonRect.y + 5.f,
+                                          destroyButtonRect.x + 5.f, destroyButtonRect.y + destroyBtnSize - 5.f);
+
+                destroyButtonRects.push_back({destroyButtonRect, {categoryPopupCardIndex, buildMenuSlotIndex}});
+            }
+        }
+
     }
 
     //Returns the texture for the current Season currently just the color
