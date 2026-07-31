@@ -4888,7 +4888,7 @@ private://constructor
                 const BuildingData* data = GetBuildingData(bt);
                 if (!data) continue;
 
-                int rowIndex = maxTierOverall - data->Tier; // 0 = top (tier le plus haut)
+                int rowIndex = maxTierOverall - data->Tier; // 0 = top
                 float tileY = popY + rowIndex * (tileH + arrowH);
                 bool isBuilt = (currentTierForThisChain > 0) && (data->Tier <= currentTierForThisChain);
                 bool isNextAvailable = (data->Tier == nextTierToBuild) && (data->Tier <= settlementTier);
@@ -4972,48 +4972,52 @@ private://constructor
 
         //destroyed button && Repair Button
         if (bCanShowDestroy) {
-            float destroyBtnX = popX + (totalW - destroyBtnSize) + 5.f;
-            float destroyBtnY = popY + tilesTotalH + destroyRowGap;
-            SDL_FRect destroyButtonRect = {destroyBtnX, destroyBtnY, destroyBtnSize, destroyBtnSize};
-            //Repair Button -placeholder
-            float repairBtnGap = 22.f;
-            SDL_FRect repairButtonRect = {destroyBtnX - destroyBtnSize - repairBtnGap, destroyBtnY, destroyBtnSize, destroyBtnSize};
-            SDL_SetRenderDrawColor(renderer, 40, 90, 150, 230);
-            SDL_RenderFillRect(renderer, &repairButtonRect);
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-            SDL_RenderRect(renderer, &repairButtonRect);
+    float destroyBtnX = popX + (totalW - destroyBtnSize) + 5.f;
+    float destroyBtnY = popY + tilesTotalH + destroyRowGap;
+    SDL_FRect destroyButtonRect = {destroyBtnX, destroyBtnY, destroyBtnSize, destroyBtnSize};
+    //Repair Button -placeholder
+    float repairBtnGap = 22.f;
+    SDL_FRect repairButtonRect = {destroyBtnX - destroyBtnSize - repairBtnGap, destroyBtnY, destroyBtnSize, destroyBtnSize};
 
-            if (bIsMarkedForDestruction) {
-                // show destroyTimer, click to stop it
-                SDL_SetRenderDrawColor(renderer, 220, 60, 60, 230);
-                SDL_RenderFillRect(renderer, &destroyButtonRect);
-                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-                SDL_RenderRect(renderer, &destroyButtonRect);
+    float btnRadius = destroyBtnSize / 2.f;
 
-                int turnsLeft = buildingsMarkedDestroyed.count(destroyKeyValue) ? buildingsMarkedDestroyed[destroyKeyValue] : 0;
-                std::string destroyTurnStr = std::to_string(turnsLeft);
-                TTF_SetTextString(gameBuildingConstructionTimeText, destroyTurnStr.c_str(), 0);
-                int dtw = 0, dth = 0;
-                TTF_GetTextSize(gameBuildingConstructionTimeText, &dtw, &dth);
-                TTF_DrawRendererText(gameBuildingConstructionTimeText,
-                    destroyButtonRect.x + (destroyBtnSize - dtw) / 2.f,
-                    destroyButtonRect.y + (destroyBtnSize - dth) / 2.f);
+    //Repair circle (outline then fill, RenderCircle only fills)
+    float repairCenterX = repairButtonRect.x + btnRadius;
+    float repairCenterY = repairButtonRect.y + btnRadius;
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    RenderCircle(repairCenterX, repairCenterY, btnRadius);
+    SDL_SetRenderDrawColor(renderer, 40, 90, 150, 230);
+    RenderCircle(repairCenterX, repairCenterY, btnRadius - 1.f);
 
-                cancelDestroyButtonRects.push_back({destroyButtonRect, {categoryPopupCardIndex, buildMenuSlotIndex}});
-            } else {
-                SDL_SetRenderDrawColor(renderer, 150, 25, 25, 230);
-                SDL_RenderFillRect(renderer, &destroyButtonRect);
-                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-                SDL_RenderRect(renderer, &destroyButtonRect);
-                // simple X, Texture in future
-                SDL_RenderLine(renderer, destroyButtonRect.x + 5.f, destroyButtonRect.y + 5.f,
-                                          destroyButtonRect.x + destroyBtnSize - 5.f, destroyButtonRect.y + destroyBtnSize - 5.f);
-                SDL_RenderLine(renderer, destroyButtonRect.x + destroyBtnSize - 5.f, destroyButtonRect.y + 5.f,
-                                          destroyButtonRect.x + 5.f, destroyButtonRect.y + destroyBtnSize - 5.f);
+    float destroyCenterX = destroyButtonRect.x + btnRadius;
+    float destroyCenterY = destroyButtonRect.y + btnRadius;
 
-                destroyButtonRects.push_back({destroyButtonRect, {categoryPopupCardIndex, buildMenuSlotIndex}});
-            }
-        }
+    if (bIsMarkedForDestruction) {
+        // show destroyTimer, click to stop it
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        RenderCircle(destroyCenterX, destroyCenterY, btnRadius);
+        SDL_SetRenderDrawColor(renderer, 220, 60, 60, 230);
+        RenderCircle(destroyCenterX, destroyCenterY, btnRadius - 1.f);
+
+        int turnsLeft = buildingsMarkedDestroyed.count(destroyKeyValue) ? buildingsMarkedDestroyed[destroyKeyValue] : 0;
+        std::string destroyTurnStr = std::to_string(turnsLeft);
+        TTF_SetTextString(gameBuildingConstructionTimeText, destroyTurnStr.c_str(), 0);
+        int dtw = 0, dth = 0;
+        TTF_GetTextSize(gameBuildingConstructionTimeText, &dtw, &dth);
+        TTF_DrawRendererText(gameBuildingConstructionTimeText,
+            destroyButtonRect.x + (destroyBtnSize - dtw) / 2.f,
+            destroyButtonRect.y + (destroyBtnSize - dth) / 2.f);
+
+        cancelDestroyButtonRects.push_back({destroyButtonRect, {categoryPopupCardIndex, buildMenuSlotIndex}});
+    } else {
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        RenderCircle(destroyCenterX, destroyCenterY, btnRadius);
+        SDL_SetRenderDrawColor(renderer, 150, 25, 25, 230);
+        RenderCircle(destroyCenterX, destroyCenterY, btnRadius - 1.f);
+
+        destroyButtonRects.push_back({destroyButtonRect, {categoryPopupCardIndex, buildMenuSlotIndex}});
+    }
+}
 
     }
 
