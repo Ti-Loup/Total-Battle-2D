@@ -652,7 +652,7 @@ public:
 
     std::vector<SDL_FRect> mainBuildingSlotRects;
     SDL_FRect mainBuildingPopupRect = {0,0,0,0};
-
+    float provinceLeftPanelTopY = 700.; //top y for the left province panel
     bool hoveredBuildingSlotUpgradable = false;
     BuildingType upgradableSlotRootBuilding = BuildingType::None;
 
@@ -3804,6 +3804,7 @@ private://constructor
         float extraGoodsHeight = std::max(0.f, provinceGoodsRowCount * goodsRowH - goodsSectionReservedSpace);
         float leftW = 250.f, leftH = 380.f + extraGoodsHeight + 68;//size
         float leftX = 0.f, leftY = 1080.f - leftH;//position
+        provinceLeftPanelTopY = leftY;
 
         SDL_SetRenderDrawColor(renderer, 20, 20, 20, 210);
         SDL_FRect leftPanel = {leftX, leftY, leftW, leftH};
@@ -7335,7 +7336,7 @@ void RenderBuildingStatRows(const BuildingData* data, BuildingType type, float t
         float descGap = 80.f; // for description
         float rowH = 22.f;
         float tooltipH = 36.f + descGap + (float)rowCount * rowH + 10.f;
-        float tooltipY = 708.f - tooltipH - 6.f;
+        float tooltipY = provinceLeftPanelTopY - tooltipH;
         if (tooltipY < 5.f) tooltipY = 5.f;
         float rightEdge = tooltipX + tooltipW - 10.f;
 
@@ -7389,7 +7390,7 @@ void RenderCategoryBuildingInfoUI() {
     float descGap = 80.f;
     float rowH = 22.f;
     float tooltipH = 36.f + descGap + (float)rowCount * rowH + 10.f;
-    float tooltipY = 708.f - tooltipH - 6.f;
+    float tooltipY = provinceLeftPanelTopY - tooltipH;
     if (tooltipY < 5.f) tooltipY = 5.f;
     float rightEdge = tooltipX + tooltipW - 10.f;
 
