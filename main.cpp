@@ -485,6 +485,9 @@ public:
     SDL_Texture *gameSeasonSummerIconUiTexture = nullptr;
     SDL_Texture *gameSeasonAutumnIconUiTexture = nullptr;
 
+    //Textures for Destroyed and Repaired buttons Buildings
+    SDL_Texture *gameDestroyBuildingButtonIconUi = nullptr;
+    SDL_Texture *gameRepairBuildingButtonIconUi = nullptr;
     //UI TextFont
     TTF_Font *gameStatUITitleFont = nullptr;
 
@@ -1204,6 +1207,17 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture of gameSeasonAutumnIconUiTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameSeasonAutumnIconUiTexture, SDL_SCALEMODE_NEAREST);
+        //Destroy and repair building icon UI
+        gameDestroyBuildingButtonIconUi = IMG_LoadTexture(renderer, "assets/DestroyBuildingIcon.png");
+        if (gameDestroyBuildingButtonIconUi == nullptr) {
+            SDL_LogWarn(0, "failed to load texture of gameDestroyBuildingButtonIconUi", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameDestroyBuildingButtonIconUi, SDL_SCALEMODE_NEAREST);
+        gameRepairBuildingButtonIconUi = IMG_LoadTexture(renderer, "assets/RepairBuildingIcon.png");
+        if (gameRepairBuildingButtonIconUi == nullptr) {
+            SDL_LogWarn(0, "failed to load texture of gameRepairBuildingButtonIconUi", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameRepairBuildingButtonIconUi, SDL_SCALEMODE_NEAREST);
 
         //texture Province dezoom texture
         provinceKnightBannerTexture = IMG_LoadTexture(renderer, "assets/KnightProvinceTexture.png");
@@ -3314,6 +3328,8 @@ private://constructor
         SDL_DestroyTexture(gameResourceFishIconTexture);
         SDL_DestroyTexture(gameGoodsTradeValueTexture);
         SDL_DestroyTexture(goodsProductionManagerButtonTexture);
+        SDL_DestroyTexture(gameDestroyBuildingButtonIconUi);
+        SDL_DestroyTexture(gameRepairBuildingButtonIconUi);
         // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
@@ -4984,21 +5000,44 @@ private://constructor
     //Repair circle (outline then fill, RenderCircle only fills)
     float repairCenterX = repairButtonRect.x + btnRadius;
     float repairCenterY = repairButtonRect.y + btnRadius;
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
     RenderCircle(repairCenterX, repairCenterY, btnRadius);
     SDL_SetRenderDrawColor(renderer, 40, 90, 150, 230);
     RenderCircle(repairCenterX, repairCenterY, btnRadius - 1.f);
+    //Texture repair button
+    if (gameRepairBuildingButtonIconUi) {
+         float iconPad = -2.f;
+         SDL_FRect repairIconRect = {
+        repairButtonRect.x + iconPad,
+        repairButtonRect.y + iconPad,
+           destroyBtnSize - iconPad * 2.f,
+           destroyBtnSize - iconPad * 2.f
+       };
+                SDL_RenderTexture(renderer, gameRepairBuildingButtonIconUi, nullptr, &repairIconRect);
+    }
 
     float destroyCenterX = destroyButtonRect.x + btnRadius;
     float destroyCenterY = destroyButtonRect.y + btnRadius;
 
     if (bIsMarkedForDestruction) {
         // show destroyTimer, click to stop it
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
         RenderCircle(destroyCenterX, destroyCenterY, btnRadius);
-        SDL_SetRenderDrawColor(renderer, 220, 60, 60, 230);
+        SDL_SetRenderDrawColor(renderer, 220, 60, 60, 0);
         RenderCircle(destroyCenterX, destroyCenterY, btnRadius - 1.f);
-
+        //destroy icon
+        if (gameDestroyBuildingButtonIconUi) {
+            float iconPad = -2.f;
+            SDL_FRect destroyIconRect = {
+                destroyButtonRect.x + iconPad,
+                destroyButtonRect.y + iconPad,
+                destroyBtnSize - iconPad * 2.f,
+                destroyBtnSize - iconPad * 2.f
+            };
+            SDL_SetTextureAlphaMod(gameDestroyBuildingButtonIconUi, 140);
+            SDL_RenderTexture(renderer, gameDestroyBuildingButtonIconUi, nullptr, &destroyIconRect);
+            SDL_SetTextureAlphaMod(gameDestroyBuildingButtonIconUi, 255);
+        }
         int turnsLeft = buildingsMarkedDestroyed.count(destroyKeyValue) ? buildingsMarkedDestroyed[destroyKeyValue] : 0;
         std::string destroyTurnStr = std::to_string(turnsLeft);
         TTF_SetTextString(gameBuildingConstructionTimeText, destroyTurnStr.c_str(), 0);
@@ -5014,7 +5053,17 @@ private://constructor
         RenderCircle(destroyCenterX, destroyCenterY, btnRadius);
         SDL_SetRenderDrawColor(renderer, 150, 25, 25, 230);
         RenderCircle(destroyCenterX, destroyCenterY, btnRadius - 1.f);
-
+        // Destroy icon at full opacity
+        if (gameDestroyBuildingButtonIconUi) {
+            float iconPad = -2.f;
+            SDL_FRect destroyIconRect = {
+                destroyButtonRect.x + iconPad,
+                destroyButtonRect.y + iconPad,
+                destroyBtnSize - iconPad * 2.f,
+                destroyBtnSize - iconPad * 2.f
+            };
+            SDL_RenderTexture(renderer, gameDestroyBuildingButtonIconUi, nullptr, &destroyIconRect);
+        }
         destroyButtonRects.push_back({destroyButtonRect, {categoryPopupCardIndex, buildMenuSlotIndex}});
     }
 }
