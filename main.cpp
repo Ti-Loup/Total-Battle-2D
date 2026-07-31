@@ -646,6 +646,8 @@ public:
     std::unordered_map<int, int> buildingsMarkedDestroyed;
     std::vector<std::pair<SDL_FRect, std::pair<int,int>>> destroyButtonRects;
     std::vector<std::pair<SDL_FRect, std::pair<int, int>>> cancelDestroyButtonRects; // To cancel a building being destroyed (In Red )
+    //For the Repair building Fix
+    std::vector<std::pair<SDL_FRect, std::pair<int, int>>> repairButtonRects;
 
 
     // 0=Military 1=AdvMilitary 2=Defence 3=Economy 4=Religion
@@ -4013,6 +4015,7 @@ private://constructor
         pendingSlotInfo.clear();
         pendingSlotRects.clear();
         destroyButtonRects.clear();
+        repairButtonRects.clear();
         cancelDestroyButtonRects.clear();
 
         //-> BOTTOM UI PANNEL <-
@@ -4815,7 +4818,7 @@ private://constructor
         float totalW = (float)chains.size() * tileW + ((float)chains.size() - 1.f) * colGap;
         float tilesTotalH = (float)maxTierOverall * tileH + ((float)(maxTierOverall - 1)) * arrowH;
 
-        // Le bouton Détruire ne s'affiche que sur un bâtiment existant, possédé, non-port, sans upgrade en cours
+        // Destroyed Button only shows on an existing building, non-port, no current upgrades
         float destroyBtnSize = 26.f;
         float destroyRowGap  = 14.f;
         bool  bCanShowDestroy = false;
@@ -4956,14 +4959,21 @@ private://constructor
             }
         }
 
-// Bouton Détruire, sous la colonne de tiers
+        //destroyed button && Repair Button
         if (bCanShowDestroy) {
-            float destroyBtnX = popX + (totalW - destroyBtnSize) / 2.f;
+            float destroyBtnX = popX + (totalW - destroyBtnSize) + 5.f;
             float destroyBtnY = popY + tilesTotalH + destroyRowGap;
             SDL_FRect destroyButtonRect = {destroyBtnX, destroyBtnY, destroyBtnSize, destroyBtnSize};
+            //Repair Button -placeholder
+            float repairBtnGap = 22.f;
+            SDL_FRect repairButtonRect = {destroyBtnX - destroyBtnSize - repairBtnGap, destroyBtnY, destroyBtnSize, destroyBtnSize};
+            SDL_SetRenderDrawColor(renderer, 40, 90, 150, 230);
+            SDL_RenderFillRect(renderer, &repairButtonRect);
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            SDL_RenderRect(renderer, &repairButtonRect);
 
             if (bIsMarkedForDestruction) {
-                // affiche le décompte, cliquer annule la destruction
+                // show destroyTimer, click to stop it
                 SDL_SetRenderDrawColor(renderer, 220, 60, 60, 230);
                 SDL_RenderFillRect(renderer, &destroyButtonRect);
                 SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -4984,7 +4994,7 @@ private://constructor
                 SDL_RenderFillRect(renderer, &destroyButtonRect);
                 SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
                 SDL_RenderRect(renderer, &destroyButtonRect);
-                // simple X, pas besoin de texture
+                // simple X, Texture in future
                 SDL_RenderLine(renderer, destroyButtonRect.x + 5.f, destroyButtonRect.y + 5.f,
                                           destroyButtonRect.x + destroyBtnSize - 5.f, destroyButtonRect.y + destroyBtnSize - 5.f);
                 SDL_RenderLine(renderer, destroyButtonRect.x + destroyBtnSize - 5.f, destroyButtonRect.y + 5.f,
