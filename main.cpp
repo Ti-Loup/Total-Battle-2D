@@ -46,7 +46,7 @@
  * Done -> Make the Income based on Farm,Commerce,Industry,Religion and not just all income instantly.
  * Done -> Different Food Production (Food From Farm, Food From Ports)
  * Done ->Make the Goods manager (To stop production, make a max amount an item can produce)
- *
+ * Done -> Can now destroy constructed buildings.
  * To Do -> Rework the food system for the food stocks to be in the different castles instead of a general value.
  * To Do -> Being able to destroy a constructed building.
  * To Do -> if a building is damaged, it produce nothing and would need to wait for it to gradualy repair itself (4 to 6 turns) or / Instant repair (Cost 50% of the building price)
@@ -640,6 +640,11 @@ public:
     //For the pending fix
     std::vector<SDL_FRect> pendingSlotRects;
     std::vector<std::pair<int,int>> pendingSlotInfo;
+    //For the Destroy building fix
+    std::unordered_map<int, int> buildingsMarkedDestroyed;
+    std::vector<std::pair<SDL_FRect, std::pair<int,int>>> destroyButtonRects;
+    std::vector<std::pair<SDL_FRect, std::pair<int, int>>> cancelDestroyButtonRects; // To cancel a building being destroyed (In Red )
+
 
     // 0=Military 1=AdvMilitary 2=Defence 3=Economy 4=Religion
     BuildingType hoveredBuilding = BuildingType::None;
@@ -3999,11 +4004,13 @@ private://constructor
         RenderBoutons(provinceButtonUIGarrison, nullptr,40,40,40,100);
         SDL_RenderTexture(renderer,provinceTextureUIGarrison,nullptr,&provinceButtonUIGarrison);
 
-
+//Everything lear each frame
         availableSlotRects.clear();
         availableSlotInfo.clear();
         pendingSlotInfo.clear();
         pendingSlotRects.clear();
+        destroyButtonRects.clear();
+        cancelDestroyButtonRects.clear();
 
         //-> BOTTOM UI PANNEL <-
         int   count = (int)provinceSettlements.size();
@@ -4212,7 +4219,9 @@ private://constructor
                             SDL_RenderFillRect(renderer, &slot);
 
                             bool upgradePending = (s->settlementData.pendingBuildings[b] != BuildingType::None);
-
+                            int globalSettlementIndex = (int)(s - &settlements[0]);
+                            int destroyKey = globalSettlementIndex * 100 + b;
+                            bool markedForDestruction = buildingsMarkedDestroyed.count(destroyKey) > 0;
                             // Render T2 if in construction, else T1
                             SDL_Texture* textureToRender = upgradePending
                                 ? GetBuildingTexture(s->settlementData.pendingBuildings[b])
@@ -4237,7 +4246,7 @@ private://constructor
                                     pendingSlotInfo.push_back({i, b});
                                 } else {
                                     // Hammer if upgradable...
-                                    if (bd->upgradesTo != BuildingType::None && hammerUIBuildingUpgradeTexture && provinces[s->settlementData.provinceID].owner == player.faction) {
+                                    if (bd->upgradesTo != BuildingType::None && hammerUIBuildingUpgradeTexture && !markedForDestruction && provinces[s->settlementData.provinceID].owner == player.faction) {
                                         const BuildingData* nextBd = GetBuildingData(bd->upgradesTo);
                                         if (nextBd) {
                                             bool tierUnlocked = (nextBd->Tier <= s->settlementData.settlementTier);
@@ -4264,6 +4273,43 @@ private://constructor
                                     hoveredCategoryBuildingType = upgPend
                                         ? s->settlementData.pendingBuildings[b]
                                         : buildingType;
+                                }
+                                //If its a port slot and in position 2 (0-1) then this building cant be destroyed
+                                bool isPortSlot = (b == 1 && s->bIsPort); // ports are permanent, can't be destroyed
+
+                                // Destroyed Building section
+                                if (markedForDestruction) {
+                                    // Red overlay while the building is being torn down
+                                    SDL_FRect destructionRect = {sx + 8.f, sy + 20.f, slotSize - 15.f, slotSize - 40.f};
+                                    SDL_SetRenderDrawColor(renderer, 220, 60, 60, 255);
+                                    SDL_RenderFillRect(renderer, &destructionRect);
+                                    std::string destroyTurnStr = std::to_string(buildingsMarkedDestroyed[destroyKey]);
+                                    TTF_SetTextString(gameBuildingConstructionTimeText, destroyTurnStr.c_str(), 0);
+                                    TTF_DrawRendererText(gameBuildingConstructionTimeText, sx + 25.f, sy + 20.f);
+
+                                    //whole slot can be clicked to cancel the destruction
+                                    cancelDestroyButtonRects.push_back({slot, {i, b}});
+                                }
+                                else if (!upgradePending && !isPortSlot &&provinces[s->settlementData.provinceID].owner == player.faction
+                                         && SDL_PointInRectFloat(&mpCheck, &slot)) {
+                                    // Destroy button, bottom-right. Bottom-left is reserved for a future Repair button.
+                                    float destroyBtnSize = 20.f;
+                                    SDL_FRect destroyButtonRect = {
+                                        sx + slotSize - destroyBtnSize - 2.f,
+                                        sy + slotSize - destroyBtnSize - 2.f,
+                                        destroyBtnSize, destroyBtnSize
+                                    };
+                                    SDL_SetRenderDrawColor(renderer, 150, 25, 25, 230);
+                                    SDL_RenderFillRect(renderer, &destroyButtonRect);
+                                    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                                    SDL_RenderRect(renderer, &destroyButtonRect);
+                                    // simple X icon so no new texture asset is needed
+                                    SDL_RenderLine(renderer, destroyButtonRect.x + 4.f, destroyButtonRect.y + 4.f,
+                                                              destroyButtonRect.x + destroyBtnSize - 4.f, destroyButtonRect.y + destroyBtnSize - 4.f);
+                                    SDL_RenderLine(renderer, destroyButtonRect.x + destroyBtnSize - 4.f, destroyButtonRect.y + 4.f,
+                                                              destroyButtonRect.x + 4.f, destroyButtonRect.y + destroyBtnSize - 4.f);
+
+                                    destroyButtonRects.push_back({destroyButtonRect, {i, b}});
                                 }
                             }
                         }
@@ -7969,6 +8015,24 @@ public:
             }
         }
     }
+        // Building destructions (takes 1 turn)
+        for (auto it = buildingsMarkedDestroyed.begin(); it != buildingsMarkedDestroyed.end(); ) {
+            it->second--;
+            if (it->second <= 0) {
+                int settlementIndex = it->first / 100;
+                int slotIndex = it->first % 100;
+                if (settlementIndex >= 0 && settlementIndex < (int)settlements.size()) {
+                    Settlement& sel = settlements[settlementIndex];
+                    if (slotIndex > 0 && slotIndex < (int)sel.settlementData.buildings.size()) {
+                        SDL_Log("Building destroyed in slot %d of %s", slotIndex, sel.settlementData.cityName.c_str());
+                        sel.settlementData.buildings[slotIndex] = BuildingType::None;
+                    }
+                }
+                it = buildingsMarkedDestroyed.erase(it);
+            } else {
+                ++it;
+            }
+        }
 
     //Food (Old way)
         /*
@@ -8430,7 +8494,70 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 }
             }
 
-            // clic on a popup building of category
+            // click on a Destroy Building button -> mark the building for destruction (1 turn)
+            if (app.bHasClickedOnASettlement && app.bButtonUIBuildingIsPressed &&
+                !app.destroyButtonRects.empty())
+            {
+                SDL_FPoint pt = {nouveauX, nouveauY};
+                for (int d = 0; d < (int)app.destroyButtonRects.size(); d++) {
+                    if (SDL_PointInRectFloat(&pt, &app.destroyButtonRects[d].first)) {
+                        auto [cardIdx, slotIdx] = app.destroyButtonRects[d].second;
+                        const Settlement& clicked = app.settlements[app.selectedSettlementIndex];
+                        int provID = clicked.settlementData.provinceID;
+
+                        std::vector<Settlement*> provS;
+                        for (auto& s : app.settlements)
+                            if (s.settlementData.provinceID == provID) provS.push_back(&s);
+
+                        if (cardIdx < (int)provS.size()) {
+                            Settlement* sel = provS[cardIdx];
+                            if (app.provinces[provID].owner == app.player.faction &&
+                                slotIdx > 0 &&
+                                sel->settlementData.buildings[slotIdx] != BuildingType::None &&
+                                sel->settlementData.pendingBuildings[slotIdx] == BuildingType::None)
+                            {
+                                int globalSettlementIndex = (int)(sel - &app.settlements[0]);
+                                int destroyKey = globalSettlementIndex * 100 + slotIdx;
+                                app.buildingsMarkedDestroyed[destroyKey] = 1; // 1 turn to destroy
+                                SDL_Log("Marked building in slot %d of %s for destruction", slotIdx, sel->settlementData.cityName.c_str());
+                            }
+                        }
+                        return SDL_APP_CONTINUE;
+                    }
+                }
+            }
+
+            // click on a building marked for destruction -> cancel it
+            if (app.bHasClickedOnASettlement && app.bButtonUIBuildingIsPressed &&
+                !app.cancelDestroyButtonRects.empty())
+            {
+                SDL_FPoint pt = {nouveauX, nouveauY};
+                for (int d = 0; d < (int)app.cancelDestroyButtonRects.size(); d++) {
+                    if (SDL_PointInRectFloat(&pt, &app.cancelDestroyButtonRects[d].first)) {
+                        auto [cardIdx, slotIdx] = app.cancelDestroyButtonRects[d].second;
+                        const Settlement& clicked = app.settlements[app.selectedSettlementIndex];
+                        int provID = clicked.settlementData.provinceID;
+
+                        std::vector<Settlement*> provS;
+                        for (auto& s : app.settlements)
+                            if (s.settlementData.provinceID == provID) provS.push_back(&s);
+
+                        if (cardIdx < (int)provS.size()) {
+                            Settlement* sel = provS[cardIdx];
+                            if (app.provinces[provID].owner == app.player.faction) {
+                                int globalSettlementIndex = (int)(sel - &app.settlements[0]);
+                                int destroyKey = globalSettlementIndex * 100 + slotIdx;
+                                if (app.buildingsMarkedDestroyed.count(destroyKey)) {
+                                    app.buildingsMarkedDestroyed.erase(destroyKey);
+                                    SDL_Log("Cancelled destruction of building in slot %d of %s", slotIdx, sel->settlementData.cityName.c_str());
+                                }
+                            }
+                        }
+                        return SDL_APP_CONTINUE;
+                    }
+                }
+            }
+
 
             // clic on a popup building of category
             if (app.bHasClickedOnASettlement &&
