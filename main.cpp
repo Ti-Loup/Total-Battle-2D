@@ -67,6 +67,7 @@
  * Fixed | Both branches assign 120. So regardless of unlocked/built/locked status, every non-hovered tile renders at the same dim alpha.
  * Fixed | settlementTier only tells the maximum tier the settlement allows you to build
  * Fixed | Income Tooltip Wrong TTF Size compare to others Tooltips
+ * Fixed | WareHouse and Granary Tier 3 was still grey while in tier 3 .
  * --------------------------------------------
  * 0.3.0
  *
@@ -4864,11 +4865,22 @@ private://constructor
         SDL_SetRenderDrawColor(renderer, fc.r, fc.g, fc.b, 130);
         SDL_RenderRect(renderer, &bg);
 
-        //Render each col
+        //Render each col for the building upgrades
         for (int ci = 0; ci < (int)chains.size(); ci++) {
             const Chain& chain = chains[ci];
             int numTiers = (int)chain.tiers.size();
             float colX = popX + ci * (tileW + colGap);
+
+            // Tier higer is 5 and lower is 1
+            int currentTierForThisChain = 0;
+            for (BuildingType chainBt : chain.tiers) {
+                if (chainBt == builtHere) { currentTierForThisChain = currentBuiltTier; break; }
+            }
+            int chainBaseTier = 1;
+            if (!chain.tiers.empty()) {
+                if (const BuildingData* baseData = GetBuildingData(chain.tiers[0])) chainBaseTier = baseData->Tier;
+            }
+            int nextTierToBuild = (currentTierForThisChain == 0) ? chainBaseTier : currentTierForThisChain + 1;
 
             // Tier higer is 5 and lower is 1
             for (int ti = 0; ti < numTiers; ti++) {
@@ -4878,9 +4890,8 @@ private://constructor
 
                 int rowIndex = maxTierOverall - data->Tier; // 0 = top (tier le plus haut)
                 float tileY = popY + rowIndex * (tileH + arrowH);
-                bool isBuilt = (data->Tier <= currentBuiltTier);
-                bool isNextAvailable = (data->Tier == currentBuiltTier + 1) && (data->Tier <= settlementTier);
-
+                bool isBuilt = (currentTierForThisChain > 0) && (data->Tier <= currentTierForThisChain);
+                bool isNextAvailable = (data->Tier == nextTierToBuild) && (data->Tier <= settlementTier);
                 // background
                 if (isBuilt)
                     SDL_SetRenderDrawColor(renderer, fc.r, fc.g, fc.b, 255);
