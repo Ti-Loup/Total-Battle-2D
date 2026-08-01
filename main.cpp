@@ -49,7 +49,7 @@
  * Done -> Can now destroy constructed buildings.
  * Done -> Rework the food system for the food stocks to be in the different castles instead of a general value.
  * Done -> Being able to destroy a constructed building.
- * To Do -> Fix positionning
+ * Done -> Fix positionning
  * To Do -> if a building is damaged, it produce nothing and would need to wait for it to gradualy repair itself (4 to 6 turns) or / Instant repair (Cost 50% of the building price)
  *
  *
