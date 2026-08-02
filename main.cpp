@@ -5901,85 +5901,85 @@ private://constructor
     if (!bMouseOnMoneyIcon) return;
 
         int taxIncome = 0;
-        int farmIncomeBased = 0; //The base income from buildings
-        int farmIncomeModified = 0; // Modified income from buildings (caused -> Seasons.)
-        int commerceIncome = 0;
-        int industryIncome = 0;
-        int religiousIncome = 0;
-        int maritimeIncome = 0;
-        int maritimeIncomeModified = 0;
-        int mainUpkeep = 0;
-        int buildingMaintenance = 0;
-        int armyUpkeep = 0;
-        int damagedIncomeLoss = 0; // income from the damaged buildings (Produces 0)
-        //Season Effect Ui Shows
-        Date::Season coinTooltipSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
-        SeasonModifiers coinTooltipSeasonModifier = GetSeasonModifiers(coinTooltipSeason);
-        float worldEventMaritimeGoldMultiplier = 1.0f;
-        const WorldEventsData* activeGoldEvent = GetActiveWorldEventData();
-        if (activeGoldEvent) {
-            worldEventMaritimeGoldMultiplier = activeGoldEvent->goldIncomeMultiplier;
+int farmIncomeBased = 0;//raw farm base
+int farmSeasonBonus = 0;//from buildings still producing undamaged
+int commerceIncome = 0;
+int industryIncome = 0;
+int religiousIncome = 0;
+int maritimeIncome = 0;//maritime base
+int worldEventGoldDelta = 0;
+int mainUpkeep = 0;
+int buildingMaintenance = 0;
+int armyUpkeep = 0;
+int damagedIncomeLoss = 0;//raw income being lost to damage, across all categories
+
+Date::Season coinTooltipSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
+SeasonModifiers coinTooltipSeasonModifier = GetSeasonModifiers(coinTooltipSeason);
+float worldEventMaritimeGoldMultiplier = 1.0f;
+const WorldEventsData* activeGoldEvent = GetActiveWorldEventData();
+if (activeGoldEvent) worldEventMaritimeGoldMultiplier = activeGoldEvent->goldIncomeMultiplier;
+
+for (const auto& s : settlements) {
+    if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
+    int settlement_index = (int)(&s - &settlements[0]);
+    const BuildingData* mainBuilding = GetBuildingData(s.settlementData.buildings[0]);
+    if (mainBuilding) mainUpkeep += mainBuilding->upkeep;
+
+    if (provinces[s.settlementData.provinceID].bToggleCollectIncome) {
+        bool mainDamaged = IsBuildingSlotDamaged(settlement_index, 0);
+        int mainRaw = s.settlementData.baseIncome;
+        TaxCategory mainCat = GetTaxCategory(s.settlementData.buildings[0]);
+
+        switch (mainCat) {
+            case TaxCategory::Farm:      farmIncomeBased += mainRaw; break;
+            case TaxCategory::Commerce:  commerceIncome  += mainRaw; break;
+            case TaxCategory::Industry:  industryIncome  += mainRaw; break;
+            case TaxCategory::Religious: religiousIncome += mainRaw; break;
+            case TaxCategory::Maritime:  maritimeIncome  += mainRaw; break;
+            default: taxIncome += mainRaw; break;
         }
-        for (const auto& s : settlements) {
-            if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
-            int settlement_index = (int)(&s - &settlements[0]);
-            const BuildingData* mainBuilding = GetBuildingData(s.settlementData.buildings[0]);
-            if (mainBuilding) mainUpkeep += mainBuilding->upkeep;
 
-            if (provinces[s.settlementData.provinceID].bToggleCollectIncome) {
-                bool mainDamaged = IsBuildingSlotDamaged(settlement_index, 0);//slot 0 main Building
-                if (mainDamaged) {
-                    damagedIncomeLoss += s.settlementData.baseIncome;
-                }else {
-                    switch (GetTaxCategory(s.settlementData.buildings[0])) {
-                        case TaxCategory::Farm:
-                            farmIncomeBased += s.settlementData.baseIncome;
-                            farmIncomeModified += (int)std::round(s.settlementData.baseIncome * coinTooltipSeasonModifier.incomeFarmMultiplier);
-                            break;//with season multiplier
-                        case TaxCategory::Commerce: commerceIncome += s.settlementData.baseIncome; break;
-                        case TaxCategory::Industry: industryIncome += s.settlementData.baseIncome; break;
-                        case TaxCategory::Religious: religiousIncome += s.settlementData.baseIncome; break;
-                        case TaxCategory::Maritime:
-                            maritimeIncome += s.settlementData.baseIncome;
-                            maritimeIncomeModified += (int)std::round(s.settlementData.baseIncome * worldEventMaritimeGoldMultiplier);
-                            break;
-                        default: taxIncome += s.settlementData.baseIncome; break;
-                    }
-                }
-                    for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
-                    BuildingType bt = s.settlementData.buildings[b];
-                    if (bt == BuildingType::None) continue;
-                    const BuildingData* building_data = GetBuildingData(bt);
-                    if (!building_data) continue;
+        if (mainDamaged) {
+            damagedIncomeLoss += mainRaw; // raw amount, not season-modified
+        } else if (mainCat == TaxCategory::Farm) {
+            farmSeasonBonus += (int)std::round(mainRaw * coinTooltipSeasonModifier.incomeFarmMultiplier) - mainRaw;
+        } else if (mainCat == TaxCategory::Maritime) {
+            worldEventGoldDelta += (int)std::round(mainRaw * worldEventMaritimeGoldMultiplier) - mainRaw;
+        }
 
-                    buildingMaintenance += building_data->upkeep;
-                    bool slotDamaged = IsBuildingSlotDamaged(settlement_index, b);//buildings slot index
-                    if (slotDamaged) {
-                        damagedIncomeLoss += building_data->incomeBonus;
-                        continue; //when damaged, they dont produce any income
-                    }
-                    switch (GetTaxCategory(bt)) {
-                        case TaxCategory::Farm:
-                            farmIncomeBased += building_data->incomeBonus;
-                            farmIncomeModified += (int)std::round(building_data->incomeBonus * coinTooltipSeasonModifier.incomeFarmMultiplier);
-                            break;
-                        case TaxCategory::Commerce: commerceIncome += building_data->incomeBonus; break;
-                        case TaxCategory::Industry: industryIncome += building_data->incomeBonus; break;
-                        case TaxCategory::Religious: religiousIncome += building_data->incomeBonus; break;
-                        case TaxCategory::Maritime:
-                            maritimeIncome += building_data->incomeBonus;
-                            maritimeIncomeModified += (int)std::round(building_data->incomeBonus * worldEventMaritimeGoldMultiplier);
-                            break;
-                        default: break; // uncategorized buildings just don't show a tax row
-                    }
-                }
+        for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
+            BuildingType bt = s.settlementData.buildings[b];
+            if (bt == BuildingType::None) continue;
+            const BuildingData* building_data = GetBuildingData(bt);
+            if (!building_data) continue;
+
+            buildingMaintenance += building_data->upkeep;
+            bool slotDamaged = IsBuildingSlotDamaged(settlement_index, b);
+            int raw = building_data->incomeBonus;
+            TaxCategory cat = GetTaxCategory(bt);
+
+            switch (cat) {
+                case TaxCategory::Farm:      farmIncomeBased += raw; break;
+                case TaxCategory::Commerce:  commerceIncome  += raw; break;
+                case TaxCategory::Industry:  industryIncome  += raw; break;
+                case TaxCategory::Religious: religiousIncome += raw; break;
+                case TaxCategory::Maritime:  maritimeIncome  += raw; break;
+                default: break;
+            }
+
+            if (slotDamaged) {
+                damagedIncomeLoss += raw; // raw amount, not season-modified
+            } else if (cat == TaxCategory::Farm) {
+                farmSeasonBonus += (int)std::round(raw * coinTooltipSeasonModifier.incomeFarmMultiplier) - raw;
+            } else if (cat == TaxCategory::Maritime) {
+                worldEventGoldDelta += (int)std::round(raw * worldEventMaritimeGoldMultiplier) - raw;
             }
         }
-        int farmSeasonBonus = farmIncomeModified - farmIncomeBased;//the bonus only
-        int worldEventGoldDelta = maritimeIncomeModified - maritimeIncome;
-        int totalIncome  = taxIncome + farmIncomeModified + commerceIncome + industryIncome + religiousIncome + maritimeIncome;
-        int totalExpense = mainUpkeep + buildingMaintenance - worldEventGoldDelta;
-        int goldNextTurn = totalIncome - totalExpense;
+    }
+}
+int totalIncome = taxIncome + commerceIncome + industryIncome + religiousIncome + maritimeIncome + farmIncomeBased + (farmSeasonBonus > 0 ? farmSeasonBonus : 0);
+int totalExpense = mainUpkeep + armyUpkeep + buildingMaintenance + damagedIncomeLoss - worldEventGoldDelta + (farmSeasonBonus < 0 ? -farmSeasonBonus : 0);
+int goldNextTurn = totalIncome - totalExpense;
 
     // Calcul dynamique de la hauteur
     float rowH   = 24.f;
@@ -5988,11 +5988,13 @@ private://constructor
     float padTop =  4.f;
     float padBot =  8.f;
 
+    //if  seasonModifier is an expense it will go to the second row where we calculate all the negative values.
+    bool seasonModifierIsExpense = (farmSeasonBonus < 0);
     //The Row shows if its not 0 and has a value
     int incomeRows = 0;
     if (taxIncome != 0) incomeRows++;
     if (farmIncomeBased != 0) incomeRows++;
-    if (farmIncomeModified != 0) incomeRows++;
+    if (farmSeasonBonus != 0 && !seasonModifierIsExpense) incomeRows++;
     if (commerceIncome != 0)  incomeRows++;
     if (industryIncome != 0)  incomeRows++;
     if (religiousIncome != 0) incomeRows++;
@@ -6002,6 +6004,7 @@ private://constructor
     if (mainUpkeep != 0) expenseRows++;
     if (armyUpkeep != 0) expenseRows++;
     if (buildingMaintenance != 0) expenseRows++;
+    if (seasonModifierIsExpense) expenseRows++;
     if (worldEventGoldDelta != 0) expenseRows++;
     if (damagedIncomeLoss != 0) expenseRows++;
 
@@ -6102,6 +6105,7 @@ private://constructor
     // Incomes
     drawRow("Tax (Province)", taxIncome, false);
     drawRow("Tax (Farm)", farmIncomeBased, false);
+        if (!seasonModifierIsExpense)//positive
     drawRow("Season Modifier (Farm)", farmSeasonBonus, false); //bonus = modified - based
     drawRow("Tax (Commerce)", commerceIncome, false);
     drawRow("Tax (Industry)", industryIncome, false);
@@ -6111,8 +6115,11 @@ private://constructor
     if (incomeRows > 0) drawSep();
 
     // Expenses
+    drawRow("Main Building Upkeep", mainUpkeep, true);
     drawRow("Army Upkeep",     armyUpkeep,          true);
     drawRow("Building Maint.", buildingMaintenance, true);
+        if (seasonModifierIsExpense)
+    drawRow("Season Modifier (Farm)", farmSeasonBonus, true); //negative season penalty
     drawRow("Damaged Buildings", damagedIncomeLoss, true);
     std::string worldEventGoldLabel = activeGoldEvent? ("World Event (" + activeGoldEvent->name + ")") : "World Event";
     drawRow(worldEventGoldLabel.c_str(), worldEventGoldDelta, false);
@@ -6329,7 +6336,6 @@ TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, shiftedY + 82.f);
         if (activeFoodEvent && worldEventFarmFoodMultiplier != 1.0f) {
             farmLabel += " (" + activeFoodEvent->name + ")";
         }
-        if (damagedFarmFoodLoss > 0) farmLabel += " (-" + std::to_string(damagedFarmFoodLoss) + " dmg)";
         TTF_SetTextString(gameCurrentFoodUiText, farmLabel.c_str(), 0);
         TTF_SetTextColor(gameCurrentFoodUiText, 255, 255, 255, 255);
         TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, shiftedY + 102.f);
@@ -6346,7 +6352,6 @@ TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, shiftedY + 82.f);
         if (activeFoodEvent && worldEventMaritimeFoodMultiplier != 1.0f) {
             maritimeLabel += " (" + activeFoodEvent->name + ")";
         }
-        if (damagedMaritimeFoodLoss > 0) maritimeLabel += " (-" + std::to_string(damagedMaritimeFoodLoss) + " dmg)";
         TTF_SetTextString(gameCurrentFoodUiText, maritimeLabel.c_str(), 0);
         TTF_SetTextColor(gameCurrentFoodUiText, 255, 255, 255, 255);
         TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, shiftedY + 122.f);
