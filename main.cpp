@@ -1227,6 +1227,13 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture of gameRepairBuildingButtonIconUi", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameRepairBuildingButtonIconUi, SDL_SCALEMODE_NEAREST);
+        //Texture repair Buildings
+        gameBuildingDamagedIconUi = IMG_LoadTexture(renderer, "assets/BuildingDamagedIcon.png");
+        if (gameBuildingDamagedIconUi == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameBuildingDamagedIconUi", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameBuildingDamagedIconUi, SDL_SCALEMODE_NEAREST);
+
 
         //texture Province dezoom texture
         provinceKnightBannerTexture = IMG_LoadTexture(renderer, "assets/KnightProvinceTexture.png");
@@ -3339,6 +3346,7 @@ private://constructor
         SDL_DestroyTexture(goodsProductionManagerButtonTexture);
         SDL_DestroyTexture(gameDestroyBuildingButtonIconUi);
         SDL_DestroyTexture(gameRepairBuildingButtonIconUi);
+        SDL_DestroyTexture(gameBuildingDamagedIconUi);
         // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
