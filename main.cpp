@@ -50,12 +50,11 @@
  * Done -> Rework the food system for the food stocks to be in the different castles instead of a general value.
  * Done -> Being able to destroy a constructed building.
  * Done -> Fix positionning
- * To Do -> if a building is damaged, it produce nothing and would need to wait for it to gradualy repair itself (4 to 6 turns) or / Instant repair (Cost 50% of the building price)
+ * Done -> if a building is damaged, it produce nothing and would need to wait for it to gradualy repair itself (4 to 6 turns) or / Instant repair (Cost 50% of the building price)
+ * Done -> Add Missing Textures
+ * Done -> Update Season to work with money
  *
- *
- * Update Season to work with money
- * If Time -> work on the ai to build buildings strategicly based on what they're missing.
- *Add Missing Textures
+ * World Events Working (2 / 12) - Storm, Earthquake
  *
  * Fixed | issue with vikings religious buildings crashing the game
  * Fixed | camera never stop when touch edge
