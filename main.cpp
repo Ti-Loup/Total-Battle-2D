@@ -6173,7 +6173,6 @@ int goldNextTurn = totalIncome - totalExpense;
                 bool damaged = IsBuildingSlotDamaged(settlement_index, slot_index);
                 FoodCategory food_category = GetFoodCategory(bt);
 
-                // Toujours compté en BRUT (comme si rien n'était endommagé) — même logique que Tax(Farm) dans le tooltip d'argent
                 switch (food_category) {
                     case FoodCategory::Farm: rawFarmFoodProduced += bd->foodProduced; break;
                     case FoodCategory::Maritime: rawMaritimeFoodProduced += bd->foodProduced; break;
@@ -6204,12 +6203,10 @@ int goldNextTurn = totalIncome - totalExpense;
         int netFarmFoodProduced = (int)std::round((rawFarmFoodProduced - damagedFarmFoodLoss) * worldEventFarmFoodMultiplier);
         int netMaritimeFoodProduced = (int)std::round((rawMaritimeFoodProduced - damagedMaritimeFoodLoss) * worldEventMaritimeFoodMultiplier);
 
-        // La saison est calculée ici (et plus seulement plus bas) pour que totalDamagedFoodLoss en tienne compte aussi
+        // Season is calculated
         Date::Season currentFoodSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
         SeasonModifiers foodSeasonMods = GetSeasonModifiers(currentFoodSeason);
 
-        // Damaged Buildings = total brut saisonné moins total net saisonné, pour coller exactement
-        // au "Net Food This Turn" (Farm + Maritime - Damaged, tout saisonné, moins l'Upkeep).
         int seasonedGrossFoodTotal = (int)std::round((farmFoodProducedModified + maritimeFoodProducedModified) * foodSeasonMods.foodProductionMultiplier);
         int seasonedNetFoodTotal = (int)std::round((netFarmFoodProduced + netMaritimeFoodProduced) * foodSeasonMods.foodProductionMultiplier);
         int totalDamagedFoodLoss = seasonedGrossFoodTotal - seasonedNetFoodTotal;
