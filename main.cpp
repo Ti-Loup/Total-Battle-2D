@@ -654,6 +654,9 @@ public:
     std::vector<std::pair<SDL_FRect, std::pair<int, int>>> repairButtonRects;
     //For the repair building system
     std::unordered_map<int, int> buildingDamageRepairTimer;
+    std::unordered_map<int, int> buildingsBeingRepaired;//If paid to repair it
+    //Damage building texture
+    SDL_Texture *gameBuildingDamagedIconUi = nullptr;
 
 
     // 0=Military 1=AdvMilitary 2=Defence 3=Economy 4=Religion
@@ -3539,26 +3542,7 @@ private://constructor
         auto it = worldEventsImageTextures.find(type);
         return (it != worldEventsImageTextures.end()) ? it->second : nullptr;
     }
-    //truefalse if a building is damaged
-    bool IsBuildingSlotDamaged(int settlementIndex, int slotIndex) {
-        return buildingDamageRepairTimer.count(settlementIndex * 100 + slotIndex) > 0;
-    }
-    //Money amount needed to repair the building. Must be 50% of the building cost
-    int GetRepairCost(BuildingType building_type) {
-        const BuildingData *building_data = GetBuildingData(building_type);//recieve the data from a building from his type.
-        if (!building_data) return 0;
-        return (building_data->cost + 1) / 2;
-    }
-    //For earthquake/ touches 1 random settlements with all its buildings damaged.
-    void DamageSettlementBuildings(int settlementIndex) {
-        if (settlementIndex < 0 || settlementIndex >= (int)settlements.size()) return;
-        Settlement &settl = settlements[settlementIndex];
-        for (int b = 0; b < (int)settl.settlementData.buildings.size(); b++) {
-            if (settl.settlementData.buildings[b] == BuildingType::None) continue;
-            buildingDamageRepairTimer[settlementIndex * 100 + b] = 6;
-        }
-        SDL_Log("Earthquake damaged buildings in %s", settl.settlementData.cityName.c_str());
-    }
+
 
     //For the rendering on screen of the settlements. Texture to do
     void RenderSettlements() {
@@ -3783,15 +3767,17 @@ private://constructor
         int publicOrderTotal = 0;
         int provinceGoodsCapacity = 0;
         for (auto* s : provinceSettlements) {
-            incomeTotal += s->settlementData.baseIncome;
-            for (int b = 1; b < (int)s->settlementData.buildings.size(); b++) {
-                if (s->settlementData.buildings[b] != BuildingType::None) {
-                    const BuildingData* bd = GetBuildingData(s->settlementData.buildings[b]);
-                    if (bd) incomeTotal += bd->incomeBonus;
+            int settlementGlobalIndex = (int)(s - &settlements[0]);
+            //if no damage
+            if (!IsBuildingSlotDamaged(settlementGlobalIndex, 0))
+                incomeTotal += s->settlementData.baseIncome;
+            for (int slot_index = 1; slot_index < (int)s->settlementData.buildings.size(); slot_index++) {
+                if (s->settlementData.buildings[slot_index] != BuildingType::None) {
+                    const BuildingData* bd = GetBuildingData(s->settlementData.buildings[slot_index]);
+                    if (bd && !IsBuildingSlotDamaged(settlementGlobalIndex, slot_index)) incomeTotal += bd->incomeBonus;
                 }
             }
             publicOrderTotal = s->settlementData.publicOrder;
-            //region own storage capacity . Capital/Castle base + warehouse amount
             for (BuildingType bt : s->settlementData.buildings) {
                 if (bt == BuildingType::None) continue;
                 const BuildingData* bd = GetBuildingData(bt);
@@ -4195,6 +4181,8 @@ private://constructor
 
                     //Main settlement (0)
                     if (b == 0) {
+                        int gsi = (int)(s - &settlements[0]);
+                        bool markedForDemolitionMain = buildingsMarkedDestroyed.count(gsi * 100 + 0) > 0;
                         // Texture
                         int tierToRender = s->settlementData.bBuidingUnderConstruction? s->settlementData.pendingTier: s->settlementData.settlementTier;
                         SDL_Texture* tex = GetSettlementBuildingUpgradeTexture(province.owner, s->settlementData.type, tierToRender);
@@ -4213,12 +4201,7 @@ private://constructor
                         BuildingType mainBuilding = s->settlementData.buildings[0];
                         int upgradeCost = player.GetUpgradeCost(s->settlementData.settlementTier, mainBuilding);
                         if (provinces[s->settlementData.provinceID].owner == player.faction) {
-                            if (s->settlementData.settlementTier < maxTierCheck && hammerUIBuildingUpgradeTexture && player.currentGold  >= upgradeCost && s->settlementData.bBuidingUnderConstruction == false) {
-                                SDL_FRect hammerRect = {
-                                    sx + slotSize - 30.f,
-                                    sy + 4.f,
-                                    35.f, 35.f
-                                };
+                        if (s->settlementData.settlementTier < maxTierCheck && hammerUIBuildingUpgradeTexture && player.currentGold  >= upgradeCost && s->settlementData.bBuidingUnderConstruction == false && !IsBuildingSlotDamaged(gsi, 0) && !markedForDemolitionMain) {                                SDL_FRect hammerRect = { sx + slotSize - 30.f, sy + 4.f, 35.f, 35.f };
                                 SDL_RenderTexture(renderer, hammerUIBuildingUpgradeTexture, nullptr, &hammerRect);
                             }
                         }
@@ -4236,6 +4219,48 @@ private://constructor
                             //for main buildings beeing able to refound a pending upgrade
                             pendingSlotRects.push_back(slot);
                             pendingSlotInfo.push_back({i,0});
+                        }
+                    //Damage and repair for the  main Building
+                       {
+                            bool awaitingPayment = IsBuildingSlotAwaitingPayment(gsi, 0);
+                            bool beingRepaired = IsBuildingSlotBeingRepaired(gsi, 0);
+
+                            if (beingRepaired) {
+                                SDL_FRect repairingRect = {sx + 8.f, sy + 20.f, slotSize - 15.f, slotSize - 40.f};
+                                SDL_SetRenderDrawColor(renderer, 144, 238, 144, 255);
+                                SDL_RenderFillRect(renderer, &repairingRect);
+                                std::string turnsLeftStr = std::to_string(buildingsBeingRepaired[gsi * 100]);
+                                TTF_SetTextString(gameBuildingConstructionTimeText, turnsLeftStr.c_str(), 0);
+                                TTF_DrawRendererText(gameBuildingConstructionTimeText, sx + 25.f, sy + 20.f);
+                            }
+                            else if (awaitingPayment) {
+                                if (gameBuildingDamagedIconUi) SDL_RenderTexture(renderer, gameBuildingDamagedIconUi, nullptr, &slot);
+
+                                int repairTimer = buildingDamageRepairTimer[gsi * 100];
+                                float repairProgress = std::clamp((6.f - (float)repairTimer) / 6.f, 0.f, 1.f);
+                                float barW = 5.f, insetH = slotSize - 4.f;
+                                SDL_FRect vBarBg = {sx + 2.f, sy + 2.f, barW, insetH};
+                                SDL_SetRenderDrawColor(renderer, 40, 15, 15, 230);
+                                SDL_RenderFillRect(renderer, &vBarBg);
+                                float filledH = insetH * repairProgress;
+                                SDL_FRect vBarFill = {sx + 2.f, sy + 2.f + (insetH - filledH), barW, filledH};
+                                SDL_SetRenderDrawColor(renderer, 80, 210, 80, 255);
+                                SDL_RenderFillRect(renderer, &vBarFill);
+                                SDL_SetRenderDrawColor(renderer, 10, 10, 10, 255);
+                                SDL_RenderRect(renderer, &vBarBg);
+                            }
+                        }
+
+                        //Marked for demolition || same red overlay and click to cancel as other slots.
+                        if (markedForDemolitionMain) {
+                            SDL_FRect destructionRect = {sx + 8.f, sy + 20.f, slotSize - 15.f, slotSize - 40.f};
+                            SDL_SetRenderDrawColor(renderer, 220, 60, 60, 255);
+                            SDL_RenderFillRect(renderer, &destructionRect);
+                            std::string destroyTurnStr = std::to_string(buildingsMarkedDestroyed[gsi * 100]);
+                            TTF_SetTextString(gameBuildingConstructionTimeText, destroyTurnStr.c_str(), 0);
+                            TTF_DrawRendererText(gameBuildingConstructionTimeText, sx + 25.f, sy + 20.f);
+
+                            cancelDestroyButtonRects.push_back({slot, {i, 0}});
                         }
 
                         mainBuildingSlotRects[i] = slot;
@@ -4290,20 +4315,23 @@ private://constructor
                                     pendingSlotRects.push_back(slot);
                                     pendingSlotInfo.push_back({i, b});
                                 } else {
-                                    // Hammer if upgradable...
-                                    if (bd->upgradesTo != BuildingType::None && hammerUIBuildingUpgradeTexture && !markedForDestruction && provinces[s->settlementData.provinceID].owner == player.faction) {
-                                        const BuildingData* nextBd = GetBuildingData(bd->upgradesTo);
-                                        if (nextBd) {
-                                            bool tierUnlocked = (nextBd->Tier <= s->settlementData.settlementTier);
-                                            if (tierUnlocked && player.currentGold >= nextBd->cost) {
-                                                SDL_FRect hammerRect = { sx + slotSize - 30.f, sy + 4.f, 35.f, 35.f };
-                                                SDL_RenderTexture(renderer, hammerUIBuildingUpgradeTexture, nullptr, &hammerRect);
+                                    bool thisSlotDamaged = IsBuildingSlotDamaged(globalSettlementIndex, b);
+                                    if (!markedForDestruction && provinces[s->settlementData.provinceID].owner == player.faction) {
+                                        // Hammer only if there's a next tier, tier's unlocked, affordable, and not damaged
+                                        if (bd->upgradesTo != BuildingType::None) {
+                                            const BuildingData* nextBd = GetBuildingData(bd->upgradesTo);
+                                            if (nextBd) {
+                                                bool tierUnlocked = (nextBd->Tier <= s->settlementData.settlementTier);
+                                                if (tierUnlocked && player.currentGold >= nextBd->cost && hammerUIBuildingUpgradeTexture && !thisSlotDamaged) {
+                                                    SDL_FRect hammerRect = { sx + slotSize - 30.f, sy + 4.f, 35.f, 35.f };
+                                                    SDL_RenderTexture(renderer, hammerUIBuildingUpgradeTexture, nullptr, &hammerRect);
+                                                }
                                             }
-                                            // always register the slot so the chain popup can be hovered/previewed,
-                                            // even if the next tier isn't unlocked yet
-                                            availableSlotRects.push_back(slot);
-                                            availableSlotInfo.push_back({i, b});
                                         }
+                                        // Always register the slot — even at max tier, even damaged — so the
+                                        // destroy/repair popup stays reachable regardless of upgrade state.
+                                        availableSlotRects.push_back(slot);
+                                        availableSlotInfo.push_back({i, b});
                                     }
                                 }
                                 //To check a building name and what they do even if it's not upgradable yet.
@@ -4321,6 +4349,37 @@ private://constructor
                                 }
                                 //If its a port slot and in position 2 (0-1) then this building cant be destroyed
                                 bool isPortSlot = (b == 1 && s->bIsPort); // ports are permanent, can't be destroyed
+ {
+                                    int gsi = (int)(s - &settlements[0]);
+                                    bool awaitingPayment = IsBuildingSlotAwaitingPayment(gsi, b);
+                                    bool beingRepaired = IsBuildingSlotBeingRepaired(gsi, b);
+
+                                    if (beingRepaired && !markedForDestruction) {
+                                        SDL_FRect repairingRect = {sx + 8.f, sy + 20.f, slotSize - 15.f, slotSize - 40.f};
+                                        SDL_SetRenderDrawColor(renderer, 144, 238, 144, 255);
+                                        SDL_RenderFillRect(renderer, &repairingRect);
+                                        std::string turnsLeftStr = std::to_string(buildingsBeingRepaired[gsi * 100 + b]);
+                                        TTF_SetTextString(gameBuildingConstructionTimeText, turnsLeftStr.c_str(), 0);
+                                        TTF_DrawRendererText(gameBuildingConstructionTimeText, sx + 25.f, sy + 20.f);
+                                    }
+                                    else if (awaitingPayment && !markedForDestruction) {
+                                        if (gameBuildingDamagedIconUi) SDL_RenderTexture(renderer, gameBuildingDamagedIconUi, nullptr, &slot);
+
+                                        int repairTimer = buildingDamageRepairTimer[gsi * 100 + b];
+                                        float repairProgress = std::clamp((6.f - (float)repairTimer) / 6.f, 0.f, 1.f);
+                                        float barW = 5.f, insetH = slotSize - 4.f;
+                                        SDL_FRect vBarBg = {sx + 2.f, sy + 2.f, barW, insetH};
+                                        SDL_SetRenderDrawColor(renderer, 40, 15, 15, 230);
+                                        SDL_RenderFillRect(renderer, &vBarBg);
+                                        float filledH = insetH * repairProgress;
+                                        SDL_FRect vBarFill = {sx + 2.f, sy + 2.f + (insetH - filledH), barW, filledH};
+                                        SDL_SetRenderDrawColor(renderer, 80, 210, 80, 255);
+                                        SDL_RenderFillRect(renderer, &vBarFill);
+                                        SDL_SetRenderDrawColor(renderer, 10, 10, 10, 255);
+                                        SDL_RenderRect(renderer, &vBarBg);
+                                    }
+                                }
+
 
                                 // Destroyed Building section
                                 if (markedForDestruction) {
@@ -4610,25 +4669,44 @@ private://constructor
         expandedMainPopup.h += 20.f;
         bool mouseOnExistingPopup = mainBuildingPopupRect.w > 0 && SDL_PointInRectFloat(&msPtTier, &expandedMainPopup);
 
-        if ((mainHoveredCard >= 0 || mouseOnExistingPopup) && bButtonUIBuildingIsPressed
+         if ((mainHoveredCard >= 0 || mouseOnExistingPopup) && bButtonUIBuildingIsPressed
             && categoryButtonsPopupRect.w <= 0 && categoryEvolutionPopupRect.w <= 0 && province.owner == player.faction) {
             if (mainHoveredCard >= 0) hoveredCardIndex = mainHoveredCard;
 
             if (hoveredCardIndex >= 0 && hoveredCardIndex < (int)provinceSettlements.size()) {
 
                 const Settlement* provinceSettl = provinceSettlements[hoveredCardIndex];
+                int gsiMain = (int)(provinceSettl - &settlements[0]);
                 int currentTier = provinceSettl->settlementData.settlementTier;
                 int maxTier = 3;//for the villages
                 //for castle and capital its 5
                 if (provinceSettl->settlementData.type == SettlementType::Castle || provinceSettl->settlementData.type == SettlementType::Capital) {
                     maxTier = 5;
                 }
-            //If same tier has max the popup wont show.
-                if (currentTier < maxTier) {
+
+                bool showTierChain = currentTier < maxTier; // false once at max tier
+                bool mainAwaitingRepair = IsBuildingSlotAwaitingPayment(gsiMain, 0);
+                int  mainDestroyKey = gsiMain * 100 + 0;
+                bool mainMarkedForDestruction = buildingsMarkedDestroyed.count(mainDestroyKey) > 0;
+                bool canShowMainDestroy = !provinceSettl->settlementData.bBuidingUnderConstruction && currentTier > 1;
+
+                //If nothing to show at all, hide the popup rect and clear tier-click rects.
+                if (!showTierChain && !mainAwaitingRepair && !canShowMainDestroy) {
+                    mainBuildingPopupRect = {0.f, 0.f, 0.f, 0.f};
+                    tierPopupMaxTier = 0;
+                }
+                else {
                     float tileW  = 64.f;
                     float tileH  = 64.f;
                     float arrowH = 22.f;
-                    float totalH = maxTier * tileH + (maxTier - 1) * arrowH;
+                    float tilesTotalH = showTierChain ? (maxTier * tileH + (maxTier - 1) * arrowH) : 0.f;
+
+                    float actionBtnSize = 26.f;
+                    float actionRowGap  = 14.f;
+                    bool  hasActionRow  = mainAwaitingRepair || canShowMainDestroy;
+                    float extraActionHeight = hasActionRow ? (actionRowGap + actionBtnSize) : 0.f;
+                    float totalH = tilesTotalH + extraActionHeight;
+                    if (totalH <= 0.f) totalH = actionBtnSize;
 
                     float popX = mainBuildingSlotRects[hoveredCardIndex].x + (mainBuildingSlotRects[hoveredCardIndex].w - tileW) / 2.f;
                     float popY = mainBuildingSlotRects[hoveredCardIndex].y - totalH - 15.f;
@@ -4642,128 +4720,181 @@ private://constructor
                     SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 120);
                     SDL_RenderRect(renderer, &bgRect);
 
-                    // Tier 5 is UP → Tier 1 if down
-                    for (int t = maxTier; t >= 1; t--) {
-                        int idx = maxTier - t;  // 0 = tier5(top), 4 = tier1(down)
-                        float tierSquareY = popY + idx * (tileH + arrowH);
+                    if (showTierChain) {
+                        // Tier 5 is UP → Tier 1 if down
+                        for (int t = maxTier; t >= 1; t--) {
+                            int idx = maxTier - t;  // 0 = tier5(top), 4 = tier1(down)
+                            float tierSquareY = popY + idx * (tileH + arrowH);
 
-                        bool isCurrent  = (t == currentTier);
-                        bool isNext = t == currentTier + 1 && currentTier < maxTier;
-                        bool isUnlocked = (t < currentTier);
+                            bool isCurrent  = (t == currentTier);
+                            bool isNext = t == currentTier + 1 && currentTier < maxTier;
+                            bool isUnlocked = (t < currentTier);
 
-                        // square of tier
-                        if (isCurrent) {
-                            SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 255);
-                        }
-                        else if (isNext) {
-                            SDL_SetRenderDrawColor(renderer, factionColor.r/2,factionColor.g/2,factionColor.b/2,255);
-                        }
-                        else if (isUnlocked) {
-                            SDL_SetRenderDrawColor(renderer, factionColor.r,factionColor.g,factionColor.b,255);
-                        }
-                        else
-                            SDL_SetRenderDrawColor(renderer, 22, 22, 22, 255);
-
-                        SDL_FRect tierRect = {popX, tierSquareY, tileW, tileH};
-                        SDL_RenderFillRect(renderer, &tierRect);
-
-                        //textures of the building
-                        SDL_Texture* textureBuilding = GetSettlementBuildingUpgradeTexture(province.owner,provinceSettl->settlementData.type, t );
-                        if (textureBuilding) {
-                            Uint8 alpha = isCurrent ? 255 : (isNext ? 180 : 60);
-                            SDL_SetTextureAlphaMod(textureBuilding, alpha);
-                            SDL_RenderTexture(renderer, textureBuilding, nullptr, &tierRect);
-                            SDL_SetTextureAlphaMod(textureBuilding, 255); // reset
-                        }
-                        // Bordure
-                        SDL_SetRenderDrawColor(renderer,
-                            isCurrent ? factionColor.r : 65,
-                            isCurrent ? factionColor.g : 65,
-                            isCurrent ? factionColor.b : 65, 255);
-                        SDL_RenderRect(renderer, &tierRect);
-                        // Chiffre romain
-                        const char* rn[] = {"I", "II", "III", "IV", "V"};
-                        TTF_SetTextString(gameStatUIText, rn[t - 1], 0);
-                        Uint8 la = isCurrent ? 255 : (isUnlocked ? 180 : 80);
-                        TTF_SetTextColor(gameStatUIText, la, la, la, 255);
-                        int tw = 0, th = 0;
-                        TTF_GetTextSize(gameStatUIText, &tw, &th);
-                        TTF_DrawRendererText(gameStatUIText,popX + (tileW - tw) / 2.f,tierSquareY + tileH - th - 5.f);
-
-
-                        if (t > currentTier && t <= maxTier) {
-                            BuildingType buildingAtTier = GetSettlementBuildingType(provinceSettl->settlementData.type, province.owner, t - 1);
-
-                            const BuildingData* tierData = GetBuildingData(buildingAtTier);
-                            const BuildingData* nextData = (tierData && tierData->upgradesTo != BuildingType::None)? GetBuildingData(tierData->upgradesTo) : nullptr;
-                            int cost = nextData ? nextData->cost : 123456; // if the cost cannot be get from the dataBuilding section it returns 123456 (error)
-                            int constructionTurns = nextData ? nextData->constructionTurns : 1;
-
-                            std::string costString = std::to_string(cost);
-                            TTF_SetTextString(gameBuildingCostUIText, costString.c_str(), 0);
-
-                            //green if can purchase and red if to expensive
-                            if (player.currentGold >= cost) {
-                                TTF_SetTextColor(gameBuildingCostUIText, 127, 255, 0, 255);
-                            }else {
-                                TTF_SetTextColor(gameBuildingCostUIText, 220, 60, 60, 255);
+                            // square of tier
+                            if (isCurrent) {
+                                SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 255);
                             }
-                            int costW = 0, costH = 0;
-                            TTF_GetTextSize(gameBuildingCostUIText, &costW, &costH);
-                            TTF_DrawRendererText(gameBuildingCostUIText,popX + (tileW - costW) -2.f,tierSquareY + 45.f);
+                            else if (isNext) {
+                                SDL_SetRenderDrawColor(renderer, factionColor.r/2,factionColor.g/2,factionColor.b/2,255);
+                            }
+                            else if (isUnlocked) {
+                                SDL_SetRenderDrawColor(renderer, factionColor.r,factionColor.g,factionColor.b,255);
+                            }
+                            else
+                                SDL_SetRenderDrawColor(renderer, 22, 22, 22, 255);
 
-                            //texture gold
-                            float iconSize = 12.f;
-                            float totalRowW = iconSize + 3.f + costW;
-                            float rowStartX = popX + (tileW - totalRowW) / 2.f;
+                            SDL_FRect tierRect = {popX, tierSquareY, tileW, tileH};
+                            SDL_RenderFillRect(renderer, &tierRect);
 
-                            SDL_FRect goldUI = {rowStartX + 57.f, tierSquareY + 48.f, iconSize, iconSize};
-                            // SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
-                            // SDL_RenderFillRect(renderer, &goldUI);
-                            // SDL_SetRenderDrawColor(renderer, 180, 140, 20, 255);
-                            // SDL_RenderRect(renderer, &goldUI);
-                            SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &goldUI);
+                            //textures of the building
+                            SDL_Texture* textureBuilding = GetSettlementBuildingUpgradeTexture(province.owner,provinceSettl->settlementData.type, t );
+                            if (textureBuilding) {
+                                Uint8 alpha = isCurrent ? 255 : (isNext ? 180 : 60);
+                                SDL_SetTextureAlphaMod(textureBuilding, alpha);
+                                SDL_RenderTexture(renderer, textureBuilding, nullptr, &tierRect);
+                                SDL_SetTextureAlphaMod(textureBuilding, 255); // reset
+                            }
+                            // Bordure
+                            SDL_SetRenderDrawColor(renderer,
+                                isCurrent ? factionColor.r : 65,
+                                isCurrent ? factionColor.g : 65,
+                                isCurrent ? factionColor.b : 65, 255);
+                            SDL_RenderRect(renderer, &tierRect);
+                            // Chiffre romain
+                            const char* rn[] = {"I", "II", "III", "IV", "V"};
+                            TTF_SetTextString(gameStatUIText, rn[t - 1], 0);
+                            Uint8 la = isCurrent ? 255 : (isUnlocked ? 180 : 80);
+                            TTF_SetTextColor(gameStatUIText, la, la, la, 255);
+                            int tw = 0, th = 0;
+                            TTF_GetTextSize(gameStatUIText, &tw, &th);
+                            TTF_DrawRendererText(gameStatUIText,popX + (tileW - tw) / 2.f,tierSquareY + tileH - th - 5.f);
 
-                            //Show the amount of turn before the building is constructed.
-                            std::string timeConstructionAmountString = std::to_string(constructionTurns);
-                            TTF_SetTextString(gameBuildingConstructionTimeText, timeConstructionAmountString.c_str(), 0);
-                            int turnW = 0, turnH = 0;
-                            TTF_GetTextSize(gameBuildingConstructionTimeText, &turnW, &turnH);
-                            TTF_DrawRendererText(gameBuildingConstructionTimeText, popX + (tileW - turnW) -5.f,tierSquareY + 1.f);
-                            //texture TurnTime Icon
-                            float TurnIconSize = 12.f;
-                            float TotalTurnRowW = TurnIconSize + 3.f + turnW;
-                            float rowTurnStartX = popX + (tileW - TotalTurnRowW) / 2.f;
 
-                            SDL_FRect turnUI = {rowTurnStartX + 43.f, tierSquareY + 5.f, TurnIconSize, TurnIconSize};
-                            // SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
-                            // SDL_RenderFillRect(renderer, &turnUI);
-                            // SDL_SetRenderDrawColor(renderer, 180, 180, 180, 255);
-                            // SDL_RenderFillRect(renderer, &turnUI);
-                            SDL_RenderTexture(renderer, gameTurnAmountTexture, nullptr, &turnUI);
+                            if (t > currentTier && t <= maxTier) {
+                                BuildingType buildingAtTier = GetSettlementBuildingType(provinceSettl->settlementData.type, province.owner, t - 1);
 
+                                const BuildingData* tierData = GetBuildingData(buildingAtTier);
+                                const BuildingData* nextData = (tierData && tierData->upgradesTo != BuildingType::None)? GetBuildingData(tierData->upgradesTo) : nullptr;
+                                int cost = nextData ? nextData->cost : 123456; // if the cost cannot be get from the dataBuilding section it returns 123456 (error)
+                                int constructionTurns = nextData ? nextData->constructionTurns : 1;
+
+                                std::string costString = std::to_string(cost);
+                                TTF_SetTextString(gameBuildingCostUIText, costString.c_str(), 0);
+
+                                //green if can purchase and red if to expensive
+                                if (player.currentGold >= cost) {
+                                    TTF_SetTextColor(gameBuildingCostUIText, 127, 255, 0, 255);
+                                }else {
+                                    TTF_SetTextColor(gameBuildingCostUIText, 220, 60, 60, 255);
+                                }
+                                int costW = 0, costH = 0;
+                                TTF_GetTextSize(gameBuildingCostUIText, &costW, &costH);
+                                TTF_DrawRendererText(gameBuildingCostUIText,popX + (tileW - costW) -2.f,tierSquareY + 45.f);
+
+                                //texture gold
+                                float iconSize = 12.f;
+                                float totalRowW = iconSize + 3.f + costW;
+                                float rowStartX = popX + (tileW - totalRowW) / 2.f;
+
+                                SDL_FRect goldUI = {rowStartX + 57.f, tierSquareY + 48.f, iconSize, iconSize};
+                                SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &goldUI);
+
+                                //Show the amount of turn before the building is constructed.
+                                std::string timeConstructionAmountString = std::to_string(constructionTurns);
+                                TTF_SetTextString(gameBuildingConstructionTimeText, timeConstructionAmountString.c_str(), 0);
+                                int turnW = 0, turnH = 0;
+                                TTF_GetTextSize(gameBuildingConstructionTimeText, &turnW, &turnH);
+                                TTF_DrawRendererText(gameBuildingConstructionTimeText, popX + (tileW - turnW) -5.f,tierSquareY + 1.f);
+                                //texture TurnTime Icon
+                                float TurnIconSize = 12.f;
+                                float TotalTurnRowW = TurnIconSize + 3.f + turnW;
+                                float rowTurnStartX = popX + (tileW - TotalTurnRowW) / 2.f;
+
+                                SDL_FRect turnUI = {rowTurnStartX + 43.f, tierSquareY + 5.f, TurnIconSize, TurnIconSize};
+                                SDL_RenderTexture(renderer, gameTurnAmountTexture, nullptr, &turnUI);
+                            }
+
+
+                            // up arrow between this current and next building upgrade
+                            if (t > 1) {
+                                float cx  = popX + tileW / 2.f;
+                                float tipY = tierSquareY + tileH + 2.f;
+                                float baseY = tierSquareY + tileH + arrowH - 2.f;
+                                SDL_SetRenderDrawColor(renderer, 0, 180, 0, 200);
+                                SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)cx, (int)baseY);
+                                SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)(cx - 6), (int)(tipY + 8));
+                                SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)(cx + 6), (int)(tipY + 8));
+                            }
+                            // Save the rect to detect the clic
+                            if ((int)tierPopupRects.size() < maxTier)
+                                tierPopupRects.resize(maxTier);
+                            tierPopupRects[t - 1] = tierRect;
+                            tierPopupMaxTier = maxTier;
                         }
-
-
-                        // up arrow between this current and next building upgrade
-                        if (t > 1) {
-                            float cx  = popX + tileW / 2.f;
-                            float tipY = tierSquareY + tileH + 2.f;
-                            float baseY = tierSquareY + tileH + arrowH - 2.f;
-                            SDL_SetRenderDrawColor(renderer, 0, 180, 0, 200);
-                            SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)cx, (int)baseY);
-                            SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)(cx - 6), (int)(tipY + 8));
-                            SDL_RenderLine(renderer, (int)cx, (int)tipY,  (int)(cx + 6), (int)(tipY + 8));
-                        }
-                        // Save the rect to detect the clic
-                        if ((int)tierPopupRects.size() < maxTier)
-                            tierPopupRects.resize(maxTier);
-                        tierPopupRects[t - 1] = tierRect;
-                        tierPopupMaxTier = maxTier;
                     }
-                }
-                else {
-                    mainBuildingPopupRect = {0.f, 0.f, 0.f, 0.f}; // hide the popup rect
+                    else {
+                        // At max tier — no tier ladder to click, only repair/destroy below.
+                        tierPopupMaxTier = 0;
+                    }
+
+                    if (hasActionRow) {
+                        float destroyBtnX  = popX + (tileW - actionBtnSize) + 5.f;
+                        float actionBtnY   = popY + tilesTotalH + actionRowGap;
+                        float repairBtnGap = 22.f;
+
+                        if (mainAwaitingRepair) {
+                            SDL_FRect repairButtonRect = {destroyBtnX - actionBtnSize - repairBtnGap, actionBtnY, actionBtnSize, actionBtnSize};
+                            float btnRadius = actionBtnSize / 2.f;
+                            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                            RenderCircle(repairButtonRect.x + btnRadius, repairButtonRect.y + btnRadius, btnRadius);
+                            SDL_SetRenderDrawColor(renderer, 40, 90, 150, 230);
+                            RenderCircle(repairButtonRect.x + btnRadius, repairButtonRect.y + btnRadius, btnRadius - 1.f);
+                            if (gameRepairBuildingButtonIconUi) {
+                                float pad = -2.f;
+                                SDL_FRect r = {repairButtonRect.x + pad, repairButtonRect.y + pad, actionBtnSize - pad*2.f, actionBtnSize - pad*2.f};
+                                SDL_RenderTexture(renderer, gameRepairBuildingButtonIconUi, nullptr, &r);
+                            }
+                            repairButtonRects.push_back({repairButtonRect, {hoveredCardIndex, 0}});
+                        }
+
+                        if (canShowMainDestroy) {
+                            SDL_FRect destroyButtonRect = {destroyBtnX, actionBtnY, actionBtnSize, actionBtnSize};
+                            float btnRadius = actionBtnSize / 2.f;
+
+                            if (mainMarkedForDestruction) {
+                                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
+                                RenderCircle(destroyButtonRect.x + btnRadius, destroyButtonRect.y + btnRadius, btnRadius);
+                                SDL_SetRenderDrawColor(renderer, 220, 60, 60, 0);
+                                RenderCircle(destroyButtonRect.x + btnRadius, destroyButtonRect.y + btnRadius, btnRadius - 1.f);
+                                if (gameDestroyBuildingButtonIconUi) {
+                                    float pad = -2.f;
+                                    SDL_FRect r = {destroyButtonRect.x + pad, destroyButtonRect.y + pad, actionBtnSize - pad*2.f, actionBtnSize - pad*2.f};
+                                    SDL_SetTextureAlphaMod(gameDestroyBuildingButtonIconUi, 140);
+                                    SDL_RenderTexture(renderer, gameDestroyBuildingButtonIconUi, nullptr, &r);
+                                    SDL_SetTextureAlphaMod(gameDestroyBuildingButtonIconUi, 255);
+                                }
+                                int turnsLeft = buildingsMarkedDestroyed.count(mainDestroyKey) ? buildingsMarkedDestroyed[mainDestroyKey] : 0;
+                                std::string s = std::to_string(turnsLeft);
+                                TTF_SetTextString(gameBuildingConstructionTimeText, s.c_str(), 0);
+                                int dtw=0, dth=0; TTF_GetTextSize(gameBuildingConstructionTimeText, &dtw, &dth);
+                                TTF_DrawRendererText(gameBuildingConstructionTimeText,
+                                    destroyButtonRect.x + (actionBtnSize - dtw) / 2.f,
+                                    destroyButtonRect.y + (actionBtnSize - dth) / 2.f);
+                                cancelDestroyButtonRects.push_back({destroyButtonRect, {hoveredCardIndex, 0}});
+                            } else {
+                                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                                RenderCircle(destroyButtonRect.x + btnRadius, destroyButtonRect.y + btnRadius, btnRadius);
+                                SDL_SetRenderDrawColor(renderer, 150, 25, 25, 230);
+                                RenderCircle(destroyButtonRect.x + btnRadius, destroyButtonRect.y + btnRadius, btnRadius - 1.f);
+                                if (gameDestroyBuildingButtonIconUi) {
+                                    float pad = -2.f;
+                                    SDL_FRect r = {destroyButtonRect.x + pad, destroyButtonRect.y + pad, actionBtnSize - pad*2.f, actionBtnSize - pad*2.f};
+                                    SDL_RenderTexture(renderer, gameDestroyBuildingButtonIconUi, nullptr, &r);
+                                }
+                                destroyButtonRects.push_back({destroyButtonRect, {hoveredCardIndex, 0}});
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -5027,16 +5158,22 @@ private://constructor
     SDL_SetRenderDrawColor(renderer, 40, 90, 150, 230);
     RenderCircle(repairCenterX, repairCenterY, btnRadius - 1.f);
     //Texture repair button
-    if (gameRepairBuildingButtonIconUi) {
-         float iconPad = -2.f;
-         SDL_FRect repairIconRect = {
-        repairButtonRect.x + iconPad,
-        repairButtonRect.y + iconPad,
-           destroyBtnSize - iconPad * 2.f,
-           destroyBtnSize - iconPad * 2.f
-       };
+            bool repairAvailableHere = (destroyKeyValue >= 0) && IsBuildingSlotAwaitingPayment(destroyKeyValue / 100, destroyKeyValue % 100);
+            if (gameRepairBuildingButtonIconUi) {
+                float iconPad = -2.f;
+                SDL_FRect repairIconRect = {
+                    repairButtonRect.x + iconPad,
+                    repairButtonRect.y + iconPad,
+                       destroyBtnSize - iconPad * 2.f,
+                       destroyBtnSize - iconPad * 2.f
+                   };
+                SDL_SetTextureAlphaMod(gameRepairBuildingButtonIconUi, repairAvailableHere ? 255 : 90);
                 SDL_RenderTexture(renderer, gameRepairBuildingButtonIconUi, nullptr, &repairIconRect);
-    }
+                SDL_SetTextureAlphaMod(gameRepairBuildingButtonIconUi, 255);
+            }
+            if (repairAvailableHere) {
+                repairButtonRects.push_back({repairButtonRect, {categoryPopupCardIndex, buildMenuSlotIndex}});
+            }
 
     float destroyCenterX = destroyButtonRect.x + btnRadius;
     float destroyCenterY = destroyButtonRect.y + btnRadius;
@@ -8054,6 +8191,39 @@ public:
         return (distanceX* distanceX + distanceY * distanceY) <= (circle.radius * circle.radius);
     }
 
+
+    //truefalse if a building is damaged
+    bool IsBuildingSlotDamaged(int settlementIndex, int slotIndex) {
+        int key = settlementIndex * 100 + slotIndex;
+        return buildingDamageRepairTimer.count(key) > 0 || buildingsBeingRepaired.count(key) > 0;
+    }
+
+    bool IsBuildingSlotAwaitingPayment(int settlementIndex, int slotIndex) {
+        return buildingDamageRepairTimer.count(settlementIndex * 100 + slotIndex) > 0;
+    }
+
+    bool IsBuildingSlotBeingRepaired(int settlementIndex, int slotIndex) {
+        return buildingsBeingRepaired.count(settlementIndex * 100 + slotIndex) > 0;
+    }
+
+    int GetRepairCost(BuildingType type) {
+        const BuildingData* data = GetBuildingData(type);
+        if (!data) return 0;
+        return (data->cost + 1) / 2;
+    }
+
+    void DamageSettlementBuildings(int settlementIndex) {
+        if (settlementIndex < 0 || settlementIndex >= (int)settlements.size()) return;
+        Settlement& sel = settlements[settlementIndex];
+        for (int b = 0; b < (int)sel.settlementData.buildings.size(); b++) {
+            if (sel.settlementData.buildings[b] == BuildingType::None) continue;
+            buildingDamageRepairTimer[settlementIndex * 100 + b] = 6;
+        }
+        SDL_Log("Earthquake damaged buildings in %s", sel.settlementData.cityName.c_str());
+    }
+
+
+
     //To Know the construction time for a building
     int GetConstructionTurns(SettlementType type, int fromTier) {
         if (type == SettlementType::Village) {
@@ -8176,7 +8346,19 @@ public:
                 int slotIndex = it->first % 100;
                 if (settlementIndex >= 0 && settlementIndex < (int)settlements.size()) {
                     Settlement& sel = settlements[settlementIndex];
-                    if (slotIndex > 0 && slotIndex < (int)sel.settlementData.buildings.size()) {
+                    if (slotIndex == 0) {
+                        if (sel.settlementData.settlementTier > 1) {
+                            sel.settlementData.settlementTier--;
+                            FactionZone faction = provinces[sel.settlementData.provinceID].owner;
+                            sel.settlementData.buildings[0] = GetSettlementBuildingType(
+                                sel.settlementData.type, faction, sel.settlementData.settlementTier);
+                            const BuildingData* mainData = GetBuildingData(sel.settlementData.buildings[0]);
+                            if (mainData) sel.settlementData.baseIncome = mainData->incomeBonus;
+                            SDL_Log("Main building of %s demolished down to tier %d",
+                                sel.settlementData.cityName.c_str(), sel.settlementData.settlementTier);
+                        }
+                    }
+                    else if (slotIndex < (int)sel.settlementData.buildings.size()) {
                         SDL_Log("Building destroyed in slot %d of %s", slotIndex, sel.settlementData.cityName.c_str());
                         sel.settlementData.buildings[slotIndex] = BuildingType::None;
                     }
@@ -8186,7 +8368,6 @@ public:
                 ++it;
             }
         }
-    // Building Damaged (Take 1 turn to repair if pay or 6 turns)
         for (auto it = buildingDamageRepairTimer.begin(); it != buildingDamageRepairTimer.end(); ) {
             it->second--;
             if (it->second <= 0) {
@@ -8195,6 +8376,19 @@ public:
                 if (settlementIndex >= 0 && settlementIndex < (int)settlements.size())
                     SDL_Log("Building repaired in slot %d of %s", slotIndex, settlements[settlementIndex].settlementData.cityName.c_str());
                 it = buildingDamageRepairTimer.erase(it);
+            } else {
+                ++it;
+            }
+        }
+        // Buildings whose repair was paid for finish the next turn ()1turn
+        for (auto it = buildingsBeingRepaired.begin(); it != buildingsBeingRepaired.end(); ) {
+            it->second--;
+            if (it->second <= 0) {
+                int settlementIndex = it->first / 100;
+                int slotIndex = it->first % 100;
+                if (settlementIndex >= 0 && settlementIndex < (int)settlements.size())
+                    SDL_Log("Paid repair finished in slot %d of %s", slotIndex, settlements[settlementIndex].settlementData.cityName.c_str());
+                it = buildingsBeingRepaired.erase(it);
             } else {
                 ++it;
             }
@@ -8590,6 +8784,12 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
                         if (app.hoveredCardIndex < (int)provS.size()) {
                             Settlement* sel = provS[app.hoveredCardIndex];
+                            int gsi = (int)(sel - &app.settlements[0]);
+                            if (app.IsBuildingSlotDamaged(gsi, 0)) {
+                                SDL_Log("Cannot upgrade a damaged building - repair it first.");
+                                return SDL_APP_CONTINUE;
+                            }
+
                             // Only upgrade if next tier
                             if (t == sel->settlementData.settlementTier + 1 && t <= app.tierPopupMaxTier) {
                                 //continue if not player Faction
@@ -8686,15 +8886,21 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
                         if (cardIdx < (int)provS.size()) {
                             Settlement* sel = provS[cardIdx];
-                            if (app.provinces[provID].owner == app.player.faction &&
-                                slotIdx > 0 &&
-                                sel->settlementData.buildings[slotIdx] != BuildingType::None &&
-                                sel->settlementData.pendingBuildings[slotIdx] == BuildingType::None)
-                            {
+                            if (app.provinces[provID].owner == app.player.faction) {
                                 int globalSettlementIndex = (int)(sel - &app.settlements[0]);
-                                int destroyKey = globalSettlementIndex * 100 + slotIdx;
-                                app.buildingsMarkedDestroyed[destroyKey] = 1; // 1 turn to destroy
-                                SDL_Log("Marked building in slot %d of %s for destruction", slotIdx, sel->settlementData.cityName.c_str());
+                                if (slotIdx == 0) {
+                                    if (!sel->settlementData.bBuidingUnderConstruction && sel->settlementData.settlementTier > 1) {
+                                        app.buildingsMarkedDestroyed[globalSettlementIndex * 100 + 0] = 1;
+                                        SDL_Log("Marked main building of %s for demolition (tier %d)",
+                                            sel->settlementData.cityName.c_str(), sel->settlementData.settlementTier);
+                                    }
+                                }
+                                else if (sel->settlementData.buildings[slotIdx] != BuildingType::None &&
+                                         sel->settlementData.pendingBuildings[slotIdx] == BuildingType::None)
+                                {
+                                    app.buildingsMarkedDestroyed[globalSettlementIndex * 100 + slotIdx] = 1;
+                                    SDL_Log("Marked building in slot %d of %s for destruction", slotIdx, sel->settlementData.cityName.c_str());
+                                }
                             }
                         }
                         return SDL_APP_CONTINUE;
@@ -8733,6 +8939,43 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 }
             }
 
+// click on a Repair Building button -> pay 50% cost, repairs in 1 turn
+            if (app.bHasClickedOnASettlement && app.bButtonUIBuildingIsPressed &&
+                !app.repairButtonRects.empty())
+            {
+                SDL_FPoint pt = {nouveauX, nouveauY};
+                for (int r = 0; r < (int)app.repairButtonRects.size(); r++) {
+                    if (SDL_PointInRectFloat(&pt, &app.repairButtonRects[r].first)) {
+                        auto [cardIdx, slotIdx] = app.repairButtonRects[r].second;
+                        const Settlement& clicked = app.settlements[app.selectedSettlementIndex];
+                        int provID = clicked.settlementData.provinceID;
+
+                        std::vector<Settlement*> provS;
+                        for (auto& s : app.settlements)
+                            if (s.settlementData.provinceID == provID) provS.push_back(&s);
+
+                        if (cardIdx < (int)provS.size() && app.provinces[provID].owner == app.player.faction) {
+                            Settlement* sel = provS[cardIdx];
+                            int globalSettlementIndex = (int)(sel - &app.settlements[0]);
+                            int damageKey = globalSettlementIndex * 100 + slotIdx;
+                            if (app.buildingDamageRepairTimer.count(damageKey)) {
+                                BuildingType bt = sel->settlementData.buildings[slotIdx];
+                                int repairCost = app.GetRepairCost(bt);
+                                if (app.player.SpendGold(repairCost)) {
+                                    app.buildingDamageRepairTimer.erase(damageKey);
+                                    app.buildingsBeingRepaired[damageKey] = 1;
+                                    SDL_Log("Paid %d gold to rush-repair slot %d of %s", repairCost, slotIdx, sel->settlementData.cityName.c_str());
+                                } else {
+                                    SDL_Log("Not enough gold to repair! Need: %d, have: %d", repairCost, app.player.currentGold);
+                                }
+                            }
+                        }
+                        return SDL_APP_CONTINUE;
+                    }
+                }
+            }
+
+
 
             // clic on a popup building of category
             if (app.bHasClickedOnASettlement &&
@@ -8761,6 +9004,12 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
             if (app.categoryPopupCardIndex >= (int)provS.size()) { SDL_Log("EXIT: cardIndex %d >= %d", app.categoryPopupCardIndex, (int)provS.size()); return SDL_APP_CONTINUE; }
             Settlement* sel = provS[app.categoryPopupCardIndex];
+            int gsiForUpgrade = (int)(sel - &app.settlements[0]);
+            if (app.IsBuildingSlotDamaged(gsiForUpgrade, app.buildMenuSlotIndex)) {
+                SDL_Log("EXIT: slot is damaged, repair it before upgrading");
+                return SDL_APP_CONTINUE;
+            }
+
 
             int slotB = app.buildMenuSlotIndex;
             SDL_Log("slotB=%d, buildings.size=%d", slotB, (int)sel->settlementData.buildings.size());
