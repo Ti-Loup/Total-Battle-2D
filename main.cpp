@@ -652,6 +652,8 @@ public:
     std::vector<std::pair<SDL_FRect, std::pair<int, int>>> cancelDestroyButtonRects; // To cancel a building being destroyed (In Red )
     //For the Repair building Fix
     std::vector<std::pair<SDL_FRect, std::pair<int, int>>> repairButtonRects;
+    //For the repair building system
+    std::unordered_map<int, int> buildingDamageRepairTimer;
 
 
     // 0=Military 1=AdvMilitary 2=Defence 3=Economy 4=Religion
@@ -3537,6 +3539,26 @@ private://constructor
         auto it = worldEventsImageTextures.find(type);
         return (it != worldEventsImageTextures.end()) ? it->second : nullptr;
     }
+    //truefalse if a building is damaged
+    bool IsBuildingSlotDamaged(int settlementIndex, int slotIndex) {
+        return buildingDamageRepairTimer.count(settlementIndex * 100 + slotIndex) > 0;
+    }
+    //Money amount needed to repair the building. Must be 50% of the building cost
+    int GetRepairCost(BuildingType building_type) {
+        const BuildingData *building_data = GetBuildingData(building_type);//recieve the data from a building from his type.
+        if (!building_data) return 0;
+        return (building_data->cost + 1) / 2;
+    }
+    //For earthquake/ touches 1 random settlements with all its buildings damaged.
+    void DamageSettlementBuildings(int settlementIndex) {
+        if (settlementIndex < 0 || settlementIndex >= (int)settlements.size()) return;
+        Settlement &settl = settlements[settlementIndex];
+        for (int b = 0; b < (int)settl.settlementData.buildings.size(); b++) {
+            if (settl.settlementData.buildings[b] == BuildingType::None) continue;
+            buildingDamageRepairTimer[settlementIndex * 100 + b] = 6;
+        }
+        SDL_Log("Earthquake damaged buildings in %s", settl.settlementData.cityName.c_str());
+    }
 
     //For the rendering on screen of the settlements. Texture to do
     void RenderSettlements() {
@@ -5119,22 +5141,26 @@ private://constructor
         }
         for (const auto& s: settlements) {
             if (provinces[s.settlementData.provinceID].owner == player.faction) {
+                int settlement_index = (int)(&s - &settlements[0]);
                 // Upkeep du main building toujours déduit (même sans collecte de taxe)
                 const BuildingData* mainBd = GetBuildingData(s.settlementData.buildings[0]);
                 if (mainBd) player.nextTurnGold -= mainBd->upkeep;
-
+                bool mainDamaged = IsBuildingSlotDamaged(settlement_index, 0); //Slot 0 since its for the the main buildings repairs
                 if (provinces[s.settlementData.provinceID].bToggleCollectIncome) {
-                    int mainIncome = s.settlementData.baseIncome;//main sourec of income (base)
-                    if (GetTaxCategory(s.settlementData.buildings[0]) == TaxCategory::Farm)
+                    //If main building isnt damaged
+                    if (!mainDamaged){
+                        int mainIncome = s.settlementData.baseIncome;//main sourec of income (base)
+                        if (GetTaxCategory(s.settlementData.buildings[0]) == TaxCategory::Farm)
                         mainIncome = (int)std::round(mainIncome * coinSeasonModifier.incomeFarmMultiplier);
-                    player.nextTurnGold += mainIncome;
-
-
+                        player.nextTurnGold += mainIncome;
+                }
+                    //for the buildinds (no main)
                     for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
                         if (s.settlementData.buildings[b] != BuildingType::None) {
                             const BuildingData* bd = GetBuildingData(s.settlementData.buildings[b]);
                             if (bd) {
-                                int incomeBonus = bd->incomeBonus;
+                                bool slotDamaged = IsBuildingSlotDamaged(settlement_index, b);
+                                int incomeBonus = slotDamaged ? 0 : bd->incomeBonus;
                                 TaxCategory cat = GetTaxCategory(s.settlementData.buildings[b]);
                                 if (cat == TaxCategory::Farm) //Coin Season modifier for Farm income
                                     incomeBonus = (int)std::round(incomeBonus * coinSeasonModifier.incomeFarmMultiplier);
@@ -5182,14 +5208,17 @@ private://constructor
         }
         for (const auto &s : settlements) {
             if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
-            for (BuildingType building_type : s.settlementData.buildings) {
+            int settlement_index = (int)(&s - &settlements[0]);
+            for (int slot_index = 0; slot_index < (int)s.settlementData.buildings.size(); slot_index++) {
+                BuildingType building_type = s.settlementData.buildings[slot_index];
                 if (building_type == BuildingType::None) continue;
                 const BuildingData *building_data = GetBuildingData(building_type);
                 if (!building_data) continue;
-                //For Storm World event, Farm and Maritime food react independently
-                int foodFromBuilding = building_data->foodProduced;
+                bool damaged = IsBuildingSlotDamaged(settlement_index, slot_index);
+
+                //When damaged it doesnt produce food !!
+                int foodFromBuilding = damaged ? 0 : building_data->foodProduced;
                 FoodCategory food_category = GetFoodCategory(building_type);
-                //Maritime and Farm food is now seperated.
                 if (food_category == FoodCategory::Maritime) {
                     foodFromBuilding = (int)std::round(foodFromBuilding * worldEventMaritimeFoodMultiplier);
                 }
@@ -5347,20 +5376,22 @@ private://constructor
         for (const auto &s : settlements) {
             if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
             int provID = s.settlementData.provinceID;
-            for (BuildingType bt : s.settlementData.buildings) {
+            int settlement_index = (int)(&s - &settlements[0]);
+            for (int slot_index = 0; slot_index < (int)s.settlementData.buildings.size(); slot_index++) {
+                BuildingType bt = s.settlementData.buildings[slot_index];
                 if (bt == BuildingType::None) continue;
                 const BuildingData* bd = GetBuildingData(bt);
                 if (!bd) continue;
                 player.goodsStorage += bd->resourcesStorage;
                 goodsStorageCapacityByProvince[provID] += bd->resourcesStorage;
+                if (IsBuildingSlotDamaged(settlement_index, slot_index)) continue;
                 for (const auto& resource_amount : bd->resourcesProduced) {
                     int amount = resource_amount.amount;
-                    //(For Storm World Event-> during this event no fish production)
                     if (resource_amount.type == ResourceType::Fish) {
                         amount = (int)std::round(amount * worldEventFishMultiplier);
                     }
-                    goodsProducedThisTurnByType[resource_amount.type] += amount; // kingdom-wide tooltip total
-                    goodsProducedThisTurnByProvinceAndType[provID][resource_amount.type] += amount; // per-region total
+                    goodsProducedThisTurnByType[resource_amount.type] += amount;
+                    goodsProducedThisTurnByProvinceAndType[provID][resource_amount.type] += amount;
                 }
             }
         }
@@ -8053,11 +8084,14 @@ public:
     void EndTurn() {
 
     //Bonus public order per province all buildings
-    std::unordered_map<int, int> provincePublicOrderBonus; // provinceID → bonus total
+    std::unordered_map<int, int> provincePublicOrderBonus;
     for (const auto& s : settlements) {
         int provID = s.settlementData.provinceID;
-        for (auto building_type : s.settlementData.buildings) {
+        int settlement_index = (int)(&s - &settlements[0]);
+        for (int slot_index = 0; slot_index < (int)s.settlementData.buildings.size(); slot_index++) {
+            BuildingType building_type = s.settlementData.buildings[slot_index];
             if (building_type == BuildingType::None) continue;
+            if (IsBuildingSlotDamaged(settlement_index, slot_index)) continue;
             const BuildingData* building_data = GetBuildingData(building_type);
             if (building_data && building_data->publicOrderBonus != 0)
                 provincePublicOrderBonus[provID] += building_data->publicOrderBonus;
@@ -8152,6 +8186,20 @@ public:
                 ++it;
             }
         }
+    // Building Damaged (Take 1 turn to repair if pay or 6 turns)
+        for (auto it = buildingDamageRepairTimer.begin(); it != buildingDamageRepairTimer.end(); ) {
+            it->second--;
+            if (it->second <= 0) {
+                int settlementIndex = it->first / 100;
+                int slotIndex = it->first % 100;
+                if (settlementIndex >= 0 && settlementIndex < (int)settlements.size())
+                    SDL_Log("Building repaired in slot %d of %s", slotIndex, settlements[settlementIndex].settlementData.cityName.c_str());
+                it = buildingDamageRepairTimer.erase(it);
+            } else {
+                ++it;
+            }
+        }
+
 
     //Food (Old way)
         /*
@@ -8281,9 +8329,11 @@ public:
 
         for (const auto &s : settlements) {
             if (provinces[s.settlementData.provinceID].owner != player.faction) continue;//Not player faction -> continue
-
-            for (BuildingType building_type : s.settlementData.buildings) {
-                if (building_type == BuildingType::None) continue;//no building -> continue
+            int settlement_index = (int)(&s - &settlements[0]);
+            for (int slot_index = 0; slot_index < (int)s.settlementData.buildings.size(); slot_index++) {
+                BuildingType building_type = s.settlementData.buildings[slot_index];
+                if (building_type == BuildingType::None) continue;
+                if (IsBuildingSlotDamaged(settlement_index, slot_index)) continue;
                 const BuildingData *building_data = GetBuildingData(building_type);
                 if (!building_data) continue;
                 buildingPeasantryBonus += building_data->peasantryBornBonus;
@@ -8363,6 +8413,12 @@ public:
             activeWorldEventTurnsRemaining = newEventData ? newEventData->durationTurns : 1;
             bWorldEventInfoPopup = true;
             worldEventCountdown = RollWorldEventCountdown(); // countdown to the one after this
+
+            //If its an earthquake, hit one random settlement anywhere on the map
+            if (currentWorldsEvent == WorldEventsType::Earthquake && !settlements.empty()) {
+                int hitSettlementIndex = (int)SDL_rand((int)settlements.size());
+                DamageSettlementBuildings(hitSettlementIndex);
+            }
         }
     }
 }
