@@ -6153,18 +6153,29 @@ private://constructor
         int rawFarmFoodProduced = 0;
         int rawMaritimeFoodProduced = 0;
         int buildingFoodUpkeepTotal = 0;
+        int damagedFarmFoodLoss = 0;
+        int damagedMaritimeFoodLoss = 0;
         for (const auto &s : settlements) {
             if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
-            for (BuildingType bt : s.settlementData.buildings) {
+            int settlement_index = (int)(&s - &settlements[0]); //mainbuilding
+            for (int slot_index = 0; slot_index < (int)s.settlementData.buildings.size(); slot_index++) {
+                BuildingType bt = s.settlementData.buildings[slot_index];
                 if (bt == BuildingType::None) continue;
                 const BuildingData *bd = GetBuildingData(bt);
                 if (!bd) continue;
-                switch (GetFoodCategory(bt)) {
-                    case FoodCategory::Farm: rawFarmFoodProduced  += bd->foodProduced; break;
-                    case FoodCategory::Maritime: rawMaritimeFoodProduced += bd->foodProduced; break;
-                    default: break;
+                bool damaged = IsBuildingSlotDamaged(settlement_index, slot_index);
+                FoodCategory food_category = GetFoodCategory(bt);
+                if (damaged) {
+                    if (food_category == FoodCategory::Farm) damagedFarmFoodLoss += bd->foodProduced;
+                    else if (food_category == FoodCategory::Maritime) damagedMaritimeFoodLoss += bd->foodProduced;
+                } else {
+                    switch (food_category) {
+                        case FoodCategory::Farm: rawFarmFoodProduced  += bd->foodProduced; break;
+                        case FoodCategory::Maritime: rawMaritimeFoodProduced += bd->foodProduced; break;
+                        default: break;
+                    }
                 }
-                buildingFoodUpkeepTotal += bd->foodUpkeep;
+                buildingFoodUpkeepTotal += bd->foodUpkeep; // upkeep still applies even when damaged
             }
         }
         int unitsFoodTotal = 0; // placeholder
@@ -6318,6 +6329,7 @@ TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, shiftedY + 82.f);
         if (activeFoodEvent && worldEventFarmFoodMultiplier != 1.0f) {
             farmLabel += " (" + activeFoodEvent->name + ")";
         }
+        if (damagedFarmFoodLoss > 0) farmLabel += " (-" + std::to_string(damagedFarmFoodLoss) + " dmg)";
         TTF_SetTextString(gameCurrentFoodUiText, farmLabel.c_str(), 0);
         TTF_SetTextColor(gameCurrentFoodUiText, 255, 255, 255, 255);
         TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, shiftedY + 102.f);
@@ -6334,6 +6346,7 @@ TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, shiftedY + 82.f);
         if (activeFoodEvent && worldEventMaritimeFoodMultiplier != 1.0f) {
             maritimeLabel += " (" + activeFoodEvent->name + ")";
         }
+        if (damagedMaritimeFoodLoss > 0) maritimeLabel += " (-" + std::to_string(damagedMaritimeFoodLoss) + " dmg)";
         TTF_SetTextString(gameCurrentFoodUiText, maritimeLabel.c_str(), 0);
         TTF_SetTextColor(gameCurrentFoodUiText, 255, 255, 255, 255);
         TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, shiftedY + 122.f);
