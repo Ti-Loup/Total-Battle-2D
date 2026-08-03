@@ -6198,17 +6198,13 @@ int goldNextTurn = totalIncome - totalExpense;
         // combined delta from both categories
         int worldEventFoodDelta = (farmFoodProducedModified - rawFarmFoodProduced)+ (maritimeFoodProducedModified - rawMaritimeFoodProduced);
 
-        // net production
-        int netFarmFoodProduced = (int)std::round((rawFarmFoodProduced - damagedFarmFoodLoss) * worldEventFarmFoodMultiplier);
-        int netMaritimeFoodProduced = (int)std::round((rawMaritimeFoodProduced - damagedMaritimeFoodLoss) * worldEventMaritimeFoodMultiplier);
-
         // Season is calculated
         Date::Season currentFoodSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
         SeasonModifiers foodSeasonMods = GetSeasonModifiers(currentFoodSeason);
 
-        int seasonedGrossFoodTotal = (int)std::round((farmFoodProducedModified + maritimeFoodProducedModified) * foodSeasonMods.foodProductionMultiplier);
-        int seasonedNetFoodTotal = (int)std::round((netFarmFoodProduced + netMaritimeFoodProduced) * foodSeasonMods.foodProductionMultiplier);
-        int totalDamagedFoodLoss = seasonedGrossFoodTotal - seasonedNetFoodTotal;
+        int damagedFarmFoodLossModified = (int)std::round(damagedFarmFoodLoss * worldEventFarmFoodMultiplier);
+        int damagedMaritimeFoodLossModified = (int)std::round(damagedMaritimeFoodLoss * worldEventMaritimeFoodMultiplier);
+        int totalDamagedFoodLoss = damagedFarmFoodLossModified + damagedMaritimeFoodLossModified;
 
 
         // mirrors the EndTurn granary distribution logic
@@ -6359,7 +6355,7 @@ TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, shiftedY + 82.f);
         int vW, vH; TTF_GetTextSize(gameCurrentFoodUiText, &vW, &vH);
         TTF_DrawRendererText(gameCurrentFoodUiText, rightEdge - vW, shiftedY + 102.f);
         }
-
+        
         // Maritime Production row
         std::string maritimeLabel = "Maritime Production";
         if (activeFoodEvent && worldEventMaritimeFoodMultiplier != 1.0f) {
@@ -6376,12 +6372,26 @@ TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, shiftedY + 82.f);
         TTF_DrawRendererText(gameCurrentFoodUiText, rightEdge - vW, shiftedY + 122.f);
         }
 
+        //for the damaged buildings — shown between Maritime and Season now.
+        if (totalDamagedFoodLoss != 0) {
+            TTF_SetTextString(gameCurrentFoodUiText, "Damaged Buildings", 0);
+            TTF_SetTextColor(gameCurrentFoodUiText, 255, 255, 255, 255);
+            TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, shiftedY + 142.f);
+
+            std::string damagedFoodStr = "-" + std::to_string(totalDamagedFoodLoss);
+            TTF_SetTextString(gameCurrentFoodUiText, damagedFoodStr.c_str(), 0);
+            TTF_SetTextColor(gameCurrentFoodUiText, 220, 60, 60, 255);
+            int dW, dH;
+            TTF_GetTextSize(gameCurrentFoodUiText, &dW, &dH);
+            TTF_DrawRendererText(gameCurrentFoodUiText, rightEdge - dW, shiftedY + 142.f);
+        }
+
 //Add the seasonal bonuses of food and negatif effects
         int seasonFoodPercent = (int)std::round((foodSeasonMods.foodProductionMultiplier - 1.0f) * 100.f);
 
         TTF_SetTextString(gameCurrentFoodUiText, "Season Modifier", 0);
         TTF_SetTextColor(gameCurrentFoodUiText, 255, 255, 255, 255);
-        TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, shiftedY + 142.f);
+        TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, shiftedY + 142.f + damagedRowHeight);
         {
         std::string seasonStr = (seasonFoodPercent >= 0 ? "+" : "") + std::to_string(seasonFoodPercent) + "%";
         TTF_SetTextString(gameCurrentFoodUiText, seasonStr.c_str(), 0);
@@ -6391,32 +6401,19 @@ TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, shiftedY + 82.f);
             0, 255);
         int vW, vH;
         TTF_GetTextSize(gameCurrentFoodUiText, &vW, &vH);
-        TTF_DrawRendererText(gameCurrentFoodUiText, rightEdge - vW, shiftedY + 142.f);
+        TTF_DrawRendererText(gameCurrentFoodUiText, rightEdge - vW, shiftedY + 142.f + damagedRowHeight);
         }
 
         // Building Upkeep row
         TTF_SetTextString(gameCurrentFoodUiText, "Building Upkeep", 0);
         TTF_SetTextColor(gameCurrentFoodUiText, 255, 255, 255, 255);
-        TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, shiftedY + 162.f);
+        TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, shiftedY + 162.f + damagedRowHeight);
         {
         std::string upkeepStr = "-" + std::to_string(buildingFoodUpkeepTotal);
         TTF_SetTextString(gameCurrentFoodUiText, upkeepStr.c_str(), 0);
         TTF_SetTextColor(gameCurrentFoodUiText, 220, 60, 0, 255);
         int vW, vH; TTF_GetTextSize(gameCurrentFoodUiText, &vW, &vH);
-        TTF_DrawRendererText(gameCurrentFoodUiText, rightEdge - vW, shiftedY + 162.f);
-        }
-        //for the damaged buildings.
-        if (totalDamagedFoodLoss != 0) {
-            TTF_SetTextString(gameCurrentFoodUiText, "Damaged Buildings", 0);
-            TTF_SetTextColor(gameCurrentFoodUiText, 255, 255, 255, 255);
-            TTF_DrawRendererText(gameCurrentFoodUiText, tooltipX + 5.f, shiftedY + 182.f);
-
-            std::string damagedFoodStr = "-" + std::to_string(totalDamagedFoodLoss);
-            TTF_SetTextString(gameCurrentFoodUiText, damagedFoodStr.c_str(), 0);
-            TTF_SetTextColor(gameCurrentFoodUiText, 220, 60, 60, 255);
-            int dW, dH;
-            TTF_GetTextSize(gameCurrentFoodUiText, &dW, &dH);
-            TTF_DrawRendererText(gameCurrentFoodUiText, rightEdge - dW, shiftedY + 182.f);
+        TTF_DrawRendererText(gameCurrentFoodUiText, rightEdge - vW, shiftedY + 162.f + damagedRowHeight);
         }
 
 
