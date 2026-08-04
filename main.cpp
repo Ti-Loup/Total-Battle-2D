@@ -54,7 +54,7 @@
  * Done -> Add Missing Textures
  * Done -> Update Season to work with money
  *
- * World Events Working (2 / 12) - Storm, Earthquake
+ * World Events Working (3 / 12) - Storm, Earthquake, drought
  *
  * Fixed | issue with vikings religious buildings crashing the game
  * Fixed | camera never stop when touch edge
@@ -5277,7 +5277,7 @@ private://constructor
                     if (!mainDamaged){
                         int mainIncome = s.settlementData.baseIncome;//main sourec of income (base)
                         if (GetTaxCategory(s.settlementData.buildings[0]) == TaxCategory::Farm)
-                        mainIncome = (int)std::round(mainIncome * coinSeasonModifier.incomeFarmMultiplier);
+                        mainIncome = (int)std::round(mainIncome * coinSeasonModifier.incomeFarmMultiplier * worldEventFarmGoldMultiplier);
                         player.nextTurnGold += mainIncome;
                 }
                     //for the buildinds (no main)
@@ -5289,7 +5289,7 @@ private://constructor
                                 int incomeBonus = slotDamaged ? 0 : bd->incomeBonus;
                                 TaxCategory cat = GetTaxCategory(s.settlementData.buildings[b]);
                                 if (cat == TaxCategory::Farm) //Coin Season modifier for Farm income
-                                    incomeBonus = (int)std::round(incomeBonus * coinSeasonModifier.incomeFarmMultiplier);
+                                    incomeBonus = (int)std::round(incomeBonus * coinSeasonModifier.incomeFarmMultiplier * worldEventFarmGoldMultiplier);
                                 if (cat == TaxCategory::Commerce)
                                     incomeBonus = (int)std::round(incomeBonus * worldEventCommerceGoldMultiplier);
                                 if (cat == TaxCategory::Industry)
@@ -5986,6 +5986,7 @@ for (const auto& s : settlements) {
             damagedIncomeLoss += mainRaw; // raw amount, not season-modified
         } else if (mainCat == TaxCategory::Farm) {
             farmSeasonBonus += (int)std::round(mainRaw * coinTooltipSeasonModifier.incomeFarmMultiplier) - mainRaw;
+            farmWorldEventGoldDelta += (int)std::round(mainRaw * worldEventFarmGoldMultiplier) - mainRaw; // ligne à ajouter
         }
         else if (mainCat == TaxCategory::Commerce) {
             commerceWorldEventGoldDelta += (int)std::round(mainRaw * worldEventCommerceGoldMultiplier) - mainRaw;
@@ -6790,8 +6791,16 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
             baseBirth = player.baseClergyGrowth;
             baseDeath = player.baseClergyDeath;
         }
+        //population multiplier based on the population type
+        float worldEventPopMultiplier = 1.0f;
+        if (const WorldEventsData* activeEvent = GetActiveWorldEventData()) {
+            if (hoveredPopulationType == 0) worldEventPopMultiplier = activeEvent->populationGrowthPaysantryMultiplier;
+            else if (hoveredPopulationType == 1) worldEventPopMultiplier = activeEvent->populationGrowthNobilityMultiplier;
+            else if (hoveredPopulationType == 2) worldEventPopMultiplier = activeEvent->populationGrowthClergyMultiplier;
+        }
 
-        int effectiveBirths = (int)((float)(baseBirth + buildingBonus) * foodPopulationMultiplier * tooltipPopSeasonMods.birthRateMultiplier);
+        int effectiveBirths = (int)((float)(baseBirth + buildingBonus) * foodPopulationMultiplier
+                                     * tooltipPopSeasonMods.birthRateMultiplier * worldEventPopMultiplier);
         int effectiveDeaths = (int)((float)baseDeath * tooltipPopSeasonMods.deathRateMultiplier);
         int netChange = effectiveBirths - effectiveDeaths;
 

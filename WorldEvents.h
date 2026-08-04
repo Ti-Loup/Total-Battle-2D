@@ -112,9 +112,10 @@ inline const std::unordered_map<WorldEventsType, WorldEventsData>& GetWorldEvent
             "My Lord, It hasn't rained in 2 weeks, people are worried and the plantation is dying.",
             WorldEventCategory::Negative,
             //Food Production -80% Farm
+            //Income Farm -80%
             // Population -2 happyness
-            // Population Growth -40%
-            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 5
+            // Population Growth paysantry -40%
+            -2, 0.2f,1.0f, 0, 1.0f, 0.2f, 1.0f,1.0f,1.0f,1.0f,0, 0.6f,1.0f,1.0f, 5
         }},
         //Own mechanic
         { WorldEventsType::Plague, {
