@@ -6842,40 +6842,67 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         drawStatRow("Current Population", std::to_string(curPop), 210, 210, 210);
 
         // base growth
-        drawStatRow("Base Birth Rate", "+" + std::to_string(baseBirth), 100, 220, 60);
 
-        // Bonus bâtiments (seulement si non-zéro)
+        drawStatRow("Base Birth Rate", "+" + std::to_string(baseBirth), 100, 220, 60);
+        
         if (buildingBonus != 0) {
             bool good = (buildingBonus > 0);
             drawStatRow("Building Bonus",
                         (good ? "+" : "") + std::to_string(buildingBonus),
                         good ? 100 : 220, good ? 220 : 60, 60);
         }
+        float runningBirthsFloat = (float)(baseBirth + buildingBonus);
+        int   runningBirthsInt   = baseBirth + buildingBonus;
 
         // Multiplicator population (food)
         int multiplierPopulation = (int)((foodPopulationMultiplier - 1.0f) * 100.f);
         bool multGood = (foodPopulationMultiplier >= 1.0f);
-        std::string multiplierPopulationStr = (multiplierPopulation >= 0 ? "+" : "") + std::to_string(multiplierPopulation) + "%";
+        runningBirthsFloat *= foodPopulationMultiplier;
+        int newBirthsInt1 = (int)runningBirthsFloat;
+        int foodBirthsDelta = newBirthsInt1 - runningBirthsInt;
+        runningBirthsInt = newBirthsInt1;
+        std::string multiplierPopulationStr = (multiplierPopulation >= 0 ? "+" : "") + std::to_string(multiplierPopulation)
+            + "% (" + (foodBirthsDelta >= 0 ? "+" : "") + std::to_string(foodBirthsDelta) + ")";
         drawStatRow("Food Growth Multiplier", multiplierPopulationStr,
                     multGood ? 100 : 220, multGood ? 220 : 60, 60);
 
         // Season birth/death modifiers
         int seasonBirthPercent = (int)std::round((tooltipPopSeasonMods.birthRateMultiplier - 1.0f) * 100.f);
         bool seasonBirthGood = (tooltipPopSeasonMods.birthRateMultiplier >= 1.0f);
-        std::string seasonBirthStr = (seasonBirthPercent >= 0 ? "+" : "") + std::to_string(seasonBirthPercent) + "%";
+        runningBirthsFloat *= tooltipPopSeasonMods.birthRateMultiplier;
+        int newBirthsInt2 = (int)runningBirthsFloat;
+        int seasonBirthsDelta = newBirthsInt2 - runningBirthsInt;
+        runningBirthsInt = newBirthsInt2;
+        std::string seasonBirthStr = (seasonBirthPercent >= 0 ? "+" : "") + std::to_string(seasonBirthPercent)
+            + "% (" + (seasonBirthsDelta >= 0 ? "+" : "") + std::to_string(seasonBirthsDelta) + ")";
         drawStatRow("Season Birth Modifier", seasonBirthStr,
                     seasonBirthGood ? 100 : 220, seasonBirthGood ? 220 : 60, 60);
+
         // World Event birth modifier (only shown when an event actually affects it)
         if (worldEventPopMultiplier != 1.0f) {
             int weBirthPercent = (int)std::round((worldEventPopMultiplier - 1.0f) * 100.f);
             bool weBirthGood = (worldEventPopMultiplier >= 1.0f);
-            std::string weBirthStr = (weBirthPercent >= 0 ? "+" : "") + std::to_string(weBirthPercent) + "%";
+            runningBirthsFloat *= worldEventPopMultiplier;
+            int newBirthsInt3 = (int)runningBirthsFloat;
+            int eventBirthsDelta = newBirthsInt3 - runningBirthsInt;
+            runningBirthsInt = newBirthsInt3;
+            std::string weBirthStr = (weBirthPercent >= 0 ? "+" : "") + std::to_string(weBirthPercent)
+                + "% (" + (eventBirthsDelta >= 0 ? "+" : "") + std::to_string(eventBirthsDelta) + ")";
             std::string weBirthLabel = std::string(populationTitleStr) + " Birth (Event)";
             drawStatRow(weBirthLabel.c_str(), weBirthStr, weBirthGood ? 100 : 220, weBirthGood ? 220 : 60, 60);
         }
+
+        // Même principe pour les morts
         int seasonDeathPercent = (int)std::round((tooltipPopSeasonMods.deathRateMultiplier - 1.0f) * 100.f);
         bool seasonDeathGood = (tooltipPopSeasonMods.deathRateMultiplier <= 1.0f); // lower death rate is favorable
-        std::string seasonDeathStr = (seasonDeathPercent >= 0 ? "+" : "") + std::to_string(seasonDeathPercent) + "%";
+        float runningDeathsFloat = (float)baseDeath;
+        int   runningDeathsInt   = baseDeath;
+        runningDeathsFloat *= tooltipPopSeasonMods.deathRateMultiplier;
+        int newDeathsInt1 = (int)runningDeathsFloat;
+        int seasonDeathsDelta = newDeathsInt1 - runningDeathsInt;
+        runningDeathsInt = newDeathsInt1;
+        std::string seasonDeathStr = (seasonDeathPercent >= 0 ? "+" : "") + std::to_string(seasonDeathPercent)
+            + "% (" + (seasonDeathsDelta >= 0 ? "+" : "") + std::to_string(seasonDeathsDelta) + ")";
         drawStatRow("Season Death Modifier", seasonDeathStr,
                     seasonDeathGood ? 100 : 220, seasonDeathGood ? 220 : 60, 60);
 
@@ -6885,7 +6912,12 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         if (worldEventDeathMultiplier != 1.0f) {
             int weDeathPercent = (int)std::round((worldEventDeathMultiplier - 1.0f) * 100.f);
             bool weDeathGood = (worldEventDeathMultiplier <= 1.0f); // less death is good
-            std::string weDeathStr = (weDeathPercent >= 0 ? "+" : "") + std::to_string(weDeathPercent) + "%";
+            runningDeathsFloat *= worldEventDeathMultiplier;
+            int newDeathsInt2 = (int)runningDeathsFloat;
+            int eventDeathsDelta = newDeathsInt2 - runningDeathsInt;
+            runningDeathsInt = newDeathsInt2;
+            std::string weDeathStr = (weDeathPercent >= 0 ? "+" : "") + std::to_string(weDeathPercent)
+                + "% (" + (eventDeathsDelta >= 0 ? "+" : "") + std::to_string(eventDeathsDelta) + ")";
             std::string weDeathLabel = std::string(populationTitleStr) + " Death (Event)";
             drawStatRow(weDeathLabel.c_str(), weDeathStr, weDeathGood ? 100 : 220, weDeathGood ? 220 : 60, 60);
         }
@@ -6897,12 +6929,11 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         SDL_RenderLine(renderer, tooltipX + 5.f, currentY, tooltipX + tooltipW - 5.f, currentY);
         currentY += 8.f;
 
-        // Changement net green if positive and red if negative
+        // color green if positive and red if negative
         bool netPos = (netChange >= 0);
         drawStatRow("Net Change / Turn",
                     (netPos ? "+" : "") + std::to_string(netChange),
                     netPos ? 100 : 220, netPos ? 220 : 60, 60);
-
         }
     struct SeasonModifiers {
         int publicOrderBonus = 0;
