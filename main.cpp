@@ -6865,7 +6865,14 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         std::string seasonBirthStr = (seasonBirthPercent >= 0 ? "+" : "") + std::to_string(seasonBirthPercent) + "%";
         drawStatRow("Season Birth Modifier", seasonBirthStr,
                     seasonBirthGood ? 100 : 220, seasonBirthGood ? 220 : 60, 60);
-
+        // World Event birth modifier (only shown when an event actually affects it)
+        if (worldEventPopMultiplier != 1.0f) {
+            int weBirthPercent = (int)std::round((worldEventPopMultiplier - 1.0f) * 100.f);
+            bool weBirthGood = (worldEventPopMultiplier >= 1.0f);
+            std::string weBirthStr = (weBirthPercent >= 0 ? "+" : "") + std::to_string(weBirthPercent) + "%";
+            std::string weBirthLabel = std::string(populationTitleStr) + " Birth (Event)";
+            drawStatRow(weBirthLabel.c_str(), weBirthStr, weBirthGood ? 100 : 220, weBirthGood ? 220 : 60, 60);
+        }
         int seasonDeathPercent = (int)std::round((tooltipPopSeasonMods.deathRateMultiplier - 1.0f) * 100.f);
         bool seasonDeathGood = (tooltipPopSeasonMods.deathRateMultiplier <= 1.0f); // lower death rate is favorable
         std::string seasonDeathStr = (seasonDeathPercent >= 0 ? "+" : "") + std::to_string(seasonDeathPercent) + "%";
