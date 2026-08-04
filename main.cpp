@@ -6844,7 +6844,7 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         // base growth
 
         drawStatRow("Base Birth Rate", "+" + std::to_string(baseBirth), 100, 220, 60);
-        
+
         if (buildingBonus != 0) {
             bool good = (buildingBonus > 0);
             drawStatRow("Building Bonus",
@@ -6855,7 +6855,7 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         int   runningBirthsInt   = baseBirth + buildingBonus;
 
         // Multiplicator population (food)
-        int multiplierPopulation = (int)((foodPopulationMultiplier - 1.0f) * 100.f);
+        int multiplierPopulation = (int)std::round((foodPopulationMultiplier - 1.0f) * 100.f);//was -19.999 so -19, round so goes to nearest whole integer which is -20
         bool multGood = (foodPopulationMultiplier >= 1.0f);
         runningBirthsFloat *= foodPopulationMultiplier;
         int newBirthsInt1 = (int)runningBirthsFloat;
