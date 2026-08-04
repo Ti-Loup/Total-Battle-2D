@@ -7459,6 +7459,9 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         if (events_data->populationGrowthPaysantryMultiplier != 1.0f) count++;
         if (events_data->populationGrowthNobilityMultiplier != 1.0f) count++;
         if (events_data->populationGrowthClergyMultiplier != 1.0f) count++;
+        if (events_data->populationDeathPaysantryMultiplier != 1.0f) count++;
+        if (events_data->populationDeathNobilityMultiplier != 1.0f) count++;
+        if (events_data->populationDeathClergyMultiplier != 1.0f) count++;
         if (events_data->durationTurns != 0) count++;
         return count;
     }
@@ -7559,7 +7562,7 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
         std::string v = (pos ? "+" : "") + std::to_string(data->goldFlatBonus);
         drawRow(gameCoinMoneyTexture, "Gold Bonus", v, pos);
     }
-        //Population type
+        //Population birth type
     if (data->populationGrowthPaysantryMultiplier != 1.0f) {
         int pct = (int)std::round((data->populationGrowthPaysantryMultiplier - 1.0f) * 100.f);
         std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
@@ -7574,6 +7577,22 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
         int pct = (int)std::round((data->populationGrowthClergyMultiplier - 1.0f) * 100.f);
         std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
         drawRow(gamePopulationGrowth, "Clergy Growth", v, pct >= 0);
+    }
+        //Population Death Type
+    if (data->populationDeathPaysantryMultiplier != 1.0f) {
+        int pct = (int)std::round((data->populationDeathPaysantryMultiplier - 1.0f) * 100.f);
+        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
+        drawRow(gamePopulationGrowth, "Paysantry Death", v, pct >= 0);
+    }
+    if (data->populationDeathNobilityMultiplier != 1.0f) {
+        int pct = (int)std::round((data->populationDeathNobilityMultiplier - 1.0f) * 100.f);
+        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
+        drawRow(gamePopulationGrowth, "Nobility Death", v, pct >= 0);
+    }
+    if (data->populationDeathClergyMultiplier != 1.0f) {
+        int pct = (int)std::round((data->populationDeathClergyMultiplier - 1.0f) * 100.f);
+        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
+        drawRow(gamePopulationGrowth, "Clergy Death", v, pct >= 0);
     }
 }
     //Events Popup every each random rounds
