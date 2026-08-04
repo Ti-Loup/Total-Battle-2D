@@ -71,10 +71,16 @@ struct WorldEventsData {
     // Ressources Production
     float resourceFishingProductionMultiplier = 1.0f;
     //gold
-    float goldIncomeMultiplier = 1.0f;
+    float goldIncomeFarmMultiplier = 1.0f;
+    float goldIncomeCommerceMultiplier = 1.0f;
+    float goldIncomeIndustryMultiplier = 1.0f;
+    float goldIncomeReligionMultiplier = 1.0f;
+    float goldIncomeMaritimeMultiplier = 1.0f;
     int goldFlatBonus = 0;
     //population
-    float populationGrowthMultiplier = 1.0f;
+    float populationGrowthPaysantryMultiplier = 1.0f;
+    float populationGrowthNobilityMultiplier = 1.0f;
+    float populationGrowthClergyMultiplier = 1.0f;
     //Time
     int durationTurns = 1;
 };
@@ -86,11 +92,11 @@ inline const std::unordered_map<WorldEventsType, WorldEventsData>& GetWorldEvent
             "Storm",
             "My lord, A violent storm batters the coastline. Ships are damaged and fishing ports produce no food.",
             WorldEventCategory::Negative,
-            //Food production 0
+            //Food production maritime 0
             //Fish Production 0
-            //income 0
+            //income maritime 0
             //Food From farm stay the same -> Food from Maritime 0
-            0, 1.0f, 0.0f, 0, 0.0f, 0.0f, 0, 1.0f, 5
+            0, 1.0f, 0.0f, 0, 0.0f, 1.0f,1.0f, 1.0f,1.0f,0.0f, 0, 1.0f, 1.0f,1.0f, 5
         }},
         //Own mechanic
         { WorldEventsType::Earthquake, {
@@ -98,7 +104,7 @@ inline const std::unordered_map<WorldEventsType, WorldEventsData>& GetWorldEvent
             "My lord, A violent Earthquare has hit our land. Hopefully none of our industries got affected.",
             //Buildings get damaged, nothing is produced if the building is damaged. must be repared first.
             WorldEventCategory::Negative,
-            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 5
         }},
         //general
         { WorldEventsType::Drought, {
@@ -108,28 +114,28 @@ inline const std::unordered_map<WorldEventsType, WorldEventsData>& GetWorldEvent
             //Food Production -80% Farm
             // Population -2 happyness
             // Population Growth -40%
-            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 5
         }},
         //Own mechanic
         { WorldEventsType::Plague, {
             "Plague",
             "My lord, a plague has pread to a settlement. It will spread inside our kingdom if we dont do something",
             WorldEventCategory::Negative,
-            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 5
         }},
         //Own mechanic
         { WorldEventsType::Fire, {
             "Fire",
             "My lord, a fire spread accros the land! we bust be careful for our population",
             WorldEventCategory::Negative,
-            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 5
         }},
         //general
         { WorldEventsType::PoorPopulation, {
             "Poor Population",
             "My lord, our population is getting poorer everyday, the cost of war has a direct percution on them. We should reduce taxes to accomodate them",
             WorldEventCategory::Negative,
-            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 5
         }},
         //Good Events
         //general
@@ -137,42 +143,42 @@ inline const std::unordered_map<WorldEventsType, WorldEventsData>& GetWorldEvent
             "Good Harvest",
             "My lord, there's rumors of a good recolt from our farmers. We should make a feast !",
             WorldEventCategory::Positive,
-            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 5
         }},
         //general
         { WorldEventsType::MiraculousFishCatch, {
             "Miraculous Fish Catch",
             "My lord, our fishing recold is miraculus ! A real miracle from god.",
                 WorldEventCategory::Positive,
-            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 5
             }},
         //general + own mechanic when boats
         { WorldEventsType::FavorableWinds,{
             "Favorable Winds",
                 "My lord, the wind is on our side, our trade merchants and ships will be faster.",
             WorldEventCategory::Positive,
-            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 5
         }},
         //own mechanic
         { WorldEventsType::Justice,{
             "Justice",
                 "MY lord, the wanted man known has Vitzlek has been happrenended, justice has beena served. For the greater good",
             WorldEventCategory::Positive,
-            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 5
         }},
         //Own mechanic -> which branch the new invension go towards. Player must decide. (Toward industry, farm, commerce, maritime)
         { WorldEventsType::NewInvension,{
             "New Invension",
                 "Sir, we have been aware that our guild masters made a new extraordinary object that will help to boost the production of our goods.",
             WorldEventCategory::Positive,
-            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 5
         }},
         //general
         { WorldEventsType::WarSign,{
             "War Sign",
             "Sir, Our watchers and other members of other kingdoms saw a crow on top of a hill, It may be a sign of war?",
             WorldEventCategory::Positive,
-            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 0, 1.0f, 5
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 5
         }},
     };
     return database;

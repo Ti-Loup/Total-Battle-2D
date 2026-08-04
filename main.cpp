@@ -5243,11 +5243,28 @@ private://constructor
         Date::Season coinSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
         SeasonModifiers coinSeasonModifier = GetSeasonModifiers(coinSeason);
 
-        //World Events Storm (Maritime buildings affected)
+        //World Events Gold modifiers (Maritime buildings affected)
+        float worldEventFarmGoldMultiplier = 1.0f;
+        if (const WorldEventsData *activeEvent = GetActiveWorldEventData()) {
+            worldEventFarmGoldMultiplier = activeEvent -> goldIncomeFarmMultiplier;
+        }
+        float worldEventCommerceGoldMultiplier = 1.0f;
+        if (const WorldEventsData *activeEvent = GetActiveWorldEventData()) {
+            worldEventCommerceGoldMultiplier = activeEvent -> goldIncomeCommerceMultiplier;
+        }
+        float worldEventIndustryGoldMultiplier = 1.0f;
+        if (const WorldEventsData *activeEvent = GetActiveWorldEventData()) {
+            worldEventIndustryGoldMultiplier = activeEvent -> goldIncomeIndustryMultiplier;
+        }
+        float worldEventReligionGoldMultiplier = 1.0f;
+        if (const WorldEventsData *activeEvent = GetActiveWorldEventData()) {
+            worldEventReligionGoldMultiplier = activeEvent->goldIncomeReligionMultiplier;
+        }
         float worldEventMaritimeGoldMultiplier = 1.0f;
         if (const WorldEventsData *activeEvent = GetActiveWorldEventData()) {
-            worldEventMaritimeGoldMultiplier = activeEvent -> goldIncomeMultiplier;//No income from ports during Storm * 0
+            worldEventMaritimeGoldMultiplier = activeEvent -> goldIncomeMaritimeMultiplier;//No income from ports during Storm * 0
         }
+
         for (const auto& s: settlements) {
             if (provinces[s.settlementData.provinceID].owner == player.faction) {
                 int settlement_index = (int)(&s - &settlements[0]);
@@ -5273,6 +5290,12 @@ private://constructor
                                 TaxCategory cat = GetTaxCategory(s.settlementData.buildings[b]);
                                 if (cat == TaxCategory::Farm) //Coin Season modifier for Farm income
                                     incomeBonus = (int)std::round(incomeBonus * coinSeasonModifier.incomeFarmMultiplier);
+                                if (cat == TaxCategory::Commerce)
+                                    incomeBonus = (int)std::round(incomeBonus * worldEventCommerceGoldMultiplier);
+                                if (cat == TaxCategory::Industry)
+                                    incomeBonus = (int)std::round(incomeBonus * worldEventIndustryGoldMultiplier);
+                                if (cat == TaxCategory::Religious)
+                                    incomeBonus = (int)std::round(incomeBonus * worldEventReligionGoldMultiplier);
                                 if (cat == TaxCategory::Maritime) // Coin World Event modifier for Maritime Income
                                     incomeBonus = (int)std::round(incomeBonus * worldEventMaritimeGoldMultiplier);
                                 player.nextTurnGold += incomeBonus;
@@ -5906,7 +5929,11 @@ int commerceIncome = 0;
 int industryIncome = 0;
 int religiousIncome = 0;
 int maritimeIncome = 0;//maritime base
-int worldEventGoldDelta = 0;
+int farmWorldEventGoldDelta = 0;
+int commerceWorldEventGoldDelta = 0;
+int religiousWorldEventGoldDelta = 0;
+int industryWorldEventGoldDelta = 0;
+int maritimeWorldEventGoldDelta = 0;
 int mainUpkeep = 0;
 int buildingMaintenance = 0;
 int armyUpkeep = 0;
@@ -5914,9 +5941,25 @@ int damagedIncomeLoss = 0;//raw income being lost to damage, across all categori
 
 Date::Season coinTooltipSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
 SeasonModifiers coinTooltipSeasonModifier = GetSeasonModifiers(coinTooltipSeason);
+float worldEventCommerceGoldMultiplier = 1.0f;
+const WorldEventsData *activeCommerceGoldEvent = GetActiveWorldEventData();
+if (activeCommerceGoldEvent) worldEventCommerceGoldMultiplier = activeCommerceGoldEvent -> goldIncomeCommerceMultiplier;
+
+float worldEventFarmGoldMultiplier = 1.0f;
+const WorldEventsData *activeFarmGoldEvent = GetActiveWorldEventData();
+if (activeFarmGoldEvent) worldEventFarmGoldMultiplier = activeFarmGoldEvent -> goldIncomeFarmMultiplier;
+
+float worldEventIndustryGoldMultiplier = 1.0f;
+const WorldEventsData *activeIndustryGoldEvent = GetActiveWorldEventData();
+if (activeIndustryGoldEvent) worldEventIndustryGoldMultiplier = activeIndustryGoldEvent -> goldIncomeIndustryMultiplier;
+
+float worldEventReligionGoldMultiplier = 1.0f;
+const WorldEventsData *activeReligionGoldEvent = GetActiveWorldEventData();
+if (activeReligionGoldEvent) worldEventReligionGoldMultiplier = activeReligionGoldEvent -> goldIncomeReligionMultiplier;
+
 float worldEventMaritimeGoldMultiplier = 1.0f;
-const WorldEventsData* activeGoldEvent = GetActiveWorldEventData();
-if (activeGoldEvent) worldEventMaritimeGoldMultiplier = activeGoldEvent->goldIncomeMultiplier;
+const WorldEventsData* activeMaritimeGoldEvent = GetActiveWorldEventData();
+if (activeMaritimeGoldEvent) worldEventMaritimeGoldMultiplier = activeMaritimeGoldEvent->goldIncomeMaritimeMultiplier;
 
 for (const auto& s : settlements) {
     if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
@@ -5938,12 +5981,23 @@ for (const auto& s : settlements) {
             default: taxIncome += mainRaw; break;
         }
 
+
         if (mainDamaged) {
             damagedIncomeLoss += mainRaw; // raw amount, not season-modified
         } else if (mainCat == TaxCategory::Farm) {
             farmSeasonBonus += (int)std::round(mainRaw * coinTooltipSeasonModifier.incomeFarmMultiplier) - mainRaw;
-        } else if (mainCat == TaxCategory::Maritime) {
-            worldEventGoldDelta += (int)std::round(mainRaw * worldEventMaritimeGoldMultiplier) - mainRaw;
+        }
+        else if (mainCat == TaxCategory::Commerce) {
+            commerceWorldEventGoldDelta += (int)std::round(mainRaw * worldEventCommerceGoldMultiplier) - mainRaw;
+        }
+        else if (mainCat == TaxCategory::Industry) {
+            industryWorldEventGoldDelta += (int)std::round(mainRaw * worldEventIndustryGoldMultiplier) - mainRaw;
+        }
+        else if (mainCat == TaxCategory::Religious) {
+            religiousWorldEventGoldDelta += (int)std::round(mainRaw * worldEventReligionGoldMultiplier) - mainRaw;
+        }
+        else if (mainCat == TaxCategory::Maritime) {
+            maritimeWorldEventGoldDelta += (int)std::round(mainRaw * worldEventMaritimeGoldMultiplier) - mainRaw;
         }
         //for all the other buildings
         for (int slot_index = 1; slot_index < (int)s.settlementData.buildings.size(); slot_index++) {
@@ -5968,14 +6022,27 @@ for (const auto& s : settlements) {
 
             if (slotDamaged) {
                 damagedIncomeLoss += raw; // raw amount, not season-modified
-            } else if (cat == TaxCategory::Farm) {
+            }
+            else if (cat == TaxCategory::Farm) {
                 farmSeasonBonus += (int)std::round(raw * coinTooltipSeasonModifier.incomeFarmMultiplier) - raw;
-            } else if (cat == TaxCategory::Maritime) {
-                worldEventGoldDelta += (int)std::round(raw * worldEventMaritimeGoldMultiplier) - raw;
+                farmWorldEventGoldDelta += (int)std::round(raw * worldEventFarmGoldMultiplier) - raw;
+            }
+            else if (cat == TaxCategory::Commerce) {
+                commerceWorldEventGoldDelta += (int)std::round(raw * worldEventCommerceGoldMultiplier) - raw;
+            }
+            else if (cat == TaxCategory::Industry) {
+                 industryWorldEventGoldDelta += (int)std::round(raw * worldEventIndustryGoldMultiplier) - raw;
+            }
+            else if (cat == TaxCategory::Religious) {
+                religiousWorldEventGoldDelta += (int)std::round(raw * worldEventReligionGoldMultiplier) - raw;
+            }
+            else if (cat == TaxCategory::Maritime) {
+                maritimeWorldEventGoldDelta += (int)std::round(raw * worldEventMaritimeGoldMultiplier) - raw;
             }
         }
     }
 }
+int worldEventGoldDelta = farmWorldEventGoldDelta + commerceWorldEventGoldDelta + religiousWorldEventGoldDelta + industryWorldEventGoldDelta + maritimeWorldEventGoldDelta;
 int totalIncome = taxIncome + commerceIncome + industryIncome + religiousIncome + maritimeIncome + farmIncomeBased + (farmSeasonBonus > 0 ? farmSeasonBonus : 0);
 int totalExpense = mainUpkeep + armyUpkeep + buildingMaintenance + damagedIncomeLoss - worldEventGoldDelta + (farmSeasonBonus < 0 ? -farmSeasonBonus : 0);
 int goldNextTurn = totalIncome - totalExpense;
@@ -6004,7 +6071,11 @@ int goldNextTurn = totalIncome - totalExpense;
     if (armyUpkeep != 0) expenseRows++;
     if (buildingMaintenance != 0) expenseRows++;
     if (seasonModifierIsExpense) expenseRows++;
-    if (worldEventGoldDelta != 0) expenseRows++;
+    if (farmWorldEventGoldDelta != 0) expenseRows++;
+    if (commerceWorldEventGoldDelta != 0) expenseRows++;
+    if (industryWorldEventGoldDelta != 0) expenseRows++;
+    if (religiousWorldEventGoldDelta != 0) expenseRows++;
+    if (maritimeWorldEventGoldDelta != 0) expenseRows++;
     if (damagedIncomeLoss != 0) expenseRows++;
 
     float incomeSepH  = 0.f;
@@ -6120,8 +6191,18 @@ int goldNextTurn = totalIncome - totalExpense;
         if (seasonModifierIsExpense)
     drawRow("Season Modifier (Farm)", farmSeasonBonus, true); //negative season penalty
     drawRow("Damaged Buildings", damagedIncomeLoss, true);
-    std::string worldEventGoldLabel = activeGoldEvent? ("World Event (" + activeGoldEvent->name + ")") : "World Event";
-    drawRow(worldEventGoldLabel.c_str(), worldEventGoldDelta, false);
+        std::string worldEventName = activeMaritimeGoldEvent ? activeMaritimeGoldEvent->name : "";
+        std::string worldEventFarmGoldLabel      = worldEventName.empty() ? "World Event (Farm)"      : ("World Event (" + worldEventName + ") - Farm");
+        std::string worldEventCommerceGoldLabel  = worldEventName.empty() ? "World Event (Commerce)"  : ("World Event (" + worldEventName + ") - Commerce");
+        std::string worldEventIndustryGoldLabel  = worldEventName.empty() ? "World Event (Industry)"  : ("World Event (" + worldEventName + ") - Industry");
+        std::string worldEventReligiousGoldLabel = worldEventName.empty() ? "World Event (Religious)" : ("World Event (" + worldEventName + ") - Religious");
+        std::string worldEventMaritimeGoldLabel  = worldEventName.empty() ? "World Event (Maritime)"  : ("World Event (" + worldEventName + ") - Maritime");
+        drawRow(worldEventFarmGoldLabel.c_str(), farmWorldEventGoldDelta, false);
+        drawRow(worldEventCommerceGoldLabel.c_str(), commerceWorldEventGoldDelta, false);
+        drawRow(worldEventIndustryGoldLabel.c_str(), industryWorldEventGoldDelta, false);
+        drawRow(worldEventReligiousGoldLabel.c_str(), religiousWorldEventGoldDelta, false);
+        drawRow(worldEventMaritimeGoldLabel.c_str(), maritimeWorldEventGoldDelta, false);
+
 
     if (expenseRows > 0) drawSep();
     // Totals
@@ -7345,9 +7426,15 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         if (events_data->foodProductionMaritimeMultiplier != 1.0f) count++;
         if (events_data->foodFlatBonus != 0) count++;
         if (events_data->resourceFishingProductionMultiplier != 1.0f) count++;
-        if (events_data->goldIncomeMultiplier != 1.0f) count++;
+        if (events_data->goldIncomeCommerceMultiplier != 1.0f) count++;
+        if (events_data->goldIncomeFarmMultiplier != 1.0f) count++;
+        if (events_data->goldIncomeIndustryMultiplier != 1.0f) count++;
+        if (events_data->goldIncomeReligionMultiplier != 1.0f) count++;
+        if (events_data->goldIncomeMaritimeMultiplier != 1.0f) count++;
         if (events_data->goldFlatBonus != 0) count++;
-        if (events_data->populationGrowthMultiplier != 1.0f) count++;
+        if (events_data->populationGrowthPaysantryMultiplier != 1.0f) count++;
+        if (events_data->populationGrowthNobilityMultiplier != 1.0f) count++;
+        if (events_data->populationGrowthClergyMultiplier != 1.0f) count++;
         if (events_data->durationTurns != 0) count++;
         return count;
     }
@@ -7367,7 +7454,7 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
 
         TTF_SetTextString(gameWorldEventsDescText, valStr.c_str(), 0);
         if (positive) TTF_SetTextColor(gameWorldEventsDescText, 30, 140, 30, 255);
-        else          TTF_SetTextColor(gameWorldEventsDescText, 180, 30, 30, 255);
+        else TTF_SetTextColor(gameWorldEventsDescText, 180, 30, 30, 255);
         int vw, vh;
         TTF_GetTextSize(gameWorldEventsDescText, &vw, &vh);
         TTF_DrawRendererText(gameWorldEventsDescText, rightEdge - vw, lineY + 1.f);
@@ -7411,26 +7498,58 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
         std::string v = (pos ? "+" : "") + std::to_string(data->foodFlatBonus);
         drawRow(gameFoodIconUi, "Food Bonus", v, pos);
     }
-    if (data->resourceFishingProductionMultiplier != 0) {
+    if (data->resourceFishingProductionMultiplier != 1.0f) {
         int pct = (int)std::round((data->resourceFishingProductionMultiplier - 1.0f) * 100.f);
         std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
-        drawRow(nullptr, "Fish Production", v, pct >= 0);
+        drawRow(gameResourceFishIconTexture, "Fish Production", v, pct >= 0);
+    }
+    //income types
+    if (data->goldIncomeCommerceMultiplier != 1.0f) {
+        int pct = (int)std::round((data->goldIncomeCommerceMultiplier - 1.0f) * 100.f);
+        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
+        drawRow(gameCoinMoneyTexture, "Income(Commerce)", v, pct >= 0);
+    }
+    if (data->goldIncomeFarmMultiplier != 1.0f) {
+        int pct = (int)std::round((data->goldIncomeFarmMultiplier - 1.0f) * 100.f);
+        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
+        drawRow(gameCoinMoneyTexture, "Income(Farm)", v, pct >= 0);
+    }
+    if (data->goldIncomeIndustryMultiplier != 1.0f) {
+        int pct = (int)std::round((data->goldIncomeIndustryMultiplier - 1.0f) * 100.f);
+        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
+        drawRow(gameCoinMoneyTexture, "Income(Industry)", v, pct >= 0);
+    }
+    if (data->goldIncomeReligionMultiplier != 1.0f) {
+        int pct = (int)std::round((data->goldIncomeReligionMultiplier - 1.0f) * 100.f);
+        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
+        drawRow(gameCoinMoneyTexture, "Income(Religion)", v, pct >= 0);
+    }
+    if (data->goldIncomeMaritimeMultiplier != 1.0f) {
+        int pct = (int)std::round((data->goldIncomeMaritimeMultiplier - 1.0f) * 100.f);
+        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
+        drawRow(gameCoinMoneyTexture, "Income(Maritime)", v, pct >= 0);
     }
 
-    if (data->goldIncomeMultiplier != 1.0f) {
-        int pct = (int)std::round((data->goldIncomeMultiplier - 1.0f) * 100.f);
-        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
-        drawRow(gameCoinMoneyTexture, "Gold Income", v, pct >= 0);
-    }
     if (data->goldFlatBonus != 0) {
         bool pos = data->goldFlatBonus > 0;
         std::string v = (pos ? "+" : "") + std::to_string(data->goldFlatBonus);
         drawRow(gameCoinMoneyTexture, "Gold Bonus", v, pos);
     }
-    if (data->populationGrowthMultiplier != 1.0f) {
-        int pct = (int)std::round((data->populationGrowthMultiplier - 1.0f) * 100.f);
+        //Population type
+    if (data->populationGrowthPaysantryMultiplier != 1.0f) {
+        int pct = (int)std::round((data->populationGrowthPaysantryMultiplier - 1.0f) * 100.f);
         std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
-        drawRow(gamePopulationGrowth, "Population Growth", v, pct >= 0);
+        drawRow(gamePopulationGrowth, "Paysantry Growth", v, pct >= 0);
+    }
+    if (data->populationGrowthNobilityMultiplier != 1.0f) {
+        int pct = (int)std::round((data->populationGrowthNobilityMultiplier - 1.0f) * 100.f);
+        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
+        drawRow(gamePopulationGrowth, "Nobility Growth", v, pct >= 0);
+    }
+    if (data->populationGrowthClergyMultiplier != 1.0f) {
+        int pct = (int)std::round((data->populationGrowthClergyMultiplier - 1.0f) * 100.f);
+        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
+        drawRow(gamePopulationGrowth, "Clergy Growth", v, pct >= 0);
     }
 }
     //Events Popup every each random rounds
@@ -7476,7 +7595,7 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
         TTF_DrawRendererText(gameWorldEventsDescText, 665.f, 700.f);
         TTF_SetTextWrapWidth(gameWorldEventsDescText, 0); // reset
         //Effects bottom right from lambda script
-        float effectsX = 1100.f;
+        float effectsX = 1050.f;
         float effectsRightEdge = 1335.f;
         float effectsY = 665.f;
         //call the render of Effects fonction
@@ -8571,14 +8690,18 @@ public:
         }
         float foodMultiplier = GetFoodPopulationGrowthMultiplier();
         //Population Modification from World Events.
-        float worldEventPopulationMultiplier = 1.0f;
+        float worldEventBirthPeasantryMultiplier = 1.0f;
+        float worldEventBirthNobilityMultiplier  = 1.0f;
+        float worldEventBirthClergyMultiplier    = 1.0f;
         if (const WorldEventsData* activeEvent = GetActiveWorldEventData()) {
-            worldEventPopulationMultiplier = activeEvent->populationGrowthMultiplier;
+            worldEventBirthPeasantryMultiplier = activeEvent->populationGrowthPaysantryMultiplier;
+            worldEventBirthNobilityMultiplier  = activeEvent->populationGrowthNobilityMultiplier;
+            worldEventBirthClergyMultiplier    = activeEvent->populationGrowthClergyMultiplier;
         }
-        // Calcul global Birthrate (Base + buildings) multiplied by food AND season birth multiplier
-        int totalPeasantryBirths = (int)((float)(player.basePeasantryBirth + buildingPeasantryBonus) * foodMultiplier * endTurnSeasonMods.birthRateMultiplier * worldEventPopulationMultiplier);
-        int totalNobilityBirths  = (int)((float)(player.baseNobilityBirth + buildingNobilityBonus) * foodMultiplier * endTurnSeasonMods.birthRateMultiplier * worldEventPopulationMultiplier);
-        int totalClergyBirths = (int)((float)(player.baseClergyGrowth + buildingClergyBonus) * foodMultiplier * endTurnSeasonMods.birthRateMultiplier * worldEventPopulationMultiplier);
+
+        int totalPeasantryBirths = (int)((float)(player.basePeasantryBirth + buildingPeasantryBonus) * foodMultiplier * endTurnSeasonMods.birthRateMultiplier * worldEventBirthPeasantryMultiplier);
+        int totalNobilityBirths  = (int)((float)(player.baseNobilityBirth + buildingNobilityBonus) * foodMultiplier * endTurnSeasonMods.birthRateMultiplier * worldEventBirthNobilityMultiplier);
+        int totalClergyBirths    = (int)((float)(player.baseClergyGrowth + buildingClergyBonus) * foodMultiplier * endTurnSeasonMods.birthRateMultiplier * worldEventBirthClergyMultiplier);
 
         // deaths scaled by season death multiplier (winter = harsher, summer = milder)
         int totalPeasantryDeaths = (int)((float)player.basePeasantryDeath * endTurnSeasonMods.deathRateMultiplier);
