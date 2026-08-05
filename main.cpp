@@ -4864,7 +4864,7 @@ private://constructor
 
                         SDL_FRect repairButtonRect = {repairBtnX, actionBtnY, actionBtnSize, actionBtnSize};
                         float btnRadius = actionBtnSize / 2.f;
-                        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
                         RenderCircle(repairButtonRect.x + btnRadius, repairButtonRect.y + btnRadius, btnRadius);
                         SDL_SetRenderDrawColor(renderer, 40, 90, 150, 230);
                         RenderCircle(repairButtonRect.x + btnRadius, repairButtonRect.y + btnRadius, btnRadius - 1.f);
@@ -4971,18 +4971,24 @@ private://constructor
         // Destroyed Button only shows on an existing building, non-port, no current upgrades
         float destroyBtnSize = 26.f;
         float destroyRowGap  = 14.f;
-        bool  bCanShowDestroy = false;
-        bool  bIsMarkedForDestruction = false;
-        int   destroyKeyValue = -1;
+        bool bCanShowDestroy = false;
+        bool bCanShowRepair = false;
+        bool bIsMarkedForDestruction = false;
+        int destroyKeyValue = -1;
+        int repairKeyValue  = -1;
+
         if (hoveredBuildingSlotUpgradable && builtHere != BuildingType::None &&
             buildMenuSlotIndex > 0 && prov.owner == player.faction)
         {
             bool isPortSlot = (buildMenuSlotIndex == 1 && cardSett->bIsPort);
             bool upgradePendingHere = cardSett->settlementData.pendingBuildings[buildMenuSlotIndex] != BuildingType::None;
+            int globalSettlementIndex = (int)(cardSett - &settlements[0]);
+            repairKeyValue = globalSettlementIndex * 100 + buildMenuSlotIndex;
+            bCanShowRepair = true; // ports can be repaired
+
             if (!isPortSlot && !upgradePendingHere) {
                 bCanShowDestroy = true;
-                int globalSettlementIndex = (int)(cardSett - &settlements[0]);
-                destroyKeyValue = globalSettlementIndex * 100 + buildMenuSlotIndex;
+                destroyKeyValue = repairKeyValue;
                 bIsMarkedForDestruction = buildingsMarkedDestroyed.count(destroyKeyValue) > 0;
             }
         }
