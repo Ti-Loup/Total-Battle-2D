@@ -317,6 +317,7 @@ public:
 
     //Circle to bring World events info popup to false again
     Circle WorlEventsButtonReturnGame = {1000.f, 770.f, 20};
+    SDL_Texture *worldEventsReturnButtons = nullptr;
 
     //Circle for goods Production manager
     Circle GoodsProductionMaganerButton = {1182.f, 20.f, 12};
@@ -1687,6 +1688,12 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture worldEventsImageTextures WarSign", SDL_GetError());
         }
         SDL_SetTextureScaleMode(worldEventsImageTextures[WorldEventsType::WarSign], SDL_SCALEMODE_NEAREST);
+        //WorldEvents return button
+        worldEventsReturnButtons = IMG_LoadTexture(renderer, "assets/WorldEvents/returnButtons.png");
+        if (worldEventsReturnButtons == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsReturnButtons", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsReturnButtons, SDL_SCALEMODE_NEAREST);
 
 
         // BUILDING UIS
@@ -3346,6 +3353,7 @@ private://constructor
         SDL_DestroyTexture(gameDestroyBuildingButtonIconUi);
         SDL_DestroyTexture(gameRepairBuildingButtonIconUi);
         SDL_DestroyTexture(gameBuildingDamagedIconUi);
+        SDL_DestroyTexture(worldEventsReturnButtons);
         // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
@@ -7684,7 +7692,7 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
 
 
         //Return Button
-        RenderBoutonCercle(WorlEventsButtonReturnGame, nullptr, nullptr, 0, 180, 10);
+        RenderBoutonCercle(WorlEventsButtonReturnGame, nullptr, worldEventsReturnButtons, 0, 180, 10);
     }
 
 
