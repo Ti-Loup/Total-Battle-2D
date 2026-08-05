@@ -46,7 +46,7 @@
  * ToDo - Work on Degree, Win achievments, and more.
  * ToDo - If you have less paysants than the nobility amount your buildings doesnt work has much. See paysantry/Nobility  description
  * Fixes:
- *
+ * Done | The repair button wasnt disappearing for ports after repairing.
  *
  * --------------------------------------------
  * 0.3.25
@@ -4989,8 +4989,7 @@ private://constructor
             bool upgradePendingHere = cardSett->settlementData.pendingBuildings[buildMenuSlotIndex] != BuildingType::None;
             int globalSettlementIndex = (int)(cardSett - &settlements[0]);
             repairKeyValue = globalSettlementIndex * 100 + buildMenuSlotIndex;
-            bCanShowRepair = IsBuildingSlotAwaitingPayment(globalSettlementIndex, buildMenuSlotIndex) || IsBuildingSlotBeingRepaired(globalSettlementIndex, buildMenuSlotIndex);
-
+            bCanShowRepair = IsBuildingSlotAwaitingPayment(globalSettlementIndex, buildMenuSlotIndex);
             if (!isPortSlot && !upgradePendingHere) {
                 bCanShowDestroy = true;
                 destroyKeyValue = repairKeyValue;
