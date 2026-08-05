@@ -26,51 +26,11 @@
 
 /*
 
- *---------------------------------------------
- * 0.2.5
- * WORLD EVENTS (plague, exceed food production, thunder) + SEASONS + DATE (12 turns a year) 3 turn per season
- * 1. different seasons changes public order, death rate + Food produced
- * - works with seasons multiplier
- * Food : YES
- * Public Order : YES
- * BirthRate : YES
- * DeathRate : YES
- * 2. make a Mini Map in the corner right + a rect inside to show camera current view.
- * Add Church candle building + craft
- * 3. create randoms events that pop on (plague, exceed food production, thunder)
- * Add Ports buildings If a main settlement or village is close to the sea it has a port. For villages/Fishing port, and Main settlements military port.
- *
- * 3.5 make the Worldevents works with buildings and world Population
- * fishing ports gives food / produce fish -> stocked
- * Done -> pannel buttons popup ui element for each .exemple -> Add some win Achievements (UPDATE THEM HERE IF TIME OTHER 0.3.0)
- * Done -> Make the Income based on Farm,Commerce,Industry,Religion and not just all income instantly.
- * Done -> Different Food Production (Food From Farm, Food From Ports)
- * Done ->Make the Goods manager (To stop production, make a max amount an item can produce)
- * Done -> Can now destroy constructed buildings.
- * Done -> Rework the food system for the food stocks to be in the different castles instead of a general value.
- * Done -> Being able to destroy a constructed building.
- * Done -> Fix positionning
- * Done -> if a building is damaged, it produce nothing and would need to wait for it to gradualy repair itself (4 to 6 turns) or / Instant repair (Cost 50% of the building price)
- * Done -> Add Missing Textures
- * Done -> Update Season to work with money
- *
- * World Events Working (3 / 12) - Storm, Earthquake, drought
- *
- * Fixed | issue with vikings religious buildings crashing the game
- * Fixed | camera never stop when touch edge
- * Fixed | Viking Unzoom Texture added
- * Fixed | the population need to start with a baseamount, not 0
- * Fixed | building maintenants shown but didnt actually work
- * Fixed | Food storage was stuck at 0
- * Fixed | When building Tier Max, should stop showing the upgradable popup
- * Fixed | Both branches assign 120. So regardless of unlocked/built/locked status, every non-hovered tile renders at the same dim alpha.
- * Fixed | settlementTier only tells the maximum tier the settlement allows you to build
- * Fixed | Income Tooltip Wrong TTF Size compare to others Tooltips
- * Fixed | WareHouse and Granary Tier 3 was still grey while in tier 3 .
+
  * --------------------------------------------
  * 0.3.0
  *
- *  | AI | improvement -> Can build buildings, know which one to buy/Upgrade
+ * improvement -> Can build buildings, know which one to buy/Upgrade
  * RESSOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
  *  ~ Production Mecanique ~
  *  fishing ports gives food and produce fish !
@@ -78,14 +38,19 @@
  *      If you have the raw material you can then construct industrial buildings from this material.(gold mine -> jewlery)
  *  Forged Steel Production, FISH, medicine plants, Candle
 
- * THE RESSOURCES ARE STORED IN (warehouse or castle)
  * Some industrial buildings can only be buy if you have the raw material
  * Settlement next to the name shows a texture of mine to show its a mine + fish for a fish port and boat for military ...
  *
+ * Done -> THE RESSOURCES ARE STORED IN (warehouse or castle).
  *
- * - Work on Degree, Win achievments, and more.
- * - If you have less paysants than the nobility amount your buildings doesnt work has much. See paysantry/Nobility  description
+ * ToDo - Work on Degree, Win achievments, and more.
+ * ToDo - If you have less paysants than the nobility amount your buildings doesnt work has much. See paysantry/Nobility  description
+ * Fixes:
  *
+ *
+ * --------------------------------------------
+ * 0.3.25
+ * Ai Focus
  *
  * --------------------------------------------
  * 0.3.5
@@ -140,7 +105,47 @@
 * 0.2.0
 * POPULATION SYSTEM
 * Update Province and building info in UI +/-
+ *---------------------------------------------
+ * 0.2.5
+ * WORLD EVENTS (plague, exceed food production, thunder) + SEASONS + DATE (12 turns a year) 3 turn per season
+ * 1. different seasons changes public order, death rate + Food produced
+ * - works with seasons multiplier
+ * Food : YES
+ * Public Order : YES
+ * BirthRate : YES
+ * DeathRate : YES
+ * 2. make a Mini Map in the corner right + a rect inside to show camera current view.
+ * Add Church candle building + craft
+ * 3. create randoms events that pop on (plague, exceed food production, thunder)
+ * Add Ports buildings If a main settlement or village is close to the sea it has a port. For villages/Fishing port, and Main settlements military port.
  *
+ * 3.5 make the Worldevents works with buildings and world Population
+ * fishing ports gives food / produce fish -> stocked
+ * Done -> pannel buttons popup ui element for each .exemple -> Add some win Achievements (UPDATE THEM HERE IF TIME OTHER 0.3.0)
+ * Done -> Make the Income based on Farm,Commerce,Industry,Religion and not just all income instantly.
+ * Done -> Different Food Production (Food From Farm, Food From Ports)
+ * Done ->Make the Goods manager (To stop production, make a max amount an item can produce)
+ * Done -> Can now destroy constructed buildings.
+ * Done -> Rework the food system for the food stocks to be in the different castles instead of a general value.
+ * Done -> Being able to destroy a constructed building.
+ * Done -> Fix positionning
+ * Done -> if a building is damaged, it produce nothing and would need to wait for it to gradualy repair itself (4 to 6 turns) or / Instant repair (Cost 50% of the building price)
+ * Done -> Add Missing Textures
+ * Done -> Update Season to work with money
+ *
+ * World Events Working (3 / 12) - Storm, Earthquake, drought
+ *
+ * Fixed | issue with vikings religious buildings crashing the game
+ * Fixed | camera never stop when touch edge
+ * Fixed | Viking Unzoom Texture added
+ * Fixed | the population need to start with a baseamount, not 0
+ * Fixed | building maintenants shown but didnt actually work
+ * Fixed | Food storage was stuck at 0
+ * Fixed | When building Tier Max, should stop showing the upgradable popup
+ * Fixed | Both branches assign 120. So regardless of unlocked/built/locked status, every non-hovered tile renders at the same dim alpha.
+ * Fixed | settlementTier only tells the maximum tier the settlement allows you to build
+ * Fixed | Income Tooltip Wrong TTF Size compare to others Tooltips
+ * Fixed | WareHouse and Granary Tier 3 was still grey while in tier 3 .
 
  */
 
