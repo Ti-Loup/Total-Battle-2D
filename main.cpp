@@ -4984,7 +4984,7 @@ private://constructor
             bool upgradePendingHere = cardSett->settlementData.pendingBuildings[buildMenuSlotIndex] != BuildingType::None;
             int globalSettlementIndex = (int)(cardSett - &settlements[0]);
             repairKeyValue = globalSettlementIndex * 100 + buildMenuSlotIndex;
-            bCanShowRepair = true; // ports can be repaired
+            bCanShowRepair = IsBuildingSlotAwaitingPayment(globalSettlementIndex, buildMenuSlotIndex) || IsBuildingSlotBeingRepaired(globalSettlementIndex, buildMenuSlotIndex);
 
             if (!isPortSlot && !upgradePendingHere) {
                 bCanShowDestroy = true;
@@ -4992,7 +4992,8 @@ private://constructor
                 bIsMarkedForDestruction = buildingsMarkedDestroyed.count(destroyKeyValue) > 0;
             }
         }
-        float extraDestroyHeight = bCanShowDestroy ? (destroyRowGap + destroyBtnSize) : 0.f;
+        bool bHasActionRow = bCanShowDestroy || bCanShowRepair;
+        float extraDestroyHeight = bHasActionRow ? (destroyRowGap + destroyBtnSize) : 0.f;
         float totalH = tilesTotalH + extraDestroyHeight;
 
         // Position on top
@@ -5122,6 +5123,37 @@ private://constructor
                         SDL_RenderLine(renderer, (int)cx, (int)tipY, (int)(cx + 5),(int)(tipY + 7));
                     }
                 }
+            }
+        }
+        if (bHasActionRow) {
+            float actionBtnY = popY + tilesTotalH + destroyRowGap;
+            float btnRadius = destroyBtnSize / 2.f;
+
+            if (bCanShowRepair) {
+                float repairBtnX = bCanShowDestroy
+                    ? (popX + (totalW - destroyBtnSize) + 5.f) - destroyBtnSize - 22.f
+                    : popX + (totalW - destroyBtnSize) / 2.f; // center if no destroy button
+                SDL_FRect repairButtonRect = {repairBtnX, actionBtnY, destroyBtnSize, destroyBtnSize};
+
+                float rcx = repairButtonRect.x + btnRadius, rcy = repairButtonRect.y + btnRadius;
+                SDL_SetRenderDrawColor(renderer, 255,255,255,0);
+                RenderCircle(rcx, rcy, btnRadius);
+                SDL_SetRenderDrawColor(renderer, 40,90,150,230);
+                RenderCircle(rcx, rcy, btnRadius - 1.f);
+
+                bool repairAvailableHere = (repairKeyValue >= 0) &&
+                    IsBuildingSlotAwaitingPayment(repairKeyValue / 100, repairKeyValue % 100);
+
+                if (gameRepairBuildingButtonIconUi) {
+                    float pad = -2.f;
+                    SDL_FRect iconRect = {repairButtonRect.x+pad, repairButtonRect.y+pad,
+                                           destroyBtnSize-pad*2.f, destroyBtnSize-pad*2.f};
+                    SDL_SetTextureAlphaMod(gameRepairBuildingButtonIconUi, repairAvailableHere ? 255 : 90);
+                    SDL_RenderTexture(renderer, gameRepairBuildingButtonIconUi, nullptr, &iconRect);
+                    SDL_SetTextureAlphaMod(gameRepairBuildingButtonIconUi, 255);
+                }
+                if (repairAvailableHere)
+                    repairButtonRects.push_back({repairButtonRect, {categoryPopupCardIndex, buildMenuSlotIndex}});
             }
         }
 
