@@ -8864,10 +8864,20 @@ public:
             bWorldEventInfoPopup = true;
             worldEventCountdown = RollWorldEventCountdown(); // countdown to the one after this
 
-            //If its an earthquake, hit one random settlement anywhere on the map
+            //If its an earthquake, hit 6 random settlements anywhere on the map
             if (currentWorldsEvent == WorldEventsType::Earthquake && !settlements.empty()) {
-                int hitSettlementIndex = (int)SDL_rand((int)settlements.size());
-                DamageSettlementBuildings(hitSettlementIndex);
+                int settlementsToHit = std::min(6, (int)settlements.size());
+                std::vector<int> availableIndices(settlements.size());
+                std::iota(availableIndices.begin(), availableIndices.end(), 0);
+
+                for (int i = 0; i < settlementsToHit; i++) {
+                    int randomPick = (int)SDL_rand((int)availableIndices.size());
+                    int hitSettlementIndex = availableIndices[randomPick];
+                    DamageSettlementBuildings(hitSettlementIndex);
+
+                    // remove it so it can't be picked twice
+                    availableIndices.erase(availableIndices.begin() + randomPick);
+                }
             }
         }
     }
