@@ -37,7 +37,7 @@
  *  MINEs -> produced their own orb
  *      If you have the raw material you can then construct industrial buildings from this material.(gold mine -> jewlery)
  *  Forged Steel Production, FISH, medicine plants, Candle
-
+ * A building to proceed the fish . (Fish oil ?)
  * Some industrial buildings can only be buy if you have the raw material
  * Settlement next to the name shows a texture of mine to show its a mine + fish for a fish port and boat for military ...
  *

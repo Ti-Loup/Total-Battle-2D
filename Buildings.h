@@ -271,6 +271,32 @@ SamuraiFishingPort_T2,
 SamuraiFishingPort_T3,
 
 
+    //GENERAL BUILDINGS (SAME FOR ALL)
+    //Iron
+IronMine_T1,
+IronMine_T2,
+IronMine_T3,
+    //Gold
+GoldMine_T1,
+GoldMine_T2,
+GoldMine_T3,
+    //Copper
+CopperMine_T1,
+CopperMine_T2,
+CopperMine_T3,
+    //Silver
+SilverMine_T1,
+SilverMine_T2,
+SilverMine_T3,
+    //Tin
+TinMine_T1,
+TinMine_T2,
+TinMine_T3,
+    //Wood
+LumberCamp_T1,
+LumberCamp_T2,
+LumberCamp_T3
+
 };
 
 enum class BuildingCategory {
@@ -341,6 +367,12 @@ inline TaxCategory GetTaxCategory(BuildingType buildingType) {
         case BuildingType::SamuraiArtisan_T1:  case BuildingType::SamuraiArtisan_T2:  case BuildingType::SamuraiArtisan_T3:
         case BuildingType::SamuraiForge_T2:    case BuildingType::SamuraiForge_T3:    case BuildingType::SamuraiForge_T4:
         case BuildingType::SamuraiJeweller_T3: case BuildingType::SamuraiJeweller_T4: case BuildingType::SamuraiJeweller_T5:
+        case BuildingType::IronMine_T1: case BuildingType::IronMine_T2: case BuildingType::IronMine_T3:
+        case BuildingType::GoldMine_T1: case BuildingType::GoldMine_T2: case BuildingType::GoldMine_T3:
+        case BuildingType::CopperMine_T1: case BuildingType::CopperMine_T2: case BuildingType::CopperMine_T3:
+        case BuildingType::SilverMine_T1: case BuildingType::SilverMine_T2: case BuildingType::SilverMine_T3:
+        case BuildingType::TinMine_T1: case BuildingType::TinMine_T2: case BuildingType::TinMine_T3:
+        case BuildingType::LumberCamp_T1: case BuildingType::LumberCamp_T2: case BuildingType::LumberCamp_T3:
             return TaxCategory::Industry;
 
         // ── RELIGIOUS (purple) ──
@@ -945,8 +977,30 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::SamuraiChapel_T4, {"Shinto Temple", "Greater worship.", 250, 10, 0, 1, 4, 3, 0, 0, 0, 0, 0, 3, BuildingType::SamuraiChapel_T5});
     add(BuildingType::SamuraiChapel_T5, {"Grand Shrine", "Divine blessing.", 500, 15, 0, 2, 5, 4, 0, 0, 0, 0, 0, 5, BuildingType::None});
 
+    // -- MINES (Raw Ressources Building Production)--
+    //iron
+    add(BuildingType::IronMine_T1, {"Iron Veins", "Iron ore is are common as it is useful.", 750, 0, 25, 0, 1, 14, 0, 0, 0, 0, 0, 0, BuildingType::IronMine_T2});
+    add(BuildingType::IronMine_T2, {"Iron Mine", "The reign of iron is well underway\nwherever it can be mined, it\nabsolutely should be.", 900, 0, 30, 0, 2, 7, 0, 0, 0, 0, 0, 0, BuildingType::IronMine_T3});
+    add(BuildingType::IronMine_T3, {"Iron Foundry", "Iron ore, once refined, is used to\nmake myriad items both valuable\nand lethal.", 1100, 0, 35, 0, 3, 10, 0, 0, 0, 0, 0, 0, BuildingType::None});
+    //gold
+    add(BuildingType::GoldMine_T1, {"Gold Veins", "Great seams of gold, running like\n rivers through stone...", 1050, 0, 55, 0, 1, 18, 0, 0, 0, 0, 0, 0, BuildingType::GoldMine_T2});
+    add(BuildingType::GoldMine_T2, {"Gold Mine", "All that glitters may not be gold, but\n if it is, you're probably minted.", 1150, 0, 75, 0, 2, 10,  0, 0, 0, 0, 0, 0,  BuildingType::GoldMine_T3});
+    add(BuildingType::GoldMine_T3, {"Gold Foundry", "The lure of pure gold makes even the\nwisest man forget himself.", 1250, 0, 95, 0, 3, 14, 0, 0, 0, 0, 0, 0, BuildingType::None});
+    //copper
+    add(BuildingType::CopperMine_T1, {"Copper Veins", "The red metal of Cyprus can also be\nfound in the parts.", 850, 0, 35, 0, 1, 14, 0, 0, 0, 0, 0, 0, BuildingType::CopperMine_T2});
+    add(BuildingType::CopperMine_T2, {"Copper Mine", "To take advantage of copper's useful\nqualities, all that is needed is a\ndeeplying trench.", 1000, 0, 45, 0, 2, 5, 0, 0, 0, 0, 0, 0, BuildingType::CopperMine_T3});
+    add(BuildingType::CopperMine_T1, {"Copper Smelter", "The sulphides extracted from the\nopen-face mines are processed here,", 1200, 0, 55, 0, 3, 7, 0, 0, 0, 0, 0, 0, BuildingType::None});
+    //Silver
+    add(BuildingType::SilverMine_T1, {"Silver Veins", "With its metallic lustre, some\nconsider silver's aesthetic qualities to\nbe as attractive as gold.", 950, 0, 45, 0, 1, 12, 0, 0, 0, 0, 0, 0, BuildingType::SilverMine_T2});
+    add(BuildingType::SilverMine_T2, {"Silver Mine", "Tapping into such a resource enables\nthe fashioning of all manner of\nvaluable items.", 1100, 0, 60, 0, 2, 7, 0, 0, 0, 0, 0, 0, BuildingType::SilverMine_T3});
+    add(BuildingType::SilverMine_T3, {"Silver Smelter", "To smelt silver is to manifest\ncurrency, in doing so harnessing\nwealth and power.", 1300, 0, 75, 0, 3, 10, 0, 0, 0, 0, 0, 0, BuildingType::None});
+    //Tin
+    add(BuildingType::TinMine_T1, {"Tin Veins", "Without tin, there would be no\nbronze age, and by extension little\nknowledge of metalcraft.", 850, 0, 35, 0, 1, 12, 0, 0, 0, 0, 0, 0, BuildingType::TinMine_T2});
+    add(BuildingType::TinMine_T2, {"Tin Mine", "A material so rarely mined in this\npart of the world is extremely\nvaluable indeed.", 1000, 0, 45, 0, 2, 7, 0, 0, 0, 0, 0, 0, BuildingType::TinMine_T3});
+    add(BuildingType::TinMine_T3, {"Tin Smelter", "When smelting in paltry wood fires is\nno longer sufficient, one needs a\nbigger furnace.", 1200, 0, 55, 0, 3, 10, 0, 0, 0, 0, 0, 0, BuildingType::None});
 
 
+    //Wood
     // ── RESOURCE PRODUCTION ──
     db[BuildingType::KnightFishingPort_T1].resourcesProduced = {{ResourceType::Fish, 4}};
     db[BuildingType::KnightFishingPort_T2].resourcesProduced = {{ResourceType::Fish, 9}};
