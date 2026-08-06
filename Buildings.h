@@ -1004,17 +1004,43 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::LumberCamp_T3, {"Large lumber camp", "Lumber is very important.\nWithout it we can't build arrows or furnitures.", 650, 0, 20, 0, 1, 12, 0, 0, 0, 0, 0, 0, BuildingType::LumberCamp_T2});
 
     // ── RESOURCE PRODUCTION ──
-    db[BuildingType::KnightFishingPort_T1].resourcesProduced = {{ResourceType::Fish, 4}};
-    db[BuildingType::KnightFishingPort_T2].resourcesProduced = {{ResourceType::Fish, 9}};
-    db[BuildingType::KnightFishingPort_T3].resourcesProduced = {{ResourceType::Fish, 14}};
+    //ports
+    db[BuildingType::KnightFishingPort_T1].resourcesProduced = {{ResourceType::Fish, 1}};
+    db[BuildingType::KnightFishingPort_T2].resourcesProduced = {{ResourceType::Fish, 2}};
+    db[BuildingType::KnightFishingPort_T3].resourcesProduced = {{ResourceType::Fish, 3}};
 
-    db[BuildingType::VikingFishingPort_T1].resourcesProduced = {{ResourceType::Fish, 4}};
-    db[BuildingType::VikingFishingPort_T2].resourcesProduced = {{ResourceType::Fish, 9}};
-    db[BuildingType::VikingFishingPort_T3].resourcesProduced = {{ResourceType::Fish, 14}};
+    db[BuildingType::VikingFishingPort_T1].resourcesProduced = {{ResourceType::Fish, 1}};
+    db[BuildingType::VikingFishingPort_T2].resourcesProduced = {{ResourceType::Fish, 2}};
+    db[BuildingType::VikingFishingPort_T3].resourcesProduced = {{ResourceType::Fish, 3}};
 
-    db[BuildingType::SamuraiFishingPort_T1].resourcesProduced = {{ResourceType::Fish, 4}};
-    db[BuildingType::SamuraiFishingPort_T2].resourcesProduced = {{ResourceType::Fish, 9}};
-    db[BuildingType::SamuraiFishingPort_T3].resourcesProduced = {{ResourceType::Fish, 14}};
+    db[BuildingType::SamuraiFishingPort_T1].resourcesProduced = {{ResourceType::Fish, 1}};
+    db[BuildingType::SamuraiFishingPort_T2].resourcesProduced = {{ResourceType::Fish, 2}};
+    db[BuildingType::SamuraiFishingPort_T3].resourcesProduced = {{ResourceType::Fish, 3}};
+
+    //Iron Mine
+    db[BuildingType::IronMine_T1].resourcesProduced = {{ResourceType::Iron, 1}};
+    db[BuildingType::IronMine_T2].resourcesProduced = {{ResourceType::Iron, 2}};
+    db[BuildingType::IronMine_T3].resourcesProduced = {{ResourceType::Iron, 3}};
+    //Gold Mine
+    db[BuildingType::GoldMine_T1].resourcesProduced = {{ResourceType::Gold, 1}};
+    db[BuildingType::GoldMine_T2].resourcesProduced = {{ResourceType::Gold, 2}};
+    db[BuildingType::GoldMine_T3].resourcesProduced = {{ResourceType::Gold, 3}};
+    //Copper Mine
+    db[BuildingType::CopperMine_T1].resourcesProduced = {{ResourceType::Copper, 1}};
+    db[BuildingType::CopperMine_T2].resourcesProduced = {{ResourceType::Copper, 2}};
+    db[BuildingType::CopperMine_T3].resourcesProduced = {{ResourceType::Copper, 3}};
+    //Silver Mine
+    db[BuildingType::SilverMine_T1].resourcesProduced = {{ResourceType::Silver, 1}};
+    db[BuildingType::SilverMine_T2].resourcesProduced = {{ResourceType::Silver, 2}};
+    db[BuildingType::SilverMine_T3].resourcesProduced = {{ResourceType::Silver, 3}};
+    //Tin Mine
+    db[BuildingType::TinMine_T1].resourcesProduced = {{ResourceType::Tin, 1}};
+    db[BuildingType::TinMine_T2].resourcesProduced = {{ResourceType::Tin, 2}};
+    db[BuildingType::TinMine_T3].resourcesProduced = {{ResourceType::Tin, 3}};
+    //Lumber camp
+    db[BuildingType::LumberCamp_T1].resourcesProduced = {{ResourceType::Lumber, 1}};
+    db[BuildingType::LumberCamp_T2].resourcesProduced = {{ResourceType::Lumber, 2}};
+    db[BuildingType::LumberCamp_T3].resourcesProduced = {{ResourceType::Lumber, 3}};
 
 
     // ── GOODS STORAGE CAPACITY ──

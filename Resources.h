@@ -37,7 +37,7 @@ struct ResourceData{
 
 inline const std::unordered_map<ResourceType, ResourceData>& GetResourceDatabase() {
     static const std::unordered_map<ResourceType, ResourceData> database = {
-        
+        //Raw
         { ResourceType::Fish, { "Fish", "Caught by fishing ports. Feeds the population and can be traded.", "assets/Resources/Fish.png", ResourceCategory::Raw, 5}},
         { ResourceType::Iron, { "Iron", "From iron mines. Good to produce tools in the forge or traded.", "assets/Resources/Iron.png", ResourceCategory::Raw, 10}},
         { ResourceType::Gold, { "Gold", "From gold mines. These are the most valuables goods to craft Jewelley.", "assets/Resources/Gold.png", ResourceCategory::Raw, 25}},
@@ -45,6 +45,7 @@ inline const std::unordered_map<ResourceType, ResourceData>& GetResourceDatabase
         { ResourceType::Silver, { "Silver", "From silver mines. Silver is always usefull to create those coins.", "assets/Resources/Silver.png", ResourceCategory::Raw, 20}},
         { ResourceType::Tin, { "Tin", "From tin mines. Tin is used to make tin coins.", "assets/Resources/Tin.png", ResourceCategory::Raw, 16}},
         { ResourceType::Lumber, { "Lumber", "Lumber, from the forest is very important to build fournitures.", "assets/Resources/Lumber.png", ResourceCategory::Raw, 8}}
+        //Transformed
     };
     return database;
 }
