@@ -48,6 +48,7 @@
  * Fixes:
  * Done | The repair button wasnt disappearing for ports after repairing.
  *
+ *
  * --------------------------------------------
  * 0.3.25
  * Ai Focus
@@ -829,7 +830,7 @@ private://constructor
         // -> MENU <-
         gameInProgressFont = TTF_OpenFont("assets/KnightFont.ttf", 40);
         gameVersionFont = TTF_OpenFont("assets/Rubik.ttf", 35);
-        gameVersionText = TTF_CreateText (textEngine, gameVersionFont, "Version (0.2.5)", 16);
+        gameVersionText = TTF_CreateText (textEngine, gameVersionFont, "Version (0.3.0)", 16);
         if (gameVersionText == nullptr) {
             SDL_LogWarn(0,"failed to create text for gameVersionText", SDL_GetError());
         }
@@ -3098,13 +3099,115 @@ private://constructor
         }
         SDL_SetTextureScaleMode(gameGoodsTradeValueTexture, SDL_SCALEMODE_NEAREST);
 
-
         //Military Port Icon
         gameMilitaryPortIconTexture = IMG_LoadTexture(renderer, "assets/MilitaryPortIcon.png");
         if (gameMilitaryPortIconTexture == nullptr) {
             SDL_LogWarn(0, "failed to load texture gameMilitaryPortIconTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameMilitaryPortIconTexture, SDL_SCALEMODE_NEAREST);
+
+        //Mines Textures (Raw Buildings)
+        //IronMine Texture
+        buildingTypeTextures[BuildingType::IronMine_T1] = IMG_LoadTexture(renderer, "assets/RawBuildings/IronMineTier1.png");
+        if (buildingTypeTextures[BuildingType::IronMine_T1] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture IronMine_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::IronMine_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::IronMine_T2] = IMG_LoadTexture(renderer, "assets/RawBuildings/IronMineTier2.png");
+        if (buildingTypeTextures[BuildingType::IronMine_T2] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture IronMine_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::IronMine_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::IronMine_T3] = IMG_LoadTexture(renderer, "assets/RawBuildings/IronMineTier3.png");
+        if (buildingTypeTextures[BuildingType::IronMine_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture IronMine_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::IronMine_T3], SDL_SCALEMODE_NEAREST);
+
+        //GoldMine
+        buildingTypeTextures[BuildingType::GoldMine_T1] = IMG_LoadTexture(renderer, "assets/RawBuildings/GoldMineTier1.png");
+        if (buildingTypeTextures[BuildingType::GoldMine_T1] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture GoldMine_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::GoldMine_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::GoldMine_T2] = IMG_LoadTexture(renderer, "assets/RawBuildings/GoldMineTier2.png");
+        if (buildingTypeTextures[BuildingType::GoldMine_T2] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture GoldMine_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::GoldMine_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::GoldMine_T3] = IMG_LoadTexture(renderer, "assets/RawBuildings/GoldMineTier3.png");
+        if (buildingTypeTextures[BuildingType::GoldMine_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture GoldMine_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::GoldMine_T3], SDL_SCALEMODE_NEAREST);
+
+        //CopperMine
+        buildingTypeTextures[BuildingType::CopperMine_T1] = IMG_LoadTexture(renderer, "assets/RawBuildings/CopperMineTier1.png");
+        if (buildingTypeTextures[BuildingType::CopperMine_T1]==nullptr) {
+            SDL_LogWarn(0, "failed to load texture CopperMine_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::CopperMine_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::CopperMine_T2] = IMG_LoadTexture(renderer, "assets/RawBuildings/CopperMineTier2.png");
+        if (buildingTypeTextures[BuildingType::CopperMine_T2]==nullptr) {
+            SDL_LogWarn(0, "failed to load texture CopperMine_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::CopperMine_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::CopperMine_T3] = IMG_LoadTexture(renderer, "assets/RawBuildings/CopperMineTier3.png");
+        if (buildingTypeTextures[BuildingType::CopperMine_T3]==nullptr) {
+            SDL_LogWarn(0, "failed to load texture CopperMine_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::CopperMine_T3], SDL_SCALEMODE_NEAREST);
+
+        //SilverMine
+        buildingTypeTextures[BuildingType::SilverMine_T1] = IMG_LoadTexture(renderer, "assets/RawBuildings/SilverMineTier1.png");
+        if (buildingTypeTextures[BuildingType::SilverMine_T1] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SilverMine_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SilverMine_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SilverMine_T2] = IMG_LoadTexture(renderer, "assets/RawBuildings/SilverMineTier2.png");
+        if (buildingTypeTextures[BuildingType::SilverMine_T2] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SilverMine_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SilverMine_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SilverMine_T3] = IMG_LoadTexture(renderer, "assets/RawBuildings/SilverMineTier3.png");
+        if (buildingTypeTextures[BuildingType::SilverMine_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SilverMine_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SilverMine_T3], SDL_SCALEMODE_NEAREST);
+
+        //Tin Mine
+        buildingTypeTextures[BuildingType::TinMine_T1] = IMG_LoadTexture(renderer, "assets/RawBuildings/TinMineTier1.png");
+        if (buildingTypeTextures[BuildingType::TinMine_T1] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture TinMine_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::TinMine_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::TinMine_T2] = IMG_LoadTexture(renderer, "assets/RawBuildings/TinMineTier2.png");
+        if (buildingTypeTextures[BuildingType::TinMine_T2] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture TinMine_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::TinMine_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::TinMine_T3] = IMG_LoadTexture(renderer, "assets/RawBuildings/TinMineTier3.png");
+        if (buildingTypeTextures[BuildingType::TinMine_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture TinMine_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::TinMine_T3], SDL_SCALEMODE_NEAREST);
+
+        //Lumber Camp
+        buildingTypeTextures[BuildingType::LumberCamp_T1] = IMG_LoadTexture(renderer, "assets/RawBuildings/LumberCampTier1.png");
+        if (buildingTypeTextures[BuildingType::LumberCamp_T1] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture LumberCamp_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::LumberCamp_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::LumberCamp_T2] = IMG_LoadTexture(renderer, "assets/RawBuildings/LumberCampTier2.png");
+        if (buildingTypeTextures[BuildingType::LumberCamp_T2] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture LumberCamp_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::LumberCamp_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::LumberCamp_T3] = IMG_LoadTexture(renderer, "assets/RawBuildings/LumberCampTier3.png");
+        if (buildingTypeTextures[BuildingType::LumberCamp_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture LumberCamp_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::LumberCamp_T3], SDL_SCALEMODE_NEAREST);
 
         // RESOURCES TEXTURES
         gameResourceFishIconTexture = IMG_LoadTexture(renderer, "assets/Resources/FishIcon.png");

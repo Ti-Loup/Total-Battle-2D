@@ -998,9 +998,11 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::TinMine_T1, {"Tin Veins", "Without tin, there would be no\nbronze age, and by extension little\nknowledge of metalcraft.", 850, 0, 35, 0, 1, 12, 0, 0, 0, 0, 0, 0, BuildingType::TinMine_T2});
     add(BuildingType::TinMine_T2, {"Tin Mine", "A material so rarely mined in this\npart of the world is extremely\nvaluable indeed.", 1000, 0, 45, 0, 2, 7, 0, 0, 0, 0, 0, 0, BuildingType::TinMine_T3});
     add(BuildingType::TinMine_T3, {"Tin Smelter", "When smelting in paltry wood fires is\nno longer sufficient, one needs a\nbigger furnace.", 1200, 0, 55, 0, 3, 10, 0, 0, 0, 0, 0, 0, BuildingType::None});
-
-
     //Wood
+    add(BuildingType::LumberCamp_T1, {"Small lumber camp", "Lumber is very important.\nWithout it we can't build arrows or furnitures.", 650, 0, 20, 0, 1, 12, 0, 0, 0, 0, 0, 0, BuildingType::LumberCamp_T2});
+    add(BuildingType::LumberCamp_T2, {"Lumber camp", "Lumber is very important.\nWithout it we can't build arrows or furnitures.", 800, 0, 25, 0, 2, 6, 0, 0, 0, 0, 0, 0, BuildingType::LumberCamp_T3});
+    add(BuildingType::LumberCamp_T3, {"Large lumber camp", "Lumber is very important.\nWithout it we can't build arrows or furnitures.", 650, 0, 20, 0, 1, 12, 0, 0, 0, 0, 0, 0, BuildingType::LumberCamp_T2});
+
     // ── RESOURCE PRODUCTION ──
     db[BuildingType::KnightFishingPort_T1].resourcesProduced = {{ResourceType::Fish, 4}};
     db[BuildingType::KnightFishingPort_T2].resourcesProduced = {{ResourceType::Fish, 9}};
