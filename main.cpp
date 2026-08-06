@@ -515,7 +515,12 @@ public:
     SDL_Texture *gameMilitaryPortIconTexture = nullptr;
     // ~ TEXTURES RESOURCES ~
     SDL_Texture *gameResourceFishIconTexture = nullptr;
-
+    SDL_Texture *gameResourceIronIconTexture = nullptr;
+    SDL_Texture *gameResourceGoldIconTexture = nullptr;
+    SDL_Texture *gameResourceSilverIconTexture = nullptr;
+    SDL_Texture *gameResourceCopperIconTexture = nullptr;
+    SDL_Texture *gameResourceTinIconTexture = nullptr;
+    SDL_Texture *gameResourceLumberIconTexture = nullptr;
 
     // Texture Goods Manager <- ->
     SDL_Texture *gameGoodsManagerMinusTexture = nullptr;
@@ -3215,6 +3220,36 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture gameResourceFishIconTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameResourceFishIconTexture, SDL_SCALEMODE_NEAREST);
+        gameResourceIronIconTexture = IMG_LoadTexture(renderer, "assets/Resources/IronIcon.png");
+        if (gameResourceIronIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameResourceIronIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameResourceIronIconTexture, SDL_SCALEMODE_NEAREST);
+        gameResourceGoldIconTexture = IMG_LoadTexture(renderer, "assets/Resources/GoldIcon.png");
+        if (gameResourceGoldIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameResourceGoldIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameResourceGoldIconTexture, SDL_SCALEMODE_NEAREST);
+        gameResourceSilverIconTexture = IMG_LoadTexture(renderer, "assets/Resources/SilverIcon.png");
+        if (gameResourceSilverIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameResourceSilverIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameResourceSilverIconTexture, SDL_SCALEMODE_NEAREST);
+        gameResourceCopperIconTexture = IMG_LoadTexture(renderer, "assets/Resources/CopperIcon.png");
+        if (gameResourceCopperIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameResourceCopperIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameResourceCopperIconTexture, SDL_SCALEMODE_NEAREST);
+        gameResourceTinIconTexture = IMG_LoadTexture(renderer, "assets/Resources/TinIcon.png");
+        if (gameResourceTinIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameResourceTinInconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameResourceTinIconTexture, SDL_SCALEMODE_NEAREST);
+        gameResourceLumberIconTexture = IMG_LoadTexture(renderer, "assets/Resources/LumberIcon.png");
+        if (gameResourceLumberIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameResourceLumberIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameResourceLumberIconTexture, SDL_SCALEMODE_NEAREST);
 
 
         // -> CREDITS <-
@@ -3456,6 +3491,12 @@ private://constructor
         SDL_DestroyTexture(gameGoodsManagerPlusTexture);
         SDL_DestroyTexture(gameMilitaryPortIconTexture);
         SDL_DestroyTexture(gameResourceFishIconTexture);
+        SDL_DestroyTexture(gameResourceIronIconTexture);
+        SDL_DestroyTexture(gameResourceGoldIconTexture);
+        SDL_DestroyTexture(gameResourceSilverIconTexture);
+        SDL_DestroyTexture(gameResourceCopperIconTexture);
+        SDL_DestroyTexture(gameResourceTinIconTexture);
+        SDL_DestroyTexture(gameResourceLumberIconTexture);
         SDL_DestroyTexture(gameGoodsTradeValueTexture);
         SDL_DestroyTexture(goodsProductionManagerButtonTexture);
         SDL_DestroyTexture(gameDestroyBuildingButtonIconUi);
