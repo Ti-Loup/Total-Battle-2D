@@ -3275,6 +3275,41 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture gameResourceLumberIconTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameResourceLumberIconTexture, SDL_SCALEMODE_NEAREST);
+        //Transformed goods
+        gameResourceFishOilIconTexture = IMG_LoadTexture(renderer, "assets/Resources/FishOilIcon.png");
+        if (gameResourceFishOilIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameResourceFishOilIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameResourceFishOilIconTexture, SDL_SCALEMODE_NEAREST);
+        gameResourceHardWoodIconTexture = IMG_LoadTexture(renderer, "assets/Resources/HardWoodIcon.png");
+        if (gameResourceHardWoodIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameResourceHardWoodIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameResourceHardWoodIconTexture, SDL_SCALEMODE_NEAREST);
+        gameResourceToolsIconTexture = IMG_LoadTexture(renderer, "assets/Resources/ToolsIcon.png");
+        if (gameResourceToolsIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameResourceToolsIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameResourceToolsIconTexture, SDL_SCALEMODE_NEAREST);
+        gameResourceCopperJewleryIconTexture = IMG_LoadTexture(renderer, "assets/Resources/CopperJewleryIcon.png");
+        if (gameResourceCopperJewleryIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameResourceCopperJewleryIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameResourceCopperJewleryIconTexture, SDL_SCALEMODE_NEAREST);
+        gameResourceTinTranformedIconTexture = IMG_LoadTexture(renderer, "assets/Resources/TinTransformedIcon.png");
+        if (gameResourceTinTranformedIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameResourceTinTransformedIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameResourceTinTranformedIconTexture, SDL_SCALEMODE_NEAREST);
+        gameResourceSilverCoinsIconTexture = IMG_LoadTexture(renderer, "assets/Resources/SilverCoinsIcon.png");
+        if (gameResourceSilverCoinsIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameResourceSilverCoinsIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameResourceSilverCoinsIconTexture, SDL_SCALEMODE_NEAREST);
+        gameResourceGoldJewleryIconTexture = IMG_LoadTexture(renderer, "assets/Resources/GoldJewleryIcon.png");
+        if (gameResourceGoldJewleryIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameResourceGoldJewleryIconTexture", SDL_GetError());
+        }
 
 
         // -> CREDITS <-
