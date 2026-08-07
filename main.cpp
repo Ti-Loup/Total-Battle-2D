@@ -4562,7 +4562,7 @@ private://constructor
                                         : buildingType;
                                 }
                                 //If its a port slot and in position 2 (0-1) then this building cant be destroyed
-                                bool isPortSlot = (b == 1 && s->bIsPort); // ports are permanent, can't be destroyed
+                                bool isPermanentSlot = (b == 1 && (s->bIsPort || s->bIsIronMine || s->bIsGoldMine || s->bIsCopperMine || s->bIsSilverMine || s->bIsTinMine || s->bIsLumberMine));
                                 {
                                     int gsi = (int)(s - &settlements[0]);
                                     bool awaitingPayment = IsBuildingSlotAwaitingPayment(gsi, b);
@@ -5172,12 +5172,15 @@ private://constructor
         if (hoveredBuildingSlotUpgradable && builtHere != BuildingType::None &&
             buildMenuSlotIndex > 0 && prov.owner == player.faction)
         {
-            bool isPortSlot = (buildMenuSlotIndex == 1 && cardSett->bIsPort);
+            bool isPermanentSlot = (buildMenuSlotIndex == 1 && (cardSett->bIsPort ||
+        cardSett->bIsIronMine   || cardSett->bIsGoldMine  || cardSett->bIsCopperMine ||
+        cardSett->bIsSilverMine || cardSett->bIsTinMine   || cardSett->bIsLumberMine));
+
             bool upgradePendingHere = cardSett->settlementData.pendingBuildings[buildMenuSlotIndex] != BuildingType::None;
             int globalSettlementIndex = (int)(cardSett - &settlements[0]);
             repairKeyValue = globalSettlementIndex * 100 + buildMenuSlotIndex;
             bCanShowRepair = IsBuildingSlotAwaitingPayment(globalSettlementIndex, buildMenuSlotIndex);
-            if (!isPortSlot && !upgradePendingHere) {
+            if (!isPermanentSlot && !upgradePendingHere) {
                 bCanShowDestroy = true;
                 destroyKeyValue = repairKeyValue;
                 bIsMarkedForDestruction = buildingsMarkedDestroyed.count(destroyKeyValue) > 0;
