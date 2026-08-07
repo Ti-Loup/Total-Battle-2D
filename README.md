@@ -6,7 +6,7 @@
 
 <p align="center">
   A grand strategy and real-time battles game built from scratch in <strong>C++</strong> and <strong>SDL3</strong>.<br>
-  Manage provinces, construct buildings, balance your economy and food production, and lead your faction to dominance.
+  Manage provinces, construct buildings, balance your economy and food production, and fight large scale battles.
 </p>
 
 <p align="center">
@@ -133,15 +133,16 @@ assets/               # Textures, fonts, audio, tilemaps, Resources<br>
 | **v0.1.0** | Campaign map, buildings, economy, | Released | May | 2026 |
 | **v0.1.5** | Food storage polish, texture fixes | Released | June | 2026 |
 | **v0.2.0** | Population system(farmers, nobility, church) | Released | July | 2026 |
-| **v0.2.5** | World Events + Climate (affect food production) + MiniMap | In progress | August | 2026 |
-| **v0.3.0** | Special ressources(Mines) + Fishing/Military Ports + Industrial building item production | Planned | September | 2026 |
+| **v0.2.5** | World Events + Climate (affect food production) + MiniMap | Released | August | 2026 |
+| **v0.3.0** | Special ressources(Mines) + Fishing/Military Ports + Industrial building item production | In progress | September | 2026 |
+| **v0.3.2** | AI Focus: Patch 1 | Planned | September | 2026 |
 | **v0.3.5** | diplomacy & exchange | Planned | October | 2026 |
 | **Future** | Roads, playable technology tree, faction Unique mechanic, cinematic intro | Vision | 2026 | 2027 |
 
 ---
 
 <p align="center">
-  Built with C++ by <a href="https://github.com/Ti-Loup">Louis-Philippe Gauvin</a>
+  Built by <a href="https://github.com/Ti-Loup">Louis-Philippe Gauvin</a>
 </p>
 
 
