@@ -3867,22 +3867,22 @@ private://constructor
                 //settlements raw buildings
                 bool bIsFishingVillage = (s.settlementData.type == SettlementType::Village && s.bIsPort);
                 bool bIsMilitaryPort = (s.settlementData.type == SettlementType::Capital || s.settlementData.type == SettlementType::Castle) && s.bIsPort;
-                bool bIsIronMineVillage = (s.settlementData.type == SettlementType::Village && s.bIsIronMine);
-                bool bIsGoldMineVillage = (s.settlementData.type == SettlementType::Village && s.bIsGoldMine);
-                bool bIsCopperMineVillage = (s.settlementData.type == SettlementType::Village && s.bIsCopperMine);
-                bool bIsSilverMineVillage = (s.settlementData.type == SettlementType::Village && s.bIsSilverMine);
-                bool bIsTinMineVillage = (s.settlementData.type == SettlementType::Village && s.bIsTinMine);
                 bool bIsLumberCampVillage = (s.settlementData.type == SettlementType::Village && s.bIsLumberMine);
+                bool bIsIronMineVillage = (s.settlementData.type == SettlementType::Village && s.bIsIronMine);
+                bool bIsCopperMineVillage = (s.settlementData.type == SettlementType::Village && s.bIsCopperMine);
+                bool bIsTinMineVillage = (s.settlementData.type == SettlementType::Village && s.bIsTinMine);
+                bool bIsSilverMineVillage = (s.settlementData.type == SettlementType::Village && s.bIsSilverMine);
+                bool bIsGoldMineVillage = (s.settlementData.type == SettlementType::Village && s.bIsGoldMine);
 
                 std::vector<NameBarIcon> nameBarIcons;
                 if (bIsFishingVillage) nameBarIcons.push_back({ gameResourceFishIconTexture, 35.f, 0.f });
                 if (bIsMilitaryPort)   nameBarIcons.push_back({ gameMilitaryPortIconTexture, 28.f, 4.f });
-                if (bIsIronMineVillage) nameBarIcons.push_back({gameResourceIronIconTexture, 35.f, 0.f});
-                if (bIsGoldMineVillage) nameBarIcons.push_back({gameResourceGoldIconTexture, 35.f, 0.f});
-                if (bIsCopperMineVillage) nameBarIcons.push_back({gameResourceCopperIconTexture, 35.f, 0.f});
-                if (bIsSilverMineVillage) nameBarIcons.push_back({gameResourceSilverIconTexture, 35.f, 0.f});
-                if (bIsTinMineVillage) nameBarIcons.push_back({gameResourceTinIconTexture, 35.f, 0.f});
                 if (bIsLumberCampVillage) nameBarIcons.push_back({gameResourceLumberIconTexture, 35.f, 0.f});
+                if (bIsIronMineVillage) nameBarIcons.push_back({gameResourceIronIconTexture, 35.f, 0.f});
+                if (bIsCopperMineVillage) nameBarIcons.push_back({gameResourceCopperIconTexture, 35.f, 0.f});
+                if (bIsTinMineVillage) nameBarIcons.push_back({gameResourceTinIconTexture, 35.f, 0.f});
+                if (bIsSilverMineVillage) nameBarIcons.push_back({gameResourceSilverIconTexture, 35.f, 0.f});
+                if (bIsGoldMineVillage) nameBarIcons.push_back({gameResourceGoldIconTexture, 35.f, 0.f});
 
                 float extraWidth = 0.f;
                 for (const auto& icon : nameBarIcons) extraWidth += icon.gap + icon.size;
@@ -7390,12 +7390,12 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
     SDL_Texture* GetResourceTypeIcon(ResourceType type) {
         switch (type) {
             case ResourceType::Fish: return gameResourceFishIconTexture;
-            case ResourceType::Iron: return gameResourceIronIconTexture;
-            case ResourceType::Gold: return gameResourceGoldIconTexture;
-            case ResourceType::Copper: return gameResourceCopperIconTexture;
-            case ResourceType::Silver: return gameResourceSilverIconTexture;
-            case ResourceType::Tin: return gameResourceTinIconTexture;
             case ResourceType::Lumber: return gameResourceLumberIconTexture;
+            case ResourceType::Iron: return gameResourceIronIconTexture;
+            case ResourceType::Copper: return gameResourceCopperIconTexture;
+            case ResourceType::Tin: return gameResourceTinIconTexture;
+            case ResourceType::Silver: return gameResourceSilverIconTexture;
+            case ResourceType::Gold: return gameResourceGoldIconTexture;
             case ResourceType::FishOil: return gameResourceFishOilIconTexture;
             case ResourceType::HardWood: return gameResourceHardWoodIconTexture;
             case ResourceType::Tools: return gameResourceToolsIconTexture;
@@ -8090,23 +8090,23 @@ void RenderBuildingStatRows(const BuildingData* data, BuildingType type, float t
             case ResourceType::Fish:resLabel = "Fish Produced:";
             resIcon = gameResourceFishIconTexture;
                 break;
+            case ResourceType::Lumber:resLabel = "Lumber Produced:";
+                resIcon = gameResourceLumberIconTexture;
+                break;
             case ResourceType::Iron:resLabel = "Iron Produced:";
                 resIcon = gameResourceIronIconTexture;
-                break;
-            case ResourceType::Gold:resLabel = "Gold Produced:";
-                resIcon = gameResourceGoldIconTexture;
                 break;
             case ResourceType::Copper:resLabel = "Copper Produced:";
                 resIcon = gameResourceCopperIconTexture;
                 break;
-            case ResourceType::Silver:resLabel = "Silver Produced:";
-                resIcon = gameResourceSilverIconTexture;
-                break;
             case ResourceType::Tin:resLabel = "Tin Produced:";
                 resIcon = gameResourceTinIconTexture;
                 break;
-            case ResourceType::Lumber:resLabel = "Lumber Produced:";
-            resIcon = gameResourceLumberIconTexture;
+            case ResourceType::Silver:resLabel = "Silver Produced:";
+                resIcon = gameResourceSilverIconTexture;
+                break;
+            case ResourceType::Gold:resLabel = "Gold Produced:";
+                resIcon = gameResourceGoldIconTexture;
                 break;
             default:
                 break;
