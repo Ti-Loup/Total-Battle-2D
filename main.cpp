@@ -330,7 +330,7 @@ public:
     SDL_Texture *goodsProductionManagerButtonTexture = nullptr;
     bool bGoodsProductionManagerPopup = false;
     //Circle for goods Production manager Close
-    Circle GoodsProductionManagerReturnGame = {1000.f, 900.f, 25};
+    Circle GoodsProductionManagerReturnGame = {1010.f, 950.f, 20};
     //End Turn
     int currentTurn = 1;
     FactionZone currentFactionTurn = FactionZone::Knight;//start with player
@@ -7361,22 +7361,21 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
             case ResourceType::Silver: return gameResourceSilverIconTexture;
             case ResourceType::Tin: return gameResourceTinIconTexture;
             case ResourceType::Lumber: return gameResourceLumberIconTexture;
+            case ResourceType::FishOil: return gameResourceFishOilIconTexture;
+            case ResourceType::HardWood: return gameResourceHardWoodIconTexture;
+            case ResourceType::Tools: return gameResourceToolsIconTexture;
+            case ResourceType::CopperJewlery: return gameResourceCopperJewleryIconTexture;
+            case ResourceType::TinTransfored: return gameResourceTinTranformedIconTexture;
+            case ResourceType::SilverCoins: return gameResourceSilverCoinsIconTexture;
+            case ResourceType::GoldJewlery: return gameResourceGoldJewleryIconTexture;
             default:
                 return nullptr;
         }
     }
-    //Display name for a resource type
+    // names inside ResourceData
     const char* GetResourceTypeName(ResourceType type) {
-        switch (type) {
-            case ResourceType::Fish: return "Fish";
-            case ResourceType::Iron: return "Iron";
-            case ResourceType::Gold: return "Gold";
-            case ResourceType::Copper: return "Copper";
-            case ResourceType::Silver : return "Silver";
-            case ResourceType::Tin: return "Tin";
-            case ResourceType::Lumber: return "Lumber";
-            default: return "Goods";
-        }
+        const ResourceData* data = GetResourceData(type);
+        return data ? data->name.c_str() : "Goods";//Goods if no the right type
     }
     //Tooptip for the goods storage
    void RenderGoodsStorageTooltip() {
@@ -7501,163 +7500,168 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
 
     //
      void RenderGoodsManagerInfo() {
-        if (!bGoodsProductionManagerPopup) return;
+    if (!bGoodsProductionManagerPopup) return;
 
-        //Background
-        SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
-        SDL_FRect goodsManagerBackground = {500.f, 150.f, 1000.f, 800.f};
-        SDL_RenderFillRect(renderer, &goodsManagerBackground);
-        SDL_SetRenderDrawColor(renderer, 110, 90, 40, 255);
-        SDL_RenderRect(renderer, &goodsManagerBackground);
+    //Background
+    SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
+    SDL_FRect goodsManagerBackground = {500.f, 150.f, 1000.f, 800.f};
+    SDL_RenderFillRect(renderer, &goodsManagerBackground);
+    SDL_SetRenderDrawColor(renderer, 110, 90, 40, 255);
+    SDL_RenderRect(renderer, &goodsManagerBackground);
 
-        //Title bar
-        SDL_SetRenderDrawColor(renderer, 130, 100, 0, 255);
-        SDL_FRect goodsManagerTitleBar = {500.f, 150.f, 1000.f, 50.f};
-        SDL_RenderFillRect(renderer, &goodsManagerTitleBar);
+    //Title bar
+    SDL_SetRenderDrawColor(renderer, 130, 100, 0, 255);
+    SDL_FRect goodsManagerTitleBar = {500.f, 150.f, 1000.f, 50.f};
+    SDL_RenderFillRect(renderer, &goodsManagerTitleBar);
 
-        TTF_SetTextString(gameGoodsStorageManagerTitleText, "Goods Production Manager", 0);
-        TTF_SetTextColor(gameGoodsStorageManagerTitleText, 255, 255, 255, 255);
-        int gmTitleW, gmTitleH;
-        TTF_GetTextSize(gameGoodsStorageManagerTitleText, &gmTitleW, &gmTitleH);
-        TTF_DrawRendererText(gameGoodsStorageManagerTitleText,
-            goodsManagerTitleBar.x + (goodsManagerTitleBar.w - gmTitleW) / 2.f,
-            goodsManagerTitleBar.y + (goodsManagerTitleBar.h - gmTitleH) / 2.f);
+    TTF_SetTextString(gameGoodsStorageManagerTitleText, "Goods Production Manager", 0);
+    TTF_SetTextColor(gameGoodsStorageManagerTitleText, 255, 255, 255, 255);
+    int gmTitleW, gmTitleH;
+    TTF_GetTextSize(gameGoodsStorageManagerTitleText, &gmTitleW, &gmTitleH);
+    TTF_DrawRendererText(gameGoodsStorageManagerTitleText,
+        goodsManagerTitleBar.x + (goodsManagerTitleBar.w - gmTitleW) / 2.f,
+        goodsManagerTitleBar.y + (goodsManagerTitleBar.h - gmTitleH) / 2.f);
 
-        //Rebuild click rects this frame
-        goodsManagerMinusRects.clear();
-        goodsManagerPlusRects.clear();
-        goodsManagerToggleRects.clear();
+    //Rebuild click rects this frame
+    goodsManagerMinusRects.clear();
+    goodsManagerPlusRects.clear();
+    goodsManagerToggleRects.clear();
 
-        //Gather every resource type
-        std::vector<ResourceType> knownGoodTypes;
-        auto addKnown = [&](ResourceType t) {
-            if (std::find(knownGoodTypes.begin(), knownGoodTypes.end(), t) == knownGoodTypes.end()) knownGoodTypes.push_back(t);
-        };
-        for (auto& [type, amount]  : goodsStoredByType) addKnown(type);
-        for (auto& [type, amount]  : goodsProducedThisTurnByType) addKnown(type);
-        for (auto& [type, amount]  : goodsMaxProductionByType) addKnown(type);
-        for (auto& [type, enabled] : goodsProductionEnabledByType) addKnown(type);
-
-        std::vector<ResourceType> rawGoodTypes;
-        std::vector<ResourceType> transformedTypes;
-        for (ResourceType t : knownGoodTypes) {
-            const ResourceData* resourceData = GetResourceData(t);
-            bool isTransformed = resourceData && resourceData->goodsCategory == ResourceCategory::Transformed;
-            (isTransformed ? transformedTypes : rawGoodTypes).push_back(t);
-        }
-        std::sort(rawGoodTypes.begin(), rawGoodTypes.end());
-        std::sort(transformedTypes.begin(), transformedTypes.end());
-
-        float columnX = 520.f;
-        float iconSize = 26.f;
-        float rowH = 46.f;
-        float currentY = 220.f;
-
-        //sous Title
-        auto drawSectionHeader = [&](const char* label) {
-            TTF_SetTextString(gameGoodsStorageManagerTitleText, label, 0);
-            TTF_SetTextColor(gameGoodsStorageManagerTitleText, 220, 200, 140, 255);
-            TTF_DrawRendererText(gameGoodsStorageManagerTitleText, columnX, currentY);
-            currentY += 34.f;
-        };
-        //for each row
-        auto drawGoodsRow = [&](ResourceType type) {
-            int  storedAmount = goodsStoredByType.count(type) ? goodsStoredByType[type] : 0;
-            int  maxProduction = goodsMaxProductionByType.count(type) ? goodsMaxProductionByType[type] : -1;
-            bool enabled = goodsProductionEnabledByType.count(type) ? goodsProductionEnabledByType[type] : true;
-
-            //Icon
-            SDL_Texture* icon = GetResourceTypeIcon(type);
-            SDL_FRect iconRect = {columnX, currentY, iconSize, iconSize};
-            if (icon) SDL_RenderTexture(renderer, icon, nullptr, &iconRect);
-
-            //Name + current stored amount
-            std::string nameLabel = std::string(GetResourceTypeName(type)) + " (" + std::to_string(storedAmount) + ")";
-            TTF_SetTextString(gameGoodsStorageManagerDescText, nameLabel.c_str(), 0);
-            TTF_SetTextColor(gameGoodsStorageManagerDescText, 220, 220, 220, 255);
-            TTF_DrawRendererText(gameGoodsStorageManagerDescText, columnX + iconSize + 10.f, currentY + 4.f);
-
-            //Value per unit (gold worth of this resource) && fixed column
-            const ResourceData* resourceData = GetResourceData(type);
-            int resourceValue = resourceData ? resourceData->ResourceValue : 0;
-            float valueIconSize = 42.f;
-            float valueX = 750.f;
-            SDL_FRect valueIconRect = {valueX, currentY - 8.f, valueIconSize, valueIconSize};
-            SDL_RenderTexture(renderer, gameGoodsTradeValueTexture, nullptr, &valueIconRect);
-
-            std::string valueStr = std::to_string(resourceValue);
-            TTF_SetTextString(gameGoodsStorageManagerDescText, valueStr.c_str(), 0);
-            TTF_SetTextColor(gameGoodsStorageManagerDescText, 220, 180, 40, 255);
-            TTF_DrawRendererText(gameGoodsStorageManagerDescText, valueX + valueIconSize - 8.f, currentY + 4.f);
-            //Value Total of all the current good number
-            int totalGoldValue = resourceValue * storedAmount;
-            std::string totalValueStr = "(" + std::to_string(totalGoldValue) + ")";
-            TTF_SetTextString(gameGoodsStorageManagerDescText, totalValueStr.c_str(), 0);
-            TTF_SetTextColor(gameGoodsStorageManagerDescText, 220, 180, 40, 255);
-            TTF_DrawRendererText(gameGoodsStorageManagerDescText, valueX + valueIconSize + 12.f, currentY + 4.f);
-
-
-            //Minus button
-            float minusX = 925.f;
-            SDL_FRect minusRect = {minusX, currentY, 28.f, 28.f};
-            SDL_RenderTexture(renderer, gameGoodsManagerMinusTexture, nullptr, &minusRect);
-            goodsManagerMinusRects.push_back({minusRect, type});
-
-            //Max production amount
-            std::string maxStr = (maxProduction < 0) ? "No Limit" : std::to_string(maxProduction);
-            TTF_SetTextString(gameGoodsStorageManagerDescText, maxStr.c_str(), 0);
-            TTF_SetTextColor(gameGoodsStorageManagerDescText, 230, 230, 150, 255);
-            int maxW, maxH;
-            TTF_GetTextSize(gameGoodsStorageManagerDescText, &maxW, &maxH);
-            float maxNumX = minusX + 28.f + 10.f;
-            float maxNumW = 90.f;
-            TTF_DrawRendererText(gameGoodsStorageManagerDescText,
-                maxNumX + (maxNumW - maxW) / 2.f, currentY + 4.f);
-
-            //Plus button
-            float plusX = maxNumX + maxNumW + 10.f;
-            SDL_FRect plusRect = {plusX, currentY, 28.f, 28.f};
-            SDL_RenderTexture(renderer, gameGoodsManagerPlusTexture, nullptr, &plusRect);
-            goodsManagerPlusRects.push_back({plusRect, type});
-
-            //Toggle: produce this good or not
-            float toggleX = plusX + 28.f + 30.f + 250.f;
-            SDL_FRect toggleRect = {toggleX, currentY, 28.f, 28.f};
-            SDL_RenderTexture(renderer, enabled ? gameToggleTaxSettlementTrue : gameToggleTaxSettlementFalse, nullptr, &toggleRect);
-            goodsManagerToggleRects.push_back({toggleRect, type});
-
-            TTF_SetTextString(gameGoodsStorageManagerDescText, "Produce", 0);
-            TTF_SetTextColor(gameGoodsStorageManagerDescText, 180, 180, 180, 255);
-            TTF_DrawRendererText(gameGoodsStorageManagerDescText, toggleX + 34.f, currentY + 4.f);
-            //Grey overlay covering the whole line when production is toggled off
-            if (!enabled) {
-                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-                SDL_SetRenderDrawColor(renderer, 50, 50, 50, 160);
-                SDL_FRect disabledRowOverlay = {columnX - 10.f, currentY - 4.f, 1480.f - (columnX - 10.f), rowH - 6.f};
-                SDL_RenderFillRect(renderer, &disabledRowOverlay);
-            }
-            currentY += rowH;
-        };
-
-        if (!rawGoodTypes.empty()) {
-            drawSectionHeader("Raw Goods");
-            for (ResourceType t : rawGoodTypes) drawGoodsRow(t);
-            currentY += 10.f;
-        }
-        if (!transformedTypes.empty()) {
-            drawSectionHeader("Modified Goods");
-            for (ResourceType t : transformedTypes) drawGoodsRow(t);
-        }
-        if (rawGoodTypes.empty() && transformedTypes.empty()) {
-            TTF_SetTextString(gameGoodsStorageManagerDescText, "No goods produced yet.", 0);
-            TTF_SetTextColor(gameGoodsStorageManagerDescText, 180, 180, 180, 255);
-            TTF_DrawRendererText(gameGoodsStorageManagerDescText, columnX, currentY);
-        }
-
-        //Button To return
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        RenderBoutonCercle(GoodsProductionManagerReturnGame, nullptr, nullptr, 255, 255, 255);
+    //ALL resource types that exist not just the ones own
+    std::vector<ResourceType> rawGoodTypes;
+    std::vector<ResourceType> transformedTypes;
+    for (auto& [type, data] : GetResourceDatabase()) {
+        (data.goodsCategory == ResourceCategory::Transformed ? transformedTypes : rawGoodTypes).push_back(type);
     }
+    std::sort(rawGoodTypes.begin(), rawGoodTypes.end());
+    std::sort(transformedTypes.begin(), transformedTypes.end());
+
+    float columnX = 520.f;
+    float iconSize = 26.f;
+    float rowH = 46.f;
+    float currentY = 220.f;
+
+    auto drawSectionHeader = [&](const char* label) {
+        TTF_SetTextString(gameGoodsStorageManagerTitleText, label, 0);
+        TTF_SetTextColor(gameGoodsStorageManagerTitleText, 220, 200, 140, 255);
+        TTF_DrawRendererText(gameGoodsStorageManagerTitleText, columnX, currentY);
+        currentY += 34.f;
+    };
+
+    auto drawGoodsRow = [&](ResourceType type) {
+        int  storedAmount  = goodsStoredByType.count(type) ? goodsStoredByType[type] : 0;
+        int  maxProduction = goodsMaxProductionByType.count(type) ? goodsMaxProductionByType[type] : -1;
+        bool owned = goodsProducedThisTurnByType.count(type) > 0 || storedAmount > 0;
+
+        const ResourceData* resourceDataForDefault = GetResourceData(type);
+        bool isRawGood = resourceDataForDefault && resourceDataForDefault->goodsCategory == ResourceCategory::Raw;
+        bool defaultEnabled = !(isRawGood && !owned);
+        bool enabled = goodsProductionEnabledByType.count(type) ? goodsProductionEnabledByType[type] : defaultEnabled;
+
+        Uint8 rowAlpha  = owned ? 255 : 100; //dims icons/buttons for goods you don't have
+        Uint8 textShade = owned ? 220 : 110;
+
+        //Icon
+        SDL_Texture* icon = GetResourceTypeIcon(type);
+        SDL_FRect iconRect = {columnX, currentY, iconSize, iconSize};
+        if (icon) {
+            SDL_SetTextureAlphaMod(icon, rowAlpha);
+            SDL_RenderTexture(renderer, icon, nullptr, &iconRect);
+            SDL_SetTextureAlphaMod(icon, 255);
+        }
+
+        //Name + current stored amount
+        std::string nameLabel = std::string(GetResourceTypeName(type)) + " (" + std::to_string(storedAmount) + ")";
+        TTF_SetTextString(gameGoodsStorageManagerDescText, nameLabel.c_str(), 0);
+        TTF_SetTextColor(gameGoodsStorageManagerDescText, textShade, textShade, textShade, 255);
+        TTF_DrawRendererText(gameGoodsStorageManagerDescText, columnX + iconSize + 10.f, currentY + 4.f);
+
+        //Value per unit (gold worth of this resource) && fixed column
+        const ResourceData* resourceData = GetResourceData(type);
+        int resourceValue = resourceData ? resourceData->ResourceValue : 0;
+        float valueIconSize = 42.f;
+        float valueX = 750.f;
+        SDL_FRect valueIconRect = {valueX, currentY - 8.f, valueIconSize, valueIconSize};
+        SDL_SetTextureAlphaMod(gameGoodsTradeValueTexture, rowAlpha);
+        SDL_RenderTexture(renderer, gameGoodsTradeValueTexture, nullptr, &valueIconRect);
+        SDL_SetTextureAlphaMod(gameGoodsTradeValueTexture, 255);
+
+        std::string valueStr = std::to_string(resourceValue);
+        TTF_SetTextString(gameGoodsStorageManagerDescText, valueStr.c_str(), 0);
+        TTF_SetTextColor(gameGoodsStorageManagerDescText, owned ? 220 : 120, owned ? 180 : 120, owned ? 40 : 80, 255);
+        float valueTextX = valueX + valueIconSize - 8.f;
+        TTF_DrawRendererText(gameGoodsStorageManagerDescText, valueTextX, currentY + 4.f);
+        //measure the actual width of the value number so () never overlaps it
+        int valueTextW = 0, valueTextH = 0;
+        TTF_GetTextSize(gameGoodsStorageManagerDescText, &valueTextW, &valueTextH);
+
+        int totalGoldValue = resourceValue * storedAmount;
+        std::string totalValueStr = "(" + std::to_string(totalGoldValue) + ")";
+        TTF_SetTextString(gameGoodsStorageManagerDescText, totalValueStr.c_str(), 0);
+        TTF_SetTextColor(gameGoodsStorageManagerDescText, owned ? 220 : 120, owned ? 180 : 120, owned ? 40 : 80, 255);
+        TTF_DrawRendererText(gameGoodsStorageManagerDescText, valueTextX + valueTextW + 1.0f, currentY + 4.f);
+
+        //Minus button (only clickable if owned)
+        float minusX = 925.f;
+        SDL_FRect minusRect = {minusX, currentY, 28.f, 28.f};
+        SDL_SetTextureAlphaMod(gameGoodsManagerMinusTexture, rowAlpha);
+        SDL_RenderTexture(renderer, gameGoodsManagerMinusTexture, nullptr, &minusRect);
+        SDL_SetTextureAlphaMod(gameGoodsManagerMinusTexture, 255);
+        if (owned) goodsManagerMinusRects.push_back({minusRect, type});
+
+        //Max production amount
+        std::string maxStr = (maxProduction < 0) ? "No Limit" : std::to_string(maxProduction);
+        TTF_SetTextString(gameGoodsStorageManagerDescText, maxStr.c_str(), 0);
+        TTF_SetTextColor(gameGoodsStorageManagerDescText, owned ? 230 : 120, owned ? 230 : 120, owned ? 150 : 120, 255);
+        int maxW, maxH;
+        TTF_GetTextSize(gameGoodsStorageManagerDescText, &maxW, &maxH);
+        float maxNumX = minusX + 28.f + 10.f;
+        float maxNumW = 90.f;
+        TTF_DrawRendererText(gameGoodsStorageManagerDescText,
+            maxNumX + (maxNumW - maxW) / 2.f, currentY + 4.f);
+
+        //Plus button only clickable if owned
+        float plusX = maxNumX + maxNumW + 10.f;
+        SDL_FRect plusRect = {plusX, currentY, 28.f, 28.f};
+        SDL_SetTextureAlphaMod(gameGoodsManagerPlusTexture, rowAlpha);
+        SDL_RenderTexture(renderer, gameGoodsManagerPlusTexture, nullptr, &plusRect);
+        SDL_SetTextureAlphaMod(gameGoodsManagerPlusTexture, 255);
+        if (owned) goodsManagerPlusRects.push_back({plusRect, type});
+
+        //Toggle only clickable if owned
+        float toggleX = plusX + 28.f + 30.f + 250.f;
+        SDL_FRect toggleRect = {toggleX, currentY, 28.f, 28.f};
+        SDL_Texture* toggleTex = enabled ? gameToggleTaxSettlementTrue : gameToggleTaxSettlementFalse;
+        SDL_SetTextureAlphaMod(toggleTex, rowAlpha);
+        SDL_RenderTexture(renderer, toggleTex, nullptr, &toggleRect);
+        SDL_SetTextureAlphaMod(toggleTex, 255);
+        if (owned) goodsManagerToggleRects.push_back({toggleRect, type});
+
+        TTF_SetTextString(gameGoodsStorageManagerDescText, "Produce", 0);
+        TTF_SetTextColor(gameGoodsStorageManagerDescText, textShade > 150 ? 180 : 110, textShade > 150 ? 180 : 110, textShade > 150 ? 180 : 110, 255);
+        TTF_DrawRendererText(gameGoodsStorageManagerDescText, toggleX + 34.f, currentY + 4.f);
+
+        //Grey overlay covering the whole line when production is toggled off
+        if (owned && !enabled) {
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(renderer, 50, 50, 50, 160);
+            SDL_FRect disabledRowOverlay = {columnX - 10.f, currentY - 4.f, 1480.f - (columnX - 10.f), rowH - 6.f};
+            SDL_RenderFillRect(renderer, &disabledRowOverlay);
+        }
+        currentY += rowH;
+    };
+
+    drawSectionHeader("Raw Goods");
+    for (ResourceType t : rawGoodTypes) drawGoodsRow(t);
+    currentY += 10.f;
+
+    drawSectionHeader("Modified Goods");
+    for (ResourceType t : transformedTypes) drawGoodsRow(t);
+
+    //Button To return
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    RenderBoutonCercle(GoodsProductionManagerReturnGame, nullptr, nullptr, 255, 255, 255);
+}
 
 
     /**
