@@ -8011,9 +8011,10 @@ void RenderBuildingStatRows(const BuildingData* data, BuildingType type, float t
     //Fish Resource
     for (const auto& res : data->resourcesProduced) {
         const char* resLabel = "Resource Produced:";
-        SDL_Texture* resIcon = gameResourceFishIconTexture;
+        SDL_Texture* resIcon = gameResourceFishIconTexture;//Base texture + name based
         switch (res.type) {
             case ResourceType::Fish:resLabel = "Fish Produced:";
+            resIcon = gameResourceFishIconTexture;
                 break;
             default:
                 break;
