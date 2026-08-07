@@ -514,6 +514,7 @@ public:
 
     SDL_Texture *gameMilitaryPortIconTexture = nullptr;
     // ~ TEXTURES RESOURCES ~
+    //raw
     SDL_Texture *gameResourceFishIconTexture = nullptr;
     SDL_Texture *gameResourceIronIconTexture = nullptr;
     SDL_Texture *gameResourceGoldIconTexture = nullptr;
@@ -521,6 +522,14 @@ public:
     SDL_Texture *gameResourceCopperIconTexture = nullptr;
     SDL_Texture *gameResourceTinIconTexture = nullptr;
     SDL_Texture *gameResourceLumberIconTexture = nullptr;
+    //Transformed
+    SDL_Texture *gameResourceFishOilIconTexture = nullptr;
+    SDL_Texture *gameResourceHardWoodIconTexture = nullptr;
+    SDL_Texture *gameResourceToolsIconTexture = nullptr;
+    SDL_Texture *gameResourceCopperJewleryIconTexture = nullptr;
+    SDL_Texture *gameResourceTinTranformedIconTexture = nullptr;
+    SDL_Texture *gameResourceSilverCoinsIconTexture = nullptr;
+    SDL_Texture *gameResourceGoldJewleryIconTexture = nullptr;
 
     // Texture Goods Manager <- ->
     SDL_Texture *gameGoodsManagerMinusTexture = nullptr;
@@ -3513,6 +3522,13 @@ private://constructor
         SDL_DestroyTexture(gameResourceCopperIconTexture);
         SDL_DestroyTexture(gameResourceTinIconTexture);
         SDL_DestroyTexture(gameResourceLumberIconTexture);
+        SDL_DestroyTexture(gameResourceFishOilIconTexture);
+        SDL_DestroyTexture(gameResourceHardWoodIconTexture);
+        SDL_DestroyTexture(gameResourceToolsIconTexture);
+        SDL_DestroyTexture(gameResourceCopperJewleryIconTexture);
+        SDL_DestroyTexture(gameResourceTinTranformedIconTexture);
+        SDL_DestroyTexture(gameResourceSilverCoinsIconTexture);
+        SDL_DestroyTexture(gameResourceGoldJewleryIconTexture);
         SDL_DestroyTexture(gameGoodsTradeValueTexture);
         SDL_DestroyTexture(goodsProductionManagerButtonTexture);
         SDL_DestroyTexture(gameDestroyBuildingButtonIconUi);
@@ -4547,7 +4563,7 @@ private://constructor
                                 }
                                 //If its a port slot and in position 2 (0-1) then this building cant be destroyed
                                 bool isPortSlot = (b == 1 && s->bIsPort); // ports are permanent, can't be destroyed
- {
+                                {
                                     int gsi = (int)(s - &settlements[0]);
                                     bool awaitingPayment = IsBuildingSlotAwaitingPayment(gsi, b);
                                     bool beingRepaired = IsBuildingSlotBeingRepaired(gsi, b);
@@ -7336,13 +7352,26 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
     SDL_Texture* GetResourceTypeIcon(ResourceType type) {
         switch (type) {
             case ResourceType::Fish: return gameResourceFishIconTexture;
-            default: return nullptr;
+            case ResourceType::Iron: return gameResourceIronIconTexture;
+            case ResourceType::Gold: return gameResourceGoldIconTexture;
+            case ResourceType::Copper: return gameResourceCopperIconTexture;
+            case ResourceType::Silver: return gameResourceSilverIconTexture;
+            case ResourceType::Tin: return gameResourceTinIconTexture;
+            case ResourceType::Lumber: return gameResourceLumberIconTexture;
+            default:
+                return nullptr;
         }
     }
     //Display name for a resource type
     const char* GetResourceTypeName(ResourceType type) {
         switch (type) {
             case ResourceType::Fish: return "Fish";
+            case ResourceType::Iron: return "Iron";
+            case ResourceType::Gold: return "Gold";
+            case ResourceType::Copper: return "Copper";
+            case ResourceType::Silver : return "Silver";
+            case ResourceType::Tin: return "Tin";
+            case ResourceType::Lumber: return "Lumber";
             default: return "Goods";
         }
     }
@@ -7562,7 +7591,7 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
             std::string totalValueStr = "(" + std::to_string(totalGoldValue) + ")";
             TTF_SetTextString(gameGoodsStorageManagerDescText, totalValueStr.c_str(), 0);
             TTF_SetTextColor(gameGoodsStorageManagerDescText, 220, 180, 40, 255);
-            TTF_DrawRendererText(gameGoodsStorageManagerDescText, valueX + valueIconSize + 2.f, currentY + 4.f);
+            TTF_DrawRendererText(gameGoodsStorageManagerDescText, valueX + valueIconSize + 12.f, currentY + 4.f);
 
 
             //Minus button
@@ -7948,6 +7977,9 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
         if (building_data->clergyTrainedBonus != 0) {
             count++;
         }
+        if (building_data->peasantryDeathBonus != 0) {
+            count++;
+        }
         if (building_data->constructionTurns != 0) {
             count++;
         }
@@ -8011,10 +8043,28 @@ void RenderBuildingStatRows(const BuildingData* data, BuildingType type, float t
     //Fish Resource
     for (const auto& res : data->resourcesProduced) {
         const char* resLabel = "Resource Produced:";
-        SDL_Texture* resIcon = gameResourceFishIconTexture;//Base texture + name based
+        SDL_Texture* resIcon = gameResourceFishIconTexture;//default texture + name based?
         switch (res.type) {
             case ResourceType::Fish:resLabel = "Fish Produced:";
             resIcon = gameResourceFishIconTexture;
+                break;
+            case ResourceType::Iron:resLabel = "Iron Produced:";
+                resIcon = gameResourceIronIconTexture;
+                break;
+            case ResourceType::Gold:resLabel = "Gold Produced:";
+                resIcon = gameResourceGoldIconTexture;
+                break;
+            case ResourceType::Copper:resLabel = "Copper Produced:";
+                resIcon = gameResourceCopperIconTexture;
+                break;
+            case ResourceType::Silver:resLabel = "Silver Produced:";
+                resIcon = gameResourceSilverIconTexture;
+                break;
+            case ResourceType::Tin:resLabel = "Tin Produced:";
+                resIcon = gameResourceTinIconTexture;
+                break;
+            case ResourceType::Lumber:resLabel = "Lumber Produced:";
+            resIcon = gameResourceLumberIconTexture;
                 break;
             default:
                 break;
@@ -8039,7 +8089,8 @@ void RenderBuildingStatRows(const BuildingData* data, BuildingType type, float t
 
     if (data->clergyTrainedBonus != 0)
         drawRow(gameClergyIconUi, "Clergy Growth:", "+" + std::to_string(data->clergyTrainedBonus), {180, 230, 100, 255});
-
+    if (data->peasantryDeathBonus != 0)
+        drawRow(gamePeasantryIconUi, "Peasantry Deasease:", "+" + std::to_string(data->peasantryDeathBonus), {180, 20, 20, 255});
     if (data->constructionTurns != 0)
         drawRow(gameTurnAmountTexture, "Construction:", std::to_string(data->constructionTurns) + " turns", {180, 180, 255, 255});
 }
@@ -8985,6 +9036,7 @@ public:
         int buildingPeasantryBonus = 0;
         int buildingNobilityBonus = 0;
         int buildingClergyBonus = 0;
+        int buildingPeasantryDeathBonus = 0;
 
         for (const auto &s : settlements) {
             if (provinces[s.settlementData.provinceID].owner != player.faction) continue;//Not player faction -> continue
@@ -8995,9 +9047,12 @@ public:
                 if (IsBuildingSlotDamaged(settlement_index, slot_index)) continue;
                 const BuildingData *building_data = GetBuildingData(building_type);
                 if (!building_data) continue;
+                //birth bonus
                 buildingPeasantryBonus += building_data->peasantryBornBonus;
                 buildingNobilityBonus += building_data->nobilityBornBonus;
                 buildingClergyBonus += building_data->clergyTrainedBonus;
+                //death bonus
+                buildingPeasantryDeathBonus += building_data->peasantryDeathBonus;
             }
         }
         float foodMultiplier = GetFoodPopulationGrowthMultiplier();

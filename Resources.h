@@ -11,13 +11,22 @@ Script to get all the resources that the buildings produces.
 
 //Types of Resources
 enum class ResourceType {
+    //Raw
     Fish,
     Iron,
     Gold,
     Copper,
     Silver,
     Tin,
-    Lumber
+    Lumber,
+    //Transformed
+    FishOil,
+    HardWood,
+    Tools,
+    CopperJewlery,
+    TinTransfored,
+    SilverCoins,//(Silver) increase trade Resources value
+    GoldJewlery,
 };
 
 //If Raw or Transformed Goods
@@ -34,6 +43,10 @@ struct ResourceData{
     ResourceCategory goodsCategory;
     int ResourceValue;
 };
+/*
+ *The value of a Transformed Resource will be 5x the base price.
+ * 5 Raw materials to make 1 Transformed one
+ */
 
 inline const std::unordered_map<ResourceType, ResourceData>& GetResourceDatabase() {
     static const std::unordered_map<ResourceType, ResourceData> database = {
@@ -44,8 +57,16 @@ inline const std::unordered_map<ResourceType, ResourceData>& GetResourceDatabase
         { ResourceType::Copper, { "Copper", "From copper mines. Valuable to make Copper Jewelley.", "assets/Resources/Copper.png", ResourceCategory::Raw, 12}},
         { ResourceType::Silver, { "Silver", "From silver mines. Silver is always usefull to create those coins.", "assets/Resources/Silver.png", ResourceCategory::Raw, 20}},
         { ResourceType::Tin, { "Tin", "From tin mines. Tin is used to make tin coins.", "assets/Resources/Tin.png", ResourceCategory::Raw, 16}},
-        { ResourceType::Lumber, { "Lumber", "Lumber, from the forest is very important to build fournitures.", "assets/Resources/Lumber.png", ResourceCategory::Raw, 8}}
+        { ResourceType::Lumber, { "Lumber", "Lumber, from the forest is very important to build fournitures.", "assets/Resources/Lumber.png", ResourceCategory::Raw, 8}},
         //Transformed
+        { ResourceType::FishOil, { "Fish Oil", "Every parts of the fish can be used.", "assets/Resources/FishOil.png", ResourceCategory::Transformed, 25}},
+        { ResourceType::HardWood, { "Hard Wood", "Transformed wood is perfect to build houses and fournitures.", "assets/Resources/HardWood.png", ResourceCategory::Transformed, 40}},
+        { ResourceType::Tools, { "Tools", "No Kingdom can thrive without tools, what makes it so valuable.", "assets/Resources/Tools.png", ResourceCategory::Transformed, 50}},
+        { ResourceType::CopperJewlery, {"Copper Jewlery", "Copper is pretty and cheap at the same time. Available for all.", "assets/Resources/CopperJewlery.png", ResourceCategory::Transformed, 60}},
+        { ResourceType::TinTransfored, {"Tin Transformed", "Tin is Tin.", "assets/Resources/TinTransfored.png", ResourceCategory::Transformed, 80}},
+        { ResourceType::SilverCoins, { "Silver Coins", "Making your own coins with your face on it shows trade strenght.", "assets/Resources/SilverCoins.png", ResourceCategory::Transformed, 100}},
+        { ResourceType::GoldJewlery, { "Gold Jewlery", "The most expensive material is for nobility.", "assets/Resources/GoldJewlery.png", ResourceCategory::Transformed, 125}}
+
     };
     return database;
 }
