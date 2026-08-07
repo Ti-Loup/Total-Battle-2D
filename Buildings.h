@@ -405,6 +405,44 @@ inline TaxCategory GetTaxCategory(BuildingType buildingType) {
     }
 }
 
+inline BuildingType GetMineBuildingType(ResourceType resource, int tier) {
+    switch (resource) {
+        case ResourceType::Iron:
+            if (tier == 1) return BuildingType::IronMine_T1;
+            if (tier == 2) return BuildingType::IronMine_T2;
+            if (tier == 3) return BuildingType::IronMine_T3;
+            break;
+        case ResourceType::Gold:
+            if (tier == 1) return BuildingType::GoldMine_T1;
+            if (tier == 2) return BuildingType::GoldMine_T2;
+            if (tier == 3) return BuildingType::GoldMine_T3;
+            break;
+        case ResourceType::Copper:
+            if (tier == 1) return BuildingType::CopperMine_T1;
+            if (tier == 2) return BuildingType::CopperMine_T2;
+            if (tier == 3) return BuildingType::CopperMine_T3;
+            break;
+        case ResourceType::Silver:
+            if (tier == 1) return BuildingType::SilverMine_T1;
+            if (tier == 2) return BuildingType::SilverMine_T2;
+            if (tier == 3) return BuildingType::SilverMine_T3;
+            break;
+        case ResourceType::Tin:
+            if (tier == 1) return BuildingType::TinMine_T1;
+            if (tier == 2) return BuildingType::TinMine_T2;
+            if (tier == 3) return BuildingType::TinMine_T3;
+            break;
+        case ResourceType::Lumber:
+            if (tier == 1) return BuildingType::LumberCamp_T1;
+            if (tier == 2) return BuildingType::LumberCamp_T2;
+            if (tier == 3) return BuildingType::LumberCamp_T3;
+            break;
+        default:
+            break;
+    }
+    return BuildingType::None;
+}
+
 inline FoodCategory GetFoodCategory(BuildingType buildingType){
     switch (buildingType){
 
@@ -989,7 +1027,7 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     //copper
     add(BuildingType::CopperMine_T1, {"Copper Veins", "The red metal of Cyprus can also be\nfound in the parts.", 850, 0, 35, 0, 1, 14, 0, 0, 0, 0, 0, 0, BuildingType::CopperMine_T2});
     add(BuildingType::CopperMine_T2, {"Copper Mine", "To take advantage of copper's useful\nqualities, all that is needed is a\ndeeplying trench.", 1000, 0, 45, 0, 2, 5, 0, 0, 0, 0, 0, 0, BuildingType::CopperMine_T3});
-    add(BuildingType::CopperMine_T1, {"Copper Smelter", "The sulphides extracted from the\nopen-face mines are processed here,", 1200, 0, 55, 0, 3, 7, 0, 0, 0, 0, 0, 0, BuildingType::None});
+    add(BuildingType::CopperMine_T3, {"Copper Smelter", "The sulphides extracted from the\nopen-face mines are processed here,", 1200, 0, 55, 0, 3, 7, 0, 0, 0, 0, 0, 0, BuildingType::None});
     //Silver
     add(BuildingType::SilverMine_T1, {"Silver Veins", "With its metallic lustre, some\nconsider silver's aesthetic qualities to\nbe as attractive as gold.", 950, 0, 45, 0, 1, 12, 0, 0, 0, 0, 0, 0, BuildingType::SilverMine_T2});
     add(BuildingType::SilverMine_T2, {"Silver Mine", "Tapping into such a resource enables\nthe fashioning of all manner of\nvaluable items.", 1100, 0, 60, 0, 2, 7, 0, 0, 0, 0, 0, 0, BuildingType::SilverMine_T3});
@@ -1001,7 +1039,7 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     //Wood
     add(BuildingType::LumberCamp_T1, {"Small lumber camp", "Lumber is very important.\nWithout it we can't build arrows or furnitures.", 650, 0, 20, 0, 1, 12, 0, 0, 0, 0, 0, 0, BuildingType::LumberCamp_T2});
     add(BuildingType::LumberCamp_T2, {"Lumber camp", "Lumber is very important.\nWithout it we can't build arrows or furnitures.", 800, 0, 25, 0, 2, 6, 0, 0, 0, 0, 0, 0, BuildingType::LumberCamp_T3});
-    add(BuildingType::LumberCamp_T3, {"Large lumber camp", "Lumber is very important.\nWithout it we can't build arrows or furnitures.", 650, 0, 20, 0, 1, 12, 0, 0, 0, 0, 0, 0, BuildingType::LumberCamp_T2});
+    add(BuildingType::LumberCamp_T3, {"Large lumber camp", "Lumber is very important.\nWithout it we can't build arrows or furnitures.", 650, 0, 20, 0, 3, 12, 0, 0, 0, 0, 0, 0, BuildingType::None});
 
     // ── RESOURCE PRODUCTION ──
     //ports

@@ -18,6 +18,13 @@ class Settlement : public Entity {
 
     //If village&castle close to ocean
     bool bIsPort = false;
+    //Raw Buildings
+    bool bIsIronMine = false;
+    bool bIsGoldMine = false;
+    bool bIsCopperMine = false;
+    bool bIsSilverMine = false;
+    bool bIsTinMine = false;
+    bool bIsLumberMine = false;
 
 };
 

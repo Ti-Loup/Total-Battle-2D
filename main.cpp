@@ -1089,8 +1089,9 @@ private://constructor
         settlements.back().settlementData.cityName = "CapitalName";
         settlements.emplace_back(SettlementType::Village, 0, 46, 35, FactionZone::Knight);
         settlements.back().settlementData.cityName = "Village1Name";
-        settlements.emplace_back(SettlementType::Village, 0, 52, 42, FactionZone::Knight);
+        settlements.emplace_back(SettlementType::Village, 0, 54, 43, FactionZone::Knight);
         settlements.back().settlementData.cityName = "Village2Name";
+        settlements.back().bIsLumberMine = true;
         settlements.emplace_back(SettlementType::Village, 0, 39, 63, FactionZone::Knight);
         settlements.back().settlementData.cityName = "Village3Name";
         //NORTH REGION
@@ -1101,8 +1102,10 @@ private://constructor
         settlements.back().settlementData.cityName = "Village1Name";
         settlements.emplace_back(SettlementType::Village, 1, 29, 34, FactionZone::Knight);
         settlements.back().settlementData.cityName = "Village2Name";
+        settlements.back().bIsGoldMine = true;
         settlements.emplace_back(SettlementType::Village, 1, 25, 46, FactionZone::Knight);
         settlements.back().settlementData.cityName = "Village3Name";
+        settlements.back().bIsCopperMine = true;
         //SOUTH REGION
         settlements.emplace_back(SettlementType::Castle, 2, 61,56, FactionZone::Knight);
         settlements.back().settlementData.cityName = "Castle1Name";
@@ -1124,13 +1127,15 @@ private://constructor
         settlements.back().bIsPort = true;
         settlements.emplace_back(SettlementType::Village, 3, 83, 15, FactionZone::Viking);
         settlements.back().settlementData.cityName = "Village3Name";
+        settlements.back().bIsIronMine = true;
         //OUEST REGION
-        settlements.emplace_back(SettlementType::Castle, 4, 63, 25, FactionZone::Viking);
+        settlements.emplace_back(SettlementType::Castle, 4, 58, 25, FactionZone::Viking);
         settlements.back().settlementData.cityName = "Castle1Name";
         settlements.emplace_back(SettlementType::Village, 4, 37, 20, FactionZone::Viking);
         settlements.back().settlementData.cityName = "Village1Name";
-        settlements.emplace_back(SettlementType::Village, 4, 64, 34, FactionZone::Viking);
+        settlements.emplace_back(SettlementType::Village, 4, 70, 25, FactionZone::Viking);
         settlements.back().settlementData.cityName = "Village2Name";
+        settlements.back().bIsCopperMine = true;
         settlements.emplace_back(SettlementType::Village, 4, 68, 16, FactionZone::Viking);
         settlements.back().settlementData.cityName = "Village3Name";
         //EST REGION
@@ -1141,14 +1146,16 @@ private://constructor
         settlements.back().settlementData.cityName = "Village1Name";
         settlements.emplace_back(SettlementType::Village, 5, 97, 24, FactionZone::Viking);
         settlements.back().settlementData.cityName = "Village1Name";
+        settlements.back().bIsTinMine = true;
 
 
         // Samurai
         //CAPITAL REGION
         settlements.emplace_back(SettlementType::Capital, 6, 103, 53, FactionZone::Samurai);
         settlements.back().settlementData.cityName = "CapitalName";
-        settlements.emplace_back(SettlementType::Village, 6, 108, 66, FactionZone::Samurai);
+        settlements.emplace_back(SettlementType::Village, 6, 102, 69, FactionZone::Samurai);
         settlements.back().settlementData.cityName = "Village1Name";
+        settlements.back().bIsLumberMine = true;
         settlements.emplace_back(SettlementType::Village, 6, 101, 44, FactionZone::Samurai);
         settlements.back().settlementData.cityName = "Village2Name";
         settlements.emplace_back(SettlementType::Village, 6, 89, 41, FactionZone::Samurai);
@@ -1163,12 +1170,14 @@ private://constructor
         settlements.back().bIsPort = true;
         settlements.emplace_back(SettlementType::Village, 7, 87, 64, FactionZone::Samurai);
         settlements.back().settlementData.cityName = "Village3Name";
+        settlements.back().bIsSilverMine = true;
         //OUEST REGION
         settlements.emplace_back(SettlementType::Castle, 8, 105, 28, FactionZone::Samurai);
         settlements.back().settlementData.cityName = "Castle1Name";
         settlements.back().bIsPort = true;
-        settlements.emplace_back(SettlementType::Village, 8, 119, 59, FactionZone::Samurai);
+        settlements.emplace_back(SettlementType::Village, 8, 118, 56, FactionZone::Samurai);
         settlements.back().settlementData.cityName = "Village1Name";
+        settlements.back().bIsIronMine = true;
         settlements.emplace_back(SettlementType::Village, 8, 118, 18, FactionZone::Samurai);
         settlements.back().settlementData.cityName = "Village2Name";
         settlements.back().bIsPort = true;
@@ -1186,6 +1195,13 @@ private://constructor
                 s.settlementData.buildings[1] = GetPortBuildingType(//take the building position 1.
                     s.settlementData.type, faction, 1);
             }
+            //Raw resource buildings
+            if (s.bIsIronMine) s.settlementData.buildings[1] = GetMineBuildingType(ResourceType::Iron, 1);
+            if (s.bIsGoldMine) s.settlementData.buildings[1] = GetMineBuildingType(ResourceType::Gold, 1);
+            if (s.bIsCopperMine) s.settlementData.buildings[1] = GetMineBuildingType(ResourceType::Copper, 1);
+            if (s.bIsSilverMine) s.settlementData.buildings[1] = GetMineBuildingType(ResourceType::Silver, 1);
+            if (s.bIsTinMine) s.settlementData.buildings[1] = GetMineBuildingType(ResourceType::Tin, 1);
+            if (s.bIsLumberMine) s.settlementData.buildings[1] = GetMineBuildingType(ResourceType::Lumber, 1);
         }
         gameKingdomNameFont = TTF_OpenFont("assets/KnightFont.ttf", 40);
         gameKingdomKnightNameText = TTF_CreateText(textEngine, gameKingdomNameFont, "Knight\nKingdom", 25);
@@ -3797,13 +3813,25 @@ private://constructor
                     float size;
                     float gap; // gap before this icon
                 };
-
+                //settlements raw buildings
                 bool bIsFishingVillage = (s.settlementData.type == SettlementType::Village && s.bIsPort);
                 bool bIsMilitaryPort = (s.settlementData.type == SettlementType::Capital || s.settlementData.type == SettlementType::Castle) && s.bIsPort;
+                bool bIsIronMineVillage = (s.settlementData.type == SettlementType::Village && s.bIsIronMine);
+                bool bIsGoldMineVillage = (s.settlementData.type == SettlementType::Village && s.bIsGoldMine);
+                bool bIsCopperMineVillage = (s.settlementData.type == SettlementType::Village && s.bIsCopperMine);
+                bool bIsSilverMineVillage = (s.settlementData.type == SettlementType::Village && s.bIsSilverMine);
+                bool bIsTinMineVillage = (s.settlementData.type == SettlementType::Village && s.bIsTinMine);
+                bool bIsLumberCampVillage = (s.settlementData.type == SettlementType::Village && s.bIsLumberMine);
 
                 std::vector<NameBarIcon> nameBarIcons;
                 if (bIsFishingVillage) nameBarIcons.push_back({ gameResourceFishIconTexture, 35.f, 0.f });
                 if (bIsMilitaryPort)   nameBarIcons.push_back({ gameMilitaryPortIconTexture, 28.f, 4.f });
+                if (bIsIronMineVillage) nameBarIcons.push_back({gameResourceIronIconTexture, 35.f, 0.f});
+                if (bIsGoldMineVillage) nameBarIcons.push_back({gameResourceGoldIconTexture, 35.f, 0.f});
+                if (bIsCopperMineVillage) nameBarIcons.push_back({gameResourceCopperIconTexture, 35.f, 0.f});
+                if (bIsSilverMineVillage) nameBarIcons.push_back({gameResourceSilverIconTexture, 35.f, 0.f});
+                if (bIsTinMineVillage) nameBarIcons.push_back({gameResourceTinIconTexture, 35.f, 0.f});
+                if (bIsLumberCampVillage) nameBarIcons.push_back({gameResourceLumberIconTexture, 35.f, 0.f});
 
                 float extraWidth = 0.f;
                 for (const auto& icon : nameBarIcons) extraWidth += icon.gap + icon.size;
@@ -5113,7 +5141,6 @@ private://constructor
         int maxLen = 0;
         for (auto& c : chains) maxLen = std::max(maxLen, (int)c.tiers.size());
 
-        // APRÈS
         float totalW = (float)chains.size() * tileW + ((float)chains.size() - 1.f) * colGap;
         float tilesTotalH = (float)maxTierOverall * tileH + ((float)(maxTierOverall - 1)) * arrowH;
 
