@@ -70,6 +70,9 @@ KnightOilPress_T1,
 KnightOilPress_T2,
 KnightCarpentry_T1,
 KnightCarpentry_T2,
+KnightTextile_T1,
+KnightTextile_T2,
+KnightTextile_T3,
 KnightArtisan_T1,
 KnightArtisan_T2,
 KnightArtisan_T3,
@@ -160,6 +163,9 @@ VikingOilPress_T1,
 VikingOilPress_T2,
 VikingCarpentry_T1,
 VikingCarpentry_T2,
+VikingTextile_T1,
+VikingTextile_T2,
+VikingTextile_T3,
 VikingArtisan_T1,
 VikingArtisan_T2,
 VikingArtisan_T3,
@@ -253,6 +259,9 @@ SamuraiOilPress_T1,
 SamuraiOilPress_T2,
 SamuraiCarpentry_T1,
 SamuraiCarpentry_T2,
+SamuraiTextile_T1,
+SamuraiTextile_T2,
+SamuraiTextile_T3,
 SamuraiArtisan_T1,
 SamuraiArtisan_T2,
 SamuraiArtisan_T3,
@@ -402,6 +411,9 @@ inline TaxCategory GetTaxCategory(BuildingType buildingType) {
         case BuildingType::VikingTinsmith_T1: case BuildingType::VikingTinsmith_T2: case BuildingType::VikingTinsmith_T3:
         case BuildingType::SamuraiOilPress_T1: case BuildingType::SamuraiOilPress_T2:
         case BuildingType::SamuraiTinsmith_T1: case BuildingType::SamuraiTinsmith_T2: case BuildingType::SamuraiTinsmith_T3:
+        case BuildingType::KnightTextile_T1: case BuildingType::KnightTextile_T2: case BuildingType::KnightTextile_T3:
+        case BuildingType::VikingTextile_T1: case BuildingType::VikingTextile_T2: case BuildingType::VikingTextile_T3:
+        case BuildingType::SamuraiTextile_T1: case BuildingType::SamuraiTextile_T2: case BuildingType::SamuraiTextile_T3:
             return TaxCategory::Industry;
 
         // ── RELIGIOUS (purple) ──
@@ -664,6 +676,15 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::SamuraiTinsmith_T1:
     case BuildingType::SamuraiTinsmith_T2:
     case BuildingType::SamuraiTinsmith_T3:
+    case BuildingType::KnightTextile_T1:
+    case BuildingType::KnightTextile_T2:
+    case BuildingType::KnightTextile_T3:
+    case BuildingType::VikingTextile_T1:
+    case BuildingType::VikingTextile_T2:
+    case BuildingType::VikingTextile_T3:
+    case BuildingType::SamuraiTextile_T1:
+    case BuildingType::SamuraiTextile_T2:
+    case BuildingType::SamuraiTextile_T3:
         return BuildingCategory::Industry;
 
     case BuildingType::KnightAlmsHouse_T1:
@@ -882,6 +903,9 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::KnightOilPress_T2, {"Rendery", "A proper rendery turns the day's\ncatch into oil fit for lamps,\nleather, and trade alike.", 750, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, BuildingType::None});
     add(BuildingType::KnightCarpentry_T1, {"Carpenter", "Natural shelter from the elements\ncan be found here, as well as\nprecious timber reserves.", 450, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, 0, BuildingType::KnightCarpentry_T2});
     add(BuildingType::KnightCarpentry_T2, {"Woodshop", "The forest itself provides the\n handle for the woodcutter's axe.", 700, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::KnightTextile_T1, {"Weaver's Cottage", "Wool spun by hand here becomes\nthe cloth that clothes both\npeasant and lord alike.", 600, 0, 0, 0, 1, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::KnightTextile_T2});
+    add(BuildingType::KnightTextile_T2, {"Weaver's Guild", "Skilled weavers turn raw wool\ninto fine cloth, sought after\nin markets near and far.", 750, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, BuildingType::KnightTextile_T3});
+    add(BuildingType::KnightTextile_T3, {"Grand Textile Hall", "The finest cloth in the realm\nis woven here, rivaling even\nforeign silks in quality.", 900, 0, 0, 0, 3, 5, 0, 0, 0, 0, 0, 0, 0, BuildingType::None});
     add(BuildingType::KnightArtisan_T1, {"Artisan", "If you've got made-goods to sell,\nthe chances are that this man\ncan find you a buyer.", 750, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, 0, BuildingType::KnightArtisan_T2});
     add(BuildingType::KnightArtisan_T2, {"Craft Workshop", "If you travel far enough, there's\nalways a buyer willing to buy\nor barter for your wares.", 900, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, BuildingType::KnightArtisan_T3 });
     add(BuildingType::KnightArtisan_T3, {"Crafts Industry", "I have buyers lined up across the\nkingdom and beyond, and the vessels to get\nthe goods where they need to be.", 1050, 0, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None });
@@ -979,6 +1003,9 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::VikingOilPress_T2, {"Trying House", "A proper trying house, its fires\nnever cold, renders oil enough\nto light halls through the winter.", 750, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, BuildingType::None});
     add(BuildingType::VikingCarpentry_T1, {"Carpenter", "Natural shelter from the elements\ncan be found here, as well as\nprecious timber reserves.", 450, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingCarpentry_T2});
     add(BuildingType::VikingCarpentry_T2, {"Woodshop", "The forest itself provides the\n handle for the woodcutter's axe.", 700, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::VikingTextile_T1, {"Wool Shed", "Sheep shorn upon the fells\nprovide wool enough to keep\nthe clan warm through winter.", 600, 0, 0, 0, 1, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingTextile_T2});
+    add(BuildingType::VikingTextile_T2, {"Weaving Hall", "Norse women weave sturdy sailcloth\nand garments, their skill prized\nas much as any warrior's.", 750, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingTextile_T3});
+    add(BuildingType::VikingTextile_T3, {"Grand Weaving Hall", "Sails and cloaks woven here carry\nthe clan's mark across the seas,\nfit for jarls and raiders alike.", 900, 0, 0, 0, 3, 5, 0, 0, 0, 0, 0, 0, 0, BuildingType::None});
     add(BuildingType::VikingArtisan_T1, {"Artisan", "If you've got made-goods to sell,\nthe chances are that this man\ncan find you a buyer.", 750, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingArtisan_T2});
     add(BuildingType::VikingArtisan_T2, {"Craft Workshop", "If you travel far enough, there's\nalways a buyer willing to buy\nor barter for your wares.", 900, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingArtisan_T3 });
     add(BuildingType::VikingArtisan_T3, {"Crafts Industry", "I have buyers lined up across the\nkingdom and beyond, and the vessels to get\nthe goods where they need to be.", 1050, 0, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None });
@@ -1057,6 +1084,9 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::SamuraiOilPress_T2, {"Abura-ya", "A dedicated oil house, its stores\nsupplying lamps and markets\nfar beyond the coast.", 750, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, BuildingType::None});
     add(BuildingType::SamuraiCarpentry_T1, {"Carpenter", "Natural shelter from the elements\ncan be found here, as well as\nprecious timber reserves.", 450, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiCarpentry_T2});
     add(BuildingType::SamuraiCarpentry_T2, {"Woodshop", "The forest itself provides the\n handle for the woodcutter's axe.", 700, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::SamuraiTextile_T1, {"Silk Hut", "Silkworms are tended carefully\nhere, their threads destined\nfor fine robes and banners.", 600, 0, 0, 0, 1, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiTextile_T2});
+    add(BuildingType::SamuraiTextile_T2, {"Silk Workshop", "Skilled weavers spin silk into\ncloth prized by nobles and\nmerchants throughout the province.", 750, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiTextile_T3});
+    add(BuildingType::SamuraiTextile_T3, {"Grand Silk Hall", "The province's finest silk is\nwoven here, worthy of the\nShogun's own court.", 900, 0, 0, 0, 3, 5, 0, 0, 0, 0, 0, 0, 0, BuildingType::None});
     add(BuildingType::SamuraiArtisan_T1, {"Artisan", "If you've got made-goods to sell,\nthe chances are that this man\ncan find you a buyer.", 750, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiArtisan_T2});
     add(BuildingType::SamuraiArtisan_T2, {"Craft Workshop", "If you travel far enough, there's\nalways a buyer willing to buy\nor barter for your wares.", 900, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiArtisan_T3 });
     add(BuildingType::SamuraiArtisan_T3, {"Crafts Industry", "I have buyers lined up across the\nkingdom and beyond, and the vessels to get\nthe goods where they need to be.", 1050, 0, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None });
@@ -1251,11 +1281,11 @@ inline std::vector<BuildingType> GetBuildingsForCategory(BuildingCategory catego
 
         case BuildingCategory::Industry:
         if (faction == FactionZone::Knight)
-              results = {BuildingType::KnightOilPress_T1, BuildingType::KnightCarpentry_T1, BuildingType::KnightArtisan_T1, BuildingType::KnightTinsmith_T1, BuildingType::KnightMint_T1, BuildingType:: KnightForge_T2, BuildingType::KnightJeweller_T3};
+              results = {BuildingType::KnightOilPress_T1, BuildingType::KnightCarpentry_T1, BuildingType::KnightTextile_T1 ,BuildingType::KnightArtisan_T1, BuildingType::KnightTinsmith_T1, BuildingType::KnightMint_T1, BuildingType:: KnightForge_T2, BuildingType::KnightJeweller_T3};
         else if (faction == FactionZone::Viking)
-              results = {BuildingType::VikingOilPress_T1, BuildingType::VikingCarpentry_T1, BuildingType::VikingArtisan_T1, BuildingType::VikingTinsmith_T1, BuildingType::VikingMint_T1, BuildingType:: VikingForge_T2, BuildingType::VikingJeweller_T3};
+              results = {BuildingType::VikingOilPress_T1, BuildingType::VikingCarpentry_T1, BuildingType::VikingTextile_T1 ,BuildingType::VikingArtisan_T1, BuildingType::VikingTinsmith_T1, BuildingType::VikingMint_T1, BuildingType:: VikingForge_T2, BuildingType::VikingJeweller_T3};
         else if (faction == FactionZone::Samurai)
-              results = {BuildingType::SamuraiOilPress_T1, BuildingType::SamuraiCarpentry_T1, BuildingType::SamuraiArtisan_T1, BuildingType::SamuraiTinsmith_T1, BuildingType::SamuraiMint_T1, BuildingType:: SamuraiForge_T2, BuildingType::SamuraiJeweller_T3};
+              results = {BuildingType::SamuraiOilPress_T1, BuildingType::SamuraiCarpentry_T1, BuildingType::SamuraiTextile_T1 ,BuildingType::SamuraiArtisan_T1, BuildingType::SamuraiTinsmith_T1, BuildingType::SamuraiMint_T1, BuildingType:: SamuraiForge_T2, BuildingType::SamuraiJeweller_T3};
             break;
         case BuildingCategory::Religion:
             if (faction == FactionZone::Knight)

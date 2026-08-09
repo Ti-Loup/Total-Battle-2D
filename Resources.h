@@ -14,6 +14,7 @@ enum class ResourceType {
     //Raw
     Fish,
     Lumber,
+    Wool,
     Iron,
     Copper,
     Tin,
@@ -22,6 +23,7 @@ enum class ResourceType {
     //Transformed
     FishOil,
     HardWood,
+    Textile,
     Tools,
     CopperJewlery,
     Pewter,
@@ -53,16 +55,18 @@ inline const std::unordered_map<ResourceType, ResourceData>& GetResourceDatabase
         //Raw
         { ResourceType::Fish, { "Fish", "Caught by fishing ports. Feeds the population and can be traded.", "assets/Resources/Fish.png", ResourceCategory::Raw, 5}},
         { ResourceType::Lumber, { "Lumber", "Lumber, from the forest is very important to build fournitures.", "assets/Resources/Lumber.png", ResourceCategory::Raw, 8}},
-        { ResourceType::Iron, { "Iron", "From iron mines. Good to produce tools in the forge or traded.", "assets/Resources/Iron.png", ResourceCategory::Raw, 10}},
-        { ResourceType::Copper, { "Copper", "From copper mines. Valuable to make Copper Jewelley.", "assets/Resources/Copper.png", ResourceCategory::Raw, 12}},
+        { ResourceType::Wool, {"Wool", "Wool, from sheeps is very usefull to build hand made textile.", "assets/Resources/Wool.png", ResourceCategory::Raw,10}},
+        { ResourceType::Iron, { "Iron", "From iron mines. Good to produce tools in the forge or traded.", "assets/Resources/Iron.png", ResourceCategory::Raw, 12}},
+        { ResourceType::Copper, { "Copper", "From copper mines. Valuable to make Copper Jewelley.", "assets/Resources/Copper.png", ResourceCategory::Raw, 14}},
         { ResourceType::Tin, { "Tin", "From tin mines. Tin is used to make tin coins.", "assets/Resources/Tin.png", ResourceCategory::Raw, 16}},
         { ResourceType::Silver, { "Silver", "From silver mines. Silver is always usefull to create those coins.", "assets/Resources/Silver.png", ResourceCategory::Raw, 20}},
         { ResourceType::Gold, { "Gold", "From gold mines. These are the most valuables goods to craft Jewelley.", "assets/Resources/Gold.png", ResourceCategory::Raw, 25}},
-        //Transformed
+        //Transformed x5 price
         { ResourceType::FishOil, { "Fish Oil", "Every parts of the fish can be used.", "assets/Resources/FishOil.png", ResourceCategory::Transformed, 25}},
         { ResourceType::HardWood, { "Hard Wood", "Transformed wood is perfect to build houses and fournitures.", "assets/Resources/HardWood.png", ResourceCategory::Transformed, 40}},
-        { ResourceType::Tools, { "Tools", "No Kingdom can thrive without tools, what makes it so valuable.", "assets/Resources/Tools.png", ResourceCategory::Transformed, 50}},
-        { ResourceType::CopperJewlery, {"Copper Jewlery", "Copper is pretty and cheap at the same time. Available for all.", "assets/Resources/CopperJewlery.png", ResourceCategory::Transformed, 60}},
+        { ResourceType::Textile, {"Textile", "The transformed wool is very usefull for travelers and for weather.", "assets/Resources/Textile.png", ResourceCategory::Transformed, 50}},
+        { ResourceType::Tools, { "Tools", "No Kingdom can thrive without tools, what makes it so valuable.", "assets/Resources/Tools.png", ResourceCategory::Transformed, 60}},
+        { ResourceType::CopperJewlery, {"Copper Jewlery", "Copper is pretty and cheap at the same time. Available for all.", "assets/Resources/CopperJewlery.png", ResourceCategory::Transformed, 70}},
         { ResourceType::Pewter, {"Pewter", "Tin alloyed for plates, cups, tankards, buttons", "assets/Resources/Pewter.png", ResourceCategory::Transformed, 80}},
         { ResourceType::SilverCoins, { "Silver Coins", "Making your own coins with your face on it shows trade strenght.", "assets/Resources/SilverCoins.png", ResourceCategory::Transformed, 100}},
         { ResourceType::GoldJewlery, { "Gold Jewlery", "The most expensive material is for nobility.", "assets/Resources/GoldJewlery.png", ResourceCategory::Transformed, 125}}
