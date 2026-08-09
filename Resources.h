@@ -24,7 +24,7 @@ enum class ResourceType {
     HardWood,
     Tools,
     CopperJewlery,
-    TinTransfored,
+    Pewter,
     SilverCoins,//(Silver) increase trade Resources value
     GoldJewlery,
 };
@@ -63,7 +63,7 @@ inline const std::unordered_map<ResourceType, ResourceData>& GetResourceDatabase
         { ResourceType::HardWood, { "Hard Wood", "Transformed wood is perfect to build houses and fournitures.", "assets/Resources/HardWood.png", ResourceCategory::Transformed, 40}},
         { ResourceType::Tools, { "Tools", "No Kingdom can thrive without tools, what makes it so valuable.", "assets/Resources/Tools.png", ResourceCategory::Transformed, 50}},
         { ResourceType::CopperJewlery, {"Copper Jewlery", "Copper is pretty and cheap at the same time. Available for all.", "assets/Resources/CopperJewlery.png", ResourceCategory::Transformed, 60}},
-        { ResourceType::TinTransfored, {"Tin Transformed", "Tin is Tin.", "assets/Resources/TinTransfored.png", ResourceCategory::Transformed, 80}},
+        { ResourceType::Pewter, {"Pewter", "Tin alloyed for plates, cups, tankards, buttons", "assets/Resources/Pewter.png", ResourceCategory::Transformed, 80}},
         { ResourceType::SilverCoins, { "Silver Coins", "Making your own coins with your face on it shows trade strenght.", "assets/Resources/SilverCoins.png", ResourceCategory::Transformed, 100}},
         { ResourceType::GoldJewlery, { "Gold Jewlery", "The most expensive material is for nobility.", "assets/Resources/GoldJewlery.png", ResourceCategory::Transformed, 125}}
 

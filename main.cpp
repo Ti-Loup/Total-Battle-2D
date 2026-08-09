@@ -527,7 +527,7 @@ public:
     SDL_Texture *gameResourceHardWoodIconTexture = nullptr;
     SDL_Texture *gameResourceToolsIconTexture = nullptr;
     SDL_Texture *gameResourceCopperJewleryIconTexture = nullptr;
-    SDL_Texture *gameResourceTinTranformedIconTexture = nullptr;
+    SDL_Texture *gameResourcePewterIconTexture = nullptr;
     SDL_Texture *gameResourceSilverCoinsIconTexture = nullptr;
     SDL_Texture *gameResourceGoldJewleryIconTexture = nullptr;
 
@@ -1986,11 +1986,6 @@ private://constructor
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Economy_T2], SDL_SCALEMODE_NEAREST);
 
-        buildingTypeTextures[BuildingType::Economy_T3] = IMG_LoadTexture(renderer, "assets/Knight/EconomyTier3.png");
-        if (buildingTypeTextures[BuildingType::Economy_T3]  == nullptr) {
-            SDL_LogWarn(0,"failed to load texture Economy_T3", SDL_GetError());
-        }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Economy_T3], SDL_SCALEMODE_NEAREST);
 
         buildingTypeTextures[BuildingType::PeasantryGrowth_T1] = IMG_LoadTexture(renderer, "assets/Knight/PeasantryGrowthTier1.png");
         if (buildingTypeTextures[BuildingType::PeasantryGrowth_T1]  == nullptr) {
@@ -2441,12 +2436,6 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture SlaveMarket_T2", SDL_GetError);
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SlaveMarket_T2], SDL_SCALEMODE_NEAREST);
-
-        buildingTypeTextures[BuildingType::SlaveMarket_T3]= IMG_LoadTexture(renderer, "assets/Viking/SlaveMarketTier3.png");
-        if (buildingTypeTextures[BuildingType::SlaveMarket_T3] == nullptr) {
-            SDL_LogWarn(0, "failed to load texture SlaveMarket_T3", SDL_GetError);
-        }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SlaveMarket_T3], SDL_SCALEMODE_NEAREST);
 
         buildingTypeTextures[BuildingType::PeasantryVikingGrowth_T1] = IMG_LoadTexture(renderer, "assets/Viking/PeasantryGrowthTier1.png");
         if (buildingTypeTextures[BuildingType::PeasantryVikingGrowth_T1] == nullptr) {
@@ -2906,12 +2895,6 @@ private://constructor
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Market_T2], SDL_SCALEMODE_NEAREST);
 
-        buildingTypeTextures[BuildingType::Market_T3] = IMG_LoadTexture(renderer, "assets/Samurai/MarketTier3.png");
-        if (buildingTypeTextures[BuildingType::Market_T3] == nullptr) {
-            SDL_LogWarn(0, "failed to load texture Market_T3", SDL_GetError());
-        }
-        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::Market_T3], SDL_SCALEMODE_NEAREST);
-
         buildingTypeTextures[BuildingType::PeasantrySamuraiGrowth_T1] = IMG_LoadTexture(renderer, "assets/Samurai/PeasantryGrowthTier1.png");
         if (buildingTypeTextures[BuildingType::PeasantrySamuraiGrowth_T1] == nullptr) {
             SDL_LogWarn(0, "failed to load texture PeasantrySamuraiGrowth_T1", SDL_GetError());
@@ -3296,11 +3279,11 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture gameResourceCopperJewleryIconTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameResourceCopperJewleryIconTexture, SDL_SCALEMODE_NEAREST);
-        gameResourceTinTranformedIconTexture = IMG_LoadTexture(renderer, "assets/Resources/TinTransformedIcon.png");
-        if (gameResourceTinTranformedIconTexture == nullptr) {
-            SDL_LogWarn(0, "failed to load texture gameResourceTinTransformedIconTexture", SDL_GetError());
+        gameResourcePewterIconTexture = IMG_LoadTexture(renderer, "assets/Resources/PewterIcon.png");
+        if (gameResourcePewterIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameResourcePewterIconTexture", SDL_GetError());
         }
-        SDL_SetTextureScaleMode(gameResourceTinTranformedIconTexture, SDL_SCALEMODE_NEAREST);
+        SDL_SetTextureScaleMode(gameResourcePewterIconTexture, SDL_SCALEMODE_NEAREST);
         gameResourceSilverCoinsIconTexture = IMG_LoadTexture(renderer, "assets/Resources/SilverCoinsIcon.png");
         if (gameResourceSilverCoinsIconTexture == nullptr) {
             SDL_LogWarn(0, "failed to load texture gameResourceSilverCoinsIconTexture", SDL_GetError());
@@ -3561,7 +3544,7 @@ private://constructor
         SDL_DestroyTexture(gameResourceHardWoodIconTexture);
         SDL_DestroyTexture(gameResourceToolsIconTexture);
         SDL_DestroyTexture(gameResourceCopperJewleryIconTexture);
-        SDL_DestroyTexture(gameResourceTinTranformedIconTexture);
+        SDL_DestroyTexture(gameResourcePewterIconTexture);
         SDL_DestroyTexture(gameResourceSilverCoinsIconTexture);
         SDL_DestroyTexture(gameResourceGoldJewleryIconTexture);
         SDL_DestroyTexture(gameGoodsTradeValueTexture);
@@ -7419,7 +7402,7 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
             case ResourceType::HardWood: return gameResourceHardWoodIconTexture;
             case ResourceType::Tools: return gameResourceToolsIconTexture;
             case ResourceType::CopperJewlery: return gameResourceCopperJewleryIconTexture;
-            case ResourceType::TinTransfored: return gameResourceTinTranformedIconTexture;
+            case ResourceType::Pewter: return gameResourcePewterIconTexture;
             case ResourceType::SilverCoins: return gameResourceSilverCoinsIconTexture;
             case ResourceType::GoldJewlery: return gameResourceGoldJewleryIconTexture;
             default:
