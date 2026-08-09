@@ -7171,6 +7171,10 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
             std::string weBirthLabel = std::string(populationTitleStr) + " Birth (Event)";
             drawStatRow(weBirthLabel.c_str(), weBirthStr, weBirthGood ? 100 : 220, weBirthGood ? 220 : 60, 60);
         }
+        // separator
+        SDL_SetRenderDrawColor(renderer, 80, 70, 30, 200);
+        SDL_RenderLine(renderer, tooltipX + 5.f, currentY, tooltipX + tooltipW - 5.f, currentY);
+        currentY += 8.f;
 
         float runningDeathsFloat = (float)baseDeath;
         int   runningDeathsInt   = baseDeath;
@@ -7184,7 +7188,6 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         int seasonDeathPercent = (int)std::round((tooltipPopSeasonMods.deathRateMultiplier - 1.0f) * 100.f);
         bool seasonDeathGood = (tooltipPopSeasonMods.deathRateMultiplier <= 1.0f); // lower death rate is favorable
         runningDeathsFloat *= tooltipPopSeasonMods.deathRateMultiplier;
-        runningDeathsFloat *= tooltipPopSeasonMods.deathRateMultiplier;
         int newDeathsInt1 = (int)runningDeathsFloat;
         int seasonDeathsDelta = newDeathsInt1 - runningDeathsInt;
         runningDeathsInt = newDeathsInt1;
@@ -7193,8 +7196,6 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         drawStatRow("Season Death Modifier", seasonDeathStr,
                     seasonDeathGood ? 100 : 220, seasonDeathGood ? 220 : 60, 60);
 
-        // effective Growth base + building * food multiplier * season birth multiplier
-        drawStatRow("After Bonuses Births", "+" + std::to_string(effectiveBirths), 100, 220, 60);
         // World Event death modifier (only shown when an event actually affects it)
         if (worldEventDeathMultiplier != 1.0f) {
             int weDeathPercent = (int)std::round((worldEventDeathMultiplier - 1.0f) * 100.f);
@@ -7208,8 +7209,14 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
             std::string weDeathLabel = std::string(populationTitleStr) + " Death (Event)";
             drawStatRow(weDeathLabel.c_str(), weDeathStr, weDeathGood ? 100 : 220, weDeathGood ? 220 : 60, 60);
         }
-        // dead people /red, scaled by season death multiplier
-        drawStatRow("Death Rate", "-" + std::to_string(effectiveDeaths), 220, 60, 60);
+        // separator
+        SDL_SetRenderDrawColor(renderer, 80, 70, 30, 200);
+        SDL_RenderLine(renderer, tooltipX + 5.f, currentY, tooltipX + tooltipW - 5.f, currentY);
+        currentY += 8.f;
+
+        //Total
+        drawStatRow("Total Births", "+" + std::to_string(effectiveBirths), 100, 220, 60);
+        drawStatRow("Total Deaths", "-" + std::to_string(effectiveDeaths), 220, 60, 60);
 
         // separator
         SDL_SetRenderDrawColor(renderer, 80, 70, 30, 200);
