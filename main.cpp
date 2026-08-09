@@ -6955,15 +6955,19 @@ SDL_RenderRect(renderer, &bg);
     float rowH = 22.f;
     float sepH = 8.f;
 
-    // calculate bonus building for population
+    // calculate bonus building for population and death bonus
     int buildingBonus = 0;
+    int buildingDeathBonus = 0;
     for (const auto& s : settlements) {
         if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
         for (BuildingType bt : s.settlementData.buildings) {
             if (bt == BuildingType::None) continue;
             const BuildingData* bd = GetBuildingData(bt);
             if (!bd) continue;
-            if (hoveredPopulationType == 0) buildingBonus += bd->peasantryBornBonus;
+            if (hoveredPopulationType == 0) {
+                buildingBonus += bd->peasantryBornBonus;
+                buildingDeathBonus += bd->peasantryDeathBonus;
+            }
             else if (hoveredPopulationType == 1) buildingBonus += bd->nobilityBornBonus;
             else if (hoveredPopulationType == 2) buildingBonus += bd->clergyTrainedBonus;
         }
@@ -7014,6 +7018,7 @@ SDL_RenderRect(renderer, &bg);
         else if (hoveredPopulationType == 2) tooltipH += 260.f;
         if (worldEventPopMultiplier != 1.0f) tooltipH += 20.f;   // ligne naissance (si tu l'as ajoutée)
         if (worldEventDeathMultiplier != 1.0f) tooltipH += 20.f; // ligne mort
+        if (hoveredPopulationType == 0 && buildingDeathBonus != 0)tooltipH += 20.f;
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
@@ -7085,7 +7090,7 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         }
 
         int effectiveBirths = (int)((float)(baseBirth + buildingBonus) * foodPopulationMultiplier * tooltipPopSeasonMods.birthRateMultiplier * worldEventPopMultiplier);
-        int effectiveDeaths = (int)((float)baseDeath * tooltipPopSeasonMods.deathRateMultiplier * worldEventDeathMultiplier);
+        int effectiveDeaths = (int)((float)(baseDeath + buildingDeathBonus) * tooltipPopSeasonMods.deathRateMultiplier * worldEventDeathMultiplier);
         int netChange = effectiveBirths - effectiveDeaths;
         // sous title
         TTF_SetTextString(gamePopulationIndicatorUiText, "This Turn", 0);
@@ -7167,11 +7172,18 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
             drawStatRow(weBirthLabel.c_str(), weBirthStr, weBirthGood ? 100 : 220, weBirthGood ? 220 : 60, 60);
         }
 
-        // Même principe pour les morts
-        int seasonDeathPercent = (int)std::round((tooltipPopSeasonMods.deathRateMultiplier - 1.0f) * 100.f);
-        bool seasonDeathGood = (tooltipPopSeasonMods.deathRateMultiplier <= 1.0f); // lower death rate is favorable
         float runningDeathsFloat = (float)baseDeath;
         int   runningDeathsInt   = baseDeath;
+        if (hoveredPopulationType == 0 && buildingDeathBonus != 0) {
+            // red if positive
+            drawStatRow("Work Decease", (buildingDeathBonus >= 0 ? "-" : "") + std::to_string(buildingDeathBonus), buildingDeathBonus <= 0 ? 100 : 220, buildingDeathBonus <= 0 ? 220 : 60, 60);
+            runningDeathsInt += buildingDeathBonus;
+            runningDeathsFloat = (float)runningDeathsInt;
+        }
+
+        int seasonDeathPercent = (int)std::round((tooltipPopSeasonMods.deathRateMultiplier - 1.0f) * 100.f);
+        bool seasonDeathGood = (tooltipPopSeasonMods.deathRateMultiplier <= 1.0f); // lower death rate is favorable
+        runningDeathsFloat *= tooltipPopSeasonMods.deathRateMultiplier;
         runningDeathsFloat *= tooltipPopSeasonMods.deathRateMultiplier;
         int newDeathsInt1 = (int)runningDeathsFloat;
         int seasonDeathsDelta = newDeathsInt1 - runningDeathsInt;
@@ -9122,7 +9134,7 @@ public:
         }
 
         // deaths scaled by season death multiplier (winter = harsher, summer = milder)
-        int totalPeasantryDeaths = (int)((float)player.basePeasantryDeath * endTurnSeasonMods.deathRateMultiplier * worldEventDeathPeasantryMultiplier);
+        int totalPeasantryDeaths = (int)((float)(player.basePeasantryDeath + buildingPeasantryDeathBonus) * endTurnSeasonMods.deathRateMultiplier * worldEventDeathPeasantryMultiplier);
         int totalNobilityDeaths  = (int)((float)player.baseNobilityDeath * endTurnSeasonMods.deathRateMultiplier * worldEventDeathNobilityMultiplier);
         int totalClergyDeaths    = (int)((float)player.baseClergyDeath * endTurnSeasonMods.deathRateMultiplier * worldEventDeathClergyMultiplier);
 
