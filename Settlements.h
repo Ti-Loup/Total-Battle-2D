@@ -25,6 +25,7 @@ class Settlement : public Entity {
     bool bIsSilverMine = false;
     bool bIsTinMine = false;
     bool bIsLumberMine = false;
+    bool bIsSheepPasture = false;//for textile
 
 };
 

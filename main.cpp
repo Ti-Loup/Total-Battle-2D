@@ -522,9 +522,11 @@ public:
     SDL_Texture *gameResourceCopperIconTexture = nullptr;
     SDL_Texture *gameResourceTinIconTexture = nullptr;
     SDL_Texture *gameResourceLumberIconTexture = nullptr;
+    SDL_Texture *gameResourceWoolIconTexture = nullptr;
     //Transformed
     SDL_Texture *gameResourceFishOilIconTexture = nullptr;
     SDL_Texture *gameResourceHardWoodIconTexture = nullptr;
+    SDL_Texture *gameresourceTextileIconTexture = nullptr;
     SDL_Texture *gameResourceToolsIconTexture = nullptr;
     SDL_Texture *gameResourceCopperJewleryIconTexture = nullptr;
     SDL_Texture *gameResourcePewterIconTexture = nullptr;
@@ -1103,6 +1105,7 @@ private://constructor
         settlements.back().bIsLumberMine = true;
         settlements.emplace_back(SettlementType::Village, 0, 39, 63, FactionZone::Knight);
         settlements.back().settlementData.cityName = "Village3Name";
+        settlements.back().bIsSheepPasture = true;
         //NORTH REGION
         settlements.emplace_back(SettlementType::Castle, 1, 28, 23, FactionZone::Knight);
         settlements.back().settlementData.cityName = "Castle1Name";
@@ -1140,13 +1143,15 @@ private://constructor
         //OUEST REGION
         settlements.emplace_back(SettlementType::Castle, 4, 58, 25, FactionZone::Viking);
         settlements.back().settlementData.cityName = "Castle1Name";
-        settlements.emplace_back(SettlementType::Village, 4, 37, 20, FactionZone::Viking);
+        settlements.emplace_back(SettlementType::Village, 4, 40, 22, FactionZone::Viking);
         settlements.back().settlementData.cityName = "Village1Name";
+        settlements.back().bIsPort = true;
         settlements.emplace_back(SettlementType::Village, 4, 70, 25, FactionZone::Viking);
         settlements.back().settlementData.cityName = "Village2Name";
         settlements.back().bIsCopperMine = true;
         settlements.emplace_back(SettlementType::Village, 4, 68, 16, FactionZone::Viking);
         settlements.back().settlementData.cityName = "Village3Name";
+        settlements.back().bIsSheepPasture = true;
         //EST REGION
         settlements.emplace_back(SettlementType::Castle, 5, 78, 34, FactionZone::Viking);
         settlements.back().settlementData.cityName = "Castle1Name";
@@ -1169,6 +1174,7 @@ private://constructor
         settlements.back().settlementData.cityName = "Village2Name";
         settlements.emplace_back(SettlementType::Village, 6, 89, 41, FactionZone::Samurai);
         settlements.back().settlementData.cityName = "Village3Name";
+        settlements.back().bIsSheepPasture = true;
         //EST REGION
         settlements.emplace_back(SettlementType::Castle, 7, 80, 50, FactionZone::Samurai);
         settlements.back().settlementData.cityName = "Castle1Name";
@@ -1211,6 +1217,7 @@ private://constructor
             if (s.bIsSilverMine) s.settlementData.buildings[1] = GetMineBuildingType(ResourceType::Silver, 1);
             if (s.bIsTinMine) s.settlementData.buildings[1] = GetMineBuildingType(ResourceType::Tin, 1);
             if (s.bIsLumberMine) s.settlementData.buildings[1] = GetMineBuildingType(ResourceType::Lumber, 1);
+            if (s.bIsSheepPasture) s.settlementData.buildings[1] = GetMineBuildingType(ResourceType::Wool, 1);
         }
         gameKingdomNameFont = TTF_OpenFont("assets/KnightFont.ttf", 40);
         gameKingdomKnightNameText = TTF_CreateText(textEngine, gameKingdomNameFont, "Knight\nKingdom", 25);
@@ -3221,6 +3228,21 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture LumberCamp_T3", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::LumberCamp_T3], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SheepPasture_T1] = IMG_LoadTexture(renderer, "assets/RawBuildings/SheepPastureTier1.png");
+        if (buildingTypeTextures[BuildingType::SheepPasture_T1] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SheepPasture_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SheepPasture_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SheepPasture_T2] = IMG_LoadTexture(renderer, "assets/RawBuildings/SheepPastureTier2.png");
+        if (buildingTypeTextures[BuildingType::SheepPasture_T2] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SheepPasture_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SheepPasture_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::SheepPasture_T3] = IMG_LoadTexture(renderer, "assets/RawBuildings/SheepPastureTier3.png");
+        if (buildingTypeTextures[BuildingType::SheepPasture_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture SheepPasture_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::SheepPasture_T3], SDL_SCALEMODE_NEAREST);
 
         // RESOURCES TEXTURES
         gameResourceFishIconTexture = IMG_LoadTexture(renderer, "assets/Resources/FishIcon.png");
@@ -3258,6 +3280,11 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture gameResourceLumberIconTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameResourceLumberIconTexture, SDL_SCALEMODE_NEAREST);
+        gameResourceWoolIconTexture = IMG_LoadTexture(renderer, "assets/Resources/WoolIcon.png");
+        if (gameResourceWoolIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameResourceWoolIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameResourceWoolIconTexture, SDL_SCALEMODE_NEAREST);
         //Transformed goods
         gameResourceFishOilIconTexture = IMG_LoadTexture(renderer, "assets/Resources/FishOilIcon.png");
         if (gameResourceFishOilIconTexture == nullptr) {
@@ -3293,7 +3320,12 @@ private://constructor
         if (gameResourceGoldJewleryIconTexture == nullptr) {
             SDL_LogWarn(0, "failed to load texture gameResourceGoldJewleryIconTexture", SDL_GetError());
         }
-
+        SDL_SetTextureScaleMode(gameResourceGoldJewleryIconTexture, SDL_SCALEMODE_NEAREST);
+        gameresourceTextileIconTexture = IMG_LoadTexture(renderer, "assets/Resources/TextileIcon.png");
+        if (gameresourceTextileIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameResourceTextileIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameresourceTextileIconTexture, SDL_SCALEMODE_NEAREST);
 
         // -> CREDITS <-
         creditsTitleFont = TTF_OpenFont("assets/font.ttf", 50);
@@ -3540,8 +3572,10 @@ private://constructor
         SDL_DestroyTexture(gameResourceCopperIconTexture);
         SDL_DestroyTexture(gameResourceTinIconTexture);
         SDL_DestroyTexture(gameResourceLumberIconTexture);
+        SDL_DestroyTexture(gameResourceWoolIconTexture);
         SDL_DestroyTexture(gameResourceFishOilIconTexture);
         SDL_DestroyTexture(gameResourceHardWoodIconTexture);
+        SDL_DestroyTexture(gameresourceTextileIconTexture);
         SDL_DestroyTexture(gameResourceToolsIconTexture);
         SDL_DestroyTexture(gameResourceCopperJewleryIconTexture);
         SDL_DestroyTexture(gameResourcePewterIconTexture);
@@ -3856,6 +3890,7 @@ private://constructor
                 bool bIsTinMineVillage = (s.settlementData.type == SettlementType::Village && s.bIsTinMine);
                 bool bIsSilverMineVillage = (s.settlementData.type == SettlementType::Village && s.bIsSilverMine);
                 bool bIsGoldMineVillage = (s.settlementData.type == SettlementType::Village && s.bIsGoldMine);
+                bool bIsSheepPastureVillage = (s.settlementData.type == SettlementType::Village && s.bIsSheepPasture);
 
                 std::vector<NameBarIcon> nameBarIcons;
                 if (bIsFishingVillage) nameBarIcons.push_back({ gameResourceFishIconTexture, 35.f, 0.f });
@@ -3866,6 +3901,7 @@ private://constructor
                 if (bIsTinMineVillage) nameBarIcons.push_back({gameResourceTinIconTexture, 35.f, 0.f});
                 if (bIsSilverMineVillage) nameBarIcons.push_back({gameResourceSilverIconTexture, 35.f, 0.f});
                 if (bIsGoldMineVillage) nameBarIcons.push_back({gameResourceGoldIconTexture, 35.f, 0.f});
+                if (bIsSheepPastureVillage) nameBarIcons.push_back({gameResourceWoolIconTexture, 35.f, 0.f});
 
                 float extraWidth = 0.f;
                 for (const auto& icon : nameBarIcons) extraWidth += icon.gap + icon.size;
@@ -4580,7 +4616,7 @@ private://constructor
                                         : buildingType;
                                 }
                                 //If its a port slot and in position 2 (0-1) then this building cant be destroyed
-                                bool isPermanentSlot = (b == 1 && (s->bIsPort || s->bIsIronMine || s->bIsGoldMine || s->bIsCopperMine || s->bIsSilverMine || s->bIsTinMine || s->bIsLumberMine));
+                                bool isPermanentSlot = (b == 1 && (s->bIsPort || s->bIsIronMine || s->bIsGoldMine || s->bIsCopperMine || s->bIsSilverMine || s->bIsTinMine || s->bIsLumberMine || s->bIsSheepPasture));
                                 {
                                     int gsi = (int)(s - &settlements[0]);
                                     bool awaitingPayment = IsBuildingSlotAwaitingPayment(gsi, b);
@@ -5192,7 +5228,7 @@ private://constructor
         {
             bool isPermanentSlot = (buildMenuSlotIndex == 1 && (cardSett->bIsPort ||
         cardSett->bIsIronMine   || cardSett->bIsGoldMine  || cardSett->bIsCopperMine ||
-        cardSett->bIsSilverMine || cardSett->bIsTinMine   || cardSett->bIsLumberMine));
+        cardSett->bIsSilverMine || cardSett->bIsTinMine   || cardSett->bIsLumberMine || cardSett->bIsSheepPasture));
 
             bool upgradePendingHere = cardSett->settlementData.pendingBuildings[buildMenuSlotIndex] != BuildingType::None;
             int globalSettlementIndex = (int)(cardSett - &settlements[0]);
@@ -7393,6 +7429,7 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         switch (type) {
             case ResourceType::Fish: return gameResourceFishIconTexture;
             case ResourceType::Lumber: return gameResourceLumberIconTexture;
+            case ResourceType::Wool: return gameResourceWoolIconTexture;
             case ResourceType::Iron: return gameResourceIronIconTexture;
             case ResourceType::Copper: return gameResourceCopperIconTexture;
             case ResourceType::Tin: return gameResourceTinIconTexture;
@@ -7400,6 +7437,7 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
             case ResourceType::Gold: return gameResourceGoldIconTexture;
             case ResourceType::FishOil: return gameResourceFishOilIconTexture;
             case ResourceType::HardWood: return gameResourceHardWoodIconTexture;
+            case ResourceType::Textile: return gameresourceTextileIconTexture;
             case ResourceType::Tools: return gameResourceToolsIconTexture;
             case ResourceType::CopperJewlery: return gameResourceCopperJewleryIconTexture;
             case ResourceType::Pewter: return gameResourcePewterIconTexture;
@@ -8094,6 +8132,9 @@ void RenderBuildingStatRows(const BuildingData* data, BuildingType type, float t
                 break;
             case ResourceType::Lumber:resLabel = "Lumber Produced:";
                 resIcon = gameResourceLumberIconTexture;
+                break;
+            case ResourceType::Wool:resLabel = "Wool Produced:";
+                resIcon = gameResourceWoolIconTexture;
                 break;
             case ResourceType::Iron:resLabel = "Iron Produced:";
                 resIcon = gameResourceIronIconTexture;

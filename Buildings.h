@@ -324,7 +324,11 @@ TinMine_T3,
     //Wood
 LumberCamp_T1,
 LumberCamp_T2,
-LumberCamp_T3
+LumberCamp_T3,
+//Wool
+SheepPasture_T1,
+SheepPasture_T2,
+SheepPasture_T3,
 
 };
 
@@ -405,6 +409,7 @@ inline TaxCategory GetTaxCategory(BuildingType buildingType) {
         case BuildingType::SilverMine_T1: case BuildingType::SilverMine_T2: case BuildingType::SilverMine_T3:
         case BuildingType::TinMine_T1: case BuildingType::TinMine_T2: case BuildingType::TinMine_T3:
         case BuildingType::LumberCamp_T1: case BuildingType::LumberCamp_T2: case BuildingType::LumberCamp_T3:
+        case BuildingType::SheepPasture_T1: case BuildingType::SheepPasture_T2: case BuildingType::SheepPasture_T3:
         case BuildingType::KnightOilPress_T1: case BuildingType::KnightOilPress_T2:
         case BuildingType::KnightTinsmith_T1: case BuildingType::KnightTinsmith_T2: case BuildingType::KnightTinsmith_T3:
         case BuildingType::VikingOilPress_T1: case BuildingType::VikingOilPress_T2:
@@ -477,6 +482,11 @@ inline BuildingType GetMineBuildingType(ResourceType resource, int tier) {
             if (tier == 1) return BuildingType::LumberCamp_T1;
             if (tier == 2) return BuildingType::LumberCamp_T2;
             if (tier == 3) return BuildingType::LumberCamp_T3;
+            break;
+        case ResourceType::Wool:
+            if (tier == 1) return BuildingType::SheepPasture_T1;
+            if (tier == 2) return BuildingType::SheepPasture_T2;
+            if (tier == 3) return BuildingType::SheepPasture_T3;
             break;
         default:
             break;
@@ -1141,7 +1151,10 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::LumberCamp_T1, {"Small lumber camp", "Lumber is very important.\nWithout it we can't build arrows or furnitures.", 650, 10, 0, 0, 1, 12, 0, 0, 0, 0, 0, 0, 2, BuildingType::LumberCamp_T2});
     add(BuildingType::LumberCamp_T2, {"Lumber camp", "Lumber is very important.\nWithout it we can't build arrows or furnitures.", 800, 15, 0, 0, 2, 6, 0, 0, 0, 0, 0, 0, 3, BuildingType::LumberCamp_T3});
     add(BuildingType::LumberCamp_T3, {"Large lumber camp", "Lumber is very important.\nWithout it we can't build arrows or furnitures.", 650, 20, 0, 0, 3, 12, 0, 0, 0, 0, 0, 0, 5, BuildingType::None});
-
+    //Wool
+    add(BuildingType::SheepPasture_T1, {"Small Sheep Pasture", "Flocks graze upon these fields,\ntheir wool sheared for cloth\nand trade alike.", 650, 10, 0, 0, 1, 12, 0, 0, 0, 0, 0, 0, 2, BuildingType::SheepPasture_T2});
+    add(BuildingType::SheepPasture_T2, {"Sheep Pasture", "A larger flock is tended here,\nyielding wool enough to supply\nweavers across the province.", 800, 15, 0, 0, 2, 6, 0, 0, 0, 0, 0, 0, 3, BuildingType::SheepPasture_T3});
+    add(BuildingType::SheepPasture_T3, {"Large Sheep Pasture", "Vast pastures teem with sheep,\ntheir wool feeding a thriving\ntextile trade.", 650, 20, 0, 0, 3, 12, 0, 0, 0, 0, 0, 0, 5, BuildingType::None});
     // ── RESOURCE PRODUCTION ──
     //ports
     db[BuildingType::KnightFishingPort_T1].resourcesProduced = {{ResourceType::Fish, 1}};
@@ -1180,7 +1193,10 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     db[BuildingType::LumberCamp_T1].resourcesProduced = {{ResourceType::Lumber, 1}};
     db[BuildingType::LumberCamp_T2].resourcesProduced = {{ResourceType::Lumber, 2}};
     db[BuildingType::LumberCamp_T3].resourcesProduced = {{ResourceType::Lumber, 3}};
-
+    //Wool  sheep pasture
+    db[BuildingType::SheepPasture_T1].resourcesProduced = {{ResourceType::Wool, 1}};
+    db[BuildingType::SheepPasture_T2].resourcesProduced = {{ResourceType::Wool, 2}};
+    db[BuildingType::SheepPasture_T3].resourcesProduced = {{ResourceType::Wool, 3}};
 
     // ── GOODS STORAGE CAPACITY ──
     // Capitals (base 100 slot each)
