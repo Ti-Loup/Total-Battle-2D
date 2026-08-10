@@ -47,7 +47,7 @@
  * ToDo - If you have less paysants than the nobility amount your buildings doesnt work has much. See paysantry/Nobility  description
  * Fixes:
  * Done | The repair button wasnt disappearing for ports after repairing.
- *
+ * Done | Fix the Goods manager displaying the goods outside of the ui
  *
  * --------------------------------------------
  * 0.3.25
@@ -331,6 +331,14 @@ public:
     bool bGoodsProductionManagerPopup = false;
     //Circle for goods Production manager Close
     Circle GoodsProductionManagerReturnGame = {1010.f, 950.f, 20};
+
+    //Goods Production Manager Scroll state for the Raw / Modified sections
+    float goodsManagerRawScrollOffset = 0.f;
+    float goodsManagerModifiedScrollOffset = 0.f;
+    SDL_FRect goodsManagerRawViewportRect      = {500.f, 245.f, 1000.f, 300.f};
+    SDL_FRect goodsManagerModifiedViewportRect = {500.f, 595.f, 1000.f, 300.f};
+
+
     //End Turn
     int currentTurn = 1;
     FactionZone currentFactionTurn = FactionZone::Knight;//start with player
@@ -7611,19 +7619,21 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
     std::sort(rawGoodTypes.begin(), rawGoodTypes.end());
     std::sort(transformedTypes.begin(), transformedTypes.end());
 
-    float columnX = 520.f;
+    float columnX  = 520.f;
     float iconSize = 26.f;
-    float rowH = 46.f;
-    float currentY = 220.f;
+    float rowH     = 46.f;
 
-    auto drawSectionHeader = [&](const char* label) {
-        TTF_SetTextString(gameGoodsStorageManagerTitleText, label, 0);
-        TTF_SetTextColor(gameGoodsStorageManagerTitleText, 220, 200, 140, 255);
-        TTF_DrawRendererText(gameGoodsStorageManagerTitleText, columnX, currentY);
-        currentY += 34.f;
-    };
+    //Fixed (non-scrolling) section headers
+    TTF_SetTextString(gameGoodsStorageManagerTitleText, "Raw Goods", 0);
+    TTF_SetTextColor(gameGoodsStorageManagerTitleText, 220, 200, 140, 255);
+    TTF_DrawRendererText(gameGoodsStorageManagerTitleText, columnX, 218.f);
 
-    auto drawGoodsRow = [&](ResourceType type) {
+    TTF_SetTextString(gameGoodsStorageManagerTitleText, "Modified Goods", 0);
+    TTF_SetTextColor(gameGoodsStorageManagerTitleText, 220, 200, 140, 255);
+    TTF_DrawRendererText(gameGoodsStorageManagerTitleText, columnX, 568.f);
+
+    //Draws one resource row at a given Y
+    auto drawGoodsRow = [&](ResourceType type, float rowY) {
         int  storedAmount  = goodsStoredByType.count(type) ? goodsStoredByType[type] : 0;
         int  maxProduction = goodsMaxProductionByType.count(type) ? goodsMaxProductionByType[type] : -1;
         bool owned = goodsProducedThisTurnByType.count(type) > 0 || storedAmount > 0;
@@ -7633,12 +7643,12 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         bool defaultEnabled = !(isRawGood && !owned);
         bool enabled = goodsProductionEnabledByType.count(type) ? goodsProductionEnabledByType[type] : defaultEnabled;
 
-        Uint8 rowAlpha  = owned ? 255 : 100; //dims icons/buttons for goods you don't have
+        Uint8 rowAlpha  = owned ? 255 : 100;
         Uint8 textShade = owned ? 220 : 110;
 
         //Icon
         SDL_Texture* icon = GetResourceTypeIcon(type);
-        SDL_FRect iconRect = {columnX, currentY, iconSize, iconSize};
+        SDL_FRect iconRect = {columnX, rowY, iconSize, iconSize};
         if (icon) {
             SDL_SetTextureAlphaMod(icon, rowAlpha);
             SDL_RenderTexture(renderer, icon, nullptr, &iconRect);
@@ -7649,14 +7659,14 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         std::string nameLabel = std::string(GetResourceTypeName(type)) + " (" + std::to_string(storedAmount) + ")";
         TTF_SetTextString(gameGoodsStorageManagerDescText, nameLabel.c_str(), 0);
         TTF_SetTextColor(gameGoodsStorageManagerDescText, textShade, textShade, textShade, 255);
-        TTF_DrawRendererText(gameGoodsStorageManagerDescText, columnX + iconSize + 10.f, currentY + 4.f);
+        TTF_DrawRendererText(gameGoodsStorageManagerDescText, columnX + iconSize + 10.f, rowY + 4.f);
 
-        //Value per unit (gold worth of this resource) && fixed column
+        //Value per unit
         const ResourceData* resourceData = GetResourceData(type);
         int resourceValue = resourceData ? resourceData->ResourceValue : 0;
         float valueIconSize = 42.f;
         float valueX = 750.f;
-        SDL_FRect valueIconRect = {valueX, currentY - 8.f, valueIconSize, valueIconSize};
+        SDL_FRect valueIconRect = {valueX, rowY - 8.f, valueIconSize, valueIconSize};
         SDL_SetTextureAlphaMod(gameGoodsTradeValueTexture, rowAlpha);
         SDL_RenderTexture(renderer, gameGoodsTradeValueTexture, nullptr, &valueIconRect);
         SDL_SetTextureAlphaMod(gameGoodsTradeValueTexture, 255);
@@ -7665,8 +7675,7 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         TTF_SetTextString(gameGoodsStorageManagerDescText, valueStr.c_str(), 0);
         TTF_SetTextColor(gameGoodsStorageManagerDescText, owned ? 220 : 120, owned ? 180 : 120, owned ? 40 : 80, 255);
         float valueTextX = valueX + valueIconSize - 8.f;
-        TTF_DrawRendererText(gameGoodsStorageManagerDescText, valueTextX, currentY + 4.f);
-        //measure the actual width of the value number so () never overlaps it
+        TTF_DrawRendererText(gameGoodsStorageManagerDescText, valueTextX, rowY + 4.f);
         int valueTextW = 0, valueTextH = 0;
         TTF_GetTextSize(gameGoodsStorageManagerDescText, &valueTextW, &valueTextH);
 
@@ -7674,11 +7683,11 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         std::string totalValueStr = "(" + std::to_string(totalGoldValue) + ")";
         TTF_SetTextString(gameGoodsStorageManagerDescText, totalValueStr.c_str(), 0);
         TTF_SetTextColor(gameGoodsStorageManagerDescText, owned ? 220 : 120, owned ? 180 : 120, owned ? 40 : 80, 255);
-        TTF_DrawRendererText(gameGoodsStorageManagerDescText, valueTextX + valueTextW + 1.0f, currentY + 4.f);
+        TTF_DrawRendererText(gameGoodsStorageManagerDescText, valueTextX + valueTextW + 1.0f, rowY + 4.f);
 
-        //Minus button (only clickable if owned)
+        //Minus button
         float minusX = 925.f;
-        SDL_FRect minusRect = {minusX, currentY, 28.f, 28.f};
+        SDL_FRect minusRect = {minusX, rowY, 28.f, 28.f};
         SDL_SetTextureAlphaMod(gameGoodsManagerMinusTexture, rowAlpha);
         SDL_RenderTexture(renderer, gameGoodsManagerMinusTexture, nullptr, &minusRect);
         SDL_SetTextureAlphaMod(gameGoodsManagerMinusTexture, 255);
@@ -7693,19 +7702,19 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         float maxNumX = minusX + 28.f + 10.f;
         float maxNumW = 90.f;
         TTF_DrawRendererText(gameGoodsStorageManagerDescText,
-            maxNumX + (maxNumW - maxW) / 2.f, currentY + 4.f);
+            maxNumX + (maxNumW - maxW) / 2.f, rowY + 4.f);
 
-        //Plus button only clickable if owned
+        //Plus button
         float plusX = maxNumX + maxNumW + 10.f;
-        SDL_FRect plusRect = {plusX, currentY, 28.f, 28.f};
+        SDL_FRect plusRect = {plusX, rowY, 28.f, 28.f};
         SDL_SetTextureAlphaMod(gameGoodsManagerPlusTexture, rowAlpha);
         SDL_RenderTexture(renderer, gameGoodsManagerPlusTexture, nullptr, &plusRect);
         SDL_SetTextureAlphaMod(gameGoodsManagerPlusTexture, 255);
         if (owned) goodsManagerPlusRects.push_back({plusRect, type});
 
-        //Toggle only clickable if owned
+        //Toggle
         float toggleX = plusX + 28.f + 30.f + 250.f;
-        SDL_FRect toggleRect = {toggleX, currentY, 28.f, 28.f};
+        SDL_FRect toggleRect = {toggleX, rowY, 28.f, 28.f};
         SDL_Texture* toggleTex = enabled ? gameToggleTaxSettlementTrue : gameToggleTaxSettlementFalse;
         SDL_SetTextureAlphaMod(toggleTex, rowAlpha);
         SDL_RenderTexture(renderer, toggleTex, nullptr, &toggleRect);
@@ -7714,24 +7723,53 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
 
         TTF_SetTextString(gameGoodsStorageManagerDescText, "Produce", 0);
         TTF_SetTextColor(gameGoodsStorageManagerDescText, textShade > 150 ? 180 : 110, textShade > 150 ? 180 : 110, textShade > 150 ? 180 : 110, 255);
-        TTF_DrawRendererText(gameGoodsStorageManagerDescText, toggleX + 34.f, currentY + 4.f);
+        TTF_DrawRendererText(gameGoodsStorageManagerDescText, toggleX + 34.f, rowY + 4.f);
 
-        //Grey overlay covering the whole line when production is toggled off
+        //Grey overlay when production is toggled off
         if (owned && !enabled) {
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
             SDL_SetRenderDrawColor(renderer, 50, 50, 50, 160);
-            SDL_FRect disabledRowOverlay = {columnX - 10.f, currentY - 4.f, 1480.f - (columnX - 10.f), rowH - 6.f};
+            SDL_FRect disabledRowOverlay = {columnX - 10.f, rowY - 4.f, 1480.f - (columnX - 10.f), rowH - 6.f};
             SDL_RenderFillRect(renderer, &disabledRowOverlay);
         }
-        currentY += rowH;
     };
 
-    drawSectionHeader("Raw Goods");
-    for (ResourceType t : rawGoodTypes) drawGoodsRow(t);
-    currentY += 10.f;
+    //The list of goods with the scroll
+    auto renderScrollableGoodsList = [&](const std::vector<ResourceType>& types, const SDL_FRect& viewport, float& scrollOffset) {
+        float contentHeight = (float)types.size() * rowH;
+        float maxScroll = std::max(0.f, contentHeight - viewport.h);
+        scrollOffset = std::clamp(scrollOffset, 0.f, maxScroll);
 
-    drawSectionHeader("Modified Goods");
-    for (ResourceType t : transformedTypes) drawGoodsRow(t);
+        SDL_Rect clipRect = { (int)viewport.x, (int)viewport.y, (int)viewport.w, (int)viewport.h };
+        SDL_SetRenderClipRect(renderer, &clipRect);
+
+        float rowY = viewport.y - scrollOffset;
+        for (ResourceType t : types) {
+            if (rowY + rowH >= viewport.y && rowY <= viewport.y + viewport.h) {
+                drawGoodsRow(t, rowY);
+            }
+            rowY += rowH;
+        }
+
+        SDL_SetRenderClipRect(renderer, nullptr);
+
+        //Scrollbar indicator
+        if (maxScroll > 0.f) {
+            float trackX = viewport.x + viewport.w - 6.f;
+            SDL_SetRenderDrawColor(renderer, 20, 20, 20, 200);
+            SDL_FRect track = {trackX - 4.f, viewport.y, 8.f, viewport.h};
+            SDL_RenderFillRect(renderer, &track);
+
+            float thumbH = std::max(20.f, viewport.h * (viewport.h / contentHeight));
+            float thumbY = viewport.y + (viewport.h - thumbH) * (scrollOffset / maxScroll);
+            SDL_SetRenderDrawColor(renderer, 180, 150, 60, 255);
+            SDL_FRect thumb = {trackX - 4.f, thumbY, 8.f, thumbH};
+            SDL_RenderFillRect(renderer, &thumb);
+        }
+    };
+
+    renderScrollableGoodsList(rawGoodTypes, goodsManagerRawViewportRect, goodsManagerRawScrollOffset);
+    renderScrollableGoodsList(transformedTypes, goodsManagerModifiedViewportRect, goodsManagerModifiedScrollOffset);
 
     //Button To return
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -10083,6 +10121,20 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         float wheelLogicX, wheelLogicY;
         SDL_RenderCoordinatesFromWindow(app.renderer, wheelMouseX, wheelMouseY, &wheelLogicX, &wheelLogicY);
         SDL_FPoint wheelPt = {wheelLogicX, wheelLogicY};
+
+        // Goods Production Manager: scroll Raw Goods / Modified Goods independently
+        if (app.bGoodsProductionManagerPopup) {
+            const float scrollStep = 40.f;
+            if (SDL_PointInRectFloat(&wheelPt, &app.goodsManagerRawViewportRect)) {
+                app.goodsManagerRawScrollOffset -= event->wheel.y * scrollStep;
+                return SDL_APP_CONTINUE;
+            }
+            if (SDL_PointInRectFloat(&wheelPt, &app.goodsManagerModifiedViewportRect)) {
+                app.goodsManagerModifiedScrollOffset -= event->wheel.y * scrollStep;
+                return SDL_APP_CONTINUE;
+            }
+            return SDL_APP_CONTINUE; // don't let wheel zoom the map behind the popup
+        }
 
         if (SDL_PointInRectFloat(&wheelPt, &app.miniMapBoxRect)) {
             float miniZoomFactor = (event->wheel.y > 0) ? 1.25f : 0.8f;
