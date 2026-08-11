@@ -76,15 +76,15 @@ KnightTextile_T3,
 KnightArtisan_T1,
 KnightArtisan_T2,
 KnightArtisan_T3,
-KnightTinsmith_T1,
 KnightTinsmith_T2,
 KnightTinsmith_T3,
-KnightMint_T1,
+KnightTinsmith_T4,
 KnightMint_T2,
 KnightMint_T3,
-KnightForge_T2,
+KnightMint_T4,
 KnightForge_T3,
 KnightForge_T4,
+KnightForge_T5,
 KnightJeweller_T3,
 KnightJeweller_T4,
 KnightJeweller_T5,
@@ -169,15 +169,15 @@ VikingTextile_T3,
 VikingArtisan_T1,
 VikingArtisan_T2,
 VikingArtisan_T3,
-VikingTinsmith_T1,
 VikingTinsmith_T2,
 VikingTinsmith_T3,
-VikingMint_T1,
+VikingTinsmith_T4,
 VikingMint_T2,
 VikingMint_T3,
-VikingForge_T2,
+VikingMint_T4,
 VikingForge_T3,
 VikingForge_T4,
+VikingForge_T5,
 VikingJeweller_T3,
 VikingJeweller_T4,
 VikingJeweller_T5,
@@ -265,15 +265,15 @@ SamuraiTextile_T3,
 SamuraiArtisan_T1,
 SamuraiArtisan_T2,
 SamuraiArtisan_T3,
-SamuraiTinsmith_T1,
 SamuraiTinsmith_T2,
 SamuraiTinsmith_T3,
-SamuraiMint_T1,
+SamuraiTinsmith_T4,
 SamuraiMint_T2,
 SamuraiMint_T3,
-SamuraiForge_T2,
+SamuraiMint_T4,
 SamuraiForge_T3,
 SamuraiForge_T4,
+SamuraiForge_T5,
 SamuraiJeweller_T3,
 SamuraiJeweller_T4,
 SamuraiJeweller_T5,
@@ -378,30 +378,27 @@ inline TaxCategory GetTaxCategory(BuildingType buildingType) {
         // ── COMMERCE (yellow) ──
         case BuildingType::KnightWareHouse_T3: case BuildingType::KnightWareHouse_T4: case BuildingType::KnightWareHouse_T5:
         case BuildingType::KnightRoads_T1:     case BuildingType::KnightRoads_T2:     case BuildingType::KnightRoads_T3:
-        case BuildingType::KnightMint_T1:      case BuildingType::KnightMint_T2:      case BuildingType::KnightMint_T3:
         case BuildingType::KnightTavern_T1:
         case BuildingType::VikingWareHouse_T3: case BuildingType::VikingWareHouse_T4: case BuildingType::VikingWareHouse_T5:
         case BuildingType::VikingRoads_T1:     case BuildingType::VikingRoads_T2:     case BuildingType::VikingRoads_T3:
-        case BuildingType::VikingMint_T1:      case BuildingType::VikingMint_T2:      case BuildingType::VikingMint_T3:
         case BuildingType::VikingTavern_T1:
         case BuildingType::SamuraiWareHouse_T3:case BuildingType::SamuraiWareHouse_T4:case BuildingType::SamuraiWareHouse_T5:
         case BuildingType::SamuraiRoads_T1:    case BuildingType::SamuraiRoads_T2:    case BuildingType::SamuraiRoads_T3:
-        case BuildingType::SamuraiMint_T1:     case BuildingType::SamuraiMint_T2:     case BuildingType::SamuraiMint_T3:
         case BuildingType::SamuraiTavern_T1:
             return TaxCategory::Commerce;
 
         // ── INDUSTRY (grey) ──
         case BuildingType::KnightCarpentry_T1: case BuildingType::KnightCarpentry_T2:
         case BuildingType::KnightArtisan_T1:   case BuildingType::KnightArtisan_T2:   case BuildingType::KnightArtisan_T3:
-        case BuildingType::KnightForge_T2:     case BuildingType::KnightForge_T3:     case BuildingType::KnightForge_T4:
+        case BuildingType::KnightForge_T3:     case BuildingType::KnightForge_T4:     case BuildingType::KnightForge_T5:
         case BuildingType::KnightJeweller_T3:  case BuildingType::KnightJeweller_T4:  case BuildingType::KnightJeweller_T5:
         case BuildingType::VikingCarpentry_T1: case BuildingType::VikingCarpentry_T2:
         case BuildingType::VikingArtisan_T1:   case BuildingType::VikingArtisan_T2:   case BuildingType::VikingArtisan_T3:
-        case BuildingType::VikingForge_T2:     case BuildingType::VikingForge_T3:     case BuildingType::VikingForge_T4:
+        case BuildingType::VikingForge_T3:     case BuildingType::VikingForge_T4:     case BuildingType::VikingForge_T5:
         case BuildingType::VikingJeweller_T3:  case BuildingType::VikingJeweller_T4:  case BuildingType::VikingJeweller_T5:
         case BuildingType::SamuraiCarpentry_T1:case BuildingType::SamuraiCarpentry_T2:
         case BuildingType::SamuraiArtisan_T1:  case BuildingType::SamuraiArtisan_T2:  case BuildingType::SamuraiArtisan_T3:
-        case BuildingType::SamuraiForge_T2:    case BuildingType::SamuraiForge_T3:    case BuildingType::SamuraiForge_T4:
+        case BuildingType::SamuraiForge_T3:    case BuildingType::SamuraiForge_T4:    case BuildingType::SamuraiForge_T5:
         case BuildingType::SamuraiJeweller_T3: case BuildingType::SamuraiJeweller_T4: case BuildingType::SamuraiJeweller_T5:
         case BuildingType::IronMine_T1: case BuildingType::IronMine_T2: case BuildingType::IronMine_T3:
         case BuildingType::GoldMine_T1: case BuildingType::GoldMine_T2: case BuildingType::GoldMine_T3:
@@ -411,11 +408,14 @@ inline TaxCategory GetTaxCategory(BuildingType buildingType) {
         case BuildingType::LumberCamp_T1: case BuildingType::LumberCamp_T2: case BuildingType::LumberCamp_T3:
         case BuildingType::SheepPasture_T1: case BuildingType::SheepPasture_T2: case BuildingType::SheepPasture_T3:
         case BuildingType::KnightOilPress_T1: case BuildingType::KnightOilPress_T2:
-        case BuildingType::KnightTinsmith_T1: case BuildingType::KnightTinsmith_T2: case BuildingType::KnightTinsmith_T3:
+        case BuildingType::KnightTinsmith_T2: case BuildingType::KnightTinsmith_T3: case BuildingType::KnightTinsmith_T4:
+        case BuildingType::KnightMint_T2: case BuildingType::KnightMint_T3: case BuildingType::KnightMint_T4:
         case BuildingType::VikingOilPress_T1: case BuildingType::VikingOilPress_T2:
-        case BuildingType::VikingTinsmith_T1: case BuildingType::VikingTinsmith_T2: case BuildingType::VikingTinsmith_T3:
+        case BuildingType::VikingTinsmith_T2: case BuildingType::VikingTinsmith_T3: case BuildingType::VikingTinsmith_T4:
+        case BuildingType::VikingMint_T2: case BuildingType::VikingMint_T3: case BuildingType::VikingMint_T4:
         case BuildingType::SamuraiOilPress_T1: case BuildingType::SamuraiOilPress_T2:
-        case BuildingType::SamuraiTinsmith_T1: case BuildingType::SamuraiTinsmith_T2: case BuildingType::SamuraiTinsmith_T3:
+        case BuildingType::SamuraiTinsmith_T2: case BuildingType::SamuraiTinsmith_T3: case BuildingType::SamuraiTinsmith_T4:
+        case BuildingType::SamuraiMint_T2: case BuildingType::SamuraiMint_T3: case BuildingType::SamuraiMint_T4:
         case BuildingType::KnightTextile_T1: case BuildingType::KnightTextile_T2: case BuildingType::KnightTextile_T3:
         case BuildingType::VikingTextile_T1: case BuildingType::VikingTextile_T2: case BuildingType::VikingTextile_T3:
         case BuildingType::SamuraiTextile_T1: case BuildingType::SamuraiTextile_T2: case BuildingType::SamuraiTextile_T3:
@@ -629,23 +629,23 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
         return BuildingCategory::Economy;
 
 
-    case BuildingType::KnightMint_T1:
     case BuildingType::KnightMint_T2:
     case BuildingType::KnightMint_T3:
-    case BuildingType::VikingMint_T1:
+    case BuildingType::KnightMint_T4:
     case BuildingType::VikingMint_T2:
     case BuildingType::VikingMint_T3:
-    case BuildingType::SamuraiMint_T1:
+    case BuildingType::VikingMint_T4:
     case BuildingType::SamuraiMint_T2:
     case BuildingType::SamuraiMint_T3:
+    case BuildingType::SamuraiMint_T4:
     case BuildingType::KnightCarpentry_T1:
     case BuildingType::KnightCarpentry_T2:
     case BuildingType::KnightArtisan_T1:
     case BuildingType::KnightArtisan_T2:
     case BuildingType::KnightArtisan_T3:
-    case BuildingType::KnightForge_T2:
     case BuildingType::KnightForge_T3:
     case BuildingType::KnightForge_T4:
+    case BuildingType::KnightForge_T5:
     case BuildingType::KnightJeweller_T3:
     case BuildingType::KnightJeweller_T4:
     case BuildingType::KnightJeweller_T5:
@@ -654,9 +654,9 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::VikingArtisan_T1:
     case BuildingType::VikingArtisan_T2:
     case BuildingType::VikingArtisan_T3:
-    case BuildingType::VikingForge_T2:
     case BuildingType::VikingForge_T3:
     case BuildingType::VikingForge_T4:
+    case BuildingType::VikingForge_T5:
     case BuildingType::VikingJeweller_T3:
     case BuildingType::VikingJeweller_T4:
     case BuildingType::VikingJeweller_T5:
@@ -665,27 +665,27 @@ inline BuildingCategory GetBuildingCategory(BuildingType buildingType){
     case BuildingType::SamuraiArtisan_T1:
     case BuildingType::SamuraiArtisan_T2:
     case BuildingType::SamuraiArtisan_T3:
-    case BuildingType::SamuraiForge_T2:
     case BuildingType::SamuraiForge_T3:
     case BuildingType::SamuraiForge_T4:
+    case BuildingType::SamuraiForge_T5:
     case BuildingType::SamuraiJeweller_T3:
     case BuildingType::SamuraiJeweller_T4:
     case BuildingType::SamuraiJeweller_T5:
     case BuildingType::KnightOilPress_T1:
     case BuildingType::KnightOilPress_T2:
-    case BuildingType::KnightTinsmith_T1:
     case BuildingType::KnightTinsmith_T2:
     case BuildingType::KnightTinsmith_T3:
+    case BuildingType::KnightTinsmith_T4:
     case BuildingType::VikingOilPress_T1:
     case BuildingType::VikingOilPress_T2:
-    case BuildingType::VikingTinsmith_T1:
     case BuildingType::VikingTinsmith_T2:
     case BuildingType::VikingTinsmith_T3:
+    case BuildingType::VikingTinsmith_T4:
     case BuildingType::SamuraiOilPress_T1:
     case BuildingType::SamuraiOilPress_T2:
-    case BuildingType::SamuraiTinsmith_T1:
     case BuildingType::SamuraiTinsmith_T2:
     case BuildingType::SamuraiTinsmith_T3:
+    case BuildingType::SamuraiTinsmith_T4:
     case BuildingType::KnightTextile_T1:
     case BuildingType::KnightTextile_T2:
     case BuildingType::KnightTextile_T3:
@@ -919,15 +919,15 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::KnightArtisan_T1, {"Artisan", "If you've got made-goods to sell,\nthe chances are that this man\ncan find you a buyer.", 750, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, 0, BuildingType::KnightArtisan_T2});
     add(BuildingType::KnightArtisan_T2, {"Craft Workshop", "If you travel far enough, there's\nalways a buyer willing to buy\nor barter for your wares.", 900, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, BuildingType::KnightArtisan_T3 });
     add(BuildingType::KnightArtisan_T3, {"Crafts Industry", "I have buyers lined up across the\nkingdom and beyond, and the vessels to get\nthe goods where they need to be.", 1050, 0, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None });
-    add(BuildingType::KnightTinsmith_T1, {"Tinsmith", "Tin, once beaten and shaped,\nbecomes plate, cup and tankard\nfor lord and peasant alike.", 750, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, 0, BuildingType::KnightTinsmith_T2});
-    add(BuildingType::KnightTinsmith_T2, {"Pewter Workshop", "Pewter wares leave this workshop\nby the cartload, bound for every\nmarket in the realm.", 900, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, BuildingType::KnightTinsmith_T3});
-    add(BuildingType::KnightTinsmith_T3, {"Pewterers' Hall", "The guild's finest pewterers work\nhere, their wares prized far\nbeyond the kingdom's borders.", 1050, 0, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None});
-    add(BuildingType::KnightMint_T1, {"Mint", "Coins hold power beyond wealth.\nThey are legitimacy.\nThey are loyalty.", 600, 5, 0, 0, 1, 11, 0, 0, 0, 0, 0, 0, 0, BuildingType::KnightMint_T2});
-    add(BuildingType::KnightMint_T2, {"Royal Mint", "When your face is everywhere,\nthere can be no doubt \nwho rules.", 750, 10, 0, 0, 2, 4, 0, 0, 0, 0, 0, 0, 0, BuildingType::KnightMint_T3});
-    add(BuildingType::KnightMint_T3, {"Treasury", "The coffers of the state, from \nwhich funds are drawn \naccording to need and favour.", 900, 15, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None});
-    add(BuildingType::KnightForge_T2, {"Blacksmith", "What is wrought by the blacksmith\nwill last a lifetime.", 850, 0, 0, 0, 2, 8, 0, 0, 0, 0, 0, 0, 0, BuildingType::KnightForge_T3});
-    add(BuildingType::KnightForge_T3, {"Forge", "The modern world is born\nof the forge.", 1000, 0, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::KnightForge_T4 });
-    add(BuildingType::KnightForge_T4, {"Great Forge", "Incredible temperatures allow\nmetals and alloys to be shaped with\nthe greatest of ease.", 1200, 0, 0, 0, 4, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::KnightTinsmith_T2, {"Tinsmith", "Tin, once beaten and shaped,\nbecomes plate, cup and tankard\nfor lord and peasant alike.", 750, 0, 0, 0, 2, 5, 0, 0, 0, 0, 0, 0, 0, BuildingType::KnightTinsmith_T3});
+    add(BuildingType::KnightTinsmith_T3, {"Pewter Workshop", "Pewter wares leave this workshop\nby the cartload, bound for every\nmarket in the realm.", 900, 0, 0, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0, BuildingType::KnightTinsmith_T4});
+    add(BuildingType::KnightTinsmith_T4, {"Pewterers' Hall", "The guild's finest pewterers work\nhere, their wares prized far\nbeyond the kingdom's borders.", 1050, 0, 0, 0, 4, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None});
+    add(BuildingType::KnightMint_T2, {"Mint", "Coins hold power beyond wealth.\nThey are legitimacy.\nThey are loyalty.", 600, 5, 0, 0, 2, 11, 0, 0, 0, 0, 0, 0, 0, BuildingType::KnightMint_T3});
+    add(BuildingType::KnightMint_T3, {"Royal Mint", "When your face is everywhere,\nthere can be no doubt \nwho rules.", 750, 10, 0, 0, 3, 4, 0, 0, 0, 0, 0, 0, 0, BuildingType::KnightMint_T4});
+    add(BuildingType::KnightMint_T4, {"Treasury", "The coffers of the state, from \nwhich funds are drawn \naccording to need and favour.", 900, 15, 0, 0, 4, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None});
+    add(BuildingType::KnightForge_T3, {"Blacksmith", "What is wrought by the blacksmith\nwill last a lifetime.", 850, 0, 0, 0, 3, 8, 0, 0, 0, 0, 0, 0, 0, BuildingType::KnightForge_T4});
+    add(BuildingType::KnightForge_T4, {"Forge", "The modern world is born\nof the forge.", 1000, 0, 0, 0, 4, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::KnightForge_T5 });
+    add(BuildingType::KnightForge_T5, {"Great Forge", "Incredible temperatures allow\nmetals and alloys to be shaped with\nthe greatest of ease.", 1200, 0, 0, 0, 5, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None });
     add(BuildingType::KnightJeweller_T3, {"Jewellers", "The rare skills necessary to work\nprecious metals ensure that\nthose who have them are never\nout of work.", 750, 0, 0, 0, 3, 9, 0, 0, 0, 0, 0, 0, 0, BuildingType::KnightJeweller_T4});
     add(BuildingType::KnightJeweller_T4, {"Master jewellers", "To take the necessary and make\nit special? Now that takes skill", 900, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, 0, BuildingType::KnightJeweller_T5 });
     add(BuildingType::KnightJeweller_T5, {"Jewelley Industry", "As pure function has given way\nto ornate forms, so the artisan\njeweller has risen to be master of his craft.", 1050, 0, 0, 0, 5, 2, 0, 0, 0, 0, 0, 0, 0, BuildingType::None });
@@ -1019,15 +1019,15 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::VikingArtisan_T1, {"Artisan", "If you've got made-goods to sell,\nthe chances are that this man\ncan find you a buyer.", 750, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingArtisan_T2});
     add(BuildingType::VikingArtisan_T2, {"Craft Workshop", "If you travel far enough, there's\nalways a buyer willing to buy\nor barter for your wares.", 900, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingArtisan_T3 });
     add(BuildingType::VikingArtisan_T3, {"Crafts Industry", "I have buyers lined up across the\nkingdom and beyond, and the vessels to get\nthe goods where they need to be.", 1050, 0, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None });
-    add(BuildingType::VikingTinsmith_T1, {"Tin Caster", "Tin is cast into cups and clasps\nhere, humble work for a\nhumble metal.", 750, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingTinsmith_T2});
-    add(BuildingType::VikingTinsmith_T2, {"Casting Hearth", "A busy hearth where tin is\nworked into wares traded up\nand down the coast.", 900, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingTinsmith_T3});
-    add(BuildingType::VikingTinsmith_T3, {"Grand Tin Foundry", "The finest pewter in the north\nis cast here, fit for a Jarl's\nown table.", 1050, 0, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None});
-    add(BuildingType::VikingMint_T1, {"Mint", "Coins hold power beyond wealth.\nThey are legitimacy.\nThey are loyalty.", 600, 5, 0, 0, 1, 11, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingMint_T2});
-    add(BuildingType::VikingMint_T2, {"Royal Mint", "When your face is everywhere,\nthere can be no doubt \nwho rules.", 750, 10, 0, 0, 2, 4, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingMint_T3});
-    add(BuildingType::VikingMint_T3, {"Treasury", "The coffers of the state, from \nwhich funds are drawn \naccording to need and favour.", 900, 15, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None});
-    add(BuildingType::VikingForge_T2, {"Blacksmith", "What is wrought by the blacksmith\nwill last a lifetime.", 850, 0, 0, 0, 2, 8, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingForge_T3});
-    add(BuildingType::VikingForge_T3, {"Forge", "The modern world is born\nof the forge.", 1000, 0, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingForge_T4 });
-    add(BuildingType::VikingForge_T4, {"Great Forge", "Incredible temperatures allow\nmetals and alloys to be shaped with\nthe greatest of ease.", 1200, 0, 0, 0, 4, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::VikingTinsmith_T2, {"Tin Caster", "Tin is cast into cups and clasps\nhere, humble work for a\nhumble metal.", 750, 0, 0, 0, 2, 5, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingTinsmith_T3});
+    add(BuildingType::VikingTinsmith_T3, {"Casting Hearth", "A busy hearth where tin is\nworked into wares traded up\nand down the coast.", 900, 0, 0, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingTinsmith_T4});
+    add(BuildingType::VikingTinsmith_T4, {"Grand Tin Foundry", "The finest pewter in the north\nis cast here, fit for a Jarl's\nown table.", 1050, 0, 0, 0, 4, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None});
+    add(BuildingType::VikingMint_T2, {"Mint", "Coins hold power beyond wealth.\nThey are legitimacy.\nThey are loyalty.", 600, 5, 0, 0, 2, 11, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingMint_T3});
+    add(BuildingType::VikingMint_T3, {"Royal Mint", "When your face is everywhere,\nthere can be no doubt \nwho rules.", 750, 10, 0, 0, 3, 4, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingMint_T4});
+    add(BuildingType::VikingMint_T4, {"Treasury", "The coffers of the state, from \nwhich funds are drawn \naccording to need and favour.", 900, 15, 0, 0, 4, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None});
+    add(BuildingType::VikingForge_T3, {"Blacksmith", "What is wrought by the blacksmith\nwill last a lifetime.", 850, 0, 0, 0, 3, 8, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingForge_T4});
+    add(BuildingType::VikingForge_T4, {"Forge", "The modern world is born\nof the forge.", 1000, 0, 0, 0, 4, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingForge_T5 });
+    add(BuildingType::VikingForge_T5, {"Great Forge", "Incredible temperatures allow\nmetals and alloys to be shaped with\nthe greatest of ease.", 1200, 0, 0, 0, 5, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None });
     add(BuildingType::VikingJeweller_T3, {"Jewellers", "The rare skills necessary to work\nprecious metals ensure that\nthose who have them are never\nout of work.", 750, 0, 0, 0, 3, 9, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingJeweller_T4});
     add(BuildingType::VikingJeweller_T4, {"Master jewellers", "To take the necessary and make\nit special? Now that takes skill", 900, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingJeweller_T5 });
     add(BuildingType::VikingJeweller_T5, {"Jewelley Industry", "As pure function has given way\nto ornate forms, so the artisan\njeweller has risen to be master of his craft.", 1050, 0, 0, 0, 5, 2, 0, 0, 0, 0, 0, 0, 0, BuildingType::None });
@@ -1100,15 +1100,15 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::SamuraiArtisan_T1, {"Artisan", "If you've got made-goods to sell,\nthe chances are that this man\ncan find you a buyer.", 750, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiArtisan_T2});
     add(BuildingType::SamuraiArtisan_T2, {"Craft Workshop", "If you travel far enough, there's\nalways a buyer willing to buy\nor barter for your wares.", 900, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiArtisan_T3 });
     add(BuildingType::SamuraiArtisan_T3, {"Crafts Industry", "I have buyers lined up across the\nkingdom and beyond, and the vessels to get\nthe goods where they need to be.", 1050, 0, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None });
-    add(BuildingType::SamuraiTinsmith_T1, {"Suzu Smith", "Tin is worked into simple wares\nhere, valued for both use and\ntrade.", 750, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiTinsmith_T2});
-    add(BuildingType::SamuraiTinsmith_T2, {"Suzu Workshop", "A busy workshop turning out\npewter goods sought after\nacross the province.", 900, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiTinsmith_T3});
-    add(BuildingType::SamuraiTinsmith_T3, {"Suzu-za", "The province's finest tinware\nguild hall, its pewter prized\nby merchants and nobles alike.", 1050, 0, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None});
-    add(BuildingType::SamuraiMint_T1, {"Mint", "Coins hold power beyond wealth.\nThey are legitimacy.\nThey are loyalty.", 600, 5, 0, 0, 1, 11, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiMint_T2});
-    add(BuildingType::SamuraiMint_T2, {"Royal Mint", "When your face is everywhere,\nthere can be no doubt \nwho rules.", 750, 10, 0, 0, 2, 4, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiMint_T3});
-    add(BuildingType::SamuraiMint_T3, {"Treasury", "The coffers of the state, from \nwhich funds are drawn \naccording to need and favour.", 900, 15, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None});
-    add(BuildingType::SamuraiForge_T2, {"Blacksmith", "What is wrought by the blacksmith\nwill last a lifetime.", 850, 0, 0, 0, 2, 8, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiForge_T3});
-    add(BuildingType::SamuraiForge_T3, {"Forge", "The modern world is born\nof the forge.", 1000, 0, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiForge_T4 });
-    add(BuildingType::SamuraiForge_T4, {"Great Forge", "Incredible temperatures allow\nmetals and alloys to be shaped with\nthe greatest of ease.", 1200, 0, 0, 0, 4, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None });
+    add(BuildingType::SamuraiTinsmith_T2, {"Suzu Smith", "Tin is worked into simple wares\nhere, valued for both use and\ntrade.", 750, 0, 0, 0, 2, 5, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiTinsmith_T3});
+    add(BuildingType::SamuraiTinsmith_T3, {"Suzu Workshop", "A busy workshop turning out\npewter goods sought after\nacross the province.", 900, 0, 0, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiTinsmith_T4});
+    add(BuildingType::SamuraiTinsmith_T4, {"Suzu-za", "The province's finest tinware\nguild hall, its pewter prized\nby merchants and nobles alike.", 1050, 0, 0, 0, 4, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None});
+    add(BuildingType::SamuraiMint_T2, {"Mint", "Coins hold power beyond wealth.\nThey are legitimacy.\nThey are loyalty.", 600, 5, 0, 0, 2, 11, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiMint_T3});
+    add(BuildingType::SamuraiMint_T3, {"Royal Mint", "When your face is everywhere,\nthere can be no doubt \nwho rules.", 750, 10, 0, 0, 3, 4, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiMint_T4});
+    add(BuildingType::SamuraiMint_T4, {"Treasury", "The coffers of the state, from \nwhich funds are drawn \naccording to need and favour.", 900, 15, 0, 0, 4, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None});
+    add(BuildingType::SamuraiForge_T3, {"Blacksmith", "What is wrought by the blacksmith\nwill last a lifetime.", 850, 0, 0, 0, 3, 8, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiForge_T4});
+    add(BuildingType::SamuraiForge_T4, {"Forge", "The modern world is born\nof the forge.", 1000, 0, 0, 0, 4, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiForge_T5 });
+    add(BuildingType::SamuraiForge_T5, {"Great Forge", "Incredible temperatures allow\nmetals and alloys to be shaped with\nthe greatest of ease.", 1200, 0, 0, 0, 5, 7, 0, 0, 0, 0, 0, 0, 0, BuildingType::None });
     add(BuildingType::SamuraiJeweller_T3, {"Jewellers", "The rare skills necessary to work\nprecious metals ensure that\nthose who have them are never\nout of work.", 750, 0, 0, 0, 3, 9, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiJeweller_T4});
     add(BuildingType::SamuraiJeweller_T4, {"Master jewellers", "To take the necessary and make\nit special? Now that takes skill", 900, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiJeweller_T5 });
     add(BuildingType::SamuraiJeweller_T5, {"Jewelley Industry", "As pure function has given way\nto ornate forms, so the artisan\njeweller has risen to be master of his craft.", 1050, 0, 0, 0, 5, 2, 0, 0, 0, 0, 0, 0, 0, BuildingType::None });
@@ -1297,11 +1297,11 @@ inline std::vector<BuildingType> GetBuildingsForCategory(BuildingCategory catego
 
         case BuildingCategory::Industry:
         if (faction == FactionZone::Knight)
-              results = {BuildingType::KnightOilPress_T1, BuildingType::KnightCarpentry_T1, BuildingType::KnightTextile_T1 ,BuildingType::KnightArtisan_T1, BuildingType::KnightTinsmith_T1, BuildingType::KnightMint_T1, BuildingType:: KnightForge_T2, BuildingType::KnightJeweller_T3};
+              results = {BuildingType::KnightOilPress_T1, BuildingType::KnightCarpentry_T1, BuildingType::KnightTextile_T1 ,BuildingType::KnightArtisan_T1, BuildingType::KnightTinsmith_T2, BuildingType::KnightMint_T2, BuildingType:: KnightForge_T3, BuildingType::KnightJeweller_T3};
         else if (faction == FactionZone::Viking)
-              results = {BuildingType::VikingOilPress_T1, BuildingType::VikingCarpentry_T1, BuildingType::VikingTextile_T1 ,BuildingType::VikingArtisan_T1, BuildingType::VikingTinsmith_T1, BuildingType::VikingMint_T1, BuildingType:: VikingForge_T2, BuildingType::VikingJeweller_T3};
+              results = {BuildingType::VikingOilPress_T1, BuildingType::VikingCarpentry_T1, BuildingType::VikingTextile_T1 ,BuildingType::VikingArtisan_T1, BuildingType::VikingTinsmith_T2, BuildingType::VikingMint_T2, BuildingType:: VikingForge_T3, BuildingType::VikingJeweller_T3};
         else if (faction == FactionZone::Samurai)
-              results = {BuildingType::SamuraiOilPress_T1, BuildingType::SamuraiCarpentry_T1, BuildingType::SamuraiTextile_T1 ,BuildingType::SamuraiArtisan_T1, BuildingType::SamuraiTinsmith_T1, BuildingType::SamuraiMint_T1, BuildingType:: SamuraiForge_T2, BuildingType::SamuraiJeweller_T3};
+              results = {BuildingType::SamuraiOilPress_T1, BuildingType::SamuraiCarpentry_T1, BuildingType::SamuraiTextile_T1 ,BuildingType::SamuraiArtisan_T1, BuildingType::SamuraiTinsmith_T2, BuildingType::SamuraiMint_T2, BuildingType:: SamuraiForge_T3, BuildingType::SamuraiJeweller_T3};
             break;
         case BuildingCategory::Religion:
             if (faction == FactionZone::Knight)
