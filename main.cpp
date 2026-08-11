@@ -5490,20 +5490,49 @@ private://constructor
                 else //red
                     TTF_SetTextColor(gameBuildingCostUIText, 220, 60, 60, 255);
                 //SDL_SetRenderDrawColor(renderer, 220, 180, 40, 255);
-                SDL_FRect goldIcon = {colX + 63.f, tileY + tileH - 15.f, 12.f, 12.f};
+                SDL_FRect goldIcon = {colX + 25.f, tileY + tileH - 10.f, 12.f, 12.f};
                 //SDL_RenderFillRect(renderer, &goldIcon);
                 SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &goldIcon);
-                TTF_DrawRendererText(gameBuildingCostUIText, colX + 30.f, tileY + tileH - 19.f);
+                TTF_DrawRendererText(gameBuildingCostUIText, colX + 40.f, tileY + tileH - 14.f);
 
                 // time construction
                 std::string turnStr = std::to_string(data->constructionTurns);
                 TTF_SetTextString(gameBuildingConstructionTimeText, turnStr.c_str(), 0);
                 TTF_SetTextColor(gameBuildingConstructionTimeText, 180, 180, 255, 255);
                 //SDL_SetRenderDrawColor(renderer, 120, 120, 120, 255);
-                SDL_FRect turnIcon = {colX + tileW - 3.f, tileY + tileH - 62.f, 12.f, 12.f};
+                SDL_FRect turnIcon = {colX + tileW - 65.f, tileY + tileH - 65.f, 12.f, 12.f};
                 //SDL_RenderFillRect(renderer, &turnIcon);
                 SDL_RenderTexture(renderer, gameTurnAmountTexture, nullptr, &turnIcon);
-                TTF_DrawRendererText(gameBuildingConstructionTimeText, colX + tileW - 15.f, tileY + tileH - 65.f);
+                TTF_DrawRendererText(gameBuildingConstructionTimeText, colX + tileW - 52.f, tileY + tileH - 68.f);
+
+                //Industry buildings showing the raw building that need to be available for construction
+                ResourceType requiredRawResource;
+                if (GetIndustryBuildingRawResource(bt, requiredRawResource)) {
+                    SDL_Texture* rawResourceIcon = GetResourceTypeIcon(requiredRawResource);
+                    if (rawResourceIcon) {
+                        int haveInProvince = 0;
+                        if (goodsStoredByProvinceAndType.count(provID) &&
+                            goodsStoredByProvinceAndType[provID].count(requiredRawResource)) {
+                            haveInProvince = goodsStoredByProvinceAndType[provID][requiredRawResource];
+                            }
+                        bool bHasRawResource = haveInProvince > 0;
+
+                        float rawIconSize = 16.f;
+                        SDL_FRect rawResourceIconRect = {
+                            colX + tileW - rawIconSize - 2.f,
+                            tileY + 2.f,
+                            rawIconSize, rawIconSize
+                        };
+
+                        if (bHasRawResource) SDL_SetTextureColorMod(rawResourceIcon, 255, 255, 255);
+                        else SDL_SetTextureColorMod(rawResourceIcon, 255, 20, 20);
+                        SDL_RenderTexture(renderer, rawResourceIcon, nullptr, &rawResourceIconRect);
+                        SDL_SetTextureColorMod(rawResourceIcon, 255, 255, 255);
+                    }
+                }
+
+
+
 
                 //arrow towards next tier
                 if (ti < numTiers - 1) {
@@ -7597,6 +7626,63 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
                 return nullptr;
         }
     }
+
+    bool GetIndustryBuildingRawResource(BuildingType type, ResourceType &outResource) {
+        switch (type) {
+            //OilPress -> Fish (Fish Oil)
+            case BuildingType::KnightOilPress_T1: case BuildingType::KnightOilPress_T2:
+            case BuildingType::VikingOilPress_T1: case BuildingType::VikingOilPress_T2:
+            case BuildingType::SamuraiOilPress_T1: case BuildingType::SamuraiOilPress_T2:
+                outResource = ResourceType::Fish; return true;
+
+            //Carpentry -> Lumber (HardWood)
+            case BuildingType::KnightCarpentry_T1: case BuildingType::KnightCarpentry_T2:
+            case BuildingType::VikingCarpentry_T1: case BuildingType::VikingCarpentry_T2:
+            case BuildingType::SamuraiCarpentry_T1: case BuildingType::SamuraiCarpentry_T2:
+                outResource = ResourceType::Lumber; return true;
+
+            //Textile -> Wool (Textile)
+            case BuildingType::KnightTextile_T1: case BuildingType::KnightTextile_T2: case BuildingType::KnightTextile_T3:
+            case BuildingType::VikingTextile_T1: case BuildingType::VikingTextile_T2: case BuildingType::VikingTextile_T3:
+            case BuildingType::SamuraiTextile_T1: case BuildingType::SamuraiTextile_T2: case BuildingType::SamuraiTextile_T3:
+                outResource = ResourceType::Wool; return true;
+
+            //Artisan -> Copper (Copper Jewlery)
+            case BuildingType::KnightArtisan_T1: case BuildingType::KnightArtisan_T2: case BuildingType::KnightArtisan_T3:
+            case BuildingType::VikingArtisan_T1: case BuildingType::VikingArtisan_T2: case BuildingType::VikingArtisan_T3:
+            case BuildingType::SamuraiArtisan_T1: case BuildingType::SamuraiArtisan_T2: case BuildingType::SamuraiArtisan_T3:
+                outResource = ResourceType::Copper; return true;
+
+            //Tinsmith -> Tin (Pewter)
+            case BuildingType::KnightTinsmith_T2: case BuildingType::KnightTinsmith_T3: case BuildingType::KnightTinsmith_T4:
+            case BuildingType::VikingTinsmith_T2: case BuildingType::VikingTinsmith_T3: case BuildingType::VikingTinsmith_T4:
+            case BuildingType::SamuraiTinsmith_T2: case BuildingType::SamuraiTinsmith_T3: case BuildingType::SamuraiTinsmith_T4:
+                outResource = ResourceType::Tin; return true;
+
+            //Mint -> Silver (Silver Coins)
+            case BuildingType::KnightMint_T2: case BuildingType::KnightMint_T3: case BuildingType::KnightMint_T4:
+            case BuildingType::VikingMint_T2: case BuildingType::VikingMint_T3: case BuildingType::VikingMint_T4:
+            case BuildingType::SamuraiMint_T2: case BuildingType::SamuraiMint_T3: case BuildingType::SamuraiMint_T4:
+                outResource = ResourceType::Silver; return true;
+
+            //Forge -> Iron (Tools)
+            case BuildingType::KnightForge_T3: case BuildingType::KnightForge_T4: case BuildingType::KnightForge_T5:
+            case BuildingType::VikingForge_T3: case BuildingType::VikingForge_T4: case BuildingType::VikingForge_T5:
+            case BuildingType::SamuraiForge_T3: case BuildingType::SamuraiForge_T4: case BuildingType::SamuraiForge_T5:
+                outResource = ResourceType::Iron; return true;
+
+            //Jeweller -> Gold (Gold Jewlery)
+            case BuildingType::KnightJeweller_T3: case BuildingType::KnightJeweller_T4: case BuildingType::KnightJeweller_T5:
+            case BuildingType::VikingJeweller_T3: case BuildingType::VikingJeweller_T4: case BuildingType::VikingJeweller_T5:
+            case BuildingType::SamuraiJeweller_T3: case BuildingType::SamuraiJeweller_T4: case BuildingType::SamuraiJeweller_T5:
+                outResource = ResourceType::Gold; return true;
+
+            default:
+                return false;
+        }
+    }
+
+
     // names inside ResourceData
     const char* GetResourceTypeName(ResourceType type) {
         const ResourceData* data = GetResourceData(type);

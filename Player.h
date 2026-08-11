@@ -25,7 +25,7 @@ public :
     int perProvinceGoodsStorage = 0;
     //Improved Growth
     //peasantry Random
-    int basePeasantryBirth = 70 + rand() % 21;   // 70-90
+    int basePeasantryBirth = 40 + rand() % 21;   // 40-60
     int basePeasantryDeath = 25 + rand() % 16;    // 25-40
     int currentPeasantryAmount = 0;
     int nextTurnPeasantryAmount = 0;
