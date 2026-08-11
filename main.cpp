@@ -31,7 +31,7 @@
  * 0.3.0
  *
  * improvement -> Can build buildings, know which one to buy/Upgrade
- * RESSOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
+ * RESOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
  *  ~ Production Mecanique ~
  *  fishing ports gives food and produce fish !
  *  MINEs -> produced their own orb
@@ -337,7 +337,16 @@ public:
     float goodsManagerModifiedScrollOffset = 0.f;
     SDL_FRect goodsManagerRawViewportRect      = {500.f, 245.f, 1000.f, 300.f};
     SDL_FRect goodsManagerModifiedViewportRect = {500.f, 595.f, 1000.f, 300.f};
-
+    //Left click drag scrolling Goods Production Manager scrollbars
+    bool bIsDraggingGoodsManagerScroll = false;
+    int draggingGoodsManagerViewport = -1;   //0Raw 1Modified Goods
+    float lastGoodsManagerDragY = 0.f;
+    SDL_FRect goodsManagerRawScrollbarTrackRect = {0.f, 0.f, 0.f, 0.f};
+    SDL_FRect goodsManagerModifiedScrollbarTrackRect = {0.f, 0.f, 0.f, 0.f};
+    float goodsManagerRawMaxScroll = 0.f;
+    float goodsManagerModifiedMaxScroll = 0.f;
+    float goodsManagerRawThumbHeight = 0.f;
+    float goodsManagerModifiedThumbHeight = 0.f;
 
     //End Turn
     int currentTurn = 1;
@@ -7735,11 +7744,11 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
     };
 
     //The list of goods with the scroll
-    auto renderScrollableGoodsList = [&](const std::vector<ResourceType>& types, const SDL_FRect& viewport, float& scrollOffset) {
+        auto renderScrollableGoodsList = [&](const std::vector<ResourceType>& types, const SDL_FRect& viewport, float& scrollOffset, SDL_FRect& trackRectOut, float& maxScrollOut, float& thumbHeightOut) {
         float contentHeight = (float)types.size() * rowH;
         float maxScroll = std::max(0.f, contentHeight - viewport.h);
         scrollOffset = std::clamp(scrollOffset, 0.f, maxScroll);
-
+        maxScrollOut = maxScroll;
         SDL_Rect clipRect = { (int)viewport.x, (int)viewport.y, (int)viewport.w, (int)viewport.h };
         SDL_SetRenderClipRect(renderer, &clipRect);
 
@@ -7759,17 +7768,22 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
             SDL_SetRenderDrawColor(renderer, 20, 20, 20, 200);
             SDL_FRect track = {trackX - 4.f, viewport.y, 8.f, viewport.h};
             SDL_RenderFillRect(renderer, &track);
-
+            trackRectOut = track; //clickable area to match the track
             float thumbH = std::max(20.f, viewport.h * (viewport.h / contentHeight));
+            thumbHeightOut = thumbH;
             float thumbY = viewport.y + (viewport.h - thumbH) * (scrollOffset / maxScroll);
             SDL_SetRenderDrawColor(renderer, 180, 150, 60, 255);
             SDL_FRect thumb = {trackX - 4.f, thumbY, 8.f, thumbH};
             SDL_RenderFillRect(renderer, &thumb);
         }
+        else {
+            trackRectOut = {0.f, 0.f, 0.f, 0.f};
+            thumbHeightOut = 0.f;
+        }
     };
 
-    renderScrollableGoodsList(rawGoodTypes, goodsManagerRawViewportRect, goodsManagerRawScrollOffset);
-    renderScrollableGoodsList(transformedTypes, goodsManagerModifiedViewportRect, goodsManagerModifiedScrollOffset);
+        renderScrollableGoodsList(rawGoodTypes, goodsManagerRawViewportRect, goodsManagerRawScrollOffset,goodsManagerRawScrollbarTrackRect, goodsManagerRawMaxScroll, goodsManagerRawThumbHeight);
+        renderScrollableGoodsList(transformedTypes, goodsManagerModifiedViewportRect, goodsManagerModifiedScrollOffset,goodsManagerModifiedScrollbarTrackRect, goodsManagerModifiedMaxScroll, goodsManagerModifiedThumbHeight);
 
     //Button To return
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -9947,17 +9961,38 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     return SDL_APP_CONTINUE;
                 }
             }
+            //Start drag only when clicking the scrollbar track itself
+            SDL_FRect expandedRawTrack = app.goodsManagerRawScrollbarTrackRect;
+            if (expandedRawTrack.w > 0.f) {
+                expandedRawTrack.x -= 6.f;
+                expandedRawTrack.w += 12.f;
+                if (SDL_PointInRectFloat(&MousePT, &expandedRawTrack)) {
+                    app.bIsDraggingGoodsManagerScroll = true;
+                    app.draggingGoodsManagerViewport = 0;
+                    app.lastGoodsManagerDragY = nouveauY;
+                    return SDL_APP_CONTINUE;
+                }
+            }
+            SDL_FRect expandedModTrack = app.goodsManagerModifiedScrollbarTrackRect;
+            if (expandedModTrack.w > 0.f) {
+                expandedModTrack.x -= 6.f;
+                expandedModTrack.w += 12.f;
+                if (SDL_PointInRectFloat(&MousePT, &expandedModTrack)) {
+                    app.bIsDraggingGoodsManagerScroll = true;
+                    app.draggingGoodsManagerViewport = 1;
+                    app.lastGoodsManagerDragY = nouveauY;
+                    return SDL_APP_CONTINUE;
+                }
+            }
+
         }
 
         //Goods Manager Return Button
         if (app.ClickInsideCircle(nouveauX,nouveauY, app.GoodsProductionManagerReturnGame)) {
             app.bGoodsProductionManagerPopup = false;
+            app.bIsDraggingGoodsManagerScroll = false;
         }
 
-        //Goods Manager Return Button
-        if (app.ClickInsideCircle(nouveauX,nouveauY, app.GoodsProductionManagerReturnGame)) {
-            app.bGoodsProductionManagerPopup = false;
-        }
 
         //CheckButtonReturn
         if (app.ClickInsideCircle(nouveauX,nouveauY, app.DecreesButtonReturnGame)) {
@@ -10016,6 +10051,8 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
     if (event->type == SDL_EVENT_MOUSE_BUTTON_UP) {
         app.volumeMusicSlider.bCursorIsSliding = false;
+        app.bIsDraggingGoodsManagerScroll = false;
+        app.draggingGoodsManagerViewport = -1;
     }
     //for the slider
     if (event->type == SDL_EVENT_MOUSE_MOTION && app.volumeMusicSlider.bCursorIsSliding) {
@@ -10024,6 +10061,29 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         app.volumeMusicSlider.value = std::clamp((mouseX - app.volumeMusicSlider.x) / app.volumeMusicSlider.width, 0.0f, 1.0f);
         MIX_SetTrackGain(app.trackMusique, app.volumeMusicSlider.value);
     }
+    //Goods Manager scrollbar drag-scroll
+    if (event->type == SDL_EVENT_MOUSE_MOTION && app.bIsDraggingGoodsManagerScroll) {
+        float mx, my;
+        SDL_RenderCoordinatesFromWindow(app.renderer, event->motion.x, event->motion.y, &mx, &my);
+        float deltaY = my - app.lastGoodsManagerDragY;
+
+        if (app.draggingGoodsManagerViewport == 0) {
+            float travel = app.goodsManagerRawScrollbarTrackRect.h - app.goodsManagerRawThumbHeight;
+            if (travel > 0.f) {
+                float ratio = app.goodsManagerRawMaxScroll / travel;
+                app.goodsManagerRawScrollOffset += deltaY * ratio;
+            }
+        }
+        else if (app.draggingGoodsManagerViewport == 1) {
+            float travel = app.goodsManagerModifiedScrollbarTrackRect.h - app.goodsManagerModifiedThumbHeight;
+            if (travel > 0.f) {
+                float ratio = app.goodsManagerModifiedMaxScroll / travel;
+                app.goodsManagerModifiedScrollOffset += deltaY * ratio;
+            }
+        }
+        app.lastGoodsManagerDragY = my;
+    }
+
     //holding mouse wheel to move the camera
     if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN &&event->button.button == SDL_BUTTON_MIDDLE &&app.StateActuel == State::Game) {
         app.bIsMovingCamera = true;
