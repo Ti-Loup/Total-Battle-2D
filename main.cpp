@@ -5204,31 +5204,20 @@ private://constructor
                                 }else {
                                     TTF_SetTextColor(gameBuildingCostUIText, 220, 60, 60, 255);
                                 }
-                                int costW = 0, costH = 0;
-                                TTF_GetTextSize(gameBuildingCostUIText, &costW, &costH);
-                                TTF_DrawRendererText(gameBuildingCostUIText,popX + (tileW - costW) -2.f,tierSquareY + 45.f);
 
                                 //texture gold
-                                float iconSize = 12.f;
-                                float totalRowW = iconSize + 3.f + costW;
-                                float rowStartX = popX + (tileW - totalRowW) / 2.f;
-
-                                SDL_FRect goldUI = {rowStartX + 57.f, tierSquareY + 48.f, iconSize, iconSize};
+                                SDL_FRect goldUI = {popX + 25.f, tierSquareY + tileH - 10.f, 12.f, 12.f};
                                 SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &goldUI);
+                                TTF_DrawRendererText(gameBuildingCostUIText, popX + 40.f, tierSquareY + tileH - 14.f);
 
                                 //Show the amount of turn before the building is constructed.
                                 std::string timeConstructionAmountString = std::to_string(constructionTurns);
                                 TTF_SetTextString(gameBuildingConstructionTimeText, timeConstructionAmountString.c_str(), 0);
-                                int turnW = 0, turnH = 0;
-                                TTF_GetTextSize(gameBuildingConstructionTimeText, &turnW, &turnH);
-                                TTF_DrawRendererText(gameBuildingConstructionTimeText, popX + (tileW - turnW) -5.f,tierSquareY + 1.f);
-                                //texture TurnTime Icon
-                                float TurnIconSize = 12.f;
-                                float TotalTurnRowW = TurnIconSize + 3.f + turnW;
-                                float rowTurnStartX = popX + (tileW - TotalTurnRowW) / 2.f;
 
-                                SDL_FRect turnUI = {rowTurnStartX + 43.f, tierSquareY + 5.f, TurnIconSize, TurnIconSize};
+                                //texture TurnTime Icon
+                                SDL_FRect turnUI = {popX + tileW - 65.f, tierSquareY + tileH - 65.f, 12.f, 12.f};
                                 SDL_RenderTexture(renderer, gameTurnAmountTexture, nullptr, &turnUI);
+                                TTF_DrawRendererText(gameBuildingConstructionTimeText, popX + tileW - 52.f, tierSquareY + tileH - 68.f);
                             }
 
 
@@ -5353,9 +5342,9 @@ private://constructor
         // float buttonH = 65.f;
         // float buttonGap = 4.f;
         // Layout
-        float tileW  = 65.f;
-        float tileH  = 65.f;
-        float arrowH = 18.f;
+        float tileW  = 64.f;
+        float tileH  = 64.f;
+        float arrowH = 22.f;
         float colGap = 10.f;
 
         int maxLen = 0;
@@ -5517,7 +5506,7 @@ private://constructor
                             }
                         bool bHasRawResource = haveInProvince > 0;
 
-                        float rawIconSize = 16.f;
+                        float rawIconSize = 24.f;
                         SDL_FRect rawResourceIconRect = {
                             colX + tileW - rawIconSize - 2.f,
                             tileY + 2.f,
@@ -5525,7 +5514,7 @@ private://constructor
                         };
 
                         if (bHasRawResource) SDL_SetTextureColorMod(rawResourceIcon, 255, 255, 255);
-                        else SDL_SetTextureColorMod(rawResourceIcon, 255, 20, 20);
+                        else SDL_SetTextureColorMod(rawResourceIcon, 60, 60, 60);
                         SDL_RenderTexture(renderer, rawResourceIcon, nullptr, &rawResourceIconRect);
                         SDL_SetTextureColorMod(rawResourceIcon, 255, 255, 255);
                     }
