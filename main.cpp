@@ -7615,7 +7615,7 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
                 return nullptr;
         }
     }
-
+public:
     bool GetIndustryBuildingRawResource(BuildingType type, ResourceType &outResource) {
         switch (type) {
             //OilPress -> Fish (Fish Oil)
@@ -7671,7 +7671,7 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         }
     }
 
-
+private:
     // names inside ResourceData
     const char* GetResourceTypeName(ResourceType type) {
         const ResourceData* data = GetResourceData(type);
@@ -9976,28 +9976,41 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     c = (d && d->upgradesTo != BuildingType::None) ? d->upgradesTo : BuildingType::None;
                 }
             }
-            if (alreadyBuilt) { SDL_Log("EXIT: building chain already exists in another slot"); return SDL_APP_CONTINUE; }
+            if (alreadyBuilt) { SDL_Log("Building chain already exists in another slot"); return SDL_APP_CONTINUE; }
 
             // Keep the block if exact type is already pending anywhere
             for (const auto& pb : sel->settlementData.pendingBuildings) {
-                if (pb == bt) { SDL_Log("EXIT: already being built"); return SDL_APP_CONTINUE; }
+                if (pb == bt) { SDL_Log("Already being built"); return SDL_APP_CONTINUE; }
             }
             if (sel->settlementData.pendingBuildings[slotB] != BuildingType::None) {
-                SDL_Log("EXIT: slot already has a pending building");
+                SDL_Log("Slot already has a pending building");
                 return SDL_APP_CONTINUE;
+            }
+
+            ResourceType requiredRawResourceForBuild;
+            if (app.GetIndustryBuildingRawResource(bt, requiredRawResourceForBuild)) {
+                int haveInProvinceForBuild = 0;
+                if (app.goodsStoredByProvinceAndType.count(provID) &&
+                    app.goodsStoredByProvinceAndType[provID].count(requiredRawResourceForBuild)) {
+                    haveInProvinceForBuild = app.goodsStoredByProvinceAndType[provID][requiredRawResourceForBuild];
+                    }
+                if (haveInProvinceForBuild <= 0) {
+                    SDL_Log("Missing raw resource %d", (int)requiredRawResourceForBuild);
+                    return SDL_APP_CONTINUE;
+                }
             }
 
             if (app.player.SpendGold(data->cost)) {
                 sel->settlementData.pendingBuildings[slotB] = bt;
                 sel->settlementData.slotConstructionTimes[slotB] = data->constructionTurns;
-                SDL_Log("SUCCESS: Construction started %d in %d turns", (int)bt, data->constructionTurns);
+                SDL_Log("Construction started %d in %d turns", (int)bt, data->constructionTurns);
             } else {
-                SDL_Log("EXIT: not enough gold, need=%d have=%d", data->cost, app.player.currentGold);
+                SDL_Log("Not enough gold, need=%d have=%d", data->cost, app.player.currentGold);
             }
             return SDL_APP_CONTINUE;
         }
     }
-    SDL_Log("No tile hit at (%.1f, %.1f)", nouveauX, nouveauY);
+                SDL_Log("No tile hit at (%.1f, %.1f)", nouveauX, nouveauY);
 }
 
 
