@@ -799,7 +799,11 @@ struct BuildingData {
     BuildingType upgradesTo;
 
     //From Resources.h
+    //how much they produce per building
     std::vector<ResourceAmount> resourcesProduced;
+    //How much they consume other resources for 1 Produced
+    std::vector<ResourceConsume> resourcesConsumed;
+
     int resourcesStorage = 0;//Fish and others share this storage. Must be bigger than the food storage
 };
 
@@ -1156,6 +1160,7 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::SheepPasture_T2, {"Sheep Pasture", "A larger flock is tended here,\nyielding wool enough to supply\nweavers across the province.", 800, 15, 0, 0, 2, 6, 0, 0, 0, 0, 0, 0, 3, BuildingType::SheepPasture_T3});
     add(BuildingType::SheepPasture_T3, {"Large Sheep Pasture", "Vast pastures teem with sheep,\ntheir wool feeding a thriving\ntextile trade.", 650, 20, 0, 0, 3, 12, 0, 0, 0, 0, 0, 0, 5, BuildingType::None});
     // ── RESOURCE PRODUCTION ──
+    //RAW
     //ports
     db[BuildingType::KnightFishingPort_T1].resourcesProduced = {{ResourceType::Fish, 1}};
     db[BuildingType::KnightFishingPort_T2].resourcesProduced = {{ResourceType::Fish, 2}};
@@ -1197,6 +1202,165 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     db[BuildingType::SheepPasture_T1].resourcesProduced = {{ResourceType::Wool, 1}};
     db[BuildingType::SheepPasture_T2].resourcesProduced = {{ResourceType::Wool, 2}};
     db[BuildingType::SheepPasture_T3].resourcesProduced = {{ResourceType::Wool, 3}};
+    //TRANSFORM
+    //fish oil
+    db[BuildingType::KnightOilPress_T1].resourcesProduced = {{ResourceType::FishOil, 1}};
+    db[BuildingType::KnightOilPress_T2].resourcesProduced = {{ResourceType::FishOil, 1}};
+    db[BuildingType::VikingOilPress_T1].resourcesProduced = {{ResourceType::FishOil, 1}};
+    db[BuildingType::VikingOilPress_T2].resourcesProduced = {{ResourceType::FishOil, 1}};
+    db[BuildingType::SamuraiOilPress_T1].resourcesProduced = {{ResourceType::FishOil, 1}};
+    db[BuildingType::SamuraiOilPress_T2].resourcesProduced = {{ResourceType::FishOil, 1}};
+    //Hard Wood
+    db[BuildingType::KnightCarpentry_T1].resourcesProduced = {{ResourceType::HardWood, 1}};
+    db[BuildingType::KnightCarpentry_T2].resourcesProduced = {{ResourceType::HardWood, 1}};
+    db[BuildingType::VikingCarpentry_T1].resourcesProduced = {{ResourceType::HardWood, 1}};
+    db[BuildingType::VikingCarpentry_T2].resourcesProduced = {{ResourceType::HardWood, 1}};
+    db[BuildingType::SamuraiCarpentry_T1].resourcesProduced = {{ResourceType::HardWood, 1}};
+    db[BuildingType::SamuraiCarpentry_T2].resourcesProduced = {{ResourceType::HardWood, 1}};
+    //Textile
+    db[BuildingType::KnightTextile_T1].resourcesProduced = {{ResourceType::Textile, 1}};
+    db[BuildingType::KnightTextile_T2].resourcesProduced = {{ResourceType::Textile, 1}};
+    db[BuildingType::KnightTextile_T3].resourcesProduced = {{ResourceType::Textile, 1}};
+    db[BuildingType::VikingTextile_T1].resourcesProduced = {{ResourceType::Textile, 1}};
+    db[BuildingType::VikingTextile_T2].resourcesProduced = {{ResourceType::Textile, 1}};
+    db[BuildingType::VikingTextile_T3].resourcesProduced = {{ResourceType::Textile, 1}};
+    db[BuildingType::SamuraiTextile_T1].resourcesProduced = {{ResourceType::Textile, 1}};
+    db[BuildingType::SamuraiTextile_T2].resourcesProduced = {{ResourceType::Textile, 1}};
+    db[BuildingType::SamuraiTextile_T3].resourcesProduced = {{ResourceType::Textile, 1}};
+    //CopperJewlery
+    db[BuildingType::KnightArtisan_T1].resourcesProduced = {{ResourceType::CopperJewlery, 1}};
+    db[BuildingType::KnightArtisan_T2].resourcesProduced = {{ResourceType::CopperJewlery, 1}};
+    db[BuildingType::KnightArtisan_T3].resourcesProduced = {{ResourceType::CopperJewlery, 1}};
+    db[BuildingType::VikingArtisan_T1].resourcesProduced = {{ResourceType::CopperJewlery, 1}};
+    db[BuildingType::VikingArtisan_T2].resourcesProduced = {{ResourceType::CopperJewlery, 1}};
+    db[BuildingType::VikingArtisan_T3].resourcesProduced = {{ResourceType::CopperJewlery, 1}};
+    db[BuildingType::SamuraiArtisan_T1].resourcesProduced = {{ResourceType::CopperJewlery, 1}};
+    db[BuildingType::SamuraiArtisan_T2].resourcesProduced = {{ResourceType::CopperJewlery, 1}};
+    db[BuildingType::SamuraiArtisan_T3].resourcesProduced = {{ResourceType::CopperJewlery, 1}};
+    //Pewter
+    db[BuildingType::KnightTinsmith_T2].resourcesProduced = {{ResourceType::Pewter, 1}};
+    db[BuildingType::KnightTinsmith_T3].resourcesProduced = {{ResourceType::Pewter, 1}};
+    db[BuildingType::KnightTinsmith_T4].resourcesProduced = {{ResourceType::Pewter, 1}};
+    db[BuildingType::VikingTinsmith_T2].resourcesProduced = {{ResourceType::Pewter, 1}};
+    db[BuildingType::VikingTinsmith_T3].resourcesProduced = {{ResourceType::Pewter, 1}};
+    db[BuildingType::VikingTinsmith_T4].resourcesProduced = {{ResourceType::Pewter, 1}};
+    db[BuildingType::SamuraiTinsmith_T2].resourcesProduced = {{ResourceType::Pewter, 1}};
+    db[BuildingType::SamuraiTinsmith_T3].resourcesProduced = {{ResourceType::Pewter, 1}};
+    db[BuildingType::SamuraiTinsmith_T4].resourcesProduced = {{ResourceType::Pewter, 1}};
+    //SilverCoins
+    db[BuildingType::KnightMint_T2].resourcesProduced = {{ResourceType::SilverCoins, 1}};
+    db[BuildingType::KnightMint_T3].resourcesProduced = {{ResourceType::SilverCoins, 1}};
+    db[BuildingType::KnightMint_T4].resourcesProduced = {{ResourceType::SilverCoins, 1}};
+    db[BuildingType::VikingMint_T2].resourcesProduced = {{ResourceType::SilverCoins, 1}};
+    db[BuildingType::VikingMint_T3].resourcesProduced = {{ResourceType::SilverCoins, 1}};
+    db[BuildingType::VikingMint_T4].resourcesProduced = {{ResourceType::SilverCoins, 1}};
+    db[BuildingType::SamuraiMint_T2].resourcesProduced = {{ResourceType::SilverCoins, 1}};
+    db[BuildingType::SamuraiMint_T3].resourcesProduced = {{ResourceType::SilverCoins, 1}};
+    db[BuildingType::SamuraiMint_T4].resourcesProduced = {{ResourceType::SilverCoins, 1}};
+    //Tools
+    db[BuildingType::KnightForge_T3].resourcesProduced = {{ResourceType::Tools, 1}};
+    db[BuildingType::KnightForge_T4].resourcesProduced = {{ResourceType::Tools, 1}};
+    db[BuildingType::KnightForge_T5].resourcesProduced = {{ResourceType::Tools, 1}};
+    db[BuildingType::VikingForge_T3].resourcesProduced = {{ResourceType::Tools, 1}};
+    db[BuildingType::VikingForge_T4].resourcesProduced = {{ResourceType::Tools, 1}};
+    db[BuildingType::VikingForge_T5].resourcesProduced = {{ResourceType::Tools, 1}};
+    db[BuildingType::SamuraiForge_T3].resourcesProduced = {{ResourceType::Tools, 1}};
+    db[BuildingType::SamuraiForge_T4].resourcesProduced = {{ResourceType::Tools, 1}};
+    db[BuildingType::SamuraiForge_T5].resourcesProduced = {{ResourceType::Tools, 1}};
+    //GoldJewlery
+    db[BuildingType::KnightJeweller_T3].resourcesProduced = {{ResourceType::GoldJewlery, 1}};
+    db[BuildingType::KnightJeweller_T4].resourcesProduced = {{ResourceType::GoldJewlery, 1}};
+    db[BuildingType::KnightJeweller_T5].resourcesProduced = {{ResourceType::GoldJewlery, 1}};
+    db[BuildingType::VikingJeweller_T3].resourcesProduced = {{ResourceType::GoldJewlery, 1}};
+    db[BuildingType::VikingJeweller_T4].resourcesProduced = {{ResourceType::GoldJewlery, 1}};
+    db[BuildingType::VikingJeweller_T5].resourcesProduced = {{ResourceType::GoldJewlery, 1}};
+    db[BuildingType::SamuraiJeweller_T3].resourcesProduced = {{ResourceType::GoldJewlery, 1}};
+    db[BuildingType::SamuraiJeweller_T4].resourcesProduced = {{ResourceType::GoldJewlery, 1}};
+    db[BuildingType::SamuraiJeweller_T5].resourcesProduced = {{ResourceType::GoldJewlery, 1}};
+
+    // ── RESOURCES CONSUMED (5 raw -> 1 transformed) ──
+    //Fish Oil consume Fish
+    db[BuildingType::KnightOilPress_T1].resourcesConsumed = {{ResourceType::Fish, 5}};
+    db[BuildingType::KnightOilPress_T2].resourcesConsumed = {{ResourceType::Fish, 5}};
+    db[BuildingType::VikingOilPress_T1].resourcesConsumed = {{ResourceType::Fish, 5}};
+    db[BuildingType::VikingOilPress_T2].resourcesConsumed = {{ResourceType::Fish, 5}};
+    db[BuildingType::SamuraiOilPress_T1].resourcesConsumed = {{ResourceType::Fish, 5}};
+    db[BuildingType::SamuraiOilPress_T2].resourcesConsumed = {{ResourceType::Fish, 5}};
+
+    //Hard Wood consume Lumber
+    db[BuildingType::KnightCarpentry_T1].resourcesConsumed = {{ResourceType::Lumber, 5}};
+    db[BuildingType::KnightCarpentry_T2].resourcesConsumed = {{ResourceType::Lumber, 5}};
+    db[BuildingType::VikingCarpentry_T1].resourcesConsumed = {{ResourceType::Lumber, 5}};
+    db[BuildingType::VikingCarpentry_T2].resourcesConsumed = {{ResourceType::Lumber, 5}};
+    db[BuildingType::SamuraiCarpentry_T1].resourcesConsumed = {{ResourceType::Lumber, 5}};
+    db[BuildingType::SamuraiCarpentry_T2].resourcesConsumed = {{ResourceType::Lumber, 5}};
+
+    //Textile consume Wool
+    db[BuildingType::KnightTextile_T1].resourcesConsumed = {{ResourceType::Wool, 5}};
+    db[BuildingType::KnightTextile_T2].resourcesConsumed = {{ResourceType::Wool, 5}};
+    db[BuildingType::KnightTextile_T3].resourcesConsumed = {{ResourceType::Wool, 5}};
+    db[BuildingType::VikingTextile_T1].resourcesConsumed = {{ResourceType::Wool, 5}};
+    db[BuildingType::VikingTextile_T2].resourcesConsumed = {{ResourceType::Wool, 5}};
+    db[BuildingType::VikingTextile_T3].resourcesConsumed = {{ResourceType::Wool, 5}};
+    db[BuildingType::SamuraiTextile_T1].resourcesConsumed = {{ResourceType::Wool, 5}};
+    db[BuildingType::SamuraiTextile_T2].resourcesConsumed = {{ResourceType::Wool, 5}};
+    db[BuildingType::SamuraiTextile_T3].resourcesConsumed = {{ResourceType::Wool, 5}};
+
+    //Copper Jewlery consume Copper
+    db[BuildingType::KnightArtisan_T1].resourcesConsumed = {{ResourceType::Copper, 5}};
+    db[BuildingType::KnightArtisan_T2].resourcesConsumed = {{ResourceType::Copper, 5}};
+    db[BuildingType::KnightArtisan_T3].resourcesConsumed = {{ResourceType::Copper, 5}};
+    db[BuildingType::VikingArtisan_T1].resourcesConsumed = {{ResourceType::Copper, 5}};
+    db[BuildingType::VikingArtisan_T2].resourcesConsumed = {{ResourceType::Copper, 5}};
+    db[BuildingType::VikingArtisan_T3].resourcesConsumed = {{ResourceType::Copper, 5}};
+    db[BuildingType::SamuraiArtisan_T1].resourcesConsumed = {{ResourceType::Copper, 5}};
+    db[BuildingType::SamuraiArtisan_T2].resourcesConsumed = {{ResourceType::Copper, 5}};
+    db[BuildingType::SamuraiArtisan_T3].resourcesConsumed = {{ResourceType::Copper, 5}};
+
+    //Pewter consume Tin
+    db[BuildingType::KnightTinsmith_T2].resourcesConsumed = {{ResourceType::Tin, 5}};
+    db[BuildingType::KnightTinsmith_T3].resourcesConsumed = {{ResourceType::Tin, 5}};
+    db[BuildingType::KnightTinsmith_T4].resourcesConsumed = {{ResourceType::Tin, 5}};
+    db[BuildingType::VikingTinsmith_T2].resourcesConsumed = {{ResourceType::Tin, 5}};
+    db[BuildingType::VikingTinsmith_T3].resourcesConsumed = {{ResourceType::Tin, 5}};
+    db[BuildingType::VikingTinsmith_T4].resourcesConsumed = {{ResourceType::Tin, 5}};
+    db[BuildingType::SamuraiTinsmith_T2].resourcesConsumed = {{ResourceType::Tin, 5}};
+    db[BuildingType::SamuraiTinsmith_T3].resourcesConsumed = {{ResourceType::Tin, 5}};
+    db[BuildingType::SamuraiTinsmith_T4].resourcesConsumed = {{ResourceType::Tin, 5}};
+
+    //Silver Coins consume Silver
+    db[BuildingType::KnightMint_T2].resourcesConsumed = {{ResourceType::Silver, 5}};
+    db[BuildingType::KnightMint_T3].resourcesConsumed = {{ResourceType::Silver, 5}};
+    db[BuildingType::KnightMint_T4].resourcesConsumed = {{ResourceType::Silver, 5}};
+    db[BuildingType::VikingMint_T2].resourcesConsumed = {{ResourceType::Silver, 5}};
+    db[BuildingType::VikingMint_T3].resourcesConsumed = {{ResourceType::Silver, 5}};
+    db[BuildingType::VikingMint_T4].resourcesConsumed = {{ResourceType::Silver, 5}};
+    db[BuildingType::SamuraiMint_T2].resourcesConsumed = {{ResourceType::Silver, 5}};
+    db[BuildingType::SamuraiMint_T3].resourcesConsumed = {{ResourceType::Silver, 5}};
+    db[BuildingType::SamuraiMint_T4].resourcesConsumed = {{ResourceType::Silver, 5}};
+
+    //Tools consume Iron
+    db[BuildingType::KnightForge_T3].resourcesConsumed = {{ResourceType::Iron, 5}};
+    db[BuildingType::KnightForge_T4].resourcesConsumed = {{ResourceType::Iron, 5}};
+    db[BuildingType::KnightForge_T5].resourcesConsumed = {{ResourceType::Iron, 5}};
+    db[BuildingType::VikingForge_T3].resourcesConsumed = {{ResourceType::Iron, 5}};
+    db[BuildingType::VikingForge_T4].resourcesConsumed = {{ResourceType::Iron, 5}};
+    db[BuildingType::VikingForge_T5].resourcesConsumed = {{ResourceType::Iron, 5}};
+    db[BuildingType::SamuraiForge_T3].resourcesConsumed = {{ResourceType::Iron, 5}};
+    db[BuildingType::SamuraiForge_T4].resourcesConsumed = {{ResourceType::Iron, 5}};
+    db[BuildingType::SamuraiForge_T5].resourcesConsumed = {{ResourceType::Iron, 5}};
+
+    //Gold Jewlery consume Gold
+    db[BuildingType::KnightJeweller_T3].resourcesConsumed = {{ResourceType::Gold, 5}};
+    db[BuildingType::KnightJeweller_T4].resourcesConsumed = {{ResourceType::Gold, 5}};
+    db[BuildingType::KnightJeweller_T5].resourcesConsumed = {{ResourceType::Gold, 5}};
+    db[BuildingType::VikingJeweller_T3].resourcesConsumed = {{ResourceType::Gold, 5}};
+    db[BuildingType::VikingJeweller_T4].resourcesConsumed = {{ResourceType::Gold, 5}};
+    db[BuildingType::VikingJeweller_T5].resourcesConsumed = {{ResourceType::Gold, 5}};
+    db[BuildingType::SamuraiJeweller_T3].resourcesConsumed = {{ResourceType::Gold, 5}};
+    db[BuildingType::SamuraiJeweller_T4].resourcesConsumed = {{ResourceType::Gold, 5}};
+    db[BuildingType::SamuraiJeweller_T5].resourcesConsumed = {{ResourceType::Gold, 5}};
+
 
     // ── GOODS STORAGE CAPACITY ──
     // Capitals (base 100 slot each)

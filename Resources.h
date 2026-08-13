@@ -81,10 +81,16 @@ inline const ResourceData* GetResourceData(ResourceType type) {
     return (it != db.end()) ? &it->second : nullptr;
 }
 
-// this building produces/consumes Number of this resource per turn
+// this building produces of this resource per turn
 struct ResourceAmount {
     ResourceType type;
     int amount;
 };
+// building consume amount
+struct ResourceConsume{
+    ResourceType type;
+    int consume;
+};
+//
 
 #endif //TOTALBATTLE2D_RESOURCES_H

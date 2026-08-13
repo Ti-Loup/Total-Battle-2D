@@ -543,7 +543,7 @@ public:
     //Transformed
     SDL_Texture *gameResourceFishOilIconTexture = nullptr;
     SDL_Texture *gameResourceHardWoodIconTexture = nullptr;
-    SDL_Texture *gameresourceTextileIconTexture = nullptr;
+    SDL_Texture *gameResourceTextileIconTexture = nullptr;
     SDL_Texture *gameResourceToolsIconTexture = nullptr;
     SDL_Texture *gameResourceCopperJewleryIconTexture = nullptr;
     SDL_Texture *gameResourcePewterIconTexture = nullptr;
@@ -3471,11 +3471,11 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture gameResourceGoldJewleryIconTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameResourceGoldJewleryIconTexture, SDL_SCALEMODE_NEAREST);
-        gameresourceTextileIconTexture = IMG_LoadTexture(renderer, "assets/Resources/TextileIcon.png");
-        if (gameresourceTextileIconTexture == nullptr) {
+        gameResourceTextileIconTexture = IMG_LoadTexture(renderer, "assets/Resources/TextileIcon.png");
+        if (gameResourceTextileIconTexture == nullptr) {
             SDL_LogWarn(0, "failed to load texture gameResourceTextileIconTexture", SDL_GetError());
         }
-        SDL_SetTextureScaleMode(gameresourceTextileIconTexture, SDL_SCALEMODE_NEAREST);
+        SDL_SetTextureScaleMode(gameResourceTextileIconTexture, SDL_SCALEMODE_NEAREST);
 
         // -> CREDITS <-
         creditsTitleFont = TTF_OpenFont("assets/font.ttf", 50);
@@ -3725,7 +3725,7 @@ private://constructor
         SDL_DestroyTexture(gameResourceWoolIconTexture);
         SDL_DestroyTexture(gameResourceFishOilIconTexture);
         SDL_DestroyTexture(gameResourceHardWoodIconTexture);
-        SDL_DestroyTexture(gameresourceTextileIconTexture);
+        SDL_DestroyTexture(gameResourceTextileIconTexture);
         SDL_DestroyTexture(gameResourceToolsIconTexture);
         SDL_DestroyTexture(gameResourceCopperJewleryIconTexture);
         SDL_DestroyTexture(gameResourcePewterIconTexture);
@@ -7605,7 +7605,7 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
             case ResourceType::Gold: return gameResourceGoldIconTexture;
             case ResourceType::FishOil: return gameResourceFishOilIconTexture;
             case ResourceType::HardWood: return gameResourceHardWoodIconTexture;
-            case ResourceType::Textile: return gameresourceTextileIconTexture;
+            case ResourceType::Textile: return gameResourceTextileIconTexture;
             case ResourceType::Tools: return gameResourceToolsIconTexture;
             case ResourceType::CopperJewlery: return gameResourceCopperJewleryIconTexture;
             case ResourceType::Pewter: return gameResourcePewterIconTexture;
@@ -8305,6 +8305,8 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
         if (building_data->foodStorage != 0) {
             count++;
         }
+        //Raw resources Consume
+        count += (int)building_data->resourcesConsumed.size();
         // raw resources produced
         count += (int)building_data->resourcesProduced.size();
         if (building_data->resourcesStorage != 0) {
@@ -8382,7 +8384,43 @@ void RenderBuildingStatRows(const BuildingData* data, BuildingType type, float t
         drawRow(gameFoodIconUi, foodLabel, "+" + std::to_string(data->foodProduced), {127, 255, 0, 255});
     }
 
-    //Fish Resource
+    //Resources Use ~! (5 raw materials for 1 transformed);
+    for (const auto &resource_consume : data->resourcesConsumed) {
+        const char *consumeAmountLabel = "Raw Goods Consumed:";
+        SDL_Texture *resIcon = gameResourceFishIconTexture;//default
+        switch (resource_consume.type) {
+            case ResourceType::Fish:consumeAmountLabel = "Fish Consumed:";
+                resIcon = gameResourceFishIconTexture;
+                break;
+            case ResourceType::Lumber:consumeAmountLabel = "Lumber Consumed:";
+                resIcon = gameResourceLumberIconTexture;
+                break;
+            case ResourceType::Wool:consumeAmountLabel = "Wool Consumed:";
+                resIcon = gameResourceWoolIconTexture;
+                break;
+            case ResourceType::Iron:consumeAmountLabel = "Iron Consumed:";
+                resIcon = gameResourceCopperIconTexture;
+                break;
+            case ResourceType::Copper:consumeAmountLabel = "Copper Consumed:";
+                resIcon = gameResourceCopperIconTexture;
+                break;
+            case ResourceType::Tin:consumeAmountLabel = "Tin Consumed:";
+                resIcon = gameResourceTinIconTexture;
+                break;
+            case ResourceType::Silver:consumeAmountLabel = "Silver Consumed:";
+                resIcon = gameResourceSilverIconTexture;
+                break;
+            case ResourceType::Gold:consumeAmountLabel = "Gold Consumed:";
+                resIcon = gameResourceGoldIconTexture;
+                break;
+
+            default:
+                break;
+        }
+        drawRow(resIcon, consumeAmountLabel, "-" + std::to_string(resource_consume.consume), {255, 60, 60, 255});
+    }
+
+    //All Resources Production
     for (const auto& res : data->resourcesProduced) {
         const char* resLabel = "Resource Produced:";
         SDL_Texture* resIcon = gameResourceFishIconTexture;//default texture + name based?
@@ -8410,6 +8448,31 @@ void RenderBuildingStatRows(const BuildingData* data, BuildingType type, float t
                 break;
             case ResourceType::Gold:resLabel = "Gold Produced:";
                 resIcon = gameResourceGoldIconTexture;
+                break;
+            //Transformed goods
+            case ResourceType::FishOil:resLabel = "Fish Oil Produced:";
+                resIcon = gameResourceFishOilIconTexture;
+                break;
+            case ResourceType::HardWood:resLabel = "HardWood Produced:";
+                resIcon = gameResourceHardWoodIconTexture;
+                break;
+            case ResourceType::Textile:resLabel = "Textile Produced:";
+                resIcon = gameResourceTextileIconTexture;
+                break;
+            case ResourceType::Tools:resLabel = "Tools Produced:";
+                resIcon = gameResourceToolsIconTexture;
+                break;
+            case ResourceType::CopperJewlery:resLabel = "Copper Jewlery Produced:";
+                resIcon = gameResourceCopperJewleryIconTexture;
+                break;
+            case ResourceType::Pewter:resLabel = "Pewter Produced:";
+                resIcon = gameResourcePewterIconTexture;
+                break;
+            case ResourceType::SilverCoins:resLabel = "Silver Coins Produced:";
+                resIcon = gameResourceSilverCoinsIconTexture;
+                break;
+            case ResourceType::GoldJewlery:resLabel = "Gold Jewlery Produced:";
+                resIcon = gameResourceGoldJewleryIconTexture;
                 break;
             default:
                 break;
@@ -10012,8 +10075,6 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
     }
                 SDL_Log("No tile hit at (%.1f, %.1f)", nouveauX, nouveauY);
 }
-
-
 
     // detection if clicked a settlement
     bool bClickedOutsideOfUI = false;
