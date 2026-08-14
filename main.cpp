@@ -6830,8 +6830,9 @@ int goldNextTurn = totalIncome - totalExpense;
 
 
         float tooltipX = foodTooltipX + 30.f;
-        float tooltipY = foodTooltipY - tooltipH + 290.f;
+        float tooltipY = foodTooltipY + 30.f;
         if (tooltipX + tooltipW > 1910.f) tooltipX = foodTooltipX - tooltipW - 12.f;
+        if (tooltipY + tooltipH > 1075.f) tooltipY = 1075.f - tooltipH;
         if (tooltipY < 5.f) tooltipY = 5.f;
 
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -7624,43 +7625,43 @@ public:
             case BuildingType::SamuraiOilPress_T1: case BuildingType::SamuraiOilPress_T2:
                 outResource = ResourceType::Fish; return true;
 
-            //Carpentry -> Lumber (HardWood)
+                //Carpentry -> Lumber (HardWood)
             case BuildingType::KnightCarpentry_T1: case BuildingType::KnightCarpentry_T2:
             case BuildingType::VikingCarpentry_T1: case BuildingType::VikingCarpentry_T2:
             case BuildingType::SamuraiCarpentry_T1: case BuildingType::SamuraiCarpentry_T2:
                 outResource = ResourceType::Lumber; return true;
 
-            //Textile -> Wool (Textile)
+                //Textile -> Wool (Textile)
             case BuildingType::KnightTextile_T1: case BuildingType::KnightTextile_T2: case BuildingType::KnightTextile_T3:
             case BuildingType::VikingTextile_T1: case BuildingType::VikingTextile_T2: case BuildingType::VikingTextile_T3:
             case BuildingType::SamuraiTextile_T1: case BuildingType::SamuraiTextile_T2: case BuildingType::SamuraiTextile_T3:
                 outResource = ResourceType::Wool; return true;
 
-            //Artisan -> Copper (Copper Jewlery)
+                //Artisan -> Copper (Copper Jewlery)
             case BuildingType::KnightArtisan_T1: case BuildingType::KnightArtisan_T2: case BuildingType::KnightArtisan_T3:
             case BuildingType::VikingArtisan_T1: case BuildingType::VikingArtisan_T2: case BuildingType::VikingArtisan_T3:
             case BuildingType::SamuraiArtisan_T1: case BuildingType::SamuraiArtisan_T2: case BuildingType::SamuraiArtisan_T3:
                 outResource = ResourceType::Copper; return true;
 
-            //Tinsmith -> Tin (Pewter)
+                //Tinsmith -> Tin (Pewter)
             case BuildingType::KnightTinsmith_T2: case BuildingType::KnightTinsmith_T3: case BuildingType::KnightTinsmith_T4:
             case BuildingType::VikingTinsmith_T2: case BuildingType::VikingTinsmith_T3: case BuildingType::VikingTinsmith_T4:
             case BuildingType::SamuraiTinsmith_T2: case BuildingType::SamuraiTinsmith_T3: case BuildingType::SamuraiTinsmith_T4:
                 outResource = ResourceType::Tin; return true;
 
-            //Mint -> Silver (Silver Coins)
+                //Mint -> Silver (Silver Coins)
             case BuildingType::KnightMint_T2: case BuildingType::KnightMint_T3: case BuildingType::KnightMint_T4:
             case BuildingType::VikingMint_T2: case BuildingType::VikingMint_T3: case BuildingType::VikingMint_T4:
             case BuildingType::SamuraiMint_T2: case BuildingType::SamuraiMint_T3: case BuildingType::SamuraiMint_T4:
                 outResource = ResourceType::Silver; return true;
 
-            //Forge -> Iron (Tools)
+                //Forge -> Iron (Tools)
             case BuildingType::KnightForge_T3: case BuildingType::KnightForge_T4: case BuildingType::KnightForge_T5:
             case BuildingType::VikingForge_T3: case BuildingType::VikingForge_T4: case BuildingType::VikingForge_T5:
             case BuildingType::SamuraiForge_T3: case BuildingType::SamuraiForge_T4: case BuildingType::SamuraiForge_T5:
                 outResource = ResourceType::Iron; return true;
 
-            //Jeweller -> Gold (Gold Jewlery)
+                //Jeweller -> Gold (Gold Jewlery)
             case BuildingType::KnightJeweller_T3: case BuildingType::KnightJeweller_T4: case BuildingType::KnightJeweller_T5:
             case BuildingType::VikingJeweller_T3: case BuildingType::VikingJeweller_T4: case BuildingType::VikingJeweller_T5:
             case BuildingType::SamuraiJeweller_T3: case BuildingType::SamuraiJeweller_T4: case BuildingType::SamuraiJeweller_T5:
@@ -7670,6 +7671,23 @@ public:
                 return false;
         }
     }
+    //how much of that raw resource is needed per transformed material produced
+    bool GetRawResourceForTransformed(ResourceType transformedType, ResourceType &outRawType, int &outConsumePerUnit) {
+        const auto& db = GetBuildingDatabase();
+        for (const auto& [buildingType, data] : db) {
+            if (data.resourcesConsumed.empty()) continue;
+            for (const auto& produced : data.resourcesProduced) {
+                if (produced.type == transformedType) {
+                    outRawType = data.resourcesConsumed[0].type;
+                    outConsumePerUnit = data.resourcesConsumed[0].consume;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
 
 private:
     // names inside ResourceData
@@ -7713,8 +7731,9 @@ private:
     float tooltipH = titleH + padTop + contentH + padBot;
 
     float tooltipX = goodsStorageTooltipX + 30.f;
-    float tooltipY = goodsStorageTooltipY - tooltipH + 100.f;
+    float tooltipY = goodsStorageTooltipY + 30.f;
     if (tooltipX + tooltipW > 1910.f) tooltipX = goodsStorageTooltipX - tooltipW - 12.f;
+    if (tooltipY + tooltipH > 1075.f) tooltipY = 1075.f - tooltipH;
     if (tooltipY < 5.f) tooltipY = 5.f;
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -9405,29 +9424,73 @@ public:
         //GOODS STORAGE (per-type, expandablemore goods type)
 
         for (auto& [provinceID, producedByType] : goodsProducedThisTurnByProvinceAndType) {
-            int capacity = goodsStorageCapacityByProvince.count(provinceID) ? goodsStorageCapacityByProvince[provinceID] : 0;
+        int capacity = goodsStorageCapacityByProvince.count(provinceID) ? goodsStorageCapacityByProvince[provinceID] : 0;
 
-            auto& provinceStock = goodsStoredByProvinceAndType[provinceID];
-            int currentStoredInProvince = 0;
-            for (auto& [type, amount] : provinceStock) currentStoredInProvince += amount;
+        auto& provinceStock = goodsStoredByProvinceAndType[provinceID];
+        int currentStoredInProvince = 0;
+        for (auto& [type, amount] : provinceStock) currentStoredInProvince += amount;
 
-            for (auto& [type, producedAmount] : producedByType) {
-                int spaceLeft = capacity - currentStoredInProvince;
-                if (spaceLeft <= 0) break; // this region's warehouses are full, excess is lost here (not shared with other regions) ->Should go towards the next region to fill it.
+    // Raw Material calculation.
+    for (auto& [type, producedAmount] : producedByType) {
+        const ResourceData* resData = GetResourceData(type);
+        bool isRaw = resData && resData->goodsCategory == ResourceCategory::Raw;
+        if (!isRaw) continue;
 
-                int currentStoredForType = provinceStock.count(type) ? provinceStock[type] : 0;
-                int typeCap = goodsMaxProductionByType.count(type) ? goodsMaxProductionByType[type] : -1; // -1 = No Limit
-                int toAdd = producedAmount;
-                if (typeCap >= 0) {
-                    int roomUnderCap = typeCap - currentStoredForType;
-                    toAdd = std::min(toAdd, std::max(0, roomUnderCap));
-                }
-                toAdd = std::min(toAdd, spaceLeft);
+        int spaceLeft = capacity - currentStoredInProvince;
+        if (spaceLeft <= 0) break;
 
-                provinceStock[type] += toAdd;
-                currentStoredInProvince += toAdd;
-            }
+        int currentStoredForType = provinceStock.count(type) ? provinceStock[type] : 0;
+        int typeCap = goodsMaxProductionByType.count(type) ? goodsMaxProductionByType[type] : -1;
+        int toAdd = producedAmount;
+        if (typeCap >= 0) {
+            int roomUnderCap = typeCap - currentStoredForType;
+            toAdd = std::min(toAdd, std::max(0, roomUnderCap));
         }
+        toAdd = std::min(toAdd, spaceLeft);
+
+        provinceStock[type] += toAdd;
+        currentStoredInProvince += toAdd;
+    }
+
+    // Transformed goods calculation after the raw
+    for (auto& [type, producedAmount] : producedByType) {
+        const ResourceData* resData = GetResourceData(type);
+        bool isTransformed = resData && resData->goodsCategory == ResourceCategory::Transformed;
+        if (!isTransformed) continue;
+        int spaceLeft = capacity - currentStoredInProvince;
+        if (spaceLeft <= 0) break;
+
+        int currentStoredForType = provinceStock.count(type) ? provinceStock[type] : 0;
+        int typeCap = goodsMaxProductionByType.count(type) ? goodsMaxProductionByType[type] : -1;
+        int toAdd = producedAmount;
+        if (typeCap >= 0) {
+            int roomUnderCap = typeCap - currentStoredForType;
+            toAdd = std::min(toAdd, std::max(0, roomUnderCap));
+        }
+        toAdd = std::min(toAdd, spaceLeft);
+
+        // production limite based on raw material
+        ResourceType rawType = ResourceType::Fish; //default value
+        int consumePerUnit = 0;
+        bool needsRaw = GetRawResourceForTransformed(type, rawType, consumePerUnit);
+        if (needsRaw) {
+            int rawAvailable = provinceStock.count(rawType) ? provinceStock[rawType] : 0;
+            toAdd = std::min(toAdd, rawAvailable / consumePerUnit);
+        }
+
+        if (toAdd <= 0) continue;
+
+        provinceStock[type] += toAdd;
+        currentStoredInProvince += toAdd;
+
+        // consume raw materials
+        if (needsRaw) {
+            int consumedAmount = toAdd * consumePerUnit;
+            provinceStock[rawType] -= consumedAmount;
+            currentStoredInProvince -= consumedAmount;
+        }
+    }
+}
 
         // Rebuild kingdom-wide totals from the per-province stockpiles
         player.currentGoods = 0;
