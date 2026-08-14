@@ -20,6 +20,10 @@ enum class ResourceType {
     Tin,
     Silver,
     Gold,
+    //Raw Goods from specific religion Buildings
+    Candle,//Knight
+    Beer,//Viking
+    GreenTea,//Samurai
     //Transformed
     FishOil,
     HardWood,
@@ -55,6 +59,9 @@ inline const std::unordered_map<ResourceType, ResourceData>& GetResourceDatabase
         //Raw
         { ResourceType::Fish, { "Fish", "Caught by fishing ports. Feeds the population and can be traded.", "assets/Resources/Fish.png", ResourceCategory::Raw, 5}},
         { ResourceType::Lumber, { "Lumber", "Lumber, from the forest is very important to build fournitures.", "assets/Resources/Lumber.png", ResourceCategory::Raw, 8}},
+        { ResourceType::Candle, { "Candle", "Candles are made from bees and have a decent value of resell.", "assets/Resources/Candle.png", ResourceCategory::Raw, 9}},
+        { ResourceType::Beer, { "Beer", "Beer is perfect for the paysantry and has a decent value of resell.", "assets/Resources/Beer.png", ResourceCategory::Raw, 9}},
+        { ResourceType::GreenTea, { "GreenTea", "GreenTea are plants to make it dry and does have a decent value of resell.", "assets/Resources/GreenTea.png", ResourceCategory::Raw, 9}},
         { ResourceType::Wool, {"Wool", "Wool, from sheeps is very usefull to build hand made textile.", "assets/Resources/Wool.png", ResourceCategory::Raw,10}},
         { ResourceType::Iron, { "Iron", "From iron mines. Good to produce tools in the forge or traded.", "assets/Resources/Iron.png", ResourceCategory::Raw, 12}},
         { ResourceType::Copper, { "Copper", "From copper mines. Valuable to make Copper Jewelley.", "assets/Resources/Copper.png", ResourceCategory::Raw, 14}},

@@ -961,9 +961,9 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::KnightAlmsHouse_T1, {"Small Hospital",    "Improves public order.",  100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, 0, BuildingType::KnightAlmsHouse_T2});
     add(BuildingType::KnightAlmsHouse_T2, {"Medium hospital",    "Strong public order.",    250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 3, 0, BuildingType::None});
     //Bee production
-    add(BuildingType::KnightBeeKeeper_T1, {"BeeKeeper1",    "Improves public order.",  100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, 0, BuildingType::KnightBeeKeeper_T2});
-    add(BuildingType::KnightBeeKeeper_T2, {"Beekeeper2",    "Strong public order.",    250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 3, 0, BuildingType::KnightBeeKeeper_T3});
-    add(BuildingType::KnightBeeKeeper_T3, {"Beekeeper3", "Major public order.",     500, 15, 0, 4, 3, 4, 0, 0, 0, 0, 0, 5, 0, BuildingType::None});
+    add(BuildingType::KnightBeeKeeper_T1, {"Beehives","It takes a heavenly grace to be happy\namongst bees.",  100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, 0, BuildingType::KnightBeeKeeper_T2});
+    add(BuildingType::KnightBeeKeeper_T2, {"Monastic Beekeeper","Like workers in the Kingdom of\nHeaven, the bees go about their work\nand the hive flourishes.",    250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 3, 0, BuildingType::KnightBeeKeeper_T3});
+    add(BuildingType::KnightBeeKeeper_T3, {"Wax Industry", "The buzzing civilisations that\nproduce wax goods are the fruits of a\ndivine stewardship of nature.",     500, 15, 0, 4, 3, 4, 0, 0, 0, 0, 0, 5, 0, BuildingType::None});
     //public order
     add(BuildingType::KnightChurch_T3, {"Chapel",    "Improves public order.",  100,  5, 0,  2, 3, 2, 0, 0, 0, 0, 0, 1, 0, BuildingType::KnightChurch_T4});
     add(BuildingType::KnightChurch_T4, {"Church",    "Strong public order.",    250, 10, 0, 3, 4, 3, 0, 0, 0, 0, 0, 3, 0, BuildingType::KnightChurch_T5});
@@ -1041,9 +1041,9 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::VikingShrine_T1,{"Shrine",          "Pleases the gods.",        100,  5, 0,  0, 1, 2, 0, 0, 0, 0, 0, 1, 0, BuildingType::VikingShrine_T2});
     add(BuildingType::VikingShrine_T2,{"Temple",          "Greater divine favor.",    250, 10, 0, 1, 2, 3, 0, 0, 0, 0, 0, 3, 0, BuildingType::None});
     //Beer production
-    add(BuildingType::VikingBrewKeeper_T1, {"SmallReligiousBeerProduction",    "Improves public order.",  100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, 0, BuildingType::VikingBrewKeeper_T2});
-    add(BuildingType::VikingBrewKeeper_T2, {"MediumReligiousBeerProduction",    "Strong public order.",    250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 3, 0, BuildingType::VikingBrewKeeper_T3});
-    add(BuildingType::VikingBrewKeeper_T3, {"LargeReligiousBeerProduction", "Major public order.",     500, 15, 0, 4, 3, 4, 0, 0, 0, 0, 0, 5, 0, BuildingType::None});
+    add(BuildingType::VikingBrewKeeper_T1, {"SmallBrewKeeper",    "To produce Beer",  100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, 0, BuildingType::VikingBrewKeeper_T2});
+    add(BuildingType::VikingBrewKeeper_T2, {"MediumBrewKeeper",    "For the beer production",    250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 3, 0, BuildingType::VikingBrewKeeper_T3});
+    add(BuildingType::VikingBrewKeeper_T3, {"LargeBrewKeeper", "Beer production",     500, 15, 0, 4, 3, 4, 0, 0, 0, 0, 0, 5, 0, BuildingType::None});
     //PublicOrder
     add(BuildingType::VikingSacrificeRitual_T3, {"Ritual Ground",   "Blood for Odin.",          150,  5, 0,  2, 3, 2, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingSacrificeRitual_T4});
     add(BuildingType::VikingSacrificeRitual_T4, {"Sacrifice Altar", "Greater blood offering.",  300, 10, 0, 3, 4, 3, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingSacrificeRitual_T5});
@@ -1122,9 +1122,9 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::SamuraiHospital_T1, {"Field Hospital", "Heals troops.", 100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiHospital_T2});
     add(BuildingType::SamuraiHospital_T2, {"Hospital", "Better healing.", 250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 0, 0, BuildingType::None});
     //Tea Dry
-    add(BuildingType::SamuraiTeaDry_T1, {"small religious tea dry", "Improves public order.",  100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, 0, BuildingType::SamuraiTeaDry_T2});
-    add(BuildingType::SamuraiTeaDry_T2, {"Medium religious tea dry", "Strong public order.", 250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 3, 0, BuildingType::SamuraiTeaDry_T3});
-    add(BuildingType::SamuraiTeaDry_T3, {"Large religious tea dry", "Major public order.", 500, 15, 0, 4, 3, 4, 0, 0, 0, 0, 0, 5, 0, BuildingType::None});
+    add(BuildingType::SamuraiTeaDry_T1, {"small Tea dry", "To make tea",  100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, 0, BuildingType::SamuraiTeaDry_T2});
+    add(BuildingType::SamuraiTeaDry_T2, {"Medium Tea dry", "To make tea", 250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 3, 0, BuildingType::SamuraiTeaDry_T3});
+    add(BuildingType::SamuraiTeaDry_T3, {"Large Tea dry", "To make tea", 500, 15, 0, 4, 3, 4, 0, 0, 0, 0, 0, 5, 0, BuildingType::None});
     //public order
     add(BuildingType::SamuraiChapel_T3, {"Shinto Shrine", "Basic worship.", 100, 5, 0,  1, 3, 2, 0, 0, 0, 0, 0, 1, 0, BuildingType::SamuraiChapel_T4});
     add(BuildingType::SamuraiChapel_T4, {"Shinto Temple", "Greater worship.", 250, 10, 0, 1, 4, 3, 0, 0, 0, 0, 0, 3, 0, BuildingType::SamuraiChapel_T5});
