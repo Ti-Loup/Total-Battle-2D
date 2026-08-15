@@ -4047,6 +4047,34 @@ private://constructor
         return (it != worldEventsImageTextures.end()) ? it->second : nullptr;
     }
 
+    //The active world event Icon should appear
+    //Storm Only when ports affected
+    //earthquake Icon only affect the damaged ones.
+    SDL_Texture *GetWorldEventSettlementIcon(const Settlement &s) {
+        if (activeWorldEventTurnsRemaining <= 0) return nullptr;
+
+        bool bShouldShow = false;
+        switch (currentWorldsEvent) {
+            case WorldEventsType::Storm:
+                bShouldShow = s.bIsPort; // only ports affected not military ones
+                break;
+            case WorldEventsType::Earthquake: {
+                int gsi = (int)(&s - &settlements[0]);
+                for (int b = 0; b < (int)s.settlementData.buildings.size(); b++) {
+                    if (IsBuildingSlotDamaged(gsi, b)) { bShouldShow = true; break; }
+                }
+                break;
+            }
+            default:
+                bShouldShow = false;
+                break;
+        }
+        if (!bShouldShow) return nullptr;
+
+        auto it = worldEventsIconTextures.find(currentWorldsEvent);
+        return (it != worldEventsIconTextures.end()) ? it->second : nullptr;
+    }
+
     //To know if a building can be constructed here to show the hammer on settlement
     bool CanSettlementConstruct(const Settlement &s) {
         int provinceID = s.settlementData.provinceID;
@@ -4239,6 +4267,20 @@ private://constructor
                 if (settlementResourceIcon) {
                     SDL_FRect resourceIconRect = {backgroundX + backgroundW + resourceSlotGap,nameY + (nameH - resourceSlotSize) / 2.f, resourceSlotSize, resourceSlotSize};
                     SDL_RenderTexture(renderer, settlementResourceIcon, nullptr, &resourceIconRect);
+                }
+                //World event icon -> sits next to the resource icon, or takes its slot if there isn't one
+                SDL_Texture* worldEventSettlementIcon = GetWorldEventSettlementIcon(s);
+                if (worldEventSettlementIcon) {
+                    float eventIconX = settlementResourceIcon
+                        ? (backgroundX + backgroundW + resourceSlotGap + resourceSlotSize + resourceSlotGap)
+                        : (backgroundX + backgroundW + resourceSlotGap);
+
+                    SDL_FRect worldEventIconRect = {
+                        eventIconX,
+                        nameY + (nameH - resourceSlotSize) / 2.f,
+                        resourceSlotSize, resourceSlotSize
+                    };
+                    SDL_RenderTexture(renderer, worldEventSettlementIcon, nullptr, &worldEventIconRect);
                 }
 
                 // INFO BAR
