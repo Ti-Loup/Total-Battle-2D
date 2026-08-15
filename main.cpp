@@ -592,6 +592,10 @@ public:
 
     //texture of all WorldEvents pictures
     std::unordered_map<WorldEventsType, SDL_Texture *> worldEventsImageTextures;
+    //Texture of all WorldEvents Icon
+    std::unordered_map<WorldEventsType, SDL_Texture *> worldEventsIconTextures;
+
+
     //texture of all settlements (On the Campaign map)
     struct SettlementTextureMap {
         FactionZone faction;
@@ -1001,7 +1005,7 @@ private://constructor
         SDL_SetTextureScaleMode(tileMapTexture,SDL_SCALEMODE_NEAREST);
 
         //UI Font
-        gameStatUITitleFont = TTF_OpenFont("assets/Rubik.ttf", 25);
+        gameStatUITitleFont = TTF_OpenFont("assets/Rubik.ttf", 20);
         gameStatUIFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         gameBuildingCostUIFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         gameBuildingConstructionTimeFont = TTF_OpenFont("assets/Rubik.ttf", 15);
@@ -1685,7 +1689,7 @@ private://constructor
         worldEventsImageTextures[WorldEventsType::Storm] = IMG_LoadTexture(renderer, "assets/WorldEvents/Storm.png");
         if (worldEventsImageTextures[WorldEventsType::Storm] == nullptr) {
             SDL_LogWarn(0, "failed to load texture worldEventsImageTextures Storm", SDL_GetError());
-    }
+        }
         SDL_SetTextureScaleMode(worldEventsImageTextures[WorldEventsType::Storm], SDL_SCALEMODE_NEAREST);
 
         worldEventsImageTextures[WorldEventsType::Earthquake] = IMG_LoadTexture(renderer, "assets/WorldEvents/Earthquake.png");
@@ -1759,8 +1763,77 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture worldEventsReturnButtons", SDL_GetError());
         }
         SDL_SetTextureScaleMode(worldEventsReturnButtons, SDL_SCALEMODE_NEAREST);
+        //Icon for each World Events
+        worldEventsIconTextures[WorldEventsType::Storm] = IMG_LoadTexture(renderer, "assets/WorldEvents/StormIcon.png");
+        if (worldEventsIconTextures[WorldEventsType::Storm] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsIconTextures Storm", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsIconTextures[WorldEventsType::Storm], SDL_SCALEMODE_NEAREST);
+        worldEventsIconTextures[WorldEventsType::Earthquake] = IMG_LoadTexture(renderer, "assets/WorldEvents/EarthquakeIcon.png");
+        if (worldEventsIconTextures[WorldEventsType::Earthquake] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsIconTextures Earthquake", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsIconTextures[WorldEventsType::Earthquake], SDL_SCALEMODE_NEAREST);
 
+        worldEventsIconTextures[WorldEventsType::Drought] = IMG_LoadTexture(renderer, "assets/WorldEvents/DroughtIcon.png");
+        if (worldEventsIconTextures[WorldEventsType::Drought] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsIconTextures Drought", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsIconTextures[WorldEventsType::Drought], SDL_SCALEMODE_NEAREST);
 
+        worldEventsIconTextures[WorldEventsType::Plague] = IMG_LoadTexture(renderer, "assets/WorldEvents/PlagueIcon.png");
+        if (worldEventsIconTextures[WorldEventsType::Plague] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsIconTextures Plague", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsIconTextures[WorldEventsType::Plague], SDL_SCALEMODE_NEAREST);
+
+        worldEventsIconTextures[WorldEventsType::Fire] = IMG_LoadTexture(renderer, "assets/WorldEvents/FireIcon.png");
+        if (worldEventsIconTextures[WorldEventsType::Fire] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsIconTextures Fire", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsIconTextures[WorldEventsType::Fire], SDL_SCALEMODE_NEAREST);
+
+        worldEventsIconTextures[WorldEventsType::PoorPopulation] = IMG_LoadTexture(renderer, "assets/WorldEvents/PoorPopulationIcon.png");
+        if (worldEventsIconTextures[WorldEventsType::PoorPopulation] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsIconTextures PoorPopulation", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsIconTextures[WorldEventsType::PoorPopulation], SDL_SCALEMODE_NEAREST);
+
+        worldEventsIconTextures[WorldEventsType::GoodHarvest] = IMG_LoadTexture(renderer, "assets/WorldEvents/GoodHarvestIcon.png");
+        if (worldEventsIconTextures[WorldEventsType::GoodHarvest] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsIconTextures GoodHarvest", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsIconTextures[WorldEventsType::GoodHarvest], SDL_SCALEMODE_NEAREST);
+
+        worldEventsIconTextures[WorldEventsType::MiraculousFishCatch] = IMG_LoadTexture(renderer, "assets/WorldEvents/MiraculousFishCatchIcon.png");
+        if (worldEventsIconTextures[WorldEventsType::MiraculousFishCatch] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsIconTextures MiraculousFishCatch", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsIconTextures[WorldEventsType::MiraculousFishCatch], SDL_SCALEMODE_NEAREST);
+
+        worldEventsIconTextures[WorldEventsType::FavorableWinds] = IMG_LoadTexture(renderer, "assets/WorldEvents/FavorableWindsIcon.png");
+        if (worldEventsIconTextures[WorldEventsType::FavorableWinds] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsIconTextures FavorableWinds", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsIconTextures[WorldEventsType::FavorableWinds], SDL_SCALEMODE_NEAREST);
+
+        worldEventsIconTextures[WorldEventsType::Justice] = IMG_LoadTexture(renderer, "assets/WorldEvents/JusticeIcon.png");
+        if (worldEventsIconTextures[WorldEventsType::Justice] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsIconTextures Justice", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsIconTextures[WorldEventsType::Justice], SDL_SCALEMODE_NEAREST);
+
+        worldEventsIconTextures[WorldEventsType::NewInvension] = IMG_LoadTexture(renderer, "assets/WorldEvents/NewInvensionIcon.png");
+        if (worldEventsIconTextures[WorldEventsType::NewInvension] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsIconTextures NewInvension", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsIconTextures[WorldEventsType::NewInvension], SDL_SCALEMODE_NEAREST);
+
+        worldEventsIconTextures[WorldEventsType::WarSign] = IMG_LoadTexture(renderer, "assets/WorldEvents/WarSignIcon.png");
+        if (worldEventsIconTextures[WorldEventsType::WarSign] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture worldEventsIconTextures WarSign", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(worldEventsIconTextures[WorldEventsType::WarSign], SDL_SCALEMODE_NEAREST);
         // BUILDING UIS
         //                  ! KNIGHT !
         //capitals
@@ -3779,6 +3852,10 @@ private://constructor
             SDL_DestroyTexture(texture);
         }
         worldEventsImageTextures.clear();
+        for (auto &[eventType, texture] : worldEventsIconTextures) {
+            SDL_DestroyTexture(texture);
+        }
+        worldEventsIconTextures.clear();
     }
 
 
@@ -3970,6 +4047,54 @@ private://constructor
         return (it != worldEventsImageTextures.end()) ? it->second : nullptr;
     }
 
+    //To know if a building can be constructed here to show the hammer on settlement
+    bool CanSettlementConstruct(const Settlement &s) {
+        int provinceID = s.settlementData.provinceID;
+        if (provinces[provinceID].owner != player.faction) return false;//Only the player sees its upgradable settlements
+
+        int gsi = (int)(&s - &settlements[0]);
+
+        //Amelioration du batiment principal
+        int maxTierCheck = 3;
+        if (s.settlementData.type == SettlementType::Castle || s.settlementData.type == SettlementType::Capital)
+            maxTierCheck = 5;
+
+        bool mainMarkedForDemolition = buildingsMarkedDestroyed.count(gsi * 100 + 0) > 0;
+        if (!s.settlementData.bBuidingUnderConstruction && !IsBuildingSlotDamaged(gsi, 0) && !mainMarkedForDemolition &&
+            s.settlementData.settlementTier < maxTierCheck) {
+            BuildingType mainBuilding = s.settlementData.buildings[0];
+            int upgradeCost = player.GetUpgradeCost(s.settlementData.settlementTier, mainBuilding);
+            if (player.currentGold >= upgradeCost) return true;
+        }
+
+        int tier = s.settlementData.settlementTier;
+        for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
+            int slotThreshold = tier;
+            if (s.settlementData.type == SettlementType::Capital) slotThreshold = tier + 1;
+            if (b > slotThreshold) continue; //Not unlocked yet
+
+            if (s.settlementData.pendingBuildings[b] != BuildingType::None) continue; //deja en construction
+
+            BuildingType buildingType = s.settlementData.buildings[b];
+            if (buildingType == BuildingType::None) {
+                return true;//Empty so can add the texture
+            }
+
+            if (IsBuildingSlotDamaged(gsi, b)) continue;
+            if (buildingsMarkedDestroyed.count(gsi * 100 + b) > 0) continue;
+
+            const BuildingData* bd = GetBuildingData(buildingType);
+            if (bd && bd->upgradesTo != BuildingType::None) {
+                const BuildingData* nextBd = GetBuildingData(bd->upgradesTo);
+                if (nextBd && nextBd->Tier <= tier && player.currentGold >= nextBd->cost) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
 
     //For the rendering on screen of the settlements. Texture to do
     void RenderSettlements() {
@@ -4044,18 +4169,13 @@ private://constructor
                 float barX   = centerX - barW / 2.f;
                 float barY   = bottomY + barGap;
 
+
                 // the name of the settlement
                 TTF_SetTextString(gameStatUITitleText, s.settlementData.cityName.c_str(), 0);
                 TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
                 int nameW = 0, nameH = 0;
                 TTF_GetTextSize(gameStatUITitleText, &nameW, &nameH);
 
-                //iconSize/Gap
-                struct NameBarIcon {
-                    SDL_Texture* texture;
-                    float size;
-                    float gap; // gap before this icon
-                };
                 //settlements raw buildings
                 bool bIsFishingVillage = (s.settlementData.type == SettlementType::Village && s.bIsPort);
                 bool bIsMilitaryPort = (s.settlementData.type == SettlementType::Capital || s.settlementData.type == SettlementType::Castle) && s.bIsPort;
@@ -4067,43 +4187,59 @@ private://constructor
                 bool bIsGoldMineVillage = (s.settlementData.type == SettlementType::Village && s.bIsGoldMine);
                 bool bIsSheepPastureVillage = (s.settlementData.type == SettlementType::Village && s.bIsSheepPasture);
 
-                std::vector<NameBarIcon> nameBarIcons;
-                if (bIsFishingVillage) nameBarIcons.push_back({ gameResourceFishIconTexture, 35.f, 0.f });
-                if (bIsMilitaryPort)   nameBarIcons.push_back({ gameMilitaryPortIconTexture, 28.f, 4.f });
-                if (bIsLumberCampVillage) nameBarIcons.push_back({gameResourceLumberIconTexture, 35.f, 0.f});
-                if (bIsIronMineVillage) nameBarIcons.push_back({gameResourceIronIconTexture, 35.f, 0.f});
-                if (bIsCopperMineVillage) nameBarIcons.push_back({gameResourceCopperIconTexture, 35.f, 0.f});
-                if (bIsTinMineVillage) nameBarIcons.push_back({gameResourceTinIconTexture, 35.f, 0.f});
-                if (bIsSilverMineVillage) nameBarIcons.push_back({gameResourceSilverIconTexture, 35.f, 0.f});
-                if (bIsGoldMineVillage) nameBarIcons.push_back({gameResourceGoldIconTexture, 35.f, 0.f});
-                if (bIsSheepPastureVillage) nameBarIcons.push_back({gameResourceWoolIconTexture, 35.f, 0.f});
+                //Icons of the Resources per Village
+                SDL_Texture* settlementResourceIcon = nullptr;
+                if (bIsFishingVillage) settlementResourceIcon = gameResourceFishIconTexture;
+                else if (bIsMilitaryPort) settlementResourceIcon = gameMilitaryPortIconTexture;
+                else if (bIsLumberCampVillage) settlementResourceIcon = gameResourceLumberIconTexture;
+                else if (bIsIronMineVillage) settlementResourceIcon = gameResourceIronIconTexture;
+                else if (bIsCopperMineVillage) settlementResourceIcon = gameResourceCopperIconTexture;
+                else if (bIsTinMineVillage) settlementResourceIcon = gameResourceTinIconTexture;
+                else if (bIsSilverMineVillage) settlementResourceIcon = gameResourceSilverIconTexture;
+                else if (bIsGoldMineVillage) settlementResourceIcon = gameResourceGoldIconTexture;
+                else if (bIsSheepPastureVillage) settlementResourceIcon = gameResourceWoolIconTexture;
 
-                float extraWidth = 0.f;
-                for (const auto& icon : nameBarIcons) extraWidth += icon.gap + icon.size;
+                //hammer
+                const float hammerSlotSize = 36.f;
+                const float hammerSlotGap  = 0.f;
+                const float sideReserved   = hammerSlotGap + hammerSlotSize - 10.f;
+                //resourcesicon
+                const float resourceSlotSize = 32.f;
+                const float resourceSlotGap  = 6.f;
+                const float namePad = 4.f;
 
-                float nameX = centerX - (nameW + extraWidth) / 2.f;
+                bool bCanConstruct = CanSettlementConstruct(s);
+
+                //name always on the center
+                float nameX = centerX - nameW / 2.f;
                 float nameY = barY - nameH - 2.f;
 
-                SDL_SetRenderDrawColor(renderer, 10, 10, 10, 200);
-                SDL_FRect nameBackground = {nameX - 4.f, nameY - 2.f, (float)nameW + 4.f + extraWidth, (float)nameH + 2.f};
+                //the background always same size
+                float backgroundX = nameX - namePad - sideReserved;
+                float backgroundW = (float)nameW + namePad * 2.f + sideReserved * 2.f;
+
+                SDL_SetRenderDrawColor(renderer, 200, 173, 127, 200);
+                SDL_FRect nameBackground = {backgroundX, nameY - 2.f, backgroundW, (float)nameH + 2.f};
                 SDL_RenderFillRect(renderer, &nameBackground);
                 SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 160);
                 SDL_RenderRect(renderer, &nameBackground);
                 TTF_DrawRendererText(gameStatUITitleText, nameX, nameY);
 
-                // Icons sit right after the name text, one after another, inside the black bar
-                float iconCursorX = nameX + nameW;
-                for (const auto& icon : nameBarIcons) {
-                    iconCursorX += icon.gap;
-                    SDL_FRect iconRect = {
-                        iconCursorX,
-                        nameY + (nameH - icon.size) / 2.f,
-                        icon.size, icon.size
+
+                if (bCanConstruct && hammerUIBuildingUpgradeTexture) {
+                    SDL_FRect hammerIconRect = {
+                        nameX + nameW + hammerSlotGap,
+                        nameY + (nameH - hammerSlotSize) / 2.f,
+                        hammerSlotSize, hammerSlotSize
                     };
-                    SDL_RenderTexture(renderer, icon.texture, nullptr, &iconRect);
-                    iconCursorX += icon.size;
+                    SDL_RenderTexture(renderer, hammerUIBuildingUpgradeTexture, nullptr, &hammerIconRect);
                 }
 
+                //Outside the main Bare, REsource Icon
+                if (settlementResourceIcon) {
+                    SDL_FRect resourceIconRect = {backgroundX + backgroundW + resourceSlotGap,nameY + (nameH - resourceSlotSize) / 2.f, resourceSlotSize, resourceSlotSize};
+                    SDL_RenderTexture(renderer, settlementResourceIcon, nullptr, &resourceIconRect);
+                }
 
                 // INFO BAR
                 SDL_SetRenderDrawColor(renderer, 10, 10, 10, 210);
@@ -10577,8 +10713,6 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         app.publicOrderTooltipX = nouveauX;
         app.publicOrderTooltipY = nouveauY;
     }
-
-
 
     // Zoom
     if (event->type == SDL_EVENT_MOUSE_WHEEL && app.StateActuel == State::Game) {
