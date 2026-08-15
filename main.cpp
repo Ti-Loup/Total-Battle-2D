@@ -540,6 +540,10 @@ public:
     SDL_Texture *gameResourceTinIconTexture = nullptr;
     SDL_Texture *gameResourceLumberIconTexture = nullptr;
     SDL_Texture *gameResourceWoolIconTexture = nullptr;
+    //religion raw resources
+    SDL_Texture *gameResourceCandleIconTexture = nullptr;
+    SDL_Texture *gameResourceBeerIconTexture = nullptr;
+    SDL_Texture *gameResourceGreenTeaIconTexture = nullptr;
     //Transformed
     SDL_Texture *gameResourceFishOilIconTexture = nullptr;
     SDL_Texture *gameResourceHardWoodIconTexture = nullptr;
@@ -3435,6 +3439,23 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture gameResourceWoolIconTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameResourceWoolIconTexture, SDL_SCALEMODE_NEAREST);
+        //religion raw goods
+        gameResourceCandleIconTexture = IMG_LoadTexture(renderer, "assets/Resources/CandleIcon.png");
+        if (gameResourceCandleIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameResourceCandleIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameResourceCandleIconTexture, SDL_SCALEMODE_NEAREST);
+        gameResourceBeerIconTexture = IMG_LoadTexture(renderer, "assets/Resources/BeerIcon.png");
+        if (gameResourceBeerIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameResourceBeerIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameResourceBeerIconTexture, SDL_SCALEMODE_NEAREST);
+        gameResourceGreenTeaIconTexture = IMG_LoadTexture(renderer, "assets/Resources/GreenTeaIcon.png");
+        if (gameResourceGreenTeaIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to laod texture gameResourceGreenTeaIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameResourceGreenTeaIconTexture, SDL_SCALEMODE_NEAREST);
+
         //Transformed goods
         gameResourceFishOilIconTexture = IMG_LoadTexture(renderer, "assets/Resources/FishOilIcon.png");
         if (gameResourceFishOilIconTexture == nullptr) {
@@ -3723,6 +3744,9 @@ private://constructor
         SDL_DestroyTexture(gameResourceTinIconTexture);
         SDL_DestroyTexture(gameResourceLumberIconTexture);
         SDL_DestroyTexture(gameResourceWoolIconTexture);
+        SDL_DestroyTexture(gameResourceCandleIconTexture);
+        SDL_DestroyTexture(gameResourceBeerIconTexture);
+        SDL_DestroyTexture(gameResourceGreenTeaIconTexture);
         SDL_DestroyTexture(gameResourceFishOilIconTexture);
         SDL_DestroyTexture(gameResourceHardWoodIconTexture);
         SDL_DestroyTexture(gameResourceTextileIconTexture);
@@ -7598,6 +7622,9 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         switch (type) {
             case ResourceType::Fish: return gameResourceFishIconTexture;
             case ResourceType::Lumber: return gameResourceLumberIconTexture;
+            case ResourceType::Candle: return gameResourceCandleIconTexture;
+            case ResourceType::Beer: return gameResourceBeerIconTexture;
+            case ResourceType::GreenTea: return gameResourceGreenTeaIconTexture;
             case ResourceType::Wool: return gameResourceWoolIconTexture;
             case ResourceType::Iron: return gameResourceIronIconTexture;
             case ResourceType::Copper: return gameResourceCopperIconTexture;
@@ -7617,8 +7644,11 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         }
     }
 public:
+
+    //Need amount of raw resource to build the industryial building
     bool GetIndustryBuildingRawResource(BuildingType type, ResourceType &outResource) {
         switch (type) {
+
             //OilPress -> Fish (Fish Oil)
             case BuildingType::KnightOilPress_T1: case BuildingType::KnightOilPress_T2:
             case BuildingType::VikingOilPress_T1: case BuildingType::VikingOilPress_T2:
@@ -8449,6 +8479,15 @@ void RenderBuildingStatRows(const BuildingData* data, BuildingType type, float t
                 break;
             case ResourceType::Lumber:resLabel = "Lumber Produced:";
                 resIcon = gameResourceLumberIconTexture;
+                break;
+            case ResourceType::Candle:resLabel = "Candle Produced:";
+                resIcon = gameResourceCandleIconTexture;
+                break;
+            case ResourceType::Beer:resLabel = "Beer Produced:";
+                resIcon = gameResourceBeerIconTexture;
+                break;
+            case ResourceType::GreenTea:resLabel = "Green Tea Produced:";
+                resIcon = gameResourceGreenTeaIconTexture;
                 break;
             case ResourceType::Wool:resLabel = "Wool Produced:";
                 resIcon = gameResourceWoolIconTexture;

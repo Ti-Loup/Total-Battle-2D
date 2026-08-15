@@ -1038,12 +1038,12 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     
     // ── VIKING RELIGION ──
     //reconstitution
-    add(BuildingType::VikingShrine_T1,{"Shrine",          "Pleases the gods.",        100,  5, 0,  0, 1, 2, 0, 0, 0, 0, 0, 1, 0, BuildingType::VikingShrine_T2});
-    add(BuildingType::VikingShrine_T2,{"Temple",          "Greater divine favor.",    250, 10, 0, 1, 2, 3, 0, 0, 0, 0, 0, 3, 0, BuildingType::None});
+    add(BuildingType::VikingShrine_T1,{"Shrine", "Pleases the gods.",        100,  5, 0,  0, 1, 2, 0, 0, 0, 0, 0, 1, 0, BuildingType::VikingShrine_T2});
+    add(BuildingType::VikingShrine_T2,{"Temple", "Greater divine favor.",    250, 10, 0, 1, 2, 3, 0, 0, 0, 0, 0, 3, 0, BuildingType::None});
     //Beer production
-    add(BuildingType::VikingBrewKeeper_T1, {"SmallBrewKeeper",    "To produce Beer",  100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, 0, BuildingType::VikingBrewKeeper_T2});
-    add(BuildingType::VikingBrewKeeper_T2, {"MediumBrewKeeper",    "For the beer production",    250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 3, 0, BuildingType::VikingBrewKeeper_T3});
-    add(BuildingType::VikingBrewKeeper_T3, {"LargeBrewKeeper", "Beer production",     500, 15, 0, 4, 3, 4, 0, 0, 0, 0, 0, 5, 0, BuildingType::None});
+    add(BuildingType::VikingBrewKeeper_T1, {"Brew House", "Even the gods delight in mead,\nand a full horn is offered\nbefore the first drop is drunk.", 100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, 0, BuildingType::VikingBrewKeeper_T2});
+    add(BuildingType::VikingBrewKeeper_T2, {"Skaldic Brewery", "Where the mead flows freest,\nthe skalds sing loudest and\nthe gods listen closest.", 250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 3, 0, BuildingType::VikingBrewKeeper_T3});
+    add(BuildingType::VikingBrewKeeper_T3, {"Mead Hall Industry", "The great feasting halls run deep\nwith golden brew, an offering\nfit for both gods and warriors.", 500, 15, 0, 4, 3, 4, 0, 0, 0, 0, 0, 5, 0, BuildingType::None});
     //PublicOrder
     add(BuildingType::VikingSacrificeRitual_T3, {"Ritual Ground",   "Blood for Odin.",          150,  5, 0,  2, 3, 2, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingSacrificeRitual_T4});
     add(BuildingType::VikingSacrificeRitual_T4, {"Sacrifice Altar", "Greater blood offering.",  300, 10, 0, 3, 4, 3, 0, 0, 0, 0, 0, 0, 0, BuildingType::VikingSacrificeRitual_T5});
@@ -1122,9 +1122,9 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::SamuraiHospital_T1, {"Field Hospital", "Heals troops.", 100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 0, 0, BuildingType::SamuraiHospital_T2});
     add(BuildingType::SamuraiHospital_T2, {"Hospital", "Better healing.", 250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 0, 0, BuildingType::None});
     //Tea Dry
-    add(BuildingType::SamuraiTeaDry_T1, {"small Tea dry", "To make tea",  100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, 0, BuildingType::SamuraiTeaDry_T2});
-    add(BuildingType::SamuraiTeaDry_T2, {"Medium Tea dry", "To make tea", 250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 3, 0, BuildingType::SamuraiTeaDry_T3});
-    add(BuildingType::SamuraiTeaDry_T3, {"Large Tea dry", "To make tea", 500, 15, 0, 4, 3, 4, 0, 0, 0, 0, 0, 5, 0, BuildingType::None});
+    add(BuildingType::SamuraiTeaDry_T1, {"Tea Garden", "In the quiet leaves of tea,\nthe monks find a moment's\npeace before the day begins.", 100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, 0, BuildingType::SamuraiTeaDry_T2});
+    add(BuildingType::SamuraiTeaDry_T2, {"Monastic Tea House", "Prepared with careful ritual, the\ntea offered here is as much\nan act of devotion as trade.", 250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 3, 0, BuildingType::SamuraiTeaDry_T3});
+    add(BuildingType::SamuraiTeaDry_T3, {"Tea Ceremony Industry", "The art of tea has become tradition,\nits fragrant leaves carried\nfar beyond the temple walls.", 500, 15, 0, 4, 3, 4, 0, 0, 0, 0, 0, 5, 0, BuildingType::None});
     //public order
     add(BuildingType::SamuraiChapel_T3, {"Shinto Shrine", "Basic worship.", 100, 5, 0,  1, 3, 2, 0, 0, 0, 0, 0, 1, 0, BuildingType::SamuraiChapel_T4});
     add(BuildingType::SamuraiChapel_T4, {"Shinto Temple", "Greater worship.", 250, 10, 0, 1, 4, 3, 0, 0, 0, 0, 0, 3, 0, BuildingType::SamuraiChapel_T5});
@@ -1202,6 +1202,20 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     db[BuildingType::SheepPasture_T1].resourcesProduced = {{ResourceType::Wool, 1}};
     db[BuildingType::SheepPasture_T2].resourcesProduced = {{ResourceType::Wool, 2}};
     db[BuildingType::SheepPasture_T3].resourcesProduced = {{ResourceType::Wool, 3}};
+    //Religious buildings Production
+    //candles
+    db[BuildingType::KnightBeeKeeper_T1].resourcesProduced = {{ResourceType::Candle, 1}};
+    db[BuildingType::KnightBeeKeeper_T2].resourcesProduced = {{ResourceType::Candle, 2}};
+    db[BuildingType::KnightBeeKeeper_T3].resourcesProduced = {{ResourceType::Candle, 3}};
+    //beer
+    db[BuildingType::VikingBrewKeeper_T1].resourcesProduced = {{ResourceType::Beer, 1}};
+    db[BuildingType::VikingBrewKeeper_T2].resourcesProduced = {{ResourceType::Beer, 2}};
+    db[BuildingType::VikingBrewKeeper_T3].resourcesProduced = {{ResourceType::Beer, 3}};
+    //GreenTea
+    db[BuildingType::SamuraiTeaDry_T1].resourcesProduced = {{ResourceType::GreenTea, 1}};
+    db[BuildingType::SamuraiTeaDry_T2].resourcesProduced = {{ResourceType::GreenTea, 2}};    
+    db[BuildingType::SamuraiTeaDry_T3].resourcesProduced = {{ResourceType::GreenTea, 3}};
+
     //TRANSFORM
     //fish oil
     db[BuildingType::KnightOilPress_T1].resourcesProduced = {{ResourceType::FishOil, 1}};
@@ -1277,6 +1291,7 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     db[BuildingType::SamuraiJeweller_T3].resourcesProduced = {{ResourceType::GoldJewlery, 1}};
     db[BuildingType::SamuraiJeweller_T4].resourcesProduced = {{ResourceType::GoldJewlery, 1}};
     db[BuildingType::SamuraiJeweller_T5].resourcesProduced = {{ResourceType::GoldJewlery, 1}};
+
 
     // ── RESOURCES CONSUMED (5 raw -> 1 transformed) ──
     //Fish Oil consume Fish

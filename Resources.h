@@ -14,16 +14,17 @@ enum class ResourceType {
     //Raw
     Fish,
     Lumber,
+    //Raw Goods from specific religion Buildings
+    Candle,//Knight
+    Beer,//Viking
+    GreenTea,//Samurai
     Wool,
     Iron,
     Copper,
     Tin,
     Silver,
     Gold,
-    //Raw Goods from specific religion Buildings
-    Candle,//Knight
-    Beer,//Viking
-    GreenTea,//Samurai
+
     //Transformed
     FishOil,
     HardWood,
