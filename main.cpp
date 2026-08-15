@@ -30,24 +30,25 @@
  * --------------------------------------------
  * 0.3.0
  *
- * improvement -> Can build buildings, know which one to buy/Upgrade
  * RESOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
- *  ~ Production Mecanique ~
- *  fishing ports gives food and produce fish !
- *  MINEs -> produced their own orb
- *      If you have the raw material you can then construct industrial buildings from this material.(gold mine -> jewlery)
- *  Forged Steel Production, FISH, medicine plants, Candle
- * A building to proceed the fish . (Fish oil ?)
- * Some industrial buildings can only be buy if you have the raw material
- * Settlement next to the name shows a texture of mine to show its a mine + fish for a fish port and boat for military ...
  *
- * Done -> THE RESSOURCES ARE STORED IN (warehouse or castle).
- *
+ * ToDo -> Code the remaining World Events Curently(3/12)
+ * ToDo -> Tooltip repair Cost and description + Destroy tooltip
  * ToDo - Work on Degree, Win achievments, and more.
  * ToDo - If you have less paysants than the nobility amount your buildings doesnt work has much. See paysantry/Nobility  description
+ *
+ * Done -> THE RESSOURCES ARE STORED IN (warehouse or castle).
+ * Done -> Mines produced their own orb
+ * Done -> fishing ports gives food and produce fish
+ * Done -> If you have the raw material you can then construct industrial buildings from this material.(gold mine -> jewlery) Forged Steel Production, FISH, medicine plants, Candle
+ * Done -> Industrial buildings can only be buy if you have the raw material
+ * Done -> Settlement next to the name shows a texture of mine to show its a mine + fish for a fish port and boat for military
+ * Done -> Goods Manager
+ *
+ *
  * Fixes:
- * Done | The repair button wasnt disappearing for ports after repairing.
- * Done | Fix the Goods manager displaying the goods outside of the ui
+ * Fixed | The repair button wasnt disappearing for ports after repairing.
+ * Fixed | Fix the Goods manager displaying the goods outside of the ui
  *
  * --------------------------------------------
  * 0.3.25
@@ -5481,12 +5482,33 @@ private://constructor
                     SDL_RenderTexture(renderer, texture, nullptr, &tileRect);
                     SDL_SetTextureAlphaMod(texture, 255);
                 }
+                //To show the Tier number next to the building for clarity
+                if (data->Tier == 1) {
+                    TTF_SetTextString(gameStatUIText, "I", 0);
+                    TTF_SetTextColor(gameStatUIText, 220, 220, 220, 255);
+                    TTF_DrawRendererText(gameStatUIText, colX, tileY + tileH - 18.f);
+                }
+                if (data->Tier == 2) {
+                    TTF_SetTextString(gameStatUIText, "II", 0);
+                    TTF_SetTextColor(gameStatUIText, 220, 220, 220, 255);
+                    TTF_DrawRendererText(gameStatUIText, colX + 1.0f, tileY + tileH - 18.f);
+                }
+                if (data->Tier == 3) {
+                    TTF_SetTextString(gameStatUIText, "III", 0);
+                    TTF_SetTextColor(gameStatUIText, 220, 220, 220, 255);
+                    TTF_DrawRendererText(gameStatUIText, colX + 1.0f, tileY + tileH - 18.f);
+                }
+                if (data->Tier == 4) {
+                    TTF_SetTextString(gameStatUIText, "IV", 0);
+                    TTF_SetTextColor(gameStatUIText, 220, 220, 220, 255);
+                    TTF_DrawRendererText(gameStatUIText, colX + 1.0f, tileY + tileH - 18.f);
+                }
+                if (data->Tier == 5) {
+                    TTF_SetTextString(gameStatUIText, "V", 0);
+                    TTF_SetTextColor(gameStatUIText, 220, 220, 220, 255);
+                    TTF_DrawRendererText(gameStatUIText, colX + 1.0f, tileY + tileH - 18.f);
+                }
 
-                std::string tierStr = "T" + std::to_string(data->Tier);
-                TTF_SetTextString(gameStatUIText, tierStr.c_str(), 0);
-                Uint8 tierAlpha = isBuilt ? 255 : (isNextAvailable ? 200 : 120);
-                TTF_SetTextColor(gameStatUIText, tierAlpha, tierAlpha, tierAlpha, 255);
-                TTF_DrawRendererText(gameStatUIText, colX - 5.f, tileY + tileH - 18.f);
                 categoryEvolutionTileRects.push_back({tileRect, bt});//detection click
                 // // Building name
                 // TTF_SetTextString(gameStatUIText, data->name.c_str(), 0);
