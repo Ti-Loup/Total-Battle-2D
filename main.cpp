@@ -4056,15 +4056,33 @@ private://constructor
         bool bShouldShow = false;
         switch (currentWorldsEvent) {
             case WorldEventsType::Storm:
-                bShouldShow = s.bIsPort; // only ports affected not military ones
+                bShouldShow = (s.settlementData.type == SettlementType::Village && s.bIsPort); // only ports affected not military ones
                 break;
             case WorldEventsType::Earthquake: {
-                int gsi = (int)(&s - &settlements[0]);
+                int globalSettlementIndex = (int)(&s - &settlements[0]);
                 for (int b = 0; b < (int)s.settlementData.buildings.size(); b++) {
-                    if (IsBuildingSlotDamaged(gsi, b)) { bShouldShow = true; break; }
+                    if (IsBuildingSlotDamaged(globalSettlementIndex, b)) {
+                        bShouldShow = true;
+                        break;
+                    }
                 }
                 break;
             }
+            case WorldEventsType::Drought: {
+                bool bIsFarmVillage = (s.settlementData.type == SettlementType::Village);
+                bool bFarmBuilding = false;
+                for (BuildingType bt : s.settlementData.buildings) {
+                    if (bt == BuildingType::None) continue;
+                    if (GetFoodCategory(bt) == FoodCategory::Farm || GetTaxCategory(bt) == TaxCategory::Farm) {
+                        bFarmBuilding = true;
+                        break;
+                    }
+                }
+                bShouldShow = bIsFarmVillage || bFarmBuilding;
+                break;
+            }
+
+
             default:
                 bShouldShow = false;
                 break;
