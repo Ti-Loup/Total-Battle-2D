@@ -44,7 +44,7 @@
  * Done -> Industrial buildings can only be buy if you have the raw material
  * Done -> Settlement next to the name shows a texture of mine to show its a mine + fish for a fish port and boat for military
  * Done -> Goods Manager
- *
+ * Done -> World Events Icons next to settlements name
  *
  * Fixes:
  * Fixed | The repair button wasnt disappearing for ports after repairing.
