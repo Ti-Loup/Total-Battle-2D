@@ -13,6 +13,7 @@
 #include <string>
 #include <algorithm>
 #include <cmath>
+#include <limits>
 //les classes
 #include "State.h"
 #include "Entity.h"
@@ -4050,6 +4051,7 @@ private://constructor
     //The active world event Icon should appear
     //Storm Only when ports affected
     //earthquake Icon only affect the damaged ones.
+    //Plague Icon on infected settlements
     SDL_Texture *GetWorldEventSettlementIcon(const Settlement &s) {
         if (activeWorldEventTurnsRemaining <= 0) return nullptr;
 
@@ -4081,7 +4083,9 @@ private://constructor
                 bShouldShow = bIsFarmVillage || bFarmBuilding;
                 break;
             }
-
+            case WorldEventsType::Plague:
+                bShouldShow = s.bIsInfectedByPlague;
+                break;
 
             default:
                 bShouldShow = false;
@@ -9421,6 +9425,60 @@ public:
         SDL_Log("Earthquake damaged buildings in %s", sel.settlementData.cityName.c_str());
     }
 
+    //To determine if a specific settlement is affected by world events
+    bool IsSettlementAffectedByCurrentWorldEvent(const Settlement &settlement) const {
+        if (activeWorldEventTurnsRemaining <= 0)
+            return false;
+
+        if (currentWorldsEvent == WorldEventsType::Plague) {
+            return settlement.bIsInfectedByPlague;
+        }
+            return true;
+    }
+    //infect the closest healthy city. If all province touched, spread towards the closest random province next to it.
+    void SpreadPlague() {
+        std::vector<int> infectedIndices;
+        for (int i = 0; i < (int)settlements.size(); i++) {
+            if (settlements[i].bIsInfectedByPlague) infectedIndices.push_back(i);
+        }
+        if (infectedIndices.empty())
+            return;
+
+        int bestSameProvinceTarget = -1;
+        float bestSameProvinceDistSq = std::numeric_limits<float>::max();
+        int bestGlobalTarget = -1;
+        float bestGlobalDistSq = std::numeric_limits<float>::max();
+
+        for (int infectedIndex : infectedIndices) {
+            const Settlement &infectedSettlement = settlements[infectedIndex];
+            int provinceID = infectedSettlement.settlementData.provinceID;
+
+            for (int j = 0; j < (int)settlements.size(); j++) {
+                if (settlements[j].bIsInfectedByPlague)continue;
+
+                //get distance between each settlements to get the closest one.
+                float distanceX = (float)(settlements[j].tileCol - infectedSettlement.tileCol);
+                float distanceY = (float)(settlements[j].tileRow - infectedSettlement.tileRow);
+                float distanceSq = distanceX * distanceX + distanceY * distanceY;
+
+                // Priority 1 is colonie healthy the closest in the province
+                if (settlements[j].settlementData.provinceID == provinceID && distanceSq < bestSameProvinceDistSq) {
+                    bestSameProvinceDistSq = distanceSq;
+                    bestSameProvinceTarget = j;
+                }
+                // Priority 2 when all settlements in 1 province infected it takes the closest one near the infected province.
+                if (distanceSq < bestGlobalDistSq) {
+                    bestGlobalDistSq = distanceSq;
+                    bestGlobalTarget = j;
+                }
+            }
+        }
+        int targetIndex = (bestSameProvinceTarget >= 0) ? bestSameProvinceTarget : bestSameProvinceTarget;
+        if (targetIndex >= 0) {
+            settlements[targetIndex].bIsInfectedByPlague = true;
+            SDL_Log("Plague spread to %s", settlements[targetIndex].settlementData.cityName.c_str());//To know which region
+        }
+    }
 
 
     //To Know the construction time for a building
@@ -9852,8 +9910,17 @@ public:
 
     // Tick down the currently active event, if any
     if (activeWorldEventTurnsRemaining > 0) {
+        //plague is propaging each turn
+        if (currentWorldsEvent == WorldEventsType::Plague) {
+            SpreadPlague();
+        }
+
         activeWorldEventTurnsRemaining--;//decrease it after a turn
         if (activeWorldEventTurnsRemaining <= 0) {
+            //remove plague effects
+            if (currentWorldsEvent == WorldEventsType::Plague) {
+                for (auto& s : settlements) s.bIsInfectedByPlague = false;
+            }
             currentWorldsEvent = WorldEventsType::None; // go back to normal
             SDL_Log("World event ended. For now :o");
         }
@@ -9884,6 +9951,13 @@ public:
                     availableIndices.erase(availableIndices.begin() + randomPick);
                 }
             }
+            //if plague, infect one random clean settlement per turn
+            if (currentWorldsEvent == WorldEventsType::Plague && !settlements.empty()) {
+                int healtySettlementIndex = (int)SDL_rand((int)settlements.size());
+                settlements[healtySettlementIndex].bIsInfectedByPlague = true;
+                SDL_Log("Plague started in %s", settlements[healtySettlementIndex].settlementData.cityName.c_str());
+            }
+
         }
     }
 }

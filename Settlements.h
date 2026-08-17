@@ -27,6 +27,9 @@ class Settlement : public Entity {
     bool bIsLumberMine = false;
     bool bIsSheepPasture = false;//for textile
 
+    //For World Event Plague
+    bool bIsInfectedByPlague = false;
+
 };
 
 #endif //TOTALWAR2D_SETTLEMENTS_H
