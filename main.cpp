@@ -7615,10 +7615,13 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
         currentY += 8.f;
 
         float runningDeathsFloat = (float)baseDeath;
-        int   runningDeathsInt   = baseDeath;
+        int   runningDeathsInt = baseDeath;
+
+
+        drawStatRow("Base Death Rate", "+" + std::to_string(baseDeath), 220, 60, 60);
         if (hoveredPopulationType == 0 && buildingDeathBonus != 0) {
             // red if positive
-            drawStatRow("Work Decease", (buildingDeathBonus >= 0 ? "-" : "") + std::to_string(buildingDeathBonus), buildingDeathBonus <= 0 ? 100 : 220, buildingDeathBonus <= 0 ? 220 : 60, 60);
+            drawStatRow("Work Decease", (buildingDeathBonus >= 0 ? "+" : "") + std::to_string(buildingDeathBonus), buildingDeathBonus <= 0 ? 100 : 220, buildingDeathBonus <= 0 ? 220 : 60, 60);
             runningDeathsInt += buildingDeathBonus;
             runningDeathsFloat = (float)runningDeathsInt;
         }
