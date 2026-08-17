@@ -7408,19 +7408,22 @@ SDL_RenderRect(renderer, &bg);
         }
     }
 
-        // World Event multipliers - déclarés tôt car tooltipH en a besoin pour sa taille
+        // World Event multipliers
         float worldEventPopMultiplier = 1.0f;
         float worldEventDeathMultiplier = 1.0f;
-        if (const WorldEventsData* activeEvent = GetActiveWorldEventData()) {
-            if (hoveredPopulationType == 0) {
-                worldEventPopMultiplier = activeEvent->populationGrowthPaysantryMultiplier;
-                worldEventDeathMultiplier = activeEvent->populationDeathPaysantryMultiplier;
-            } else if (hoveredPopulationType == 1) {
-                worldEventPopMultiplier = activeEvent->populationGrowthNobilityMultiplier;
-                worldEventDeathMultiplier = activeEvent->populationDeathNobilityMultiplier;
-            } else if (hoveredPopulationType == 2) {
-                worldEventPopMultiplier = activeEvent->populationGrowthClergyMultiplier;
-                worldEventDeathMultiplier = activeEvent->populationDeathClergyMultiplier;
+        bool bFactionAffected = PlayerFactionAffectedSettlement();
+        if (bFactionAffected) {
+            if (const WorldEventsData* activeEvent = GetActiveWorldEventData()) {
+                if (hoveredPopulationType == 0) {
+                    worldEventPopMultiplier = activeEvent->populationGrowthPaysantryMultiplier;
+                    worldEventDeathMultiplier = activeEvent->populationDeathPaysantryMultiplier;
+                } else if (hoveredPopulationType == 1) {
+                    worldEventPopMultiplier = activeEvent->populationGrowthNobilityMultiplier;
+                    worldEventDeathMultiplier = activeEvent->populationDeathNobilityMultiplier;
+                } else if (hoveredPopulationType == 2) {
+                    worldEventPopMultiplier = activeEvent->populationGrowthClergyMultiplier;
+                    worldEventDeathMultiplier = activeEvent->populationDeathClergyMultiplier;
+                }
             }
         }
 
@@ -9454,6 +9457,15 @@ public:
         }
             return true;
     }
+    //To verify the plague is on the player settlements and not others for the death rate
+    bool PlayerFactionAffectedSettlement() const {
+        if (activeWorldEventTurnsRemaining <=0)return false;
+        for (const auto &s: settlements) {
+            if (provinces[s.settlementData.provinceID].owner != player.faction)continue;
+            if (IsSettlementAffectedByCurrentWorldEvent(s)) return true;
+        }
+        return false;
+    }
     //infect the closest healthy city. If all province touched, spread towards the closest random province next to it.
     void SpreadPlague() {
         std::vector<int> infectedIndices;
@@ -9883,10 +9895,12 @@ public:
         float worldEventBirthPeasantryMultiplier = 1.0f;
         float worldEventBirthNobilityMultiplier  = 1.0f;
         float worldEventBirthClergyMultiplier    = 1.0f;
-        if (const WorldEventsData* activeEvent = GetActiveWorldEventData()) {
-            worldEventBirthPeasantryMultiplier = activeEvent->populationGrowthPaysantryMultiplier;
-            worldEventBirthNobilityMultiplier  = activeEvent->populationGrowthNobilityMultiplier;
-            worldEventBirthClergyMultiplier    = activeEvent->populationGrowthClergyMultiplier;
+        if (PlayerFactionAffectedSettlement()) {
+            if (const WorldEventsData* activeEvent = GetActiveWorldEventData()) {
+                worldEventBirthPeasantryMultiplier = activeEvent->populationGrowthPaysantryMultiplier;
+                worldEventBirthNobilityMultiplier  = activeEvent->populationGrowthNobilityMultiplier;
+                worldEventBirthClergyMultiplier    = activeEvent->populationGrowthClergyMultiplier;
+            }
         }
 
         int totalPeasantryBirths = (int)((float)(player.basePeasantryBirth + buildingPeasantryBonus) * foodMultiplier * endTurnSeasonMods.birthRateMultiplier * worldEventBirthPeasantryMultiplier);
@@ -9896,10 +9910,12 @@ public:
         float worldEventDeathPeasantryMultiplier = 1.0f;
         float worldEventDeathNobilityMultiplier = 1.0f;
         float worldEventDeathClergyMultiplier = 1.0f;
-        if (const WorldEventsData* activeEvent = GetActiveWorldEventData()) {
-            worldEventDeathPeasantryMultiplier = activeEvent->populationDeathPaysantryMultiplier;
-            worldEventDeathNobilityMultiplier = activeEvent->populationDeathNobilityMultiplier;
-            worldEventDeathClergyMultiplier = activeEvent->populationDeathClergyMultiplier;
+        if (PlayerFactionAffectedSettlement()) {
+            if (const WorldEventsData* activeEvent = GetActiveWorldEventData()) {
+                worldEventDeathPeasantryMultiplier = activeEvent->populationDeathPaysantryMultiplier;
+                worldEventDeathNobilityMultiplier = activeEvent->populationDeathNobilityMultiplier;
+                worldEventDeathClergyMultiplier = activeEvent->populationDeathClergyMultiplier;
+            }
         }
 
         // deaths scaled by season death multiplier (winter = harsher, summer = milder)
