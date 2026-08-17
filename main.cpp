@@ -5952,31 +5952,25 @@ private://constructor
         Date::Season coinSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
         SeasonModifiers coinSeasonModifier = GetSeasonModifiers(coinSeason);
 
-        //World Events Gold modifiers (Maritime buildings affected)
-        float worldEventFarmGoldMultiplier = 1.0f;
-        if (const WorldEventsData *activeEvent = GetActiveWorldEventData()) {
-            worldEventFarmGoldMultiplier = activeEvent -> goldIncomeFarmMultiplier;
-        }
-        float worldEventCommerceGoldMultiplier = 1.0f;
-        if (const WorldEventsData *activeEvent = GetActiveWorldEventData()) {
-            worldEventCommerceGoldMultiplier = activeEvent -> goldIncomeCommerceMultiplier;
-        }
-        float worldEventIndustryGoldMultiplier = 1.0f;
-        if (const WorldEventsData *activeEvent = GetActiveWorldEventData()) {
-            worldEventIndustryGoldMultiplier = activeEvent -> goldIncomeIndustryMultiplier;
-        }
-        float worldEventReligionGoldMultiplier = 1.0f;
-        if (const WorldEventsData *activeEvent = GetActiveWorldEventData()) {
-            worldEventReligionGoldMultiplier = activeEvent->goldIncomeReligionMultiplier;
-        }
-        float worldEventMaritimeGoldMultiplier = 1.0f;
-        if (const WorldEventsData *activeEvent = GetActiveWorldEventData()) {
-            worldEventMaritimeGoldMultiplier = activeEvent -> goldIncomeMaritimeMultiplier;//No income from ports during Storm * 0
-        }
-
         for (const auto& s: settlements) {
             if (provinces[s.settlementData.provinceID].owner == player.faction) {
                 int settlement_index = (int)(&s - &settlements[0]);
+                //World Events Gold modifiers are now per settlement
+                float worldEventFarmGoldMultiplier = 1.0f;
+                float worldEventCommerceGoldMultiplier = 1.0f;
+                float worldEventIndustryGoldMultiplier = 1.0f;
+                float worldEventReligionGoldMultiplier = 1.0f;
+                float worldEventMaritimeGoldMultiplier = 1.0f;
+                if (const WorldEventsData *activeEvent = GetActiveWorldEventData()) {
+                    if (IsSettlementAffectedByCurrentWorldEvent(s)) {
+                        worldEventFarmGoldMultiplier = activeEvent->goldIncomeFarmMultiplier;
+                        worldEventCommerceGoldMultiplier = activeEvent->goldIncomeCommerceMultiplier;
+                        worldEventIndustryGoldMultiplier = activeEvent->goldIncomeIndustryMultiplier;
+                        worldEventReligionGoldMultiplier = activeEvent->goldIncomeReligionMultiplier;
+                        worldEventMaritimeGoldMultiplier = activeEvent->goldIncomeMaritimeMultiplier; //No income from ports during Storm * 0
+                    }
+                }
+
                 // Upkeep du main building toujours déduit (même sans collecte de taxe)
                 const BuildingData* mainBd = GetBuildingData(s.settlementData.buildings[0]);
                 if (mainBd) player.nextTurnGold -= mainBd->upkeep;
@@ -6659,29 +6653,25 @@ int damagedIncomeLoss = 0;//raw income being lost to damage, across all categori
 
 Date::Season coinTooltipSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
 SeasonModifiers coinTooltipSeasonModifier = GetSeasonModifiers(coinTooltipSeason);
-float worldEventCommerceGoldMultiplier = 1.0f;
-const WorldEventsData *activeCommerceGoldEvent = GetActiveWorldEventData();
-if (activeCommerceGoldEvent) worldEventCommerceGoldMultiplier = activeCommerceGoldEvent -> goldIncomeCommerceMultiplier;
-
-float worldEventFarmGoldMultiplier = 1.0f;
-const WorldEventsData *activeFarmGoldEvent = GetActiveWorldEventData();
-if (activeFarmGoldEvent) worldEventFarmGoldMultiplier = activeFarmGoldEvent -> goldIncomeFarmMultiplier;
-
-float worldEventIndustryGoldMultiplier = 1.0f;
-const WorldEventsData *activeIndustryGoldEvent = GetActiveWorldEventData();
-if (activeIndustryGoldEvent) worldEventIndustryGoldMultiplier = activeIndustryGoldEvent -> goldIncomeIndustryMultiplier;
-
-float worldEventReligionGoldMultiplier = 1.0f;
-const WorldEventsData *activeReligionGoldEvent = GetActiveWorldEventData();
-if (activeReligionGoldEvent) worldEventReligionGoldMultiplier = activeReligionGoldEvent -> goldIncomeReligionMultiplier;
-
-float worldEventMaritimeGoldMultiplier = 1.0f;
-const WorldEventsData* activeMaritimeGoldEvent = GetActiveWorldEventData();
-if (activeMaritimeGoldEvent) worldEventMaritimeGoldMultiplier = activeMaritimeGoldEvent->goldIncomeMaritimeMultiplier;
 
 for (const auto& s : settlements) {
     if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
     int settlement_index = (int)(&s - &settlements[0]);
+    //World Events Gold modifiers are now per settlement
+    float worldEventCommerceGoldMultiplier = 1.0f;
+    float worldEventFarmGoldMultiplier = 1.0f;
+    float worldEventIndustryGoldMultiplier = 1.0f;
+    float worldEventReligionGoldMultiplier = 1.0f;
+    float worldEventMaritimeGoldMultiplier = 1.0f;
+    if (const WorldEventsData* activeGoldEvent = GetActiveWorldEventData()) {
+        if (IsSettlementAffectedByCurrentWorldEvent(s)) {
+            worldEventCommerceGoldMultiplier = activeGoldEvent->goldIncomeCommerceMultiplier;
+            worldEventFarmGoldMultiplier = activeGoldEvent->goldIncomeFarmMultiplier;
+            worldEventIndustryGoldMultiplier = activeGoldEvent->goldIncomeIndustryMultiplier;
+            worldEventReligionGoldMultiplier = activeGoldEvent->goldIncomeReligionMultiplier;
+            worldEventMaritimeGoldMultiplier = activeGoldEvent->goldIncomeMaritimeMultiplier;
+        }
+    }
     const BuildingData* mainBuilding = GetBuildingData(s.settlementData.buildings[0]);
     if (mainBuilding) mainUpkeep += mainBuilding->upkeep;
 
@@ -6910,7 +6900,8 @@ int goldNextTurn = totalIncome - totalExpense;
         if (seasonModifierIsExpense)
     drawRow("Season Modifier (Farm)", farmSeasonBonus, true); //negative season penalty
     drawRow("Damaged Buildings", damagedIncomeLoss, true);
-        std::string worldEventName = activeMaritimeGoldEvent ? activeMaritimeGoldEvent->name : "";
+        const WorldEventsData* activeGoldEventForLabel = GetActiveWorldEventData();
+        std::string worldEventName = activeGoldEventForLabel ? activeGoldEventForLabel->name : "";
         std::string worldEventFarmGoldLabel      = worldEventName.empty() ? "World Event (Farm)"      : ("World Event (" + worldEventName + ") - Farm");
         std::string worldEventCommerceGoldLabel  = worldEventName.empty() ? "World Event (Commerce)"  : ("World Event (" + worldEventName + ") - Commerce");
         std::string worldEventIndustryGoldLabel  = worldEventName.empty() ? "World Event (Industry)"  : ("World Event (" + worldEventName + ") - Industry");

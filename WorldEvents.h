@@ -173,7 +173,7 @@ inline const std::unordered_map<WorldEventsType, WorldEventsData>& GetWorldEvent
             WorldEventCategory::Positive,
             0, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 1.0f, 1.0f, 1.0f, 5
         }},
-        //own mechanic
+        //Own Mecanic
         { WorldEventsType::Justice,{
             "Justice",
                 "MY lord, the wanted man known has Vitzlek has been happrenended, justice has beena served. For the greater good",
