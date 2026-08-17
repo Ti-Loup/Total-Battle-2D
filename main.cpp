@@ -6040,15 +6040,24 @@ private://constructor
         player.foodStorage = 0;
         foodStorageCapacityByProvince.clear();
         int rawFoodTotal = 0;
-        float worldEventFarmFoodMultiplier = 1.0f;
-        float worldEventMaritimeFoodMultiplier = 1.0f; // For World Event Storm
-        if (const WorldEventsData *activeEvent = GetActiveWorldEventData()) {
-            worldEventFarmFoodMultiplier = activeEvent->foodProductionFarmMultiplier;
-            worldEventMaritimeFoodMultiplier = activeEvent->foodProductionMaritimeMultiplier;//Food production is stopped for the ports
-        }
+        // float worldEventFarmFoodMultiplier = 1.0f;
+        // float worldEventMaritimeFoodMultiplier = 1.0f; // For World Event Storm
+        // if (const WorldEventsData *activeEvent = GetActiveWorldEventData()) {
+        //     worldEventFarmFoodMultiplier = activeEvent->foodProductionFarmMultiplier;
+        //     worldEventMaritimeFoodMultiplier = activeEvent->foodProductionMaritimeMultiplier;//Food production is stopped for the ports
+        // }
         for (const auto &s : settlements) {
             if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
             int settlement_index = (int)(&s - &settlements[0]);
+            //world events are now per settlements
+            float worldEventFarmFoodMultiplier = 1.0f;
+            float worldEventMaritimeFoodMultiplier = 1.0f;
+            if (const WorldEventsData *activeEvent = GetActiveWorldEventData()) {
+                if (IsSettlementAffectedByCurrentWorldEvent(s)) {
+                    worldEventFarmFoodMultiplier = activeEvent->foodProductionFarmMultiplier;
+                    worldEventMaritimeFoodMultiplier = activeEvent->foodProductionMaritimeMultiplier;
+                }
+            }
             for (int slot_index = 0; slot_index < (int)s.settlementData.buildings.size(); slot_index++) {
                 BuildingType building_type = s.settlementData.buildings[slot_index];
                 if (building_type == BuildingType::None) continue;
@@ -9193,9 +9202,16 @@ if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
     int seasonModifier = GetSeasonModifiers(tooltipSeason). publicOrderBonus;
     //Money public order penalty
     int taxPenalty = collecting ? -4 : 0;
-    //Public order based on WorldEvents
+    //Public order based on WorldEvents - global sauf pour Plague (colonie infectée seulement)
     const WorldEventsData *activePublicOrderEvent = GetActiveWorldEventData();
-    int worldEventPublicOrder = activePublicOrderEvent ? activePublicOrderEvent->publicOrderModifier : 0;
+    int worldEventPublicOrder = 0;
+    if (activePublicOrderEvent) {
+        if (currentWorldsEvent == WorldEventsType::Plague) {
+            if (sPO.bIsInfectedByPlague) worldEventPublicOrder = activePublicOrderEvent->publicOrderModifier;
+        } else {
+            worldEventPublicOrder = activePublicOrderEvent->publicOrderModifier;
+        }
+    }
     //total
     int totalDelta = taxPenalty + provinceBuildingBonus + foodModifier + seasonModifier + worldEventPublicOrder;
     int nextPO  = std::clamp(po + totalDelta, -100, 100);
@@ -9532,10 +9548,11 @@ public:
     Date::Season endTurnSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
     SeasonModifiers endTurnSeasonMods = GetSeasonModifiers(endTurnSeason);
     int seasonPublicOrderModifier = GetSeasonModifiers(endTurnSeason).publicOrderBonus;
-    //World Events Public Order modifier
+    //World Events Public Order modifier (Is global exept for plague)
     int worldEventsPublicOrderModifier = 0;
-    if (const WorldEventsData *activeEvent = GetActiveWorldEventData()) {
-        worldEventsPublicOrderModifier = activeEvent->publicOrderModifier;
+    const WorldEventsData *activeEventForPublicOrder = GetActiveWorldEventData();
+    if (activeEventForPublicOrder && currentWorldsEvent != WorldEventsType::Plague) {
+        worldEventsPublicOrderModifier = activeEventForPublicOrder->publicOrderModifier;
     }
     for (auto& s : settlements) {
         int provID = s.settlementData.provinceID;
@@ -9552,6 +9569,11 @@ public:
         s.settlementData.publicOrder += seasonPublicOrderModifier;
         //Bonus from worldEvents
         s.settlementData.publicOrder += worldEventsPublicOrderModifier;
+        if (currentWorldsEvent == WorldEventsType::Plague && activeEventForPublicOrder && s.bIsInfectedByPlague) {
+            s.settlementData.publicOrder += activeEventForPublicOrder->publicOrderModifier;
+        }
+
+
         if (provinces[provID].owner == player.faction) {
             s.settlementData.publicOrder += foodPublicOrderModifier;
         }
