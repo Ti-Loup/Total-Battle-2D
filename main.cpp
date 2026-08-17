@@ -50,7 +50,8 @@
  * Fixes:
  * Fixed | The repair button wasnt disappearing for ports after repairing.
  * Fixed | Fix the Goods manager displaying the goods outside of the ui
- *
+ * To Fix | Plague not spreading to next province when the current province is all infected
+ * To Fix | Earthquake event doesnt show the damage Buildings Effects.
  * --------------------------------------------
  * 0.3.25
  * Ai Focus
@@ -8376,10 +8377,9 @@ private:
         return count;
     }
 // draws icon + label + value for every non-default field of a world event
-void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float rightEdge, float startY) {
+void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float rightEdge, float startY, float rowH) {
     float lineY = startY;
-    const float rowH = 26.f;
-    const float iconSize = 18.f;
+    const float iconSize = std::clamp(rowH - 4.f, 12.f, 18.f);
 
     auto drawRow = [&](SDL_Texture* icon, const char* label, const std::string& valStr, bool positive) {
         SDL_FRect iconRect = {x, lineY, iconSize, iconSize};
@@ -8547,12 +8547,19 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
         TTF_SetTextColor(gameWorldEventsDescText, 20, 20, 20, 255);
         TTF_DrawRendererText(gameWorldEventsDescText, 665.f, 700.f);
         TTF_SetTextWrapWidth(gameWorldEventsDescText, 0); // reset
-        //Effects bottom right from lambda script
+
+        //Effects bottom right
         float effectsX = 1050.f;
         float effectsRightEdge = 1335.f;
-        float effectsY = 665.f;
-        //call the render of Effects fonction
-        RenderWorldEventEffectRows(events_data, effectsX, effectsRightEdge, effectsY + 30.f);
+        float effectsAreaTop = 685.f;
+        //bottom margin
+        float effectsAreaBottom = WorldEventBackground.y + WorldEventBackground.h - 10.f;
+        float effectsAvailableHeight = effectsAreaBottom - effectsAreaTop;
+
+        int effectsRowCount = AmountWorldEventsEffectRows(events_data);
+        float effectsRowH = (effectsRowCount > 0)? std::clamp(effectsAvailableHeight / (float)effectsRowCount, 16.f, 26.f) : 26.f;
+
+        RenderWorldEventEffectRows(events_data, effectsX, effectsRightEdge, effectsAreaTop, effectsRowH);
 
 
         //Return Button
