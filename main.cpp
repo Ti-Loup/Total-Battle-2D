@@ -9207,7 +9207,12 @@ if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
     int worldEventPublicOrder = 0;
     if (activePublicOrderEvent) {
         if (currentWorldsEvent == WorldEventsType::Plague) {
-            if (sPO.bIsInfectedByPlague) worldEventPublicOrder = activePublicOrderEvent->publicOrderModifier;
+            // add malus of infected settlementss in same province
+            for (const auto& other : settlements) {
+                if (other.settlementData.provinceID == provID && other.bIsInfectedByPlague) {
+                    worldEventPublicOrder += activePublicOrderEvent->publicOrderModifier;
+                }
+            }
         } else {
             worldEventPublicOrder = activePublicOrderEvent->publicOrderModifier;
         }
@@ -9549,11 +9554,23 @@ public:
     SeasonModifiers endTurnSeasonMods = GetSeasonModifiers(endTurnSeason);
     int seasonPublicOrderModifier = GetSeasonModifiers(endTurnSeason).publicOrderBonus;
     //World Events Public Order modifier (Is global exept for plague)
+    //World Events Public Order modifier (Is global exept for plague)
     int worldEventsPublicOrderModifier = 0;
     const WorldEventsData *activeEventForPublicOrder = GetActiveWorldEventData();
     if (activeEventForPublicOrder && currentWorldsEvent != WorldEventsType::Plague) {
         worldEventsPublicOrderModifier = activeEventForPublicOrder->publicOrderModifier;
     }
+
+    // add +1 for each infected plage
+    std::unordered_map<int, int> provincePlaguePublicOrderPenalty;
+    if (currentWorldsEvent == WorldEventsType::Plague && activeEventForPublicOrder) {
+         for (const auto& s : settlements) {
+            if (s.bIsInfectedByPlague) {
+            provincePlaguePublicOrderPenalty[s.settlementData.provinceID] += activeEventForPublicOrder->publicOrderModifier;
+            }
+        }
+    }
+
     for (auto& s : settlements) {
         int provID = s.settlementData.provinceID;
 
@@ -9569,10 +9586,10 @@ public:
         s.settlementData.publicOrder += seasonPublicOrderModifier;
         //Bonus from worldEvents
         s.settlementData.publicOrder += worldEventsPublicOrderModifier;
-        if (currentWorldsEvent == WorldEventsType::Plague && activeEventForPublicOrder && s.bIsInfectedByPlague) {
-            s.settlementData.publicOrder += activeEventForPublicOrder->publicOrderModifier;
+        //Plague public order penalty
+        if (provincePlaguePublicOrderPenalty.count(provID)) {
+            s.settlementData.publicOrder += provincePlaguePublicOrderPenalty[provID];
         }
-
 
         if (provinces[provID].owner == player.faction) {
             s.settlementData.publicOrder += foodPublicOrderModifier;
