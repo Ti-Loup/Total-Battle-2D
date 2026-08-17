@@ -89,6 +89,7 @@ struct WorldEventsData {
     int durationTurns = 1;
 };
 //Database of all Events
+
 inline const std::unordered_map<WorldEventsType, WorldEventsData>& GetWorldEventDatabase(){
     static const std::unordered_map<WorldEventsType, WorldEventsData> database = {
         //general
@@ -122,11 +123,19 @@ inline const std::unordered_map<WorldEventsType, WorldEventsData>& GetWorldEvent
             -2, 0.2f,1.0f, 0, 1.0f, 0.2f, 1.0f,1.0f,1.0f,1.0f,0, 0.6f,1.0f,1.0f, 1.0f, 1.0f, 1.0f, 5
         }},
         //Own mechanic
+        //Public Order, foodProductionFarmMultiplier, foodProductionMaritimeMultiplier, foodFlatBonus, resourceFishingProductionMultiplier,
+        //goldIncomeFarmMultiplier, goldIncomeCommerceMultiplier, goldIncomeIndustryMultiplier, goldIncomeReligionMultiplier, goldIncomeMaritimeMultiplier, goldFlatBonus
+        //populationGrowthPaysantryMultiplier, populationGrowthNobilityMultiplier, populationGrowthClergyMultiplier,
+        //populationDeathPaysantryMultiplier, populationDeathNobilityMultiplier, populationDeathClergyMultiplier, durationTurns
         { WorldEventsType::Plague, {
             "Plague",
-            "My lord, a plague has pread to a settlement. It will spread inside our kingdom if we dont do something",
+            "My lord, a plague has pread to a settlement. It will spread quick acrost the world.",
             WorldEventCategory::Negative,
-            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 1.0f, 1.0f, 1.0f, 5
+            //Public Order -1 per infected settlement.(if 4 settlements affected then -4 in same region or -3 and -1 if merged in 2 provinces).
+            //Death rate x1.4 per infected settlement.
+            //Food produced Farm Multiplier x0.5 for the settlement touched
+            //Food produced Maritime Multiplier x0.5 for the settlement touched
+            -1, 0.5f,0.5f , 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 1.4f, 1.4f, 1.4f, 5
         }},
         //Own mechanic
         { WorldEventsType::Fire, {
