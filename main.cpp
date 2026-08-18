@@ -4240,15 +4240,53 @@ private://constructor
 
                 //Icons of the Resources per Village
                 SDL_Texture* settlementResourceIcon = nullptr;
-                if (bIsFishingVillage) settlementResourceIcon = gameResourceFishIconTexture;
-                else if (bIsMilitaryPort) settlementResourceIcon = gameMilitaryPortIconTexture;
-                else if (bIsLumberCampVillage) settlementResourceIcon = gameResourceLumberIconTexture;
-                else if (bIsIronMineVillage) settlementResourceIcon = gameResourceIronIconTexture;
-                else if (bIsCopperMineVillage) settlementResourceIcon = gameResourceCopperIconTexture;
-                else if (bIsTinMineVillage) settlementResourceIcon = gameResourceTinIconTexture;
-                else if (bIsSilverMineVillage) settlementResourceIcon = gameResourceSilverIconTexture;
-                else if (bIsGoldMineVillage) settlementResourceIcon = gameResourceGoldIconTexture;
-                else if (bIsSheepPastureVillage) settlementResourceIcon = gameResourceWoolIconTexture;
+                ResourceType settlementResourceType = ResourceType::Fish; //default value
+                bool bHasResourceType = false;
+
+                if (bIsFishingVillage) {
+                    settlementResourceIcon = gameResourceFishIconTexture;
+                    settlementResourceType = ResourceType::Fish;
+                    bHasResourceType = true;
+                }
+                else if (bIsMilitaryPort) {
+                    settlementResourceIcon = gameMilitaryPortIconTexture;
+                    bHasResourceType = false; // No resources
+                }
+                else if (bIsLumberCampVillage) {
+                    settlementResourceIcon = gameResourceLumberIconTexture;
+                    settlementResourceType = ResourceType::Lumber;
+                    bHasResourceType = true;
+                }
+                else if (bIsIronMineVillage) {
+                    settlementResourceIcon = gameResourceIronIconTexture;
+                    settlementResourceType = ResourceType::Iron;
+                    bHasResourceType = true;
+                }
+                else if (bIsCopperMineVillage) {
+                    settlementResourceIcon = gameResourceCopperIconTexture;
+                    settlementResourceType = ResourceType::Copper;
+                    bHasResourceType = true;
+                }
+                else if (bIsTinMineVillage) {
+                    settlementResourceIcon = gameResourceTinIconTexture;
+                    settlementResourceType = ResourceType::Tin;
+                    bHasResourceType = true;
+                }
+                else if (bIsSilverMineVillage) {
+                    settlementResourceIcon = gameResourceSilverIconTexture;
+                    settlementResourceType = ResourceType::Silver;
+                    bHasResourceType = true;
+                }
+                else if (bIsGoldMineVillage) {
+                    settlementResourceIcon = gameResourceGoldIconTexture;
+                    settlementResourceType = ResourceType::Gold;
+                    bHasResourceType = true;
+                }
+                else if (bIsSheepPastureVillage) {
+                    settlementResourceIcon = gameResourceWoolIconTexture;
+                    settlementResourceType = ResourceType::Wool;
+                    bHasResourceType = true;
+                }
 
                 //hammer
                 const float hammerSlotSize = 32.f;
@@ -4324,9 +4362,42 @@ private://constructor
                 if (settlementResourceIcon) {
                     SDL_FRect resourceIconRect = {backgroundX + backgroundW + resourceSlotGap,nameY + (nameH - resourceSlotSize) / 2.f, resourceSlotSize, resourceSlotSize};
                     SDL_RenderTexture(renderer, settlementResourceIcon, nullptr, &resourceIconRect);
+
+                    //Tooltip to show the Resource Icon name
+                    // mouse position in logical coords
+                    float mouseXBtn, mouseYBtn;
+                    SDL_GetMouseState(&mouseXBtn, &mouseYBtn);
+                    float lxBtn, lyBtn;
+                    SDL_RenderCoordinatesFromWindow(renderer, mouseXBtn, mouseYBtn, &lxBtn, &lyBtn);
+                    SDL_FPoint mouseResourceNamePt = {lxBtn, lyBtn};
+
+                    if (SDL_PointInRectFloat(&mouseResourceNamePt, &resourceIconRect)) {
+
+                        const char* hoveredResourceIconName = bHasResourceType? GetResourceTypeName(settlementResourceType) : "Military Port";
+                        TTF_SetTextString(gameStatUIText, hoveredResourceIconName, 0);
+                        int nameW = 0, nameH = 0;
+                        TTF_GetTextSize(gameStatUIText, &nameW, &nameH);
+                        float padX = 8.f, padY = 5.f;
+                        float tw = nameW + padX * 2.f;
+                        float th = nameH + padY * 2.f;
+
+                        float tx = lxBtn + 15.f;
+                        float ty = lyBtn - th / 2.f;
+                        if (tx + tw > 1915.f) tx = lxBtn - tw - 15.f;
+                        if (ty < 5.f) ty = 5.f;
+                        if (ty + th > 1075.f) ty = 1075.f - th;
+
+                        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                        SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+                        SDL_FRect tooltipBg = {tx, ty, tw, th};
+                        SDL_RenderFillRect(renderer, &tooltipBg);
+                        SDL_SetRenderDrawColor(renderer, 110, 90, 40, 255);
+                        SDL_RenderRect(renderer, &tooltipBg);
+
+                        TTF_SetTextColor(gameStatUIText, 240, 240, 240, 255);
+                        TTF_DrawRendererText(gameStatUIText, tx + padX, ty + padY);
+                    }
                 }
-
-
 
                 //World event icon -> sits next to the resource icon, or takes its slot if there isn't one
                 SDL_Texture* worldEventSettlementIcon = GetWorldEventSettlementIcon(s);
