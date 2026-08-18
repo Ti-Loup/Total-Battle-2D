@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.1.0--prerelease-blue" alt="Version">
+  <img src="https://img.shields.io/badge/version-0.3.0--prerelease-blue" alt="Version">
   <img src="https://img.shields.io/badge/language-C%2B%2B20-orange" alt="C++20">
   <img src="https://img.shields.io/badge/renderer-SDL3-green" alt="SDL3">
   <img src="https://img.shields.io/badge/status-Work%20In%20Progress-yellow" alt="WIP">
