@@ -132,24 +132,34 @@ inline const std::unordered_map<WorldEventsType, WorldEventsData>& GetWorldEvent
             "My lord, a plague has pread to a settlement. It will spread quick acrost the world.",
             WorldEventCategory::Negative,
             //Public Order -1 per infected settlement.(if 4 settlements affected then -4 in same region or -3 and -1 if merged in 2 provinces).
-            //Death rate x1.4 per infected settlement.
-            //Food produced Farm Multiplier x0.5 for the settlement touched
-            //Food produced Maritime Multiplier x0.5 for the settlement touched
-            -1, 0.5f,0.5f , 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 1.4f, 1.4f, 1.4f, 5
+            //Death rate x1.8 per infected settlement.
+            //Food produced Farm Multiplier x0.4 for the settlement touched
+            //Food produced Maritime Multiplier x0.4 for the settlement touched
+            // gold income x0.4 for all type
+            -1, 0.4f,0.4f , 0, 1.0f, 0.4f, 0.4f,0.4f,0.4f,0.4f,0, 1.0f,1.0f,1.0f, 1.8f, 1.8f, 1.8f, 5
         }},
         //Own mechanic
         { WorldEventsType::Fire, {
             "Fire",
             "My lord, a fire spread accros the land! we bust be careful for our population",
+            //Death Rate x1.8 per settlements
+            //Buildings are damaged
+            //public order -1 per settlements
+            //Food produced 0
+            //income 0
+            //not modified because damaged buildings makes them at 0
             WorldEventCategory::Negative,
-            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 1.0f, 1.0f, 1.0f, 5
+            -1, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 1.8f, 1.8f, 1.8f, 5
         }},
         //general
         { WorldEventsType::PoorPopulation, {
             "Poor Population",
             "My lord, our population is getting poorer everyday, the cost of war has a direct percution on them. We should reduce taxes to accomodate them",
             WorldEventCategory::Negative,
-            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 1.0f, 1.0f, 1.0f, 5
+            //Population reduced
+            //Paysantry birthrate reduce
+            //Paysantry Deathrate increase
+            -3, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 0.4f,1.0f,1.0f, 1.4f, 1.0f, 1.0f, 5
         }},
         //Good Events
         //general
