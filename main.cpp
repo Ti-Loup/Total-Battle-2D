@@ -4251,7 +4251,7 @@ private://constructor
                 else if (bIsSheepPastureVillage) settlementResourceIcon = gameResourceWoolIconTexture;
 
                 //hammer
-                const float hammerSlotSize = 36.f;
+                const float hammerSlotSize = 32.f;
                 const float hammerSlotGap  = 0.f;
                 const float sideReserved   = hammerSlotGap + hammerSlotSize - 10.f;
                 //resourcesicon
@@ -4276,7 +4276,6 @@ private://constructor
                 SDL_RenderRect(renderer, &nameBackground);
                 TTF_DrawRendererText(gameStatUITitleText, nameX, nameY);
 
-
                 if (bCanConstruct && hammerUIBuildingUpgradeTexture) {
                     SDL_FRect hammerIconRect = {
                         nameX + nameW + hammerSlotGap,
@@ -4284,6 +4283,41 @@ private://constructor
                         hammerSlotSize, hammerSlotSize
                     };
                     SDL_RenderTexture(renderer, hammerUIBuildingUpgradeTexture, nullptr, &hammerIconRect);
+                    //Tooltip to show hammer name
+                   const char *nameHammer = "Constructions available";
+                    // mouse position in logical coords
+                    float mouseXBtn, mouseYBtn;
+                    SDL_GetMouseState(&mouseXBtn, &mouseYBtn);
+                    float lxBtn, lyBtn;
+                    SDL_RenderCoordinatesFromWindow(renderer, mouseXBtn, mouseYBtn, &lxBtn, &lyBtn);
+                    SDL_FPoint mouseHammerPt = {lxBtn, lyBtn};
+                    //verefy if it hovers on top of the icon
+                    if (SDL_PointInRectFloat(&mouseHammerPt, &hammerIconRect)) {
+                        //Render ~!
+                        TTF_SetTextString(gameStatUIText, nameHammer, 0);
+                        int nameW = 0, nameH = 0;
+                        TTF_GetTextSize(gameStatUIText, &nameW, &nameH);
+
+                        float padX = 8.f, padY = 5.f;
+                        float tw = nameW + padX * 2.f;
+                        float th = nameH + padY * 2.f;
+
+                        float tx = lxBtn + 15.f;   // offset to the right of the cursor
+                        float ty = lyBtn - th / 2.f; // vertically centered on the cursor
+                        if (tx + tw > 1915.f) tx = lxBtn - tw - 15.f; // flip to the left if it'd go off-screen
+                        if (ty < 5.f) ty = 5.f;
+                        if (ty + th > 1075.f) ty = 1075.f - th;
+
+                        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                        SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+                        SDL_FRect tooltipBg = {tx, ty, tw, th};
+                        SDL_RenderFillRect(renderer, &tooltipBg);
+                        SDL_SetRenderDrawColor(renderer, 110, 90, 40, 255);
+                        SDL_RenderRect(renderer, &tooltipBg);
+
+                        TTF_SetTextColor(gameStatUIText, 240, 240, 240, 255);
+                        TTF_DrawRendererText(gameStatUIText, tx + padX, ty + padY);
+                    }
                 }
 
                 //Outside the main Bare, REsource Icon
@@ -4291,6 +4325,9 @@ private://constructor
                     SDL_FRect resourceIconRect = {backgroundX + backgroundW + resourceSlotGap,nameY + (nameH - resourceSlotSize) / 2.f, resourceSlotSize, resourceSlotSize};
                     SDL_RenderTexture(renderer, settlementResourceIcon, nullptr, &resourceIconRect);
                 }
+
+
+
                 //World event icon -> sits next to the resource icon, or takes its slot if there isn't one
                 SDL_Texture* worldEventSettlementIcon = GetWorldEventSettlementIcon(s);
                 if (worldEventSettlementIcon) {
@@ -4304,7 +4341,47 @@ private://constructor
                         resourceSlotSize, resourceSlotSize
                     };
                     SDL_RenderTexture(renderer, worldEventSettlementIcon, nullptr, &worldEventIconRect);
+
+                    //Tooltip to show the WorldEvent Name
+                    // mouse position in logical coords
+                    float mouseXBtn, mouseYBtn;
+                    SDL_GetMouseState(&mouseXBtn, &mouseYBtn);
+                    float lxBtn, lyBtn;
+                    SDL_RenderCoordinatesFromWindow(renderer, mouseXBtn, mouseYBtn, &lxBtn, &lyBtn);
+                    SDL_FPoint mouseWorldEventNamePt = {lxBtn, lyBtn};
+
+                    if (SDL_PointInRectFloat(&mouseWorldEventNamePt, &worldEventIconRect)) {
+
+                        const WorldEventsData* hoveredEventData = GetWorldEventData(currentWorldsEvent);
+                        if (hoveredEventData) {
+                            TTF_SetTextString(gameStatUIText, hoveredEventData->name.c_str(), 0);
+                            int nameW = 0, nameH = 0;
+                            TTF_GetTextSize(gameStatUIText, &nameW, &nameH);
+                            float padX = 8.f, padY = 5.f;
+                            float tw = nameW + padX * 2.f;
+                            float th = nameH + padY * 2.f;
+
+                            float tx = lxBtn + 15.f;
+                            float ty = lyBtn - th / 2.f;
+                            if (tx + tw > 1915.f) tx = lxBtn - tw - 15.f;
+                            if (ty < 5.f) ty = 5.f;
+                            if (ty + th > 1075.f) ty = 1075.f - th;
+
+                            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                            SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+                            SDL_FRect tooltipBg = {tx, ty, tw, th};
+                            SDL_RenderFillRect(renderer, &tooltipBg);
+                            SDL_SetRenderDrawColor(renderer, 110, 90, 40, 255);
+                            SDL_RenderRect(renderer, &tooltipBg);
+
+                            TTF_SetTextColor(gameStatUIText, 240, 240, 240, 255);
+                            TTF_DrawRendererText(gameStatUIText, tx + padX, ty + padY);
+                        }
+                    }
                 }
+
+
+
 
                 // INFO BAR
                 SDL_SetRenderDrawColor(renderer, 10, 10, 10, 210);
@@ -7946,8 +8023,6 @@ public:
         return false;
     }
 
-
-
 private:
     // names inside ResourceData
     const char* GetResourceTypeName(ResourceType type) {
@@ -9478,10 +9553,10 @@ public:
         if (infectedIndices.empty())
             return;
 
-        int bestSameProvinceTarget = -1;
-        float bestSameProvinceDistSq = std::numeric_limits<float>::max();
-        int bestGlobalTarget = -1;
-        float bestGlobalDistSq = std::numeric_limits<float>::max();
+        int closestSameProvinceTarget = -1;
+        float closestSameProvinceDistSq = std::numeric_limits<float>::max();
+        int closestProvinceTarget = -1;
+        float closestGlobalDistSq = std::numeric_limits<float>::max();
 
         for (int infectedIndex : infectedIndices) {
             const Settlement &infectedSettlement = settlements[infectedIndex];
@@ -9496,18 +9571,18 @@ public:
                 float distanceSq = distanceX * distanceX + distanceY * distanceY;
 
                 // Priority 1 is colonie healthy the closest in the province
-                if (settlements[j].settlementData.provinceID == provinceID && distanceSq < bestSameProvinceDistSq) {
-                    bestSameProvinceDistSq = distanceSq;
-                    bestSameProvinceTarget = j;
+                if (settlements[j].settlementData.provinceID == provinceID && distanceSq < closestSameProvinceDistSq) {
+                    closestSameProvinceDistSq = distanceSq;
+                    closestSameProvinceTarget = j;
                 }
                 // Priority 2 when all settlements in 1 province infected it takes the closest one near the infected province.
-                if (distanceSq < bestGlobalDistSq) {
-                    bestGlobalDistSq = distanceSq;
-                    bestGlobalTarget = j;
+                if (distanceSq < closestGlobalDistSq) {
+                    closestGlobalDistSq = distanceSq;
+                    closestProvinceTarget = j;
                 }
             }
         }
-        int targetIndex = (bestSameProvinceTarget >= 0) ? bestSameProvinceTarget : bestSameProvinceTarget;
+        int targetIndex = (closestSameProvinceTarget >= 0) ? closestSameProvinceTarget : closestProvinceTarget;
         if (targetIndex >= 0) {
             settlements[targetIndex].bIsInfectedByPlague = true;
             SDL_Log("Plague spread to %s", settlements[targetIndex].settlementData.cityName.c_str());//To know which region
