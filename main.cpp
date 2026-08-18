@@ -4053,6 +4053,7 @@ private://constructor
     //Storm Only when ports affected
     //earthquake Icon only affect the damaged ones.
     //Plague Icon on infected settlements
+    //Fire on settlements on fire
     SDL_Texture *GetWorldEventSettlementIcon(const Settlement &s) {
         if (activeWorldEventTurnsRemaining <= 0) return nullptr;
 
@@ -4087,7 +4088,8 @@ private://constructor
             case WorldEventsType::Plague:
                 bShouldShow = s.bIsInfectedByPlague;
                 break;
-
+            case WorldEventsType::Fire:
+                bShouldShow = s.bIsOnFire;
             default:
                 bShouldShow = false;
                 break;
@@ -9356,10 +9358,14 @@ if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
     const WorldEventsData *activePublicOrderEvent = GetActiveWorldEventData();
     int worldEventPublicOrder = 0;
     if (activePublicOrderEvent) {
-        if (currentWorldsEvent == WorldEventsType::Plague) {
+        if (currentWorldsEvent == WorldEventsType::Plague || currentWorldsEvent == WorldEventsType::Fire) {
             // add malus of infected settlementss in same province
+            // add malus from fire per settlements
             for (const auto& other : settlements) {
                 if (other.settlementData.provinceID == provID && other.bIsInfectedByPlague) {
+                    worldEventPublicOrder += activePublicOrderEvent->publicOrderModifier;
+                }
+                if (other.settlementData.provinceID == provID && other.bIsOnFire) {
                     worldEventPublicOrder += activePublicOrderEvent->publicOrderModifier;
                 }
             }
@@ -9604,6 +9610,9 @@ public:
         if (currentWorldsEvent == WorldEventsType::Plague) {
             return settlement.bIsInfectedByPlague;
         }
+        if (currentWorldsEvent == WorldEventsType::Fire) {
+            return settlement.bIsOnFire;
+        }
             return true;
     }
     //To verify the plague is on the player settlements and not others for the death rate
@@ -9621,6 +9630,7 @@ public:
         for (int i = 0; i < (int)settlements.size(); i++) {
             if (settlements[i].bIsInfectedByPlague) infectedIndices.push_back(i);
         }
+
         if (infectedIndices.empty())
             return;
 
@@ -9657,6 +9667,52 @@ public:
         if (targetIndex >= 0) {
             settlements[targetIndex].bIsInfectedByPlague = true;
             SDL_Log("Plague spread to %s", settlements[targetIndex].settlementData.cityName.c_str());//To know which region
+        }
+    }
+
+    //Spread for the fire
+    void SpreadFire() {
+        std::vector<int> fireIndices;
+        for (int i = 0; i < (int)settlements.size(); i++) {
+            if (settlements[i].bIsOnFire) fireIndices.push_back(i);
+        }
+
+        if (fireIndices.empty())
+            return;
+
+        int closestSameProvinceTarget = -1;
+        float closestSameProvinceDistSq = std::numeric_limits<float>::max();
+        int closestProvinceTarget = -1;
+        float closestGlobalDistSq = std::numeric_limits<float>::max();
+
+        for (int fireIndex : fireIndices) {
+            const Settlement &onFireSettlement = settlements[fireIndex];
+            int provinceID = onFireSettlement.settlementData.provinceID;
+
+            for (int j = 0; j < (int)settlements.size(); j++) {
+                if (settlements[j].bIsOnFire)continue;
+
+                //get distance between each settlements to get the closest one.
+                float distanceX = (float)(settlements[j].tileCol - onFireSettlement.tileCol);
+                float distanceY = (float)(settlements[j].tileRow - onFireSettlement.tileRow);
+                float distanceSq = distanceX * distanceX + distanceY * distanceY;
+
+                // Priority 1 is colonie healthy the closest in the province
+                if (settlements[j].settlementData.provinceID == provinceID && distanceSq < closestSameProvinceDistSq) {
+                    closestSameProvinceDistSq = distanceSq;
+                    closestSameProvinceTarget = j;
+                }
+                // Priority 2 when all settlements in 1 province has fire it takes the closest one near the fire province.
+                if (distanceSq < closestGlobalDistSq) {
+                    closestGlobalDistSq = distanceSq;
+                    closestProvinceTarget = j;
+                }
+            }
+        }
+        int targetIndex = (closestSameProvinceTarget >= 0) ? closestSameProvinceTarget : closestProvinceTarget;
+        if (targetIndex >= 0) {
+            settlements[targetIndex].bIsOnFire = true;
+            SDL_Log("Fire spread to %s", settlements[targetIndex].settlementData.cityName.c_str());//To know which region
         }
     }
 
@@ -9722,6 +9778,7 @@ public:
 
     // add +1 for each infected plage
     std::unordered_map<int, int> provincePlaguePublicOrderPenalty;
+    std::unordered_map<int, int> provinceFirePublicOrderPenalty;
     if (currentWorldsEvent == WorldEventsType::Plague && activeEventForPublicOrder) {
          for (const auto& s : settlements) {
             if (s.bIsInfectedByPlague) {
@@ -9729,6 +9786,14 @@ public:
             }
         }
     }
+    if (currentWorldsEvent == WorldEventsType::Fire && activeEventForPublicOrder) {
+        for (const auto& s: settlements) {
+            if (s.bIsOnFire) {
+                provinceFirePublicOrderPenalty[s.settlementData.provinceID] += activeEventForPublicOrder->publicOrderModifier;
+            }
+        }
+    }
+
 
     for (auto& s : settlements) {
         int provID = s.settlementData.provinceID;
@@ -10116,12 +10181,20 @@ public:
         if (currentWorldsEvent == WorldEventsType::Plague) {
             SpreadPlague();
         }
+        //fire is propagin each turn
+        if (currentWorldsEvent == WorldEventsType::Fire) {
+            SpreadFire();
+        }
 
         activeWorldEventTurnsRemaining--;//decrease it after a turn
         if (activeWorldEventTurnsRemaining <= 0) {
             //remove plague effects
             if (currentWorldsEvent == WorldEventsType::Plague) {
                 for (auto& s : settlements) s.bIsInfectedByPlague = false;
+            }
+            //remove fire effects
+            if (currentWorldsEvent == WorldEventsType::Fire) {
+                for (auto& s:settlements) s.bIsOnFire = false;
             }
             currentWorldsEvent = WorldEventsType::None; // go back to normal
             SDL_Log("World event ended. For now :o");
@@ -10158,6 +10231,11 @@ public:
                 int healtySettlementIndex = (int)SDL_rand((int)settlements.size());
                 settlements[healtySettlementIndex].bIsInfectedByPlague = true;
                 SDL_Log("Plague started in %s", settlements[healtySettlementIndex].settlementData.cityName.c_str());
+            }
+            if (currentWorldsEvent == WorldEventsType::Fire && !settlements.empty()) {
+                int healtySettlementIndex = (int)SDL_rand((int)settlements.size());
+                settlements[healtySettlementIndex].bIsOnFire = true;
+                SDL_Log("Fire stated in %s", settlements[healtySettlementIndex].settlementData.cityName.c_str());
             }
 
         }

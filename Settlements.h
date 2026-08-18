@@ -29,6 +29,8 @@ class Settlement : public Entity {
 
     //For World Event Plague
     bool bIsInfectedByPlague = false;
+    //For World Event Fire
+    bool bIsOnFire = false;
 
 };
 
