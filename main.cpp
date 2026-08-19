@@ -4090,6 +4090,7 @@ private://constructor
                 break;
             case WorldEventsType::Fire:
                 bShouldShow = s.bIsOnFire;
+                break;
             default:
                 bShouldShow = false;
                 break;
@@ -9599,7 +9600,10 @@ public:
             if (sel.settlementData.buildings[b] == BuildingType::None) continue;
             buildingDamageRepairTimer[settlementIndex * 100 + b] = 6;
         }
-        SDL_Log("Earthquake damaged buildings in %s", sel.settlementData.cityName.c_str());
+        if (currentWorldsEvent == WorldEventsType::Earthquake)
+            SDL_Log("Earthquake damaged buildings in %s", sel.settlementData.cityName.c_str());
+        else if (currentWorldsEvent == WorldEventsType::Fire)
+            SDL_Log("Fire damaged buildings in %s", sel.settlementData.cityName.c_str());
     }
 
     //To determine if a specific settlement is affected by world events
@@ -9615,7 +9619,7 @@ public:
         }
             return true;
     }
-    //To verify the plague is on the player settlements and not others for the death rate
+    //To verify the plague or fire is on the player settlements and not others for the death rate
     bool PlayerFactionAffectedSettlement() const {
         if (activeWorldEventTurnsRemaining <=0)return false;
         for (const auto &s: settlements) {
@@ -9712,6 +9716,7 @@ public:
         int targetIndex = (closestSameProvinceTarget >= 0) ? closestSameProvinceTarget : closestProvinceTarget;
         if (targetIndex >= 0) {
             settlements[targetIndex].bIsOnFire = true;
+            DamageSettlementBuildings(targetIndex);
             SDL_Log("Fire spread to %s", settlements[targetIndex].settlementData.cityName.c_str());//To know which region
         }
     }
@@ -9768,7 +9773,6 @@ public:
     Date::Season endTurnSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
     SeasonModifiers endTurnSeasonMods = GetSeasonModifiers(endTurnSeason);
     int seasonPublicOrderModifier = GetSeasonModifiers(endTurnSeason).publicOrderBonus;
-    //World Events Public Order modifier (Is global exept for plague)
     //World Events Public Order modifier (Is global exept for plague)
     int worldEventsPublicOrderModifier = 0;
     const WorldEventsData *activeEventForPublicOrder = GetActiveWorldEventData();
@@ -10235,6 +10239,7 @@ public:
             if (currentWorldsEvent == WorldEventsType::Fire && !settlements.empty()) {
                 int healtySettlementIndex = (int)SDL_rand((int)settlements.size());
                 settlements[healtySettlementIndex].bIsOnFire = true;
+                DamageSettlementBuildings(healtySettlementIndex);
                 SDL_Log("Fire stated in %s", settlements[healtySettlementIndex].settlementData.cityName.c_str());
             }
 
