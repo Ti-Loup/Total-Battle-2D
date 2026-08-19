@@ -33,7 +33,7 @@
  *
  * RESOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
  *
- * ToDo -> Code the remaining World Events Curently(3/12)
+ * ToDo -> Code the remaining World Events Curently(4/12)
  * ToDo -> Tooltip repair Cost and description + Destroy tooltip
  * ToDo - Work on Degree, Win achievments, and more.
  * ToDo - If you have less paysants than the nobility amount your buildings doesnt work has much. See paysantry/Nobility  description
@@ -4343,9 +4343,9 @@ private://constructor
                         float tw = nameW + padX * 2.f;
                         float th = nameH + padY * 2.f;
 
-                        float tx = lxBtn + 15.f;   // offset to the right of the cursor
-                        float ty = lyBtn - th / 2.f; // vertically centered on the cursor
-                        if (tx + tw > 1915.f) tx = lxBtn - tw - 15.f; // flip to the left if it'd go off-screen
+                        float tx = lxBtn + 30.f;
+                        float ty = lyBtn + 30.f;
+                        if (tx + tw > 1915.f) tx = lxBtn - tw - 15.f;
                         if (ty < 5.f) ty = 5.f;
                         if (ty + th > 1075.f) ty = 1075.f - th;
 
@@ -4384,8 +4384,8 @@ private://constructor
                         float tw = nameW + padX * 2.f;
                         float th = nameH + padY * 2.f;
 
-                        float tx = lxBtn + 15.f;
-                        float ty = lyBtn - th / 2.f;
+                        float tx = lxBtn + 30.f;
+                        float ty = lyBtn + 30.f;
                         if (tx + tw > 1915.f) tx = lxBtn - tw - 15.f;
                         if (ty < 5.f) ty = 5.f;
                         if (ty + th > 1075.f) ty = 1075.f - th;
@@ -4435,8 +4435,8 @@ private://constructor
                             float tw = nameW + padX * 2.f;
                             float th = nameH + padY * 2.f;
 
-                            float tx = lxBtn + 15.f;
-                            float ty = lyBtn - th / 2.f;
+                            float tx = lxBtn + 30.f;
+                            float ty = lyBtn + 30.f;
                             if (tx + tw > 1915.f) tx = lxBtn - tw - 15.f;
                             if (ty < 5.f) ty = 5.f;
                             if (ty + th > 1075.f) ty = 1075.f - th;
