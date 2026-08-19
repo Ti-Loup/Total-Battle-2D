@@ -8500,26 +8500,60 @@ private:
         return GetWorldEventData(currentWorldsEvent);
     }
     // counts how many effect rows a worldEvent has
-    int AmountWorldEventsEffectRows(const WorldEventsData *events_data) {
-        int count = 1;//duration of effect always shown
-        if (events_data->publicOrderModifier != 0) count++;
-        if (events_data->foodProductionFarmMultiplier != 1.0f) count++;
-        if (events_data->foodProductionMaritimeMultiplier != 1.0f) count++;
-        if (events_data->foodFlatBonus != 0) count++;
-        if (events_data->resourceFishingProductionMultiplier != 1.0f) count++;
-        if (events_data->goldIncomeCommerceMultiplier != 1.0f) count++;
-        if (events_data->goldIncomeFarmMultiplier != 1.0f) count++;
-        if (events_data->goldIncomeIndustryMultiplier != 1.0f) count++;
-        if (events_data->goldIncomeReligionMultiplier != 1.0f) count++;
-        if (events_data->goldIncomeMaritimeMultiplier != 1.0f) count++;
-        if (events_data->goldFlatBonus != 0) count++;
-        if (events_data->populationGrowthPaysantryMultiplier != 1.0f) count++;
-        if (events_data->populationGrowthNobilityMultiplier != 1.0f) count++;
-        if (events_data->populationGrowthClergyMultiplier != 1.0f) count++;
-        if (events_data->populationDeathPaysantryMultiplier != 1.0f) count++;
-        if (events_data->populationDeathNobilityMultiplier != 1.0f) count++;
-        if (events_data->populationDeathClergyMultiplier != 1.0f) count++;
-        if (events_data->durationTurns != 0) count++;
+    int AmountWorldEventsEffectRows(const WorldEventsData *d) {
+        int count = 1; // duration always shown
+
+        if (d->publicOrderModifier != 0) count++;
+
+        if (d->foodProductionFarmMultiplier == d->foodProductionMaritimeMultiplier) {
+            if (d->foodProductionFarmMultiplier != 1.0f) count++;
+        } else {
+            if (d->foodProductionFarmMultiplier != 1.0f) count++;
+            if (d->foodProductionMaritimeMultiplier != 1.0f) count++;
+        }
+
+        if (d->foodFlatBonus != 0) count++;
+        if (d->resourceFishingProductionMultiplier != 1.0f) count++;
+
+        bool incomeAllSame =
+            d->goldIncomeFarmMultiplier == d->goldIncomeCommerceMultiplier &&
+            d->goldIncomeFarmMultiplier == d->goldIncomeIndustryMultiplier &&
+            d->goldIncomeFarmMultiplier == d->goldIncomeReligionMultiplier &&
+            d->goldIncomeFarmMultiplier == d->goldIncomeMaritimeMultiplier;
+        if (incomeAllSame) {
+            if (d->goldIncomeFarmMultiplier != 1.0f) count++;
+        } else {
+            if (d->goldIncomeCommerceMultiplier != 1.0f) count++;
+            if (d->goldIncomeFarmMultiplier != 1.0f) count++;
+            if (d->goldIncomeIndustryMultiplier != 1.0f) count++;
+            if (d->goldIncomeReligionMultiplier != 1.0f) count++;
+            if (d->goldIncomeMaritimeMultiplier != 1.0f) count++;
+        }
+
+        if (d->goldFlatBonus != 0) count++;
+
+        bool growthAllSame =
+            d->populationGrowthPaysantryMultiplier == d->populationGrowthNobilityMultiplier &&
+            d->populationGrowthPaysantryMultiplier == d->populationGrowthClergyMultiplier;
+        if (growthAllSame) {
+            if (d->populationGrowthPaysantryMultiplier != 1.0f) count++;
+        } else {
+            if (d->populationGrowthPaysantryMultiplier != 1.0f) count++;
+            if (d->populationGrowthNobilityMultiplier != 1.0f) count++;
+            if (d->populationGrowthClergyMultiplier != 1.0f) count++;
+        }
+
+        bool deathAllSame =
+            d->populationDeathPaysantryMultiplier == d->populationDeathNobilityMultiplier &&
+            d->populationDeathPaysantryMultiplier == d->populationDeathClergyMultiplier;
+        if (deathAllSame) {
+            if (d->populationDeathPaysantryMultiplier != 1.0f) count++;
+        } else {
+            if (d->populationDeathPaysantryMultiplier != 1.0f) count++;
+            if (d->populationDeathNobilityMultiplier != 1.0f) count++;
+            if (d->populationDeathClergyMultiplier != 1.0f) count++;
+        }
+
         return count;
     }
 // draws icon + label + value for every non-default field of a world event
@@ -8545,6 +8579,14 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
         lineY += rowH;
     };
 
+    auto drawPctRow = [&](SDL_Texture* icon, const char* label, float multiplier, bool higherIsGood) {
+        if (multiplier == 1.0f) return;
+        int pct = (int)std::round((multiplier - 1.0f) * 100.f);
+        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
+        bool positive = higherIsGood ? (pct >= 0) : (pct < 0);
+        drawRow(icon, label, v, positive);
+    };
+
     // Duration always shown neutral color
     {
         std::string durStr = std::to_string(data->durationTurns) + " turns";
@@ -8566,16 +8608,14 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
         std::string v = (pos ? "+" : "") + std::to_string(data->publicOrderModifier);
         drawRow(pos ? gamePublicOrderPositifTexture : gamePublicOrderNegatifTexture, "Public Order", v, pos);
     }
-    if (data->foodProductionFarmMultiplier != 1.0f) {
-        int pct = (int)std::round((data->foodProductionFarmMultiplier - 1.0f) * 100.f);
-        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
-        drawRow(gameFoodIconUi, "Food Production (Farm)", v, pct >= 0);
+
+    if (data->foodProductionFarmMultiplier == data->foodProductionMaritimeMultiplier) {
+        drawPctRow(gameFoodIconUi, "Food Production (All)", data->foodProductionFarmMultiplier, true);
+    } else {
+        drawPctRow(gameFoodIconUi, "Food Production (Farm)", data->foodProductionFarmMultiplier, true);
+        drawPctRow(gameFoodIconUi, "Food Production (Maritime)", data->foodProductionMaritimeMultiplier, true);
     }
-    if (data->foodProductionMaritimeMultiplier != 1.0f) {
-        int pct = (int)std::round((data->foodProductionMaritimeMultiplier - 1.0f) * 100.f);
-        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
-        drawRow(gameFoodIconUi, "Food Production (Maritime)", v, pct >= 0);
-    }
+
     if (data->foodFlatBonus != 0) {
         bool pos = data->foodFlatBonus > 0;
         std::string v = (pos ? "+" : "") + std::to_string(data->foodFlatBonus);
@@ -8586,31 +8626,21 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
         std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
         drawRow(gameResourceFishIconTexture, "Fish Production", v, pct >= 0);
     }
-    //income types
-    if (data->goldIncomeCommerceMultiplier != 1.0f) {
-        int pct = (int)std::round((data->goldIncomeCommerceMultiplier - 1.0f) * 100.f);
-        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
-        drawRow(gameCoinMoneyTexture, "Income(Commerce)", v, pct >= 0);
-    }
-    if (data->goldIncomeFarmMultiplier != 1.0f) {
-        int pct = (int)std::round((data->goldIncomeFarmMultiplier - 1.0f) * 100.f);
-        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
-        drawRow(gameCoinMoneyTexture, "Income(Farm)", v, pct >= 0);
-    }
-    if (data->goldIncomeIndustryMultiplier != 1.0f) {
-        int pct = (int)std::round((data->goldIncomeIndustryMultiplier - 1.0f) * 100.f);
-        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
-        drawRow(gameCoinMoneyTexture, "Income(Industry)", v, pct >= 0);
-    }
-    if (data->goldIncomeReligionMultiplier != 1.0f) {
-        int pct = (int)std::round((data->goldIncomeReligionMultiplier - 1.0f) * 100.f);
-        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
-        drawRow(gameCoinMoneyTexture, "Income(Religion)", v, pct >= 0);
-    }
-    if (data->goldIncomeMaritimeMultiplier != 1.0f) {
-        int pct = (int)std::round((data->goldIncomeMaritimeMultiplier - 1.0f) * 100.f);
-        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
-        drawRow(gameCoinMoneyTexture, "Income(Maritime)", v, pct >= 0);
+
+    bool incomeAllSame =
+        data->goldIncomeFarmMultiplier == data->goldIncomeCommerceMultiplier &&
+        data->goldIncomeFarmMultiplier == data->goldIncomeIndustryMultiplier &&
+        data->goldIncomeFarmMultiplier == data->goldIncomeReligionMultiplier &&
+        data->goldIncomeFarmMultiplier == data->goldIncomeMaritimeMultiplier;
+
+    if (incomeAllSame) {
+        drawPctRow(gameCoinMoneyTexture, "Income (All)", data->goldIncomeFarmMultiplier, true);
+    } else {
+        drawPctRow(gameCoinMoneyTexture, "Income (Commerce)", data->goldIncomeCommerceMultiplier, true);
+        drawPctRow(gameCoinMoneyTexture, "Income (Farm)", data->goldIncomeFarmMultiplier, true);
+        drawPctRow(gameCoinMoneyTexture, "Income (Industry)", data->goldIncomeIndustryMultiplier, true);
+        drawPctRow(gameCoinMoneyTexture, "Income (Religion)", data->goldIncomeReligionMultiplier, true);
+        drawPctRow(gameCoinMoneyTexture, "Income (Maritime)", data->goldIncomeMaritimeMultiplier, true);
     }
 
     if (data->goldFlatBonus != 0) {
@@ -8618,37 +8648,29 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
         std::string v = (pos ? "+" : "") + std::to_string(data->goldFlatBonus);
         drawRow(gameCoinMoneyTexture, "Gold Bonus", v, pos);
     }
-        //Population birth type
-    if (data->populationGrowthPaysantryMultiplier != 1.0f) {
-        int pct = (int)std::round((data->populationGrowthPaysantryMultiplier - 1.0f) * 100.f);
-        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
-        drawRow(gamePopulationGrowth, "Paysantry Growth", v, pct >= 0);
+
+    bool growthAllSame =
+        data->populationGrowthPaysantryMultiplier == data->populationGrowthNobilityMultiplier &&
+        data->populationGrowthPaysantryMultiplier == data->populationGrowthClergyMultiplier;
+
+    if (growthAllSame) {
+        drawPctRow(gamePopulationGrowth, "Population Growth (All)", data->populationGrowthPaysantryMultiplier, true);
+    } else {
+        drawPctRow(gamePopulationGrowth, "Paysantry Growth", data->populationGrowthPaysantryMultiplier, true);
+        drawPctRow(gamePopulationGrowth, "Nobility Growth", data->populationGrowthNobilityMultiplier, true);
+        drawPctRow(gamePopulationGrowth, "Clergy Growth", data->populationGrowthClergyMultiplier, true);
     }
-    if (data->populationGrowthNobilityMultiplier != 1.0f) {
-        int pct = (int)std::round((data->populationGrowthNobilityMultiplier - 1.0f) * 100.f);
-        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
-        drawRow(gamePopulationGrowth, "Nobility Growth", v, pct >= 0);
-    }
-    if (data->populationGrowthClergyMultiplier != 1.0f) {
-        int pct = (int)std::round((data->populationGrowthClergyMultiplier - 1.0f) * 100.f);
-        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
-        drawRow(gamePopulationGrowth, "Clergy Growth", v, pct >= 0);
-    }
-        //Population Death Type
-    if (data->populationDeathPaysantryMultiplier != 1.0f) {
-        int pct = (int)std::round((data->populationDeathPaysantryMultiplier - 1.0f) * 100.f);
-        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
-        drawRow(gamePopulationGrowth, "Paysantry Death", v, pct >= 0);
-    }
-    if (data->populationDeathNobilityMultiplier != 1.0f) {
-        int pct = (int)std::round((data->populationDeathNobilityMultiplier - 1.0f) * 100.f);
-        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
-        drawRow(gamePopulationGrowth, "Nobility Death", v, pct >= 0);
-    }
-    if (data->populationDeathClergyMultiplier != 1.0f) {
-        int pct = (int)std::round((data->populationDeathClergyMultiplier - 1.0f) * 100.f);
-        std::string v = (pct >= 0 ? "+" : "") + std::to_string(pct) + "%";
-        drawRow(gamePopulationGrowth, "Clergy Death", v, pct >= 0);
+
+    bool deathAllSame =
+        data->populationDeathPaysantryMultiplier == data->populationDeathNobilityMultiplier &&
+        data->populationDeathPaysantryMultiplier == data->populationDeathClergyMultiplier;
+
+    if (deathAllSame) {
+        drawPctRow(gamePopulationGrowth, "Population Death (All)", data->populationDeathPaysantryMultiplier, false);
+    } else {
+        drawPctRow(gamePopulationGrowth, "Paysantry Death", data->populationDeathPaysantryMultiplier, false);
+        drawPctRow(gamePopulationGrowth, "Nobility Death", data->populationDeathNobilityMultiplier, false);
+        drawPctRow(gamePopulationGrowth, "Clergy Death", data->populationDeathClergyMultiplier, false);
     }
 }
     //Events Popup every each random rounds
