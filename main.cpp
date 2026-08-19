@@ -8507,7 +8507,8 @@ private:
         int count = 1; // duration always shown
 
         if (d->publicOrderModifier != 0) count++;
-
+        bool usesBuildingDamage = (currentWorldsEvent == WorldEventsType::Earthquake || currentWorldsEvent == WorldEventsType::Fire);
+        if (usesBuildingDamage) count++;
         if (d->foodProductionFarmMultiplier == d->foodProductionMaritimeMultiplier) {
             if (d->foodProductionFarmMultiplier != 1.0f) count++;
         } else {
@@ -8612,6 +8613,11 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
         drawRow(pos ? gamePublicOrderPositifTexture : gamePublicOrderNegatifTexture, "Public Order", v, pos);
     }
 
+    bool usesBuildingDamage = (currentWorldsEvent == WorldEventsType::Earthquake || currentWorldsEvent == WorldEventsType::Fire);
+    if (usesBuildingDamage) {
+        drawRow(gameRepairBuildingButtonIconUi, "Buildings Damaged", "Yes", false);
+    }
+
     if (data->foodProductionFarmMultiplier == data->foodProductionMaritimeMultiplier) {
         drawPctRow(gameFoodIconUi, "Food Production (All)", data->foodProductionFarmMultiplier, true);
     } else {
@@ -8673,7 +8679,7 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
         else if (currentWorldsEvent == WorldEventsType::Fire) deathSuffix = " (per settlement)";
 
         if (deathAllSame) {
-            std::string label = "Population Death (All Classes)" + deathSuffix;
+            std::string label = "Population Death" + deathSuffix;
             drawPctRow(gamePopulationGrowth, label.c_str(), data->populationDeathPaysantryMultiplier, false);
         } else {
             std::string pLabel = "Paysantry Death" + deathSuffix;
