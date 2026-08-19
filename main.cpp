@@ -7567,13 +7567,13 @@ SDL_RenderRect(renderer, &bg);
             if (const WorldEventsData* activeEvent = GetActiveWorldEventData()) {
                 if (hoveredPopulationType == 0) {
                     worldEventPopMultiplier = activeEvent->populationGrowthPaysantryMultiplier;
-                    worldEventDeathMultiplier = activeEvent->populationDeathPaysantryMultiplier;
+                    worldEventDeathMultiplier = GetWorldEventScaledDeathMultiplier(activeEvent->populationDeathPaysantryMultiplier);
                 } else if (hoveredPopulationType == 1) {
                     worldEventPopMultiplier = activeEvent->populationGrowthNobilityMultiplier;
-                    worldEventDeathMultiplier = activeEvent->populationDeathNobilityMultiplier;
+                    worldEventDeathMultiplier = GetWorldEventScaledDeathMultiplier(activeEvent->populationDeathNobilityMultiplier);
                 } else if (hoveredPopulationType == 2) {
                     worldEventPopMultiplier = activeEvent->populationGrowthClergyMultiplier;
-                    worldEventDeathMultiplier = activeEvent->populationDeathClergyMultiplier;
+                    worldEventDeathMultiplier = GetWorldEventScaledDeathMultiplier(activeEvent->populationDeathClergyMultiplier);
                 }
             }
         }
@@ -7798,7 +7798,10 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
             runningDeathsInt = newDeathsInt2;
             std::string weDeathStr = (weDeathPercent >= 0 ? "+" : "") + std::to_string(weDeathPercent)
                 + "% (" + (eventDeathsDelta >= 0 ? "+" : "") + std::to_string(eventDeathsDelta) + ")";
-            std::string weDeathLabel = std::string(populationTitleStr) + " Death (Event)";
+            std::string deathSuffix = "";
+            if (currentWorldsEvent == WorldEventsType::Plague) deathSuffix = " (per infected settlement)";
+            else if (currentWorldsEvent == WorldEventsType::Fire) deathSuffix = " (per burnt settlement)";
+            std::string weDeathLabel = std::string(populationTitleStr) + " Death" + deathSuffix;
             drawStatRow(weDeathLabel.c_str(), weDeathStr, weDeathGood ? 100 : 220, weDeathGood ? 220 : 60, 60);
         }
         // separator
@@ -8654,25 +8657,33 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
         data->populationGrowthPaysantryMultiplier == data->populationGrowthClergyMultiplier;
 
     if (growthAllSame) {
-        drawPctRow(gamePopulationGrowth, "Population Growth (All)", data->populationGrowthPaysantryMultiplier, true);
+        drawPctRow(gamePopulationGrowth, "Population Growth (All Classes)", data->populationGrowthPaysantryMultiplier, true);
     } else {
         drawPctRow(gamePopulationGrowth, "Paysantry Growth", data->populationGrowthPaysantryMultiplier, true);
         drawPctRow(gamePopulationGrowth, "Nobility Growth", data->populationGrowthNobilityMultiplier, true);
         drawPctRow(gamePopulationGrowth, "Clergy Growth", data->populationGrowthClergyMultiplier, true);
     }
 
-    bool deathAllSame =
-        data->populationDeathPaysantryMultiplier == data->populationDeathNobilityMultiplier &&
-        data->populationDeathPaysantryMultiplier == data->populationDeathClergyMultiplier;
+        bool deathAllSame =
+            data->populationDeathPaysantryMultiplier == data->populationDeathNobilityMultiplier &&
+            data->populationDeathPaysantryMultiplier == data->populationDeathClergyMultiplier;
 
-    if (deathAllSame) {
-        drawPctRow(gamePopulationGrowth, "Population Death (All)", data->populationDeathPaysantryMultiplier, false);
-    } else {
-        drawPctRow(gamePopulationGrowth, "Paysantry Death", data->populationDeathPaysantryMultiplier, false);
-        drawPctRow(gamePopulationGrowth, "Nobility Death", data->populationDeathNobilityMultiplier, false);
-        drawPctRow(gamePopulationGrowth, "Clergy Death", data->populationDeathClergyMultiplier, false);
+        std::string deathSuffix = "";
+        if (currentWorldsEvent == WorldEventsType::Plague) deathSuffix = " (per settlement)";
+        else if (currentWorldsEvent == WorldEventsType::Fire) deathSuffix = " (per settlement)";
+
+        if (deathAllSame) {
+            std::string label = "Population Death (All Classes)" + deathSuffix;
+            drawPctRow(gamePopulationGrowth, label.c_str(), data->populationDeathPaysantryMultiplier, false);
+        } else {
+            std::string pLabel = "Paysantry Death" + deathSuffix;
+            std::string nLabel = "Nobility Death" + deathSuffix;
+            std::string cLabel = "Clergy Death" + deathSuffix;
+            drawPctRow(gamePopulationGrowth, pLabel.c_str(), data->populationDeathPaysantryMultiplier, false);
+            drawPctRow(gamePopulationGrowth, nLabel.c_str(), data->populationDeathNobilityMultiplier, false);
+            drawPctRow(gamePopulationGrowth, cLabel.c_str(), data->populationDeathClergyMultiplier, false);
+        }
     }
-}
     //Events Popup every each random rounds
     void RenderWorldEventInfoPopup() {
         if (!bWorldEventInfoPopup)return;
@@ -9650,6 +9661,28 @@ public:
         }
         return false;
     }
+    // Number of own settlements currently infected/on fire
+    int CountWorldEventAffectedOwnedSettlements() const {
+        if (activeWorldEventTurnsRemaining <= 0) return 0;
+        int count = 0;
+        for (const auto &s : settlements) {
+            if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
+            if (IsSettlementAffectedByCurrentWorldEvent(s)) count++;
+        }
+        return count;
+    }
+
+    // Plague/Fire multiplied by settlement touched
+    float GetWorldEventScaledDeathMultiplier(float baseMultiplier) const {
+        if (baseMultiplier == 1.0f) return 1.0f;
+        if (currentWorldsEvent != WorldEventsType::Plague && currentWorldsEvent != WorldEventsType::Fire)
+            return baseMultiplier;
+        int affectedCount = CountWorldEventAffectedOwnedSettlements();
+        if (affectedCount <= 0) return 1.0f;
+        return std::pow(baseMultiplier, (float)affectedCount);
+    }
+
+
     //infect the closest healthy city. If all province touched, spread towards the closest random province next to it.
     void SpreadPlague() {
         std::vector<int> infectedIndices;
@@ -10152,9 +10185,9 @@ public:
         float worldEventDeathClergyMultiplier = 1.0f;
         if (PlayerFactionAffectedSettlement()) {
             if (const WorldEventsData* activeEvent = GetActiveWorldEventData()) {
-                worldEventDeathPeasantryMultiplier = activeEvent->populationDeathPaysantryMultiplier;
-                worldEventDeathNobilityMultiplier = activeEvent->populationDeathNobilityMultiplier;
-                worldEventDeathClergyMultiplier = activeEvent->populationDeathClergyMultiplier;
+                worldEventDeathPeasantryMultiplier = GetWorldEventScaledDeathMultiplier(activeEvent->populationDeathPaysantryMultiplier);
+                worldEventDeathNobilityMultiplier = GetWorldEventScaledDeathMultiplier(activeEvent->populationDeathNobilityMultiplier);
+                worldEventDeathClergyMultiplier = GetWorldEventScaledDeathMultiplier(activeEvent->populationDeathClergyMultiplier);
             }
         }
 
