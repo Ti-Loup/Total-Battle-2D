@@ -33,7 +33,7 @@
  *
  * RESOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
  *
- * ToDo -> Code the remaining World Events Curently(4/12)
+ * ToDo -> Code the remaining World Events Curently(10/12)
  * ToDo -> Tooltip repair Cost and description + Destroy tooltip
  * ToDo - Work on Degree, Win achievments, and more.
  * ToDo - If you have less paysants than the nobility amount your buildings doesnt work has much. See paysantry/Nobility  description

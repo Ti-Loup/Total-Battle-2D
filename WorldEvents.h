@@ -89,7 +89,10 @@ struct WorldEventsData {
     int durationTurns = 1;
 };
 //Database of all Events
-
+//Public Order, foodProductionFarmMultiplier, foodProductionMaritimeMultiplier, foodFlatBonus, resourceFishingProductionMultiplier,
+//goldIncomeFarmMultiplier, goldIncomeCommerceMultiplier, goldIncomeIndustryMultiplier, goldIncomeReligionMultiplier, goldIncomeMaritimeMultiplier, goldFlatBonus
+//populationGrowthPaysantryMultiplier, populationGrowthNobilityMultiplier, populationGrowthClergyMultiplier,
+//populationDeathPaysantryMultiplier, populationDeathNobilityMultiplier, populationDeathClergyMultiplier, durationTurns
 inline const std::unordered_map<WorldEventsType, WorldEventsData>& GetWorldEventDatabase(){
     static const std::unordered_map<WorldEventsType, WorldEventsData> database = {
         //general
@@ -123,20 +126,16 @@ inline const std::unordered_map<WorldEventsType, WorldEventsData>& GetWorldEvent
             -2, 0.2f,1.0f, 0, 1.0f, 0.2f, 1.0f,1.0f,1.0f,1.0f,0, 0.6f,1.0f,1.0f, 1.0f, 1.0f, 1.0f, 5
         }},
         //Own mechanic
-        //Public Order, foodProductionFarmMultiplier, foodProductionMaritimeMultiplier, foodFlatBonus, resourceFishingProductionMultiplier,
-        //goldIncomeFarmMultiplier, goldIncomeCommerceMultiplier, goldIncomeIndustryMultiplier, goldIncomeReligionMultiplier, goldIncomeMaritimeMultiplier, goldFlatBonus
-        //populationGrowthPaysantryMultiplier, populationGrowthNobilityMultiplier, populationGrowthClergyMultiplier,
-        //populationDeathPaysantryMultiplier, populationDeathNobilityMultiplier, populationDeathClergyMultiplier, durationTurns
         { WorldEventsType::Plague, {
             "Plague",
             "My lord, a plague has pread to a settlement. It will spread quick acrost the world.",
             WorldEventCategory::Negative,
-            //Public Order -1 per infected settlement.(if 4 settlements affected then -4 in same region or -3 and -1 if merged in 2 provinces).
+            //Public Order -2 per infected settlement.(if 4 settlements affected then -4 in same region or -3 and -1 if merged in 2 provinces).
             //Death rate x1.8 per infected settlement.
             //Food produced Farm Multiplier x0.4 for the settlement touched
             //Food produced Maritime Multiplier x0.4 for the settlement touched
             // gold income x0.4 for all type
-            -1, 0.4f,0.4f , 0, 1.0f, 0.4f, 0.4f,0.4f,0.4f,0.4f,0, 1.0f,1.0f,1.0f, 1.8f, 1.8f, 1.8f, 5
+            -2, 0.4f,0.4f , 0, 1.0f, 0.4f, 0.4f,0.4f,0.4f,0.4f,0, 1.0f,1.0f,1.0f, 1.8f, 1.8f, 1.8f, 7
         }},
         //Own mechanic
         { WorldEventsType::Fire, {
@@ -144,12 +143,12 @@ inline const std::unordered_map<WorldEventsType, WorldEventsData>& GetWorldEvent
             "My lord, a fire spread accros the land! we bust be careful for our population",
             //Death Rate x1.8 per settlements
             //Buildings are damaged
-            //public order -1 per settlements
-            //Food produced 0
+            //public order -2 per settlements
+            //Food produced 0 (from damaged buildings)
             //income 0
             //not modified because damaged buildings makes them at 0
             WorldEventCategory::Negative,
-            -1, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 1.8f, 1.8f, 1.8f, 5
+            -2, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 1.8f, 1.8f, 1.8f, 7
         }},
         //general
         { WorldEventsType::PoorPopulation, {
@@ -167,21 +166,29 @@ inline const std::unordered_map<WorldEventsType, WorldEventsData>& GetWorldEvent
             "Good Harvest",
             "My lord, there's rumors of a good recolt from our farmers. We should make a feast !",
             WorldEventCategory::Positive,
-            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 1.0f, 1.0f, 1.0f, 5
+            //Public Order +2
+            //Food Farm production + 50%
+            //Food Flat Bonus +25
+            //Gold Income Farm +10%
+            2, 1.5f,1.0f, 25, 1.0f, 1.1f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 1.0f, 1.0f, 1.0f, 5
         }},
         //general
         { WorldEventsType::MiraculousFishCatch, {
             "Miraculous Fish Catch",
-            "My lord, our fishing recold is miraculus ! A real miracle from god.",
+            "My lord, our fishing recolt is miraculus ! A real miracle from god.",
                 WorldEventCategory::Positive,
-            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 1.0f, 1.0f, 1.0f, 5
+                //Food Maritime production + 40%
+                //Resource Fishing production + 50%
+                //Gold Income Maritime +20%
+            0, 1.0f,1.4f, 0, 1.5f, 1.0f, 1.0f,1.0f,1.0f,1.2f,0, 1.0f,1.0f,1.0f, 1.0f, 1.0f, 1.0f, 5
             }},
         //general + own mechanic when boats
         { WorldEventsType::FavorableWinds,{
             "Favorable Winds",
                 "My lord, the wind is on our side, our trade merchants and ships will be faster.",
             WorldEventCategory::Positive,
-            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 1.0f, 1.0f, 1.0f, 5
+            //gold from industry +25%
+            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.25f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 1.0f, 1.0f, 1.0f, 5
         }},
         //Own Mecanic
         { WorldEventsType::Justice,{
@@ -195,9 +202,10 @@ inline const std::unordered_map<WorldEventsType, WorldEventsData>& GetWorldEvent
             "New Invension",
                 "Sir, we have been aware that our guild masters made a new extraordinary object that will help to boost the production of our goods.",
             WorldEventCategory::Positive,
-            0, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 1.0f, 1.0f, 1.0f, 5
+            //public order -1 (Scared)
+            -1, 1.0f,1.0f, 0, 1.0f, 1.0f, 1.0f,1.0f,1.0f,1.0f,0, 1.0f,1.0f,1.0f, 1.0f, 1.0f, 1.0f, 5
         }},
-        //general
+        //general (Future)
         { WorldEventsType::WarSign,{
             "War Sign",
             "Sir, Our watchers and other members of other kingdoms saw a crow on top of a hill, It may be a sign of war?",
