@@ -787,7 +787,11 @@ public:
     int worldEventCountdown = 0;
     //How many turn the world event is active
     int activeWorldEventTurnsRemaining = 0;
-
+    //Justice Event Choice
+    bool bJusticeChoiceResolved = false;
+    int justiceChoiceMade = 0; //0 none, 1 Protect, 2 Deliver
+    SDL_FRect JusticeProtectButton = {800.f, 780.f, 120.f, 30};
+    SDL_FRect JusticeDeliverButton = {1075.f, 780.f, 120.f, 30};
 
 
     std::vector<SDL_FRect> tierPopupRects; // 1 rect per building
@@ -4047,6 +4051,11 @@ private://constructor
     SDL_Texture* GetWorldEventTexture(WorldEventsType type) {
         auto it = worldEventsImageTextures.find(type);
         return (it != worldEventsImageTextures.end()) ? it->second : nullptr;
+    }
+    //Textures of icons for the tooltip next to the Name
+    SDL_Texture *GetWorldEventIconTooltipTexture(WorldEventsType type) {
+        auto it = worldEventsIconTextures.find(type);
+        return (it != worldEventsIconTextures.end()) ? it->second: nullptr;
     }
 
     //The active world event Icon should appear
@@ -8717,6 +8726,30 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
         TTF_DrawRendererText(gameWorldEventsTitleText,
             WorldEventTitleBackground.x + (WorldEventTitleBackground.w - titleW) / 2.f,
             WorldEventTitleBackground.y + (WorldEventTitleBackground.h - titleH) / 2.f);
+        //Icon next to the title
+        SDL_Texture *worldEventIconTooltipTexture = GetWorldEventIconTooltipTexture(currentWorldsEvent);
+        //rect of it
+
+        if (worldEventIconTooltipTexture) {
+            float iconSize = 34.f;
+            float iconPad  = 12.f;
+            float iconY = WorldEventTitleBackground.y + (WorldEventTitleBackground.h - iconSize) / 2.f;
+
+            // icon left
+            SDL_FRect leftIconRect = {
+                WorldEventTitleBackground.x + iconPad,
+                iconY, iconSize, iconSize
+            };
+            SDL_RenderTexture(renderer, worldEventIconTooltipTexture, nullptr, &leftIconRect);
+
+            // Icon right
+            SDL_FRect rightIconRect = {
+                WorldEventTitleBackground.x + WorldEventTitleBackground.w - iconPad - iconSize,
+                iconY, iconSize, iconSize
+            };
+            SDL_RenderTexture(renderer, worldEventIconTooltipTexture, nullptr, &rightIconRect);
+        }
+
         //Image in middle
         SDL_FRect WorldEventImageBackground = {700.f, 375.f, 600, 300};
         SDL_SetRenderDrawColor(renderer, 80,120,41,255);
@@ -8746,9 +8779,31 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
 
         RenderWorldEventEffectRows(events_data, effectsX, effectsRightEdge, effectsAreaTop, effectsRowH);
 
+        //For Justice
+        if (currentWorldsEvent == WorldEventsType::Justice && !bJusticeChoiceResolved) {
+          //Choice 1 Protect the nobleman
+            SDL_SetRenderDrawColor(renderer, 40,90,150,255);
+            SDL_RenderFillRect(renderer, &JusticeProtectButton);
+            TTF_SetTextString(gameStatUITitleText,"Protect", 0);
+            TTF_SetTextColor(gameStatUITitleText, 255, 255 ,255 ,255);
+            int protectW, protectH;
+            TTF_GetTextSize(gameStatUITitleText, &protectW, &protectH);
+            TTF_DrawRendererText(gameStatUITitleText, JusticeProtectButton.x + protectW / 2 -8.f, JusticeProtectButton.y - protectH / 2.f + 15.);
 
-        //Return Button
-        RenderBoutonCercle(WorlEventsButtonReturnGame, nullptr, worldEventsReturnButtons, 0, 180, 10);
+          //Choice 2 Bring justice to the paysantry
+            SDL_SetRenderDrawColor(renderer, 150, 25, 25, 255);
+            SDL_RenderFillRect(renderer, &JusticeDeliverButton);
+            //Text
+            TTF_SetTextString(gameStatUITitleText, "Deliver", 0);
+            TTF_SetTextColor(gameStatUITitleText, 255, 255 ,255 ,255);
+            int deliverW, deliverH;
+            TTF_GetTextSize(gameStatUITitleText, &deliverW, &deliverH);
+            TTF_DrawRendererText(gameStatUITitleText, JusticeDeliverButton.x + deliverW /2 -6.f, JusticeDeliverButton.y - deliverH / 2.f + 15.f);
+
+        }else {
+            //Return Button
+            RenderBoutonCercle(WorlEventsButtonReturnGame, nullptr, worldEventsReturnButtons, 0, 180, 10);
+        }
     }
 
 
