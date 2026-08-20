@@ -7587,6 +7587,13 @@ SDL_RenderRect(renderer, &bg);
             }
         }
 
+        if (currentWorldsEvent == WorldEventsType::Justice) {
+            worldEventDeathMultiplier = 1.0f;
+            if (hoveredPopulationType == 0) worldEventPopMultiplier = GetJusticePaysantryGrowthMultiplier();
+            else if (hoveredPopulationType == 1) worldEventPopMultiplier = GetJusticeNobilityGrowthMultiplier();
+            else worldEventPopMultiplier = 1.0f;
+        }
+
     // measure description before laying out the rec
         TTF_SetTextWrapWidth(gameCurrentPopulationUiText, (int)wrapW);
 
@@ -8511,6 +8518,66 @@ private:
         if (activeWorldEventTurnsRemaining <= 0) return nullptr;
         return GetWorldEventData(currentWorldsEvent);
     }
+public:
+    //Justice choice
+    void ResolveJusticeChoice(bool bProtect) {
+        if (bJusticeChoiceResolved) return;
+        bJusticeChoiceResolved = true;
+        justiceChoiceMade = bProtect ? 1:2;//between protect and deliver
+        if (bProtect) player.AddGold(2500);
+    }
+private:
+int GetJusticePublicOrderModifier() const {
+    if (currentWorldsEvent != WorldEventsType::Justice || !bJusticeChoiceResolved) return 0;
+    return (justiceChoiceMade == 1) ? -4 : 2;
+}
+float GetJusticePaysantryGrowthMultiplier() const {
+    if (currentWorldsEvent != WorldEventsType::Justice || !bJusticeChoiceResolved) return 1.0f;
+    return (justiceChoiceMade == 1) ? 0.5f : 1.0f;
+}
+float GetJusticeNobilityGrowthMultiplier() const {
+    if (currentWorldsEvent != WorldEventsType::Justice || !bJusticeChoiceResolved) return 1.0f;
+    return (justiceChoiceMade == 2) ? 0.5f : 1.0f;
+}
+
+void RenderJusticeChoicePreview(float x, float rightEdge, float startY, float rowH) {
+    float lineY = startY;
+    const float iconSize = std::clamp(rowH - 4.f, 12.f, 18.f);
+
+    auto drawHeader = [&](const char* label, SDL_Color color) {
+        TTF_SetTextString(gameWorldEventsDescText, label, 0);
+        TTF_SetTextColor(gameWorldEventsDescText, color.r, color.g, color.b, 255);
+        TTF_DrawRendererText(gameWorldEventsDescText, x, lineY);
+        lineY += rowH;
+    };
+    auto drawRow = [&](SDL_Texture* icon, const char* label, const std::string& valStr, bool positive) {
+        SDL_FRect iconRect = {x, lineY, iconSize, iconSize};
+        if (icon) SDL_RenderTexture(renderer, icon, nullptr, &iconRect);
+
+        TTF_SetTextString(gameWorldEventsDescText, label, 0);
+        TTF_SetTextColor(gameWorldEventsDescText, 20, 20, 20, 255);
+        TTF_DrawRendererText(gameWorldEventsDescText, x + iconSize + 6.f, lineY + 1.f);
+
+        TTF_SetTextString(gameWorldEventsDescText, valStr.c_str(), 0);
+        TTF_SetTextColor(gameWorldEventsDescText, positive ? 30 : 180, positive ? 140 : 30, 30, 255);
+        int vw, vh;
+        TTF_GetTextSize(gameWorldEventsDescText, &vw, &vh);
+        TTF_DrawRendererText(gameWorldEventsDescText, rightEdge - vw, lineY + 1.f);
+        lineY += rowH;
+    };
+
+    drawHeader("If you Protect him:", {60, 130, 210, 255});
+    drawRow(gamePublicOrderNegatifTexture, "Public Order", "-4", false);
+    drawRow(gamePopulationGrowth, "Paysantry Growth", "-50%", false);
+    drawRow(gameCoinMoneyTexture, "Gold", "+2500", true);
+
+    lineY += 6.f;
+
+    drawHeader("If you Deliver him:", {200, 60, 60, 255});
+    drawRow(gamePublicOrderPositifTexture, "Public Order", "+2", true);
+    drawRow(gamePopulationGrowth, "Nobility Growth", "-50%", false);
+}
+
     // counts how many effect rows a worldEvent has
     int AmountWorldEventsEffectRows(const WorldEventsData *d) {
         int count = 1; // duration always shown
@@ -8701,110 +8768,134 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
     }
     //Events Popup every each random rounds
     void RenderWorldEventInfoPopup() {
-        if (!bWorldEventInfoPopup)return;
-        //call the WorldEvents database to get their infos
-        const WorldEventsData *events_data = GetWorldEventData(currentWorldsEvent);
-        if (!events_data) return;
+    if (!bWorldEventInfoPopup) return;
+    const WorldEventsData *events_data = GetWorldEventData(currentWorldsEvent);
+    if (!events_data) return;
 
-        //border
-        SDL_FRect WorldEventBorder = {650.f, 300.f, 700, 500};
-        SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
-        SDL_RenderFillRect(renderer, &WorldEventBorder);
-        //backround
-        SDL_FRect WorldEventBackground = {655.f, 305.f, 690, 490};
-        SDL_SetRenderDrawColor(renderer, 120, 120, 120, 255);
-        SDL_RenderFillRect(renderer, &WorldEventBackground);
-        //title background
-        SDL_FRect WorldEventTitleBackground = {655.f, 305.f, 690, 50};
-        SDL_SetRenderDrawColor(renderer, 130, 100, 0, 255);
-        SDL_RenderFillRect(renderer, &WorldEventTitleBackground);
-        // Event Name -> need its own text
-        TTF_SetTextString(gameWorldEventsTitleText, events_data->name.c_str(), 0);
-        TTF_SetTextColor(gameWorldEventsTitleText, 255, 255, 255, 255);
-        int titleW, titleH;
-        TTF_GetTextSize(gameWorldEventsTitleText, &titleW, &titleH);
-        TTF_DrawRendererText(gameWorldEventsTitleText,
-            WorldEventTitleBackground.x + (WorldEventTitleBackground.w - titleW) / 2.f,
-            WorldEventTitleBackground.y + (WorldEventTitleBackground.h - titleH) / 2.f);
-        //Icon next to the title
-        SDL_Texture *worldEventIconTooltipTexture = GetWorldEventIconTooltipTexture(currentWorldsEvent);
-        //rect of it
+    bool bJusticeUnresolved = (currentWorldsEvent == WorldEventsType::Justice && !bJusticeChoiceResolved);
+    float popupHeight = bJusticeUnresolved ? 700.f : 500.f;
 
-        if (worldEventIconTooltipTexture) {
-            float iconSize = 34.f;
-            float iconPad  = 12.f;
-            float iconY = WorldEventTitleBackground.y + (WorldEventTitleBackground.h - iconSize) / 2.f;
+    //border
+    SDL_FRect WorldEventBorder = {650.f, 300.f, 700, popupHeight};
+    SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
+    SDL_RenderFillRect(renderer, &WorldEventBorder);
+    //backround
+    SDL_FRect WorldEventBackground = {655.f, 305.f, 690, popupHeight - 10.f};
+    SDL_SetRenderDrawColor(renderer, 120, 120, 120, 255);
+    SDL_RenderFillRect(renderer, &WorldEventBackground);
+    //title background
+    SDL_FRect WorldEventTitleBackground = {655.f, 305.f, 690, 50};
+    SDL_SetRenderDrawColor(renderer, 130, 100, 0, 255);
+    SDL_RenderFillRect(renderer, &WorldEventTitleBackground);
+    TTF_SetTextString(gameWorldEventsTitleText, events_data->name.c_str(), 0);
+    TTF_SetTextColor(gameWorldEventsTitleText, 255, 255, 255, 255);
+    int titleW, titleH;
+    TTF_GetTextSize(gameWorldEventsTitleText, &titleW, &titleH);
+    TTF_DrawRendererText(gameWorldEventsTitleText,
+        WorldEventTitleBackground.x + (WorldEventTitleBackground.w - titleW) / 2.f,
+        WorldEventTitleBackground.y + (WorldEventTitleBackground.h - titleH) / 2.f);
 
-            // icon left
-            SDL_FRect leftIconRect = {
-                WorldEventTitleBackground.x + iconPad,
-                iconY, iconSize, iconSize
-            };
-            SDL_RenderTexture(renderer, worldEventIconTooltipTexture, nullptr, &leftIconRect);
-
-            // Icon right
-            SDL_FRect rightIconRect = {
-                WorldEventTitleBackground.x + WorldEventTitleBackground.w - iconPad - iconSize,
-                iconY, iconSize, iconSize
-            };
-            SDL_RenderTexture(renderer, worldEventIconTooltipTexture, nullptr, &rightIconRect);
-        }
-
-        //Image in middle
-        SDL_FRect WorldEventImageBackground = {700.f, 375.f, 600, 300};
-        SDL_SetRenderDrawColor(renderer, 80,120,41,255);
-        SDL_RenderFillRect(renderer, &WorldEventImageBackground); // fallback fill if texture missing
-
-        SDL_Texture* worldEventImageTexture = GetWorldEventTexture(currentWorldsEvent);
-        if (worldEventImageTexture) {
-            SDL_RenderTexture(renderer, worldEventImageTexture, nullptr, &WorldEventImageBackground);
-        }
-        //Desc Bottom left
-        TTF_SetTextWrapWidth(gameWorldEventsDescText, 300);
-        TTF_SetTextString(gameWorldEventsDescText, events_data->description.c_str(), 0);
-        TTF_SetTextColor(gameWorldEventsDescText, 20, 20, 20, 255);
-        TTF_DrawRendererText(gameWorldEventsDescText, 665.f, 700.f);
-        TTF_SetTextWrapWidth(gameWorldEventsDescText, 0); // reset
-
-        //Effects bottom right
-        float effectsX = 1050.f;
-        float effectsRightEdge = 1335.f;
-        float effectsAreaTop = 685.f;
-        //bottom margin
-        float effectsAreaBottom = WorldEventBackground.y + WorldEventBackground.h - 10.f;
-        float effectsAvailableHeight = effectsAreaBottom - effectsAreaTop;
-
-        int effectsRowCount = AmountWorldEventsEffectRows(events_data);
-        float effectsRowH = (effectsRowCount > 0)? std::clamp(effectsAvailableHeight / (float)effectsRowCount, 16.f, 26.f) : 26.f;
-
-        RenderWorldEventEffectRows(events_data, effectsX, effectsRightEdge, effectsAreaTop, effectsRowH);
-
-        //For Justice
-        if (currentWorldsEvent == WorldEventsType::Justice && !bJusticeChoiceResolved) {
-          //Choice 1 Protect the nobleman
-            SDL_SetRenderDrawColor(renderer, 40,90,150,255);
-            SDL_RenderFillRect(renderer, &JusticeProtectButton);
-            TTF_SetTextString(gameStatUITitleText,"Protect", 0);
-            TTF_SetTextColor(gameStatUITitleText, 255, 255 ,255 ,255);
-            int protectW, protectH;
-            TTF_GetTextSize(gameStatUITitleText, &protectW, &protectH);
-            TTF_DrawRendererText(gameStatUITitleText, JusticeProtectButton.x + protectW / 2 -8.f, JusticeProtectButton.y - protectH / 2.f + 15.);
-
-          //Choice 2 Bring justice to the paysantry
-            SDL_SetRenderDrawColor(renderer, 150, 25, 25, 255);
-            SDL_RenderFillRect(renderer, &JusticeDeliverButton);
-            //Text
-            TTF_SetTextString(gameStatUITitleText, "Deliver", 0);
-            TTF_SetTextColor(gameStatUITitleText, 255, 255 ,255 ,255);
-            int deliverW, deliverH;
-            TTF_GetTextSize(gameStatUITitleText, &deliverW, &deliverH);
-            TTF_DrawRendererText(gameStatUITitleText, JusticeDeliverButton.x + deliverW /2 -6.f, JusticeDeliverButton.y - deliverH / 2.f + 15.f);
-
-        }else {
-            //Return Button
-            RenderBoutonCercle(WorlEventsButtonReturnGame, nullptr, worldEventsReturnButtons, 0, 180, 10);
-        }
+    SDL_Texture *worldEventIconTooltipTexture = GetWorldEventIconTooltipTexture(currentWorldsEvent);
+    if (worldEventIconTooltipTexture) {
+        float iconSize = 34.f;
+        float iconPad  = 12.f;
+        float iconY = WorldEventTitleBackground.y + (WorldEventTitleBackground.h - iconSize) / 2.f;
+        SDL_FRect leftIconRect = {WorldEventTitleBackground.x + iconPad, iconY, iconSize, iconSize};
+        SDL_RenderTexture(renderer, worldEventIconTooltipTexture, nullptr, &leftIconRect);
+        SDL_FRect rightIconRect = {WorldEventTitleBackground.x + WorldEventTitleBackground.w - iconPad - iconSize, iconY, iconSize, iconSize};
+        SDL_RenderTexture(renderer, worldEventIconTooltipTexture, nullptr, &rightIconRect);
     }
+
+    SDL_FRect WorldEventImageBackground = {700.f, 375.f, 600, 300};
+    SDL_SetRenderDrawColor(renderer, 80,120,41,255);
+    SDL_RenderFillRect(renderer, &WorldEventImageBackground);
+    SDL_Texture* worldEventImageTexture = GetWorldEventTexture(currentWorldsEvent);
+    if (worldEventImageTexture) {
+        SDL_RenderTexture(renderer, worldEventImageTexture, nullptr, &WorldEventImageBackground);
+    }
+
+    TTF_SetTextWrapWidth(gameWorldEventsDescText, 300);
+    TTF_SetTextString(gameWorldEventsDescText, events_data->description.c_str(), 0);
+    TTF_SetTextColor(gameWorldEventsDescText, 20, 20, 20, 255);
+    TTF_DrawRendererText(gameWorldEventsDescText, 665.f, 700.f);
+    TTF_SetTextWrapWidth(gameWorldEventsDescText, 0);
+
+    float effectsX = 1050.f;
+    float effectsRightEdge = 1335.f;
+    float effectsAreaTop = 685.f;
+    float effectsAreaBottom = WorldEventBackground.y + WorldEventBackground.h - 10.f;
+    float effectsAvailableHeight = effectsAreaBottom - effectsAreaTop;
+
+    int effectsRowCount = AmountWorldEventsEffectRows(events_data);
+    float effectsRowH = (effectsRowCount > 0)? std::clamp(effectsAvailableHeight / (float)effectsRowCount, 16.f, 26.f) : 26.f;
+
+    RenderWorldEventEffectRows(events_data, effectsX, effectsRightEdge, effectsAreaTop, effectsRowH);
+
+    if (bJusticeUnresolved) {
+        float previewStartY = effectsAreaTop + effectsRowH + 6.f;
+        RenderJusticeChoicePreview(effectsX, effectsRightEdge, previewStartY, 20.f);
+
+        float justiceButtonY = WorldEventBackground.y + WorldEventBackground.h - 60.f;
+        JusticeProtectButton = {800.f, justiceButtonY, 120.f, 30.f};
+        JusticeDeliverButton = {1075.f, justiceButtonY, 120.f, 30.f};
+
+        float mouseXJ, mouseYJ;
+        SDL_GetMouseState(&mouseXJ, &mouseYJ);
+        float lxJ, lyJ;
+        SDL_RenderCoordinatesFromWindow(renderer, mouseXJ, mouseYJ, &lxJ, &lyJ);
+        SDL_FPoint mouseJusticePt = {lxJ, lyJ};
+
+        bool bHoveredProtect = SDL_PointInRectFloat(&mouseJusticePt, &JusticeProtectButton);
+        SDL_SetRenderDrawColor(renderer, bHoveredProtect ? 60 : 40, bHoveredProtect ? 115 : 90, bHoveredProtect ? 190 : 150, 255);
+        SDL_RenderFillRect(renderer, &JusticeProtectButton);
+        TTF_SetTextString(gameStatUITitleText,"Protect", 0);
+        TTF_SetTextColor(gameStatUITitleText, 255, 255 ,255 ,255);
+        int protectW, protectH;
+        TTF_GetTextSize(gameStatUITitleText, &protectW, &protectH);
+        TTF_DrawRendererText(gameStatUITitleText,
+            JusticeProtectButton.x + (JusticeProtectButton.w - protectW) / 2.f,
+            JusticeProtectButton.y + (JusticeProtectButton.h - protectH) / 2.f);
+
+        bool bHoveredDeliver = SDL_PointInRectFloat(&mouseJusticePt, &JusticeDeliverButton);
+        SDL_SetRenderDrawColor(renderer, bHoveredDeliver ? 180 : 150, 25, 25, 255);
+        SDL_RenderFillRect(renderer, &JusticeDeliverButton);
+        TTF_SetTextString(gameStatUITitleText, "Deliver", 0);
+        TTF_SetTextColor(gameStatUITitleText, 255, 255 ,255 ,255);
+        int deliverW, deliverH;
+        TTF_GetTextSize(gameStatUITitleText, &deliverW, &deliverH);
+        TTF_DrawRendererText(gameStatUITitleText,
+            JusticeDeliverButton.x + (JusticeDeliverButton.w - deliverW) / 2.f,
+            JusticeDeliverButton.y + (JusticeDeliverButton.h - deliverH) / 2.f);
+
+        auto drawJusticeHoverTooltip = [&](const char* text) {
+            TTF_SetTextString(gameStatUIText, text, 0);
+            int nameW = 0, nameH = 0;
+            TTF_GetTextSize(gameStatUIText, &nameW, &nameH);
+            float padX = 8.f, padY = 5.f;
+            float tw = nameW + padX * 2.f;
+            float th = nameH + padY * 2.f;
+            float tx = lxJ + 15.f;
+            float ty = lyJ - th - 10.f;
+            if (tx + tw > 1915.f) tx = lxJ - tw - 15.f;
+            if (ty < 5.f) ty = 5.f;
+
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+            SDL_FRect tooltipBg = {tx, ty, tw, th};
+            SDL_RenderFillRect(renderer, &tooltipBg);
+            SDL_SetRenderDrawColor(renderer, 110, 90, 40, 255);
+            SDL_RenderRect(renderer, &tooltipBg);
+
+            TTF_SetTextColor(gameStatUIText, 240, 240, 240, 255);
+            TTF_DrawRendererText(gameStatUIText, tx + padX, ty + padY);
+        };
+        if (bHoveredProtect) drawJusticeHoverTooltip("Protect the nobleman in secret");
+        else if (bHoveredDeliver) drawJusticeHoverTooltip("Deliver him to justice");
+
+    } else {
+        RenderBoutonCercle(WorlEventsButtonReturnGame, nullptr, worldEventsReturnButtons, 0, 180, 10);
+    }
+}
 
 
     //calculated the stats not null of a building (from buildingData stats/) -- If new variable added in building need to add it here too
@@ -9467,6 +9558,10 @@ if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
         } else {
             worldEventPublicOrder = activePublicOrderEvent->publicOrderModifier;
         }
+
+        if (currentWorldsEvent == WorldEventsType::Justice) {
+            worldEventPublicOrder = GetJusticePublicOrderModifier();
+        }
     }
     //total
     int totalDelta = taxPenalty + provinceBuildingBonus + foodModifier + seasonModifier + worldEventPublicOrder;
@@ -9895,6 +9990,10 @@ public:
     if (activeEventForPublicOrder && currentWorldsEvent != WorldEventsType::Plague) {
         worldEventsPublicOrderModifier = activeEventForPublicOrder->publicOrderModifier;
     }
+    //For Justice World Event
+    if (currentWorldsEvent == WorldEventsType::Justice) {
+        worldEventsPublicOrderModifier = GetJusticePublicOrderModifier();
+    }
 
     // add +1 for each infected plage
     std::unordered_map<int, int> provincePlaguePublicOrderPenalty;
@@ -10228,14 +10327,19 @@ public:
         //Population birth Modification from World Events.
         float worldEventBirthPeasantryMultiplier = 1.0f;
         float worldEventBirthNobilityMultiplier  = 1.0f;
-        float worldEventBirthClergyMultiplier    = 1.0f;
+        float worldEventBirthClergyMultiplier = 1.0f;
         if (PlayerFactionAffectedSettlement()) {
             if (const WorldEventsData* activeEvent = GetActiveWorldEventData()) {
                 worldEventBirthPeasantryMultiplier = activeEvent->populationGrowthPaysantryMultiplier;
-                worldEventBirthNobilityMultiplier  = activeEvent->populationGrowthNobilityMultiplier;
-                worldEventBirthClergyMultiplier    = activeEvent->populationGrowthClergyMultiplier;
+                worldEventBirthNobilityMultiplier = activeEvent->populationGrowthNobilityMultiplier;
+                worldEventBirthClergyMultiplier = activeEvent->populationGrowthClergyMultiplier;
             }
         }
+        if (currentWorldsEvent == WorldEventsType::Justice) {
+            worldEventBirthPeasantryMultiplier = GetJusticePaysantryGrowthMultiplier();
+            worldEventBirthNobilityMultiplier = GetJusticeNobilityGrowthMultiplier();
+        }
+
 
         int totalPeasantryBirths = (int)((float)(player.basePeasantryBirth + buildingPeasantryBonus) * foodMultiplier * endTurnSeasonMods.birthRateMultiplier * worldEventBirthPeasantryMultiplier);
         int totalNobilityBirths  = (int)((float)(player.baseNobilityBirth + buildingNobilityBonus) * foodMultiplier * endTurnSeasonMods.birthRateMultiplier * worldEventBirthNobilityMultiplier);
@@ -10316,6 +10420,12 @@ public:
             if (currentWorldsEvent == WorldEventsType::Fire) {
                 for (auto& s:settlements) s.bIsOnFire = false;
             }
+            //For justice
+            if (currentWorldsEvent == WorldEventsType::Justice) {
+                bJusticeChoiceResolved = false;
+                justiceChoiceMade = 0;
+            }
+
             currentWorldsEvent = WorldEventsType::None; // go back to normal
             SDL_Log("World event ended. For now :o");
         }
@@ -11010,7 +11120,17 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             app.bWorldEventInfoPopup = false;
             return SDL_APP_CONTINUE;
         }
-
+        //Justice choice buttons
+        if (app.currentWorldsEvent == WorldEventsType::Justice && app.bWorldEventInfoPopup && !app.bJusticeChoiceResolved) {
+            if (SDL_PointInRectFloat(&MousePT, &app.JusticeProtectButton)) {
+                app.ResolveJusticeChoice(true);
+                return SDL_APP_CONTINUE;
+            }
+            if (SDL_PointInRectFloat(&MousePT, &app.JusticeDeliverButton)) {
+                app.ResolveJusticeChoice(false);
+                return SDL_APP_CONTINUE;
+            }
+        }
         //Goods Manager: Minus / Over / toggle buttons
         if (app.bGoodsProductionManagerPopup) {
             for (auto& [rect, type] : app.goodsManagerMinusRects) {
