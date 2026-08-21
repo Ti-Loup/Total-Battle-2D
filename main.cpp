@@ -8447,8 +8447,11 @@ private:
      *UI for each Ui Buttons that spawn when pressed on button
      *
      */
+    //For Decrees, you can activate them for bonuses.
+    // 3 different ones and each need a certain amount of raw goods. (candle, beer, greentea)
     void RenderDecreesInfoPopup() {
         if (!bDecreesInfoPopup) return;
+        // General ---
         //background
         SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
         SDL_FRect DecreesBackGroundRect = {500.f, 150.f, 1000, 800};
@@ -8458,6 +8461,8 @@ private:
         //ButtonToReturn
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         RenderBoutonCercle(DecreesButtonReturnGame, nullptr, nullptr, 255, 255, 255);
+
+        // Per faction ---
 
     }
     void RenderWinConditionsInfoPopup() {
