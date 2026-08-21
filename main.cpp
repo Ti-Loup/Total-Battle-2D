@@ -7815,8 +7815,6 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
             std::string weDeathStr = (weDeathPercent >= 0 ? "+" : "") + std::to_string(weDeathPercent)
                 + "% (" + (eventDeathsDelta >= 0 ? "+" : "") + std::to_string(eventDeathsDelta) + ")";
             std::string deathSuffix = "";
-            if (currentWorldsEvent == WorldEventsType::Plague) deathSuffix = " (per infected settlement)";
-            else if (currentWorldsEvent == WorldEventsType::Fire) deathSuffix = " (per burnt settlement)";
             std::string weDeathLabel = std::string(populationTitleStr) + " Death" + deathSuffix;
             drawStatRow(weDeathLabel.c_str(), weDeathStr, weDeathGood ? 100 : 220, weDeathGood ? 220 : 60, 60);
         }
