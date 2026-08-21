@@ -8455,14 +8455,25 @@ private:
         //background
         SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
         SDL_FRect DecreesBackGroundRect = {500.f, 150.f, 1000, 800};
-
         SDL_RenderFillRect(renderer, &DecreesBackGroundRect);
-
+        //Title Background
+        if (player.faction == FactionZone::Knight) {
+            SDL_SetRenderDrawColor(renderer, 255, 215, 0, 255);
+        }
+        else if (player.faction == FactionZone::Viking) {
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        }
+        else if (player.faction == FactionZone::Samurai) {
+            SDL_SetRenderDrawColor(renderer, 0, 255, 215, 255);
+        }
+        SDL_FRect DecreesTitleRect = {500.f, 150.f, 1000, 150};
+        SDL_RenderFillRect(renderer, &DecreesTitleRect);
         //ButtonToReturn
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         RenderBoutonCercle(DecreesButtonReturnGame, nullptr, nullptr, 255, 255, 255);
 
         // Per faction ---
+
 
     }
     void RenderWinConditionsInfoPopup() {
