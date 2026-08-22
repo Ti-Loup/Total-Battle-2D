@@ -283,6 +283,13 @@ public:
     TTF_Font *gameGoodsStorageManagerDescFont = nullptr;
     TTF_Text *gameGoodsStorageManagerTitleText = nullptr;
     TTF_Text *gameGoodsStorageManagerDescText = nullptr;
+    //decree text
+    TTF_Font *gameDecreeTitleFont = nullptr;
+    TTF_Font *gameDecreeSousTitleFont = nullptr;
+    TTF_Font *gameDecreeDescFont = nullptr;
+    TTF_Text *gameDecreeTitleText = nullptr;
+    TTF_Text *gameDecreeSousTitleText = nullptr;
+    TTF_Text *gameDecreeDescText = nullptr;
     //Buttons UI
     bool bButtonUIBuildingIsPressed = true;
     bool bButtonUIGarrisonIsPressed = false;
@@ -615,7 +622,16 @@ public:
     };
     std::unordered_map<SettlementTextureMap, SDL_Texture*, SettlementTextureMapHash> settlementTextureCampaign;
 
-
+    //Textures of Decree Faction (different for each faction)
+    SDL_Texture *gameDecree1KnightTexture = nullptr;
+    SDL_Texture *gameDecree2KnightTexture = nullptr;
+    SDL_Texture *gameDecree3KnightTexture = nullptr;
+    SDL_Texture *gameDecree1VikingTexture = nullptr;
+    SDL_Texture *gameDecree2VikingTexture = nullptr;
+    SDL_Texture *gameDecree3VikingTexture = nullptr;
+    SDL_Texture *gameDecree1SamuraiTexture = nullptr;
+    SDL_Texture *gameDecree2SamuraiTexture = nullptr;
+    SDL_Texture *gameDecree3SamuraiTexture = nullptr;
 
     // -> CREDITS <-
     TTF_Font *creditsTitleFont = nullptr;
@@ -1046,6 +1062,9 @@ private://constructor
         gameGoodsStorageUiDescFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         gameGoodsStorageManagerTitleFont = TTF_OpenFont("assets/Rubik.ttf", 25);
         gameGoodsStorageManagerDescFont = TTF_OpenFont("assets/Rubik.ttf", 15);
+        gameDecreeTitleFont = TTF_OpenFont("assets/Rubik.ttf", 25);
+        gameDecreeSousTitleFont = TTF_OpenFont("assets/Rubik.ttf", 19);
+        gameDecreeDescFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         //same font has AnticipatedMoneyUiText
         gameCurrentFoodUiText = TTF_CreateText(textEngine, gameCurrentFoodUiFont, "", 25);
         if (gameCurrentFoodUiText == nullptr) {
@@ -1124,6 +1143,19 @@ private://constructor
         gameGoodsStorageManagerDescText = TTF_CreateText(textEngine, gameGoodsStorageManagerDescFont, "", 25);
         if (gameGoodsStorageManagerDescText == nullptr) {
             SDL_LogWarn(0, "failed to load text gameGoodsStorageManagerDescText", SDL_GetError());
+        }
+        //Decree Text
+        gameDecreeTitleText = TTF_CreateText(textEngine, gameDecreeTitleFont, "", 25);
+        if (gameDecreeTitleText == nullptr) {
+            SDL_LogWarn(0, "failed to load text gameDecreeTitleText", SDL_GetError());
+        }
+        gameDecreeSousTitleText = TTF_CreateText(textEngine, gameDecreeSousTitleFont, "", 25);
+        if (gameDecreeSousTitleText == nullptr) {
+            SDL_LogWarn(0, "failed to load text gameDecreeSousTitleText", SDL_GetError());
+        }
+        gameDecreeDescText = TTF_CreateText(textEngine, gameDecreeDescFont, "", 25);
+        if (gameDecreeDescText == nullptr) {
+            SDL_LogWarn(0, "failed to load text gameDecreeDescText", SDL_GetError());
         }
         //CREATION OF THE SETTLEMENTS
         //KNIGHT
@@ -1840,6 +1872,52 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture worldEventsIconTextures WarSign", SDL_GetError());
         }
         SDL_SetTextureScaleMode(worldEventsIconTextures[WorldEventsType::WarSign], SDL_SCALEMODE_NEAREST);
+        //decree
+        gameDecree1KnightTexture = IMG_LoadTexture(renderer, "assets/Decrees/Decree1Knight.png");
+        if (gameDecree1KnightTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameDecree1KnightTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameDecree1KnightTexture, SDL_SCALEMODE_NEAREST);
+        gameDecree2KnightTexture = IMG_LoadTexture(renderer, "assets/Decrees/Decree2Knight.png");
+        if (gameDecree2KnightTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameDecree2KnightTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameDecree2KnightTexture, SDL_SCALEMODE_NEAREST);
+        gameDecree3KnightTexture = IMG_LoadTexture(renderer, "assets/Decrees/Decree3Knight.png");
+        if (gameDecree3KnightTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameDecree3KnightTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameDecree3KnightTexture, SDL_SCALEMODE_NEAREST);
+        gameDecree1VikingTexture = IMG_LoadTexture(renderer, "assets/Decrees/Decree1Viking.png");
+        if (gameDecree1VikingTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameDecree1VikingTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameDecree1VikingTexture, SDL_SCALEMODE_NEAREST);
+        gameDecree2VikingTexture = IMG_LoadTexture(renderer, "assets/Decrees/Decree2Viking.png");
+        if (gameDecree2VikingTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameDecree2VikingTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameDecree2VikingTexture, SDL_SCALEMODE_NEAREST);
+        gameDecree3VikingTexture = IMG_LoadTexture(renderer, "assets/Decrees/Decree3Viking.png");
+        if (gameDecree3VikingTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameDecree3VikingTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameDecree3VikingTexture, SDL_SCALEMODE_NEAREST);
+        gameDecree1SamuraiTexture = IMG_LoadTexture(renderer, "assets/Decrees/Decree1Samurai.png");
+        if (gameDecree1SamuraiTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameDecree1SamuraiTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameDecree1SamuraiTexture, SDL_SCALEMODE_NEAREST);
+        gameDecree2SamuraiTexture = IMG_LoadTexture(renderer, "assets/Decrees/Decree2Samurai.png");
+        if (gameDecree2SamuraiTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameDecree2SamuraiTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameDecree2SamuraiTexture, SDL_SCALEMODE_NEAREST);
+        gameDecree3SamuraiTexture = IMG_LoadTexture(renderer, "assets/Decrees/Decree3Samurai.png");
+        if (gameDecree3SamuraiTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameDecree3SamuraiTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameDecree3SamuraiTexture, SDL_SCALEMODE_NEAREST);
         // BUILDING UIS
         //                  ! KNIGHT !
         //capitals
@@ -3665,6 +3743,9 @@ private://constructor
         TTF_CloseFont(gameWorldEventsDescFont);
         TTF_CloseFont(gameGoodsStorageManagerTitleFont);
         TTF_CloseFont(gameGoodsStorageManagerDescFont);
+        TTF_CloseFont(gameDecreeTitleFont);
+        TTF_CloseFont(gameDecreeSousTitleFont);
+        TTF_CloseFont(gameDecreeDescFont);
         // ---------------------------------
         TTF_DestroyText(fpsText);
         TTF_DestroyText(menuText);
@@ -3712,6 +3793,9 @@ private://constructor
         TTF_DestroyText(gameWorldEventsDescText);
         TTF_DestroyText(gameGoodsStorageManagerTitleText);
         TTF_DestroyText(gameGoodsStorageManagerDescText);
+        TTF_DestroyText(gameDecreeTitleText);
+        TTF_DestroyText(gameDecreeSousTitleText);
+        TTF_DestroyText(gameDecreeDescText);
         // ---------------------------------
         SDL_DestroyTexture(provinceKnightBannerTexture);
         SDL_DestroyTexture(provinceVikingBannerTexture);
@@ -3841,6 +3925,15 @@ private://constructor
         SDL_DestroyTexture(gameRepairBuildingButtonIconUi);
         SDL_DestroyTexture(gameBuildingDamagedIconUi);
         SDL_DestroyTexture(worldEventsReturnButtons);
+        SDL_DestroyTexture(gameDecree1KnightTexture);
+        SDL_DestroyTexture(gameDecree2KnightTexture);
+        SDL_DestroyTexture(gameDecree3KnightTexture);
+        SDL_DestroyTexture(gameDecree1VikingTexture);
+        SDL_DestroyTexture(gameDecree2VikingTexture);
+        SDL_DestroyTexture(gameDecree3VikingTexture);
+        SDL_DestroyTexture(gameDecree1SamuraiTexture);
+        SDL_DestroyTexture(gameDecree2SamuraiTexture);
+        SDL_DestroyTexture(gameDecree3SamuraiTexture);
         // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
@@ -8454,20 +8547,28 @@ private:
         // General ---
         //background
         SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
-        SDL_FRect DecreesBackGroundRect = {500.f, 150.f, 1000, 800};
+        SDL_FRect DecreesBackGroundRect = {400.f, 200.f, 1200, 700};
         SDL_RenderFillRect(renderer, &DecreesBackGroundRect);
         //Title Background
-        if (player.faction == FactionZone::Knight) {
-            SDL_SetRenderDrawColor(renderer, 255, 215, 0, 255);
-        }
-        else if (player.faction == FactionZone::Viking) {
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-        }
-        else if (player.faction == FactionZone::Samurai) {
-            SDL_SetRenderDrawColor(renderer, 0, 255, 215, 255);
-        }
-        SDL_FRect DecreesTitleRect = {500.f, 150.f, 1000, 150};
+        SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
+        SDL_FRect DecreesTitleRect = {900.f, 185.f, 200, 40};
         SDL_RenderFillRect(renderer, &DecreesTitleRect);
+        //Title
+        TTF_SetTextString(gameDecreeTitleText, "Decrees", 0);
+        TTF_SetTextColor(gameDecreeTitleText, 255,255,255,255);
+        TTF_DrawRendererText(gameDecreeTitleText, 955.f, 190.f );
+        //SUB AREA
+        //SubTitle areas
+
+
+
+
+        //Seperate names and textures per faction the player play.
+
+
+
+
+
         //ButtonToReturn
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         RenderBoutonCercle(DecreesButtonReturnGame, nullptr, nullptr, 255, 255, 255);
