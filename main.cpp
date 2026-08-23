@@ -8700,7 +8700,7 @@ private:
         //Decree activity state
         bool bIsActive = decreeDurationRemaining.count(slot) > 0;
         bool bIsCooldown = decreeCooldownRemaining.count(slot) > 0;
-        bool bClickable = !bIsActive && !bIsCooldown && bCanAfford;
+        bool bClickable = !bIsActive && !bIsCooldown && bCanAfford;//button can be clicked if all false
 
         //Status message box
         float statusY = cardY + cardH - 200.f;
@@ -8765,11 +8765,28 @@ private:
 
         //Button Enact
         SDL_FRect enactButtonRect = {cardX + 10.f, cardY + cardH - 45.f, cardW - 20.f, 35.f};
+        //Mouse detection
+        float mouseXEnact;
+        float mouseYEnact;
+        SDL_GetMouseState(&mouseXEnact, &mouseYEnact);
+        float lenghtXEnact;
+        float lenghtYEnact;
+        SDL_RenderCoordinatesFromWindow(renderer, mouseXEnact, mouseYEnact, &lenghtXEnact, &lenghtYEnact);
+        SDL_FPoint mouseEnactPt = {lenghtXEnact,lenghtYEnact};
+        bool bHoveredEnact = SDL_PointInRectFloat(&mouseEnactPt, &enactButtonRect);
+
         SDL_Color enactBg;
         const char* enactLabel = "Enact";
         if (bIsActive) { enactBg = {40, 70, 90, 255}; enactLabel = "Active"; }
         else if (bIsCooldown) { enactBg = {50, 50, 50, 255}; enactLabel = "Cooldown"; }
-        else { enactBg = {40, 70, 110, 255}; enactLabel = "Enact"; }
+        else {
+            if (bClickable && bHoveredEnact) {
+                enactBg = {60, 95, 140, 255};
+            }else {
+                enactBg = {40, 70, 110, 255};
+            }
+            enactLabel = "Enact";
+        }
 
         SDL_SetRenderDrawColor(renderer, enactBg.r, enactBg.g, enactBg.b, 255);
         SDL_RenderFillRect(renderer, &enactButtonRect);
