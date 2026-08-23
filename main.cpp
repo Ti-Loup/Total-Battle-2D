@@ -341,7 +341,7 @@ public:
     SDL_Texture *goodsProductionManagerButtonTexture = nullptr;
     bool bGoodsProductionManagerPopup = false;
     //Circle for goods Production manager Close
-    Circle GoodsProductionManagerReturnGame = {1010.f, 950.f, 20};
+    Circle GoodsProductionManagerReturnGame = {1010.f, 950.f, 25};
 
     //Goods Production Manager Scroll state for the Raw / Modified sections
     float goodsManagerRawScrollOffset = 0.f;
@@ -6632,8 +6632,21 @@ private://constructor
 
 
         //circle  button for the NextTurn Button
+        //Mouse detection Alpha
+        float mouseXNextTurn;
+        float mouseYNextTurn;
+        SDL_GetMouseState(&mouseXNextTurn, &mouseYNextTurn);
+        float lenghtXNextTurn;
+        float lenghtYNextTurn;
+        SDL_RenderCoordinatesFromWindow(renderer, mouseXNextTurn, mouseYNextTurn, &lenghtXNextTurn, &lenghtYNextTurn);
+        SDL_FPoint mouseNextTurnPt = {lenghtXNextTurn, lenghtYNextTurn};
+        bool bHoveredNextTurnButton = ClickInsideCircle(lenghtXNextTurn, lenghtYNextTurn, NextTurnButton);
+        //opacity
+        Uint8 returnAlpha = bHoveredNextTurnButton ? 255: 220;
+        SDL_SetTextureAlphaMod(gameNextTurnTexture, returnAlpha);
         SDL_SetRenderDrawColor(renderer, 0,80,255,0);
         RenderBoutonCercle(NextTurnButton, nullptr, gameNextTurnTexture,180, 180, 180);
+        SDL_SetTextureAlphaMod(gameNextTurnTexture, 255);
 
         //Ui for Technology/win/diplomacy button area
         SDL_FRect topRightUiButtons = {1625.f, 0.f,295.f ,40.f};
@@ -8555,8 +8568,22 @@ private:
         renderScrollableGoodsList(transformedTypes, goodsManagerModifiedViewportRect, goodsManagerModifiedScrollOffset,goodsManagerModifiedScrollbarTrackRect, goodsManagerModifiedMaxScroll, goodsManagerModifiedThumbHeight);
 
     //Button To return
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    RenderBoutonCercle(GoodsProductionManagerReturnGame, nullptr, nullptr, 255, 255, 255);
+    //Mouse detection Button Return
+    float mouseXReturn;
+    float mouseYReturn;
+    SDL_GetMouseState(&mouseXReturn,&mouseYReturn);
+    float lenghtXReturn;
+    float lenghtYReturn;
+    SDL_RenderCoordinatesFromWindow(renderer, mouseXReturn, mouseYReturn, &lenghtXReturn, &lenghtYReturn);
+    SDL_FPoint mouseReturnPt = {lenghtXReturn, lenghtYReturn};
+    bool bHoveredReturnButton = ClickInsideCircle(lenghtXReturn, lenghtYReturn, GoodsProductionManagerReturnGame);
+        //opacity
+
+    Uint8 returnAlpha = bHoveredReturnButton ? 255 : 200;
+    SDL_SetTextureAlphaMod(gameReturnButtons, returnAlpha);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
+    RenderBoutonCercle(GoodsProductionManagerReturnGame, nullptr, gameReturnButtons, 255, 255, 255);
+    SDL_SetTextureAlphaMod(gameReturnButtons, 255);
 }
 
     //For Decrees, you can activate them for bonuses.
@@ -8804,10 +8831,21 @@ private:
             decreeEnactButtonRects.push_back({enactButtonRect, slot});
         }
     }
-
+    //Mouse detection Button Return
+     float mouseXReturn;
+     float mouseYReturn;
+     SDL_GetMouseState(&mouseXReturn,&mouseYReturn);
+     float lenghtXReturn;
+     float lenghtYReturn;
+     SDL_RenderCoordinatesFromWindow(renderer, mouseXReturn, mouseYReturn, &lenghtXReturn, &lenghtYReturn);
+     SDL_FPoint mouseReturnPt = {lenghtXReturn, lenghtYReturn};
+     bool bHoveredReturnButton = ClickInsideCircle(lenghtXReturn, lenghtYReturn, DecreesButtonReturnGame);
     //ButtonToReturn
+    Uint8 returnAlpha = bHoveredReturnButton ? 255 : 200;
+    SDL_SetTextureAlphaMod(gameReturnButtons, returnAlpha);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
-    RenderBoutonCercle(DecreesButtonReturnGame, nullptr, gameReturnButtons , 0, 0, 0);
+    RenderBoutonCercle(DecreesButtonReturnGame, nullptr, gameReturnButtons, 0, 0, 0);
+    SDL_SetTextureAlphaMod(gameReturnButtons, 255);
 }
     void RenderWinConditionsInfoPopup() {
         if (!bWinConditionsInfoPopup) return;
