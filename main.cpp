@@ -10128,6 +10128,7 @@ public:
             remaining -= take;
         }
         goodsStoredByType[type] -= amount;
+        player.currentGoods = std::max(0, player.currentGoods - amount); //total goods in sync
         return true;
     }
 
