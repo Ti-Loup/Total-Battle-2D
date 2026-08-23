@@ -34,6 +34,8 @@ add_executable(TotalBattle2D main.cpp
         WorldEvents.h
         Resources.cpp
         Resources.h
+        Decrees.cpp
+        Decrees.h
 )
 
 target_include_directories(TotalBattle2D PRIVATE "${MIXER_PATH}/include")

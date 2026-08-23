@@ -24,6 +24,7 @@
 #include "Settlements.h"
 #include "Player.h"
 #include "WorldEvents.h"
+#include "Decrees.h"
 
 /*
 
@@ -4145,12 +4146,31 @@ private://constructor
         auto it = worldEventsImageTextures.find(type);
         return (it != worldEventsImageTextures.end()) ? it->second : nullptr;
     }
+    //Decree Textures per faction
+    SDL_Texture *GetDecreeTexture(FactionZone faction, int slotIndex) {
+        if (faction == FactionZone::Knight) {
+            if (slotIndex == 0) return gameDecree1KnightTexture;
+            if (slotIndex == 1) return gameDecree2KnightTexture;
+            if (slotIndex == 2) return gameDecree3KnightTexture;
+        }
+        else if (faction == FactionZone::Viking) {
+            if (slotIndex == 0) return gameDecree1VikingTexture;
+            if (slotIndex == 1) return gameDecree2VikingTexture;
+            if (slotIndex == 2) return gameDecree3VikingTexture;
+        }
+        else if (faction == FactionZone::Samurai) {
+            if (slotIndex == 0) return gameDecree1SamuraiTexture;
+            if (slotIndex == 1) return gameDecree2SamuraiTexture;
+            if (slotIndex == 2) return gameDecree3SamuraiTexture;
+        }
+        return nullptr;
+    }
+
     //Textures of icons for the tooltip next to the Name
     SDL_Texture *GetWorldEventIconTooltipTexture(WorldEventsType type) {
         auto it = worldEventsIconTextures.find(type);
         return (it != worldEventsIconTextures.end()) ? it->second: nullptr;
     }
-
     //The active world event Icon should appear
     //Storm Only when ports affected
     //earthquake Icon only affect the damaged ones.
@@ -8535,48 +8555,210 @@ private:
     RenderBoutonCercle(GoodsProductionManagerReturnGame, nullptr, nullptr, 255, 255, 255);
 }
 
-
-    /**
-     *UI for each Ui Buttons that spawn when pressed on button
-     *
-     */
     //For Decrees, you can activate them for bonuses.
-    // 3 different ones and each need a certain amount of raw goods. (candle, beer, greentea)
+    // 3 different ones and each need a certain amount of raw goods and money. (candle, beer, greentea)
+        //For Decrees, you can activate them for bonuses.
     void RenderDecreesInfoPopup() {
-        if (!bDecreesInfoPopup) return;
-        // General ---
-        //background
-        SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
-        SDL_FRect DecreesBackGroundRect = {400.f, 200.f, 1200, 700};
-        SDL_RenderFillRect(renderer, &DecreesBackGroundRect);
-        //Title Background
-        SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
-        SDL_FRect DecreesTitleRect = {900.f, 185.f, 200, 40};
-        SDL_RenderFillRect(renderer, &DecreesTitleRect);
-        //Title
-        TTF_SetTextString(gameDecreeTitleText, "Decrees", 0);
-        TTF_SetTextColor(gameDecreeTitleText, 255,255,255,255);
-        TTF_DrawRendererText(gameDecreeTitleText, 955.f, 190.f );
-        //SUB AREA
-        //SubTitle areas
+    if (!bDecreesInfoPopup) return;
+    // General ---
+    //background
+    SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
+    SDL_FRect DecreesBackGroundRect = {400.f, 200.f, 1200, 700};
+    SDL_RenderFillRect(renderer, &DecreesBackGroundRect);
+    SDL_SetRenderDrawColor(renderer, 110, 90, 40, 255);
+    SDL_RenderRect(renderer, &DecreesBackGroundRect);
 
+    //Title Background
+    SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
+    SDL_FRect DecreesTitleRect = {900.f, 185.f, 200, 40};
+    SDL_RenderFillRect(renderer, &DecreesTitleRect);
+    //Title
+    TTF_SetTextString(gameDecreeTitleText, "Decrees", 0);
+    TTF_SetTextColor(gameDecreeTitleText, 255,255,255,255);
+    int decreeTitleW, decreeTitleH;
+    TTF_GetTextSize(gameDecreeTitleText, &decreeTitleW, &decreeTitleH);
+    TTF_DrawRendererText(gameDecreeTitleText,
+        DecreesTitleRect.x + (DecreesTitleRect.w - decreeTitleW) / 2.f,
+        DecreesTitleRect.y + (DecreesTitleRect.h - decreeTitleH) / 2.f);
 
+    //SUB AREA -> 3 slots
+    float cardMargin = 30.f;
+    float cardGap = 30.f;
+    float cardsTopY = DecreesBackGroundRect.y + 45.f;
+    float cardsAreaW = DecreesBackGroundRect.w - cardMargin * 2.f;
+    float cardW = (cardsAreaW - cardGap * 2.f) / 3.f;
+    float cardH = 590.f;
 
+    for (int slot = 0; slot < 3; slot++) {
+        float cardX = DecreesBackGroundRect.x + cardMargin + slot * (cardW + cardGap);
+        float cardY = cardsTopY;
 
-        //Seperate names and textures per faction the player play.
+        const DecreeData* decreeData = GetDecreeData(player.faction, slot);
+        if (!decreeData) continue;
 
+        //background of the Slot
+        SDL_FRect cardRect = {cardX, cardY, cardW, cardH};
+        SDL_SetRenderDrawColor(renderer, 25, 25, 25, 230);
+        SDL_RenderFillRect(renderer, &cardRect);
+        SDL_SetRenderDrawColor(renderer, 110, 90, 40, 255);
+        SDL_RenderRect(renderer, &cardRect);
 
+        //Slot title
+        if (player.faction == FactionZone::Knight) {
+            SDL_SetRenderDrawColor(renderer, 60, 50, 20, 255);
+        }
+        else if (player.faction == FactionZone::Viking) {
+            SDL_SetRenderDrawColor(renderer, 60, 20, 20, 255);
+        }
+        else if (player.faction == FactionZone::Samurai) {
+            SDL_SetRenderDrawColor(renderer, 25, 65, 55, 255);
+        }
+        SDL_FRect cardTitleBar = {cardX, cardY, cardW, 40.f};
+        SDL_RenderFillRect(renderer, &cardTitleBar);
+        TTF_SetTextString(gameDecreeSousTitleText, decreeData->name.c_str(), 0);
+        TTF_SetTextColor(gameDecreeSousTitleText, 240, 220, 160, 255);
+        int nameW, nameH;
+        TTF_GetTextSize(gameDecreeSousTitleText, &nameW, &nameH);
+        TTF_DrawRendererText(gameDecreeSousTitleText,
+            cardTitleBar.x + (cardTitleBar.w - nameW) / 2.f,
+            cardTitleBar.y + (cardTitleBar.h - nameH) / 2.f);
 
+        //Cooldown / Duration row
+        float infoRowY = cardY + 45.f;
+        float infoIconSize = 16.f;
+        float infoIconGap = 4.f;
 
+        //Cooldown label, icon, number
+        std::string cooldownLabelStr = "Cooldown:";
+        TTF_SetTextString(gameDecreeDescText, cooldownLabelStr.c_str(), 0);
+        TTF_SetTextColor(gameDecreeDescText, 220, 220, 220, 255);
+        TTF_DrawRendererText(gameDecreeDescText, cardX + 15.f, infoRowY);
+        int cooldownLabelW, cooldownLabelH;
+        TTF_GetTextSize(gameDecreeDescText, &cooldownLabelW, &cooldownLabelH);
 
-        //ButtonToReturn
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        RenderBoutonCercle(DecreesButtonReturnGame, nullptr, nullptr, 255, 255, 255);
+        float cooldownIconX = cardX + 15.f + cooldownLabelW + infoIconGap;
+        SDL_FRect cooldownIconRect = {cooldownIconX, infoRowY, infoIconSize, infoIconSize};
+        SDL_RenderTexture(renderer, gameTurnAmountTexture, nullptr, &cooldownIconRect);
 
-        // Per faction ---
+        std::string cooldownNumStr = std::to_string(decreeData->decreeCooldown);
+        TTF_SetTextString(gameDecreeDescText, cooldownNumStr.c_str(), 0);
+        TTF_SetTextColor(gameDecreeDescText, 220, 220, 220, 255);
+        TTF_DrawRendererText(gameDecreeDescText, cooldownIconX + infoIconSize + infoIconGap, infoRowY);
 
+        //Duration label, icon, number
+        std::string durationLabelStr = "Duration:";
+        TTF_SetTextString(gameDecreeDescText, durationLabelStr.c_str(), 0);
+        int durationLabelW, durationLabelH;
+        TTF_GetTextSize(gameDecreeDescText, &durationLabelW, &durationLabelH);
 
+        std::string durationNumStr = std::to_string(decreeData->decreeDuration);
+        TTF_SetTextString(gameDecreeDescText, durationNumStr.c_str(), 0);
+        int durationNumW, durationNumH;
+        TTF_GetTextSize(gameDecreeDescText, &durationNumW, &durationNumH);
+
+        float durationTotalW = durationLabelW + infoIconGap + infoIconSize + infoIconGap + durationNumW;
+        float durationStartX = cardX + cardW - 15.f - durationTotalW;
+
+        TTF_SetTextString(gameDecreeDescText, durationLabelStr.c_str(), 0);
+        TTF_SetTextColor(gameDecreeDescText, 220, 220, 220, 255);
+        TTF_DrawRendererText(gameDecreeDescText, durationStartX, infoRowY);
+
+        float durationIconX = durationStartX + durationLabelW + infoIconGap;
+        SDL_FRect durationIconRect = {durationIconX, infoRowY, infoIconSize, infoIconSize};
+        SDL_RenderTexture(renderer, gameTurnAmountTexture, nullptr, &durationIconRect);
+
+        TTF_SetTextString(gameDecreeDescText, durationNumStr.c_str(), 0);
+        TTF_SetTextColor(gameDecreeDescText, 220, 220, 220, 255);
+        TTF_DrawRendererText(gameDecreeDescText, durationIconX + infoIconSize + infoIconGap, infoRowY);
+
+        //Texture Image
+        SDL_FRect imageRect = {cardX + 15.f, infoRowY + 24.f, cardW - 30.f, 175.f};
+        SDL_SetRenderDrawColor(renderer, 20, 40, 15, 255);
+        SDL_RenderFillRect(renderer, &imageRect);
+        SDL_Texture* decreeTexture = GetDecreeTexture(player.faction, slot);
+        if (decreeTexture) SDL_RenderTexture(renderer, decreeTexture, nullptr, &imageRect);
+
+        //Description (effects)
+        float descY = imageRect.y + imageRect.h + 15.f;
+        TTF_SetTextWrapWidth(gameDecreeDescText, (int)(cardW - 30.f));
+        TTF_SetTextString(gameDecreeDescText, decreeData->description.c_str(), 0);
+        TTF_SetTextColor(gameDecreeDescText, 210, 210, 210, 255);
+        TTF_DrawRendererText(gameDecreeDescText, cardX + 15.f, descY);
+        TTF_SetTextWrapWidth(gameDecreeDescText, 0);
+
+        //Affordability checks
+        int haveResourceAmount = goodsStoredByType.count(decreeData->costResourceType) ? goodsStoredByType[decreeData->costResourceType] : 0;
+        bool bHasEnoughResource = haveResourceAmount >= decreeData->costResourceAmount;
+        bool bHasEnoughGold = player.currentGold >= decreeData->decreeCost;
+        bool bCanAfford = bHasEnoughResource && bHasEnoughGold;
+
+        //Status message box
+        float statusY = cardY + cardH - 200.f;
+        SDL_SetRenderDrawColor(renderer, 15, 15, 15, 180);
+        SDL_FRect statusRect = {cardX + 10.f, statusY, cardW - 20.f, 80.f};
+        SDL_RenderFillRect(renderer, &statusRect);
+        SDL_SetRenderDrawColor(renderer, 90, 90, 90, 150);
+        SDL_RenderRect(renderer, &statusRect);
+
+        const char* statusText = bCanAfford ? "This decree is available." : "You can not afford to enact this decree.";
+        TTF_SetTextWrapWidth(gameDecreeDescText, (int)(cardW - 40.f));
+        TTF_SetTextString(gameDecreeDescText, statusText, 0);
+        if (bCanAfford) TTF_SetTextColor(gameDecreeDescText, 220, 220, 220, 255);
+        else TTF_SetTextColor(gameDecreeDescText, 220, 60, 60, 255);
+        int statusW, statusH;
+        TTF_GetTextSize(gameDecreeDescText, &statusW, &statusH);
+        TTF_DrawRendererText(gameDecreeDescText,
+            statusRect.x + (statusRect.w - statusW) / 2.f,
+            statusRect.y + (statusRect.h - statusH) / 2.f);
+        TTF_SetTextWrapWidth(gameDecreeDescText, 0);
+
+        //Cost row (resource + gold), colored green if affordable, red if not
+        float costY = cardY + cardH - 90.f;
+        SDL_SetRenderDrawColor(renderer, 15, 15, 15, 200);
+        SDL_FRect costRow = {cardX + 10.f, costY, cardW - 20.f, 35.f};
+        SDL_RenderFillRect(renderer, &costRow);
+
+        //Resource cost (left side)
+        SDL_Texture* costIcon = GetResourceTypeIcon(decreeData->costResourceType);
+        SDL_FRect costIconRect = {costRow.x + 5.f, costRow.y + 5.f, 25.f, 25.f};
+        if (costIcon) SDL_RenderTexture(renderer, costIcon, nullptr, &costIconRect);
+
+        std::string resourceCostStr = "-" + std::to_string(decreeData->costResourceAmount);
+        TTF_SetTextString(gameDecreeDescText, resourceCostStr.c_str(), 0);
+        if (bHasEnoughResource) TTF_SetTextColor(gameDecreeDescText, 127, 255, 0, 255);
+        else TTF_SetTextColor(gameDecreeDescText, 220, 60, 60, 255);
+        TTF_DrawRendererText(gameDecreeDescText, costIconRect.x + 32.f, costIconRect.y + 3.f);
+
+        //Gold cost (right side)
+        float goldIconSize = 25.f;
+        SDL_FRect goldIconRect = {costRow.x + costRow.w - 90.f, costRow.y + 5.f, goldIconSize, goldIconSize};
+        SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &goldIconRect);
+
+        std::string goldCostStr = "-" + std::to_string(decreeData->decreeCost);
+        TTF_SetTextString(gameDecreeDescText, goldCostStr.c_str(), 0);
+        if (bHasEnoughGold) TTF_SetTextColor(gameDecreeDescText, 255, 255, 255, 255);
+        else TTF_SetTextColor(gameDecreeDescText, 220, 60, 60, 255);
+        TTF_DrawRendererText(gameDecreeDescText, goldIconRect.x + 32.f, goldIconRect.y + 3.f);
+
+        //Button Enact
+        SDL_FRect enactButtonRect = {cardX + 10.f, cardY + cardH - 45.f, cardW - 20.f, 35.f};
+        SDL_SetRenderDrawColor(renderer, bCanAfford ? 40 : 60, bCanAfford ? 70 : 40, bCanAfford ? 110 : 40, 255);
+        SDL_RenderFillRect(renderer, &enactButtonRect);
+        SDL_SetRenderDrawColor(renderer, 110, 90, 40, 255);
+        SDL_RenderRect(renderer, &enactButtonRect);
+        TTF_SetTextString(gameDecreeSousTitleText, "Enact", 0);
+        TTF_SetTextColor(gameDecreeSousTitleText, bCanAfford ? 255 : 150, bCanAfford ? 255 : 150, bCanAfford ? 255 : 150, 255);
+        int enactW, enactH;
+        TTF_GetTextSize(gameDecreeSousTitleText, &enactW, &enactH);
+        TTF_DrawRendererText(gameDecreeSousTitleText,
+            enactButtonRect.x + (enactButtonRect.w - enactW) / 2.f,
+            enactButtonRect.y + (enactButtonRect.h - enactH) / 2.f);
     }
+
+    //ButtonToReturn
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    RenderBoutonCercle(DecreesButtonReturnGame, nullptr, nullptr, 255, 255, 255);
+}
     void RenderWinConditionsInfoPopup() {
         if (!bWinConditionsInfoPopup) return;
         //Background
