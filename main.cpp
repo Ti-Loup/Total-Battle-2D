@@ -334,7 +334,7 @@ public:
 
     //Circle to bring World events info popup to false again
     Circle WorlEventsButtonReturnGame = {1000.f, 770.f, 20};
-    SDL_Texture *worldEventsReturnButtons = nullptr;
+    SDL_Texture *gameReturnButtons = nullptr;
 
     //Circle for goods Production manager
     Circle GoodsProductionMaganerButton = {1182.f, 20.f, 12};
@@ -590,6 +590,10 @@ public:
 
     //Bool to access the Ui of each Topright buttons
     bool bDecreesInfoPopup = false;
+    //Decree state tracking
+    std::unordered_map<int, int> decreeDurationRemaining;
+    std::unordered_map<int, int> decreeCooldownRemaining;
+    std::vector<std::pair<SDL_FRect, int>> decreeEnactButtonRects;//rebuilt each frame the rect
     bool bWinConditionsInfoPopup = false;
     bool bTreasuryInfoPopup = false;
     //technology doesnt need it
@@ -1797,11 +1801,11 @@ private://constructor
         }
         SDL_SetTextureScaleMode(worldEventsImageTextures[WorldEventsType::WarSign], SDL_SCALEMODE_NEAREST);
         //WorldEvents return button
-        worldEventsReturnButtons = IMG_LoadTexture(renderer, "assets/WorldEvents/returnButtons.png");
-        if (worldEventsReturnButtons == nullptr) {
+        gameReturnButtons = IMG_LoadTexture(renderer, "assets/WorldEvents/returnButtons.png");
+        if (gameReturnButtons == nullptr) {
             SDL_LogWarn(0, "failed to load texture worldEventsReturnButtons", SDL_GetError());
         }
-        SDL_SetTextureScaleMode(worldEventsReturnButtons, SDL_SCALEMODE_NEAREST);
+        SDL_SetTextureScaleMode(gameReturnButtons, SDL_SCALEMODE_NEAREST);
         //Icon for each World Events
         worldEventsIconTextures[WorldEventsType::Storm] = IMG_LoadTexture(renderer, "assets/WorldEvents/StormIcon.png");
         if (worldEventsIconTextures[WorldEventsType::Storm] == nullptr) {
@@ -3925,7 +3929,7 @@ private://constructor
         SDL_DestroyTexture(gameDestroyBuildingButtonIconUi);
         SDL_DestroyTexture(gameRepairBuildingButtonIconUi);
         SDL_DestroyTexture(gameBuildingDamagedIconUi);
-        SDL_DestroyTexture(worldEventsReturnButtons);
+        SDL_DestroyTexture(gameReturnButtons);
         SDL_DestroyTexture(gameDecree1KnightTexture);
         SDL_DestroyTexture(gameDecree2KnightTexture);
         SDL_DestroyTexture(gameDecree3KnightTexture);
@@ -8560,6 +8564,7 @@ private:
         //For Decrees, you can activate them for bonuses.
     void RenderDecreesInfoPopup() {
     if (!bDecreesInfoPopup) return;
+        decreeEnactButtonRects.clear();
     // General ---
     //background
     SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
@@ -8692,6 +8697,11 @@ private:
         bool bHasEnoughGold = player.currentGold >= decreeData->decreeCost;
         bool bCanAfford = bHasEnoughResource && bHasEnoughGold;
 
+        //Decree activity state
+        bool bIsActive = decreeDurationRemaining.count(slot) > 0;
+        bool bIsCooldown = decreeCooldownRemaining.count(slot) > 0;
+        bool bClickable = !bIsActive && !bIsCooldown && bCanAfford;
+
         //Status message box
         float statusY = cardY + cardH - 200.f;
         SDL_SetRenderDrawColor(renderer, 15, 15, 15, 180);
@@ -8700,11 +8710,24 @@ private:
         SDL_SetRenderDrawColor(renderer, 90, 90, 90, 150);
         SDL_RenderRect(renderer, &statusRect);
 
-        const char* statusText = bCanAfford ? "This decree is available." : "You can not afford to enact this decree.";
+        std::string statusStr;
+        SDL_Color statusColor = {220, 220, 220, 255};
+        if (bIsActive) {
+            statusStr = "Active - " + std::to_string(decreeDurationRemaining[slot]) + " turn(s) remaining.";
+            statusColor = {100, 220, 255, 255};
+        } else if (bIsCooldown) {
+            statusStr = "On cooldown - " + std::to_string(decreeCooldownRemaining[slot]) + " turn(s) remaining.";
+            statusColor = {180, 180, 180, 255};
+        } else if (bCanAfford) {
+            statusStr = "This decree is available.";
+        } else {
+            statusStr = "You can not afford to enact this decree.";
+            statusColor = {220, 60, 60, 255};
+        }
+
         TTF_SetTextWrapWidth(gameDecreeDescText, (int)(cardW - 40.f));
-        TTF_SetTextString(gameDecreeDescText, statusText, 0);
-        if (bCanAfford) TTF_SetTextColor(gameDecreeDescText, 220, 220, 220, 255);
-        else TTF_SetTextColor(gameDecreeDescText, 220, 60, 60, 255);
+        TTF_SetTextString(gameDecreeDescText, statusStr.c_str(), 0);
+        TTF_SetTextColor(gameDecreeDescText, statusColor.r, statusColor.g, statusColor.b, 255);
         int statusW, statusH;
         TTF_GetTextSize(gameDecreeDescText, &statusW, &statusH);
         TTF_DrawRendererText(gameDecreeDescText,
@@ -8742,22 +8765,32 @@ private:
 
         //Button Enact
         SDL_FRect enactButtonRect = {cardX + 10.f, cardY + cardH - 45.f, cardW - 20.f, 35.f};
-        SDL_SetRenderDrawColor(renderer, bCanAfford ? 40 : 60, bCanAfford ? 70 : 40, bCanAfford ? 110 : 40, 255);
+        SDL_Color enactBg;
+        const char* enactLabel = "Enact";
+        if (bIsActive) { enactBg = {40, 70, 90, 255}; enactLabel = "Active"; }
+        else if (bIsCooldown) { enactBg = {50, 50, 50, 255}; enactLabel = "Cooldown"; }
+        else { enactBg = {40, 70, 110, 255}; enactLabel = "Enact"; }
+
+        SDL_SetRenderDrawColor(renderer, enactBg.r, enactBg.g, enactBg.b, 255);
         SDL_RenderFillRect(renderer, &enactButtonRect);
         SDL_SetRenderDrawColor(renderer, 110, 90, 40, 255);
         SDL_RenderRect(renderer, &enactButtonRect);
-        TTF_SetTextString(gameDecreeSousTitleText, "Enact", 0);
-        TTF_SetTextColor(gameDecreeSousTitleText, bCanAfford ? 255 : 150, bCanAfford ? 255 : 150, bCanAfford ? 255 : 150, 255);
+        TTF_SetTextString(gameDecreeSousTitleText, enactLabel, 0);
+        TTF_SetTextColor(gameDecreeSousTitleText, bClickable ? 255 : 150, bClickable ? 255 : 150, bClickable ? 255 : 150, 255);
         int enactW, enactH;
         TTF_GetTextSize(gameDecreeSousTitleText, &enactW, &enactH);
         TTF_DrawRendererText(gameDecreeSousTitleText,
             enactButtonRect.x + (enactButtonRect.w - enactW) / 2.f,
             enactButtonRect.y + (enactButtonRect.h - enactH) / 2.f);
+
+        if (bClickable) {
+            decreeEnactButtonRects.push_back({enactButtonRect, slot});
+        }
     }
 
     //ButtonToReturn
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    RenderBoutonCercle(DecreesButtonReturnGame, nullptr, nullptr, 255, 255, 255);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
+    RenderBoutonCercle(DecreesButtonReturnGame, nullptr, gameReturnButtons , 0, 0, 0);
 }
     void RenderWinConditionsInfoPopup() {
         if (!bWinConditionsInfoPopup) return;
@@ -9048,8 +9081,8 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
             data->populationDeathPaysantryMultiplier == data->populationDeathClergyMultiplier;
 
         std::string deathSuffix = "";
-        if (currentWorldsEvent == WorldEventsType::Plague) deathSuffix = " (per settlement)";
-        else if (currentWorldsEvent == WorldEventsType::Fire) deathSuffix = " (per settlement)";
+        if (currentWorldsEvent == WorldEventsType::Plague) deathSuffix = " (per settl.)";
+        else if (currentWorldsEvent == WorldEventsType::Fire) deathSuffix = " (per settl.)";
 
         if (deathAllSame) {
             std::string label = "Population Death" + deathSuffix;
@@ -9190,7 +9223,8 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
         else if (bHoveredDeliver) drawJusticeHoverTooltip("Deliver him to justice");
 
     } else {
-        RenderBoutonCercle(WorlEventsButtonReturnGame, nullptr, worldEventsReturnButtons, 0, 180, 10);
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
+        RenderBoutonCercle(WorlEventsButtonReturnGame, nullptr, gameReturnButtons, 0, 0, 0);
     }
 }
 
@@ -10079,6 +10113,24 @@ public:
         return (data->cost + 1) / 2;
     }
 
+    //Spends a resource amount
+    bool SpendResourceGlobal(ResourceType type, int amount) {
+        int totalAvailable = goodsStoredByType.count(type) ? goodsStoredByType[type] : 0;
+        if (totalAvailable < amount) return false;
+
+        int remaining = amount;
+        for (auto& [provID, typeMap] : goodsStoredByProvinceAndType) {
+            if (remaining <= 0) break;
+            auto it = typeMap.find(type);
+            if (it == typeMap.end()) continue;
+            int take = std::min(it->second, remaining);
+            it->second -= take;
+            remaining -= take;
+        }
+        goodsStoredByType[type] -= amount;
+        return true;
+    }
+
     void DamageSettlementBuildings(int settlementIndex) {
         if (settlementIndex < 0 || settlementIndex >= (int)settlements.size()) return;
         Settlement& sel = settlements[settlementIndex];
@@ -10430,7 +10482,28 @@ public:
                 ++it;
             }
         }
-
+        // Decrees tick active duration, then start cooldown
+        for (auto it = decreeDurationRemaining.begin(); it != decreeDurationRemaining.end(); ) {
+            it->second--;
+            if (it->second <= 0) {
+                int slot = it->first;
+                const DecreeData* decreeData = GetDecreeData(player.faction, slot);
+                decreeCooldownRemaining[slot] = decreeData ? decreeData->decreeCooldown : 20;
+                SDL_Log("Decree in slot %d ended, cooldown started", slot);
+                it = decreeDurationRemaining.erase(it);
+            } else {
+                ++it;
+            }
+        }
+        for (auto it = decreeCooldownRemaining.begin(); it != decreeCooldownRemaining.end(); ) {
+            it->second--;
+            if (it->second <= 0) {
+                SDL_Log("Decree in slot %d cooldown finished, available again", it->first);
+                it = decreeCooldownRemaining.erase(it);
+            } else {
+                ++it;
+            }
+        }
 
     //Food (Old way)
         /*
@@ -11487,7 +11560,25 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             app.bIsDraggingGoodsManagerScroll = false;
         }
 
-
+        //Decree Enact button clicks
+        if (app.bDecreesInfoPopup) {
+            for (auto& [rect, slot] : app.decreeEnactButtonRects) {
+                if (SDL_PointInRectFloat(&MousePT, &rect)) {
+                    const DecreeData* decreeData = GetDecreeData(app.player.faction, slot);
+                    if (decreeData) {
+                        if (app.player.currentGold >= decreeData->decreeCost &&
+                            app.SpendResourceGlobal(decreeData->costResourceType, decreeData->costResourceAmount)) {
+                            app.player.SpendGold(decreeData->decreeCost);
+                            app.decreeDurationRemaining[slot] = decreeData->decreeDuration;
+                            SDL_Log("Decree enacted in slot %d for %d turns", slot, decreeData->decreeDuration);
+                            } else {
+                                SDL_Log("Failed to enact decree in slot %d, insufficient funds/resources", slot);
+                            }
+                    }
+                    return SDL_APP_CONTINUE;
+                }
+            }
+        }
         //CheckButtonReturn
         if (app.ClickInsideCircle(nouveauX,nouveauY, app.DecreesButtonReturnGame)) {
             app.bDecreesInfoPopup = false;
