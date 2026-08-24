@@ -6925,7 +6925,69 @@ private://constructor
             default: return 1.0f;
         }
     }
+    //Calculates a faction's income for this turn. Player was hard coded now its all working for player and for ai (season modifiers, world event modifiers, upkeep)
+    int CalculateFactionIncome(FactionZone faction) {
+        int income = 0;
+        Date::Season coinSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
+        SeasonModifiers coinSeasonModifier = GetSeasonModifiers(coinSeason);
 
+        for (const auto& s : settlements) {
+            if (provinces[s.settlementData.provinceID].owner != faction) continue;
+            int settlement_index = (int)(&s - &settlements[0]);
+
+            float worldEventFarmGoldMultiplier = 1.0f;
+            float worldEventCommerceGoldMultiplier = 1.0f;
+            float worldEventIndustryGoldMultiplier = 1.0f;
+            float worldEventReligionGoldMultiplier = 1.0f;
+            float worldEventMaritimeGoldMultiplier = 1.0f;
+            if (const WorldEventsData *activeEvent = GetActiveWorldEventData()) {
+                if (IsSettlementAffectedByCurrentWorldEvent(s)) {
+                    worldEventFarmGoldMultiplier = activeEvent->goldIncomeFarmMultiplier;
+                    worldEventCommerceGoldMultiplier = activeEvent->goldIncomeCommerceMultiplier;
+                    worldEventIndustryGoldMultiplier = activeEvent->goldIncomeIndustryMultiplier;
+                    worldEventReligionGoldMultiplier = activeEvent->goldIncomeReligionMultiplier;
+                    worldEventMaritimeGoldMultiplier = activeEvent->goldIncomeMaritimeMultiplier;
+                }
+            }
+
+            const BuildingData* mainBd = GetBuildingData(s.settlementData.buildings[0]);
+            if (mainBd) income -= mainBd->upkeep;
+            bool mainDamaged = IsBuildingSlotDamaged(settlement_index, 0);
+
+            if (provinces[s.settlementData.provinceID].bToggleCollectIncome) {
+                if (!mainDamaged) {
+                    int mainIncome = s.settlementData.baseIncome;
+                    if (GetTaxCategory(s.settlementData.buildings[0]) == TaxCategory::Farm)
+                        mainIncome = (int)std::round(mainIncome * coinSeasonModifier.incomeFarmMultiplier * worldEventFarmGoldMultiplier);
+                    income += mainIncome;
+                }
+
+                for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
+                    if (s.settlementData.buildings[b] == BuildingType::None) continue;
+                    const BuildingData* bd = GetBuildingData(s.settlementData.buildings[b]);
+                    if (!bd) continue;
+
+                    bool slotDamaged = IsBuildingSlotDamaged(settlement_index, b);
+                    int incomeBonus = slotDamaged ? 0 : bd->incomeBonus;
+                    TaxCategory categoryTax = GetTaxCategory(s.settlementData.buildings[b]);
+                    if (categoryTax == TaxCategory::Farm)
+                        incomeBonus = (int)std::round(incomeBonus * coinSeasonModifier.incomeFarmMultiplier * worldEventFarmGoldMultiplier);
+                    if (categoryTax == TaxCategory::Commerce)
+                        incomeBonus = (int)std::round(incomeBonus * worldEventCommerceGoldMultiplier);
+                    if (categoryTax == TaxCategory::Industry)
+                        incomeBonus = (int)std::round(incomeBonus * worldEventIndustryGoldMultiplier);
+                    if (categoryTax == TaxCategory::Religious)
+                        incomeBonus = (int)std::round(incomeBonus * worldEventReligionGoldMultiplier);
+                    if (categoryTax == TaxCategory::Maritime)
+                        incomeBonus = (int)std::round(incomeBonus * worldEventMaritimeGoldMultiplier);
+
+                    income += incomeBonus;
+                    income -= bd->upkeep;
+                }
+            }
+        }
+        return income;
+    }
 
     //MONEY HOVERED UI FR DETAILS OF INCOME/UPKEEP
     void RenderMoneyTooltip() {
@@ -10454,8 +10516,19 @@ public:
     }
 
 
-    // gold added
+    // Player gold added
     player.AddGold(player.nextTurnGold);
+    //Ai gold added
+    for (FactionZone faction : {FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai}) {
+        if (faction == player.faction) continue;
+        if (AiFactionState *aiState = aiBehaviour.GetState(faction)) {
+            int income = CalculateFactionIncome(faction);
+            aiState->currentGold += income;
+            SDL_Log("AI faction %d earned %d gold (total: %d)", (int)faction, income, aiState->currentGold);//to verify the ai is increasing their income
+        }
+
+    }
+
     // //food added
     // player.currentFood = player.nextTurnFood;
     //     SDL_Log("Food: %d ", player.currentFood, player.nextTurnFood);
