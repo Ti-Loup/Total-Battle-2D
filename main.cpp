@@ -57,7 +57,11 @@
  * --------------------------------------------
  * 0.3.25
  * Ai Focus
- *
+ * Done | faction ai has base income and next turn one based on their settlements
+ * Done | faction ai has Food system like The player
+ * ToDo | Make them build buildings and upgrade them strategicly. based on whats missing.
+ * ToDo | Goods system. Must be able to collect their goods
+ * Should AI has a population system|
  * --------------------------------------------
  * 0.3.5
  * DIPLOMACY & EXCHANGE
@@ -6314,7 +6318,7 @@ private://constructor
         moneyTooltipY = lenghtYMoney;
 
 
-        //FOOD SECTION
+        //FOOD SECTION Player only
         player.nextTurnFood = 0;
         player.foodStorage = 0;
         foodStorageCapacityByProvince.clear();
@@ -6325,6 +6329,17 @@ private://constructor
         //     worldEventFarmFoodMultiplier = activeEvent->foodProductionFarmMultiplier;
         //     worldEventMaritimeFoodMultiplier = activeEvent->foodProductionMaritimeMultiplier;//Food production is stopped for the ports
         // }
+        //SHARED - granary capacity belongs to a province regardless of who owns
+        //it, so this runs over every settlement, not just the player's
+        for (const auto &s : settlements) {
+            for (BuildingType bt : s.settlementData.buildings) {
+                if (bt == BuildingType::None) continue;
+                const BuildingData* bd = GetBuildingData(bt);
+                if (bd) foodStorageCapacityByProvince[s.settlementData.provinceID] += bd->foodStorage;
+            }
+        }
+
+
         for (const auto &s : settlements) {
             if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
             int settlement_index = (int)(&s - &settlements[0]);
@@ -6357,7 +6372,6 @@ private://constructor
                 rawFoodTotal += foodFromBuilding;
                 player.nextTurnFood -= building_data->foodUpkeep;
                 player.foodStorage += building_data->foodStorage;
-                foodStorageCapacityByProvince[s.settlementData.provinceID] += building_data->foodStorage;
             }
         }
 
@@ -6877,7 +6891,7 @@ private://constructor
             SDL_RenderRect(renderer, &camViewRect);
         }
     }
-    //public order based on food (FILLEDS SEGS 1,2,3,4,5,6)
+    //PLAYER public order based on food (FILLEDS SEGS 1,2,3,4,5,6)
     /*
      * The famine arrives only when the foodStored reach 0. Otherwise theres no penalty
      */
@@ -6899,21 +6913,13 @@ private://constructor
             default: return 0;
         }
     }
-    //So each province (castle) brings a +1 if food positive in their food storage. etc etc
+    //PLAYER: So each province (castle) brings a +1 if food positive in their food storage. etc etc
     //gaining or losing a province never changes what your existing provinces get.
     int GetFoodSurplusPerProvince() {
-        switch (filledSegs) {
-            case 1: return -3;
-            case 2: return -2;
-            case 3: return -1;
-            case 4: return  1;
-            case 5: return  2;
-            case 6: return  3;
-            default: return 0;
-        }
+        return GetFoodSurplusPerProvinceForSegs(filledSegs);
     }
 
-    //PopulationGrowth modifier based on Food
+    //PLAYER: PopulationGrowth modifier based on Food
     float GetFoodPopulationGrowthMultiplier() {
         switch (filledSegs) {
             case 6: return 3.0f; //200% BonusPG
@@ -6925,7 +6931,123 @@ private://constructor
             default: return 1.0f;
         }
     }
-    //Calculates a faction's income for this turn. Player was hard coded now its all working for player and for ai (season modifiers, world event modifiers, upkeep)
+    // SHARED (PLAYER + AI) food helpers — take an explicit segs value
+    int GetFoodSegmentsForAmount(int foodAmount) {
+        if (foodAmount >= 300)  return 6;
+        if (foodAmount >= 150)  return 5;
+        if (foodAmount >= 0)    return 4;
+        if (foodAmount > -150)  return 3;
+        if (foodAmount > -300)  return 2;
+        return 1;
+    }
+
+    int GetFoodSurplusPerProvinceForSegs(int segs) {
+        switch (segs) {
+            case 1: return -3;
+            case 2: return -2;
+            case 3: return -1;
+            case 4: return  1;
+            case 5: return  2;
+            case 6: return  3;
+            default: return 0;
+        }
+    }
+
+    //AI ONLY: same has the food section for the player in RenderGeneralUi()
+    //building production, food upkeep, per-settlement world events, season.
+int CalculateFactionFoodNextTurn(FactionZone faction) {
+        int nextTurnFoodForFaction = 0;
+        int rawFoodTotal = 0;
+
+        for (const auto &s : settlements) {
+            if (provinces[s.settlementData.provinceID].owner != faction) continue;
+            int settlement_index = (int)(&s - &settlements[0]);
+
+            float worldEventFarmFoodMultiplier = 1.0f;
+            float worldEventMaritimeFoodMultiplier = 1.0f;
+            if (const WorldEventsData *activeEvent = GetActiveWorldEventData()) {
+                if (IsSettlementAffectedByCurrentWorldEvent(s)) {
+                    worldEventFarmFoodMultiplier = activeEvent->foodProductionFarmMultiplier;
+                    worldEventMaritimeFoodMultiplier = activeEvent->foodProductionMaritimeMultiplier;
+                }
+            }
+
+            for (int slot_index = 0; slot_index < (int)s.settlementData.buildings.size(); slot_index++) {
+                BuildingType building_type = s.settlementData.buildings[slot_index];
+                if (building_type == BuildingType::None) continue;
+                const BuildingData *building_data = GetBuildingData(building_type);
+                if (!building_data) continue;
+                bool damaged = IsBuildingSlotDamaged(settlement_index, slot_index);
+
+                int foodFromBuilding = damaged ? 0 : building_data->foodProduced;
+                FoodCategory food_category = GetFoodCategory(building_type);
+                if (food_category == FoodCategory::Maritime)
+                    foodFromBuilding = (int)std::round(foodFromBuilding * worldEventMaritimeFoodMultiplier);
+                else if (food_category == FoodCategory::Farm)
+                    foodFromBuilding = (int)std::round(foodFromBuilding * worldEventFarmFoodMultiplier);
+
+                rawFoodTotal += foodFromBuilding;
+                nextTurnFoodForFaction -= building_data->foodUpkeep;
+            }
+        }
+
+        Date::Season foodSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
+        SeasonModifiers foodMods = GetSeasonModifiers(foodSeason);
+        nextTurnFoodForFaction += (int)std::round(rawFoodTotal * foodMods.foodProductionMultiplier);
+        return nextTurnFoodForFaction;
+    }
+
+    //AI ONLY: Same per-province surplus/deficit distribution, writing into the share foodStoredByProvince map
+    void ProcessAiFactionFoodForTurn(FactionZone faction, AiFactionState &aiState) {
+        aiState.nextTurnFood = CalculateFactionFoodNextTurn(faction);
+        aiState.currentFood = aiState.nextTurnFood;
+
+        int aiFilledSegs = GetFoodSegmentsForAmount(aiState.currentFood);
+        int aiFoodSurplusPerProvince = GetFoodSurplusPerProvinceForSegs(aiFilledSegs);
+
+        std::vector<int> aiOwnedProvinceIDs;
+        for (int provID = 0; provID < (int)provinces.size(); provID++)
+            if (provinces[provID].owner == faction) aiOwnedProvinceIDs.push_back(provID);
+
+        // total granary capacity across this ai faction's provinces
+        aiState.foodStorage = 0;
+        for (int provID : aiOwnedProvinceIDs)
+            aiState.foodStorage += foodStorageCapacityByProvince.count(provID) ? foodStorageCapacityByProvince[provID] : 0;
+
+        if (aiFoodSurplusPerProvince < 0 && !aiOwnedProvinceIDs.empty()) {
+            int perProvinceDeficit = -aiFoodSurplusPerProvince;
+            int totalShortfall = 0;
+            for (int provID : aiOwnedProvinceIDs) {
+                int& stock = foodStoredByProvince[provID];
+                if (stock >= perProvinceDeficit) stock -= perProvinceDeficit;
+                else { totalShortfall += (perProvinceDeficit - stock); stock = 0; }
+            }
+            if (totalShortfall > 0) {
+                for (int provID : aiOwnedProvinceIDs) {
+                    if (totalShortfall <= 0) break;
+                    int& stock = foodStoredByProvince[provID];
+                    if (stock <= 0) continue;
+                    int take = std::min(stock, totalShortfall);
+                    stock -= take;
+                    totalShortfall -= take;
+                }
+            }
+        }
+        else if (aiFoodSurplusPerProvince > 0 && !aiOwnedProvinceIDs.empty()) {
+            for (int provID : aiOwnedProvinceIDs) {
+                int capacity = foodStorageCapacityByProvince.count(provID) ? foodStorageCapacityByProvince[provID] : 0;
+                int& stock = foodStoredByProvince[provID];
+                stock = std::min(stock + aiFoodSurplusPerProvince, capacity);
+            }
+        }
+
+        aiState.foodStored = 0;
+        for (int provID : aiOwnedProvinceIDs)
+            aiState.foodStored += foodStoredByProvince.count(provID) ? foodStoredByProvince[provID] : 0;
+    }
+
+
+    //AI FACTION: Calculates a faction's income for this turn. Player was hard coded now its all working for player and for ai (season modifiers, world event modifiers, upkeep)
     int CalculateFactionIncome(FactionZone faction) {
         int income = 0;
         Date::Season coinSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
@@ -10518,16 +10640,18 @@ public:
 
     // Player gold added
     player.AddGold(player.nextTurnGold);
-    //Ai gold added
-    for (FactionZone faction : {FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai}) {
-        if (faction == player.faction) continue;
-        if (AiFactionState *aiState = aiBehaviour.GetState(faction)) {
-            int income = CalculateFactionIncome(faction);
-            aiState->currentGold += income;
-            SDL_Log("AI faction %d earned %d gold (total: %d)", (int)faction, income, aiState->currentGold);//to verify the ai is increasing their income
-        }
+    //Ai gold added + food added
+        for (FactionZone faction : {FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai}) {
+            if (faction == player.faction) continue;
+            if (AiFactionState *aiState = aiBehaviour.GetState(faction)) {
+                int income = CalculateFactionIncome(faction);
+                aiState->currentGold += income;
+                SDL_Log("AI faction %d earned %d gold (total: %d)", (int)faction, income, aiState->currentGold);
 
-    }
+                ProcessAiFactionFoodForTurn(faction, *aiState);
+                SDL_Log("AI faction %d food: %d/%d stored (net this turn: %d)", (int)faction, aiState->foodStored, aiState->foodStorage, aiState->nextTurnFood);
+            }
+        }
 
     // //food added
     // player.currentFood = player.nextTurnFood;
