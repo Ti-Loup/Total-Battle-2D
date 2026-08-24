@@ -23,6 +23,7 @@
 #include "Province.h"
 #include "Settlements.h"
 #include "Player.h"
+#include "AiBehaviour.h"
 #include "WorldEvents.h"
 #include "Decrees.h"
 
@@ -820,6 +821,8 @@ public:
 
     //Player
     Player player;
+    //AiFactions
+    AiBehaviour aiBehaviour;
 
 private://constructor
     GameApp() {
@@ -3695,6 +3698,10 @@ private://constructor
         player.currentNobilityAmount = player.baseNobilityBirth - player.baseNobilityDeath + 100;
         player.currentClergyAmount = player.baseClergyGrowth - player.baseClergyDeath + 10;
 
+        //Register every faction's AI economy
+        aiBehaviour.RegisterFaction(FactionZone::Knight);
+        aiBehaviour.RegisterFaction(FactionZone::Viking);
+        aiBehaviour.RegisterFaction(FactionZone::Samurai);
         //RNG WorldEvent random
         SDL_srand(0);
         worldEventCountdown = RollWorldEventCountdown();

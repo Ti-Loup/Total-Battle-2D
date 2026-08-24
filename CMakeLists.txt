@@ -36,6 +36,8 @@ add_executable(TotalBattle2D main.cpp
         Resources.h
         Decrees.cpp
         Decrees.h
+        AiBehaviour.cpp
+        AiBehaviour.h
 )
 
 target_include_directories(TotalBattle2D PRIVATE "${MIXER_PATH}/include")
