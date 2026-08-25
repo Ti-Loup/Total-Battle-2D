@@ -6976,7 +6976,9 @@ int CalculateFactionFoodNextTurn(FactionZone faction) {
                     worldEventMaritimeFoodMultiplier = activeEvent->foodProductionMaritimeMultiplier;
                 }
             }
-
+            //Same script has for the player food system but for the other factions.
+            //Player own script
+            //Other factions own script
             for (int slot_index = 0; slot_index < (int)s.settlementData.buildings.size(); slot_index++) {
                 BuildingType building_type = s.settlementData.buildings[slot_index];
                 if (building_type == BuildingType::None) continue;
@@ -7057,7 +7059,7 @@ int CalculateFactionFoodNextTurn(FactionZone faction) {
         int income = 0;
         Date::Season coinSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
         SeasonModifiers coinSeasonModifier = GetSeasonModifiers(coinSeason);
-
+        //Same script has for the player one in RenderGeneralUi()
         for (const auto& s : settlements) {
             if (provinces[s.settlementData.provinceID].owner != faction) continue;
             int settlement_index = (int)(&s - &settlements[0]);
