@@ -35,10 +35,8 @@
  *
  * RESOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
  *
- * ToDo -> Code the remaining World Events Curently(10/12)
- * ToDo -> Tooltip repair Cost and description + Destroy tooltip
+ * Done -> Code the remaining World Events Curently(10/12)
  * ToDo - Work on Degree, Win achievments, and more.
- * ToDo - If you have less paysants than the nobility amount your buildings doesnt work has much. See paysantry/Nobility  description
  *
  * Done -> THE RESSOURCES ARE STORED IN (warehouse or castle).
  * Done -> Mines produced their own orb
@@ -59,19 +57,26 @@
  * Ai Focus
  * Done | faction ai has base income and next turn one based on their settlements
  * Done | faction ai has Food system like The player
- * ToDo | Make them build buildings and upgrade them strategicly. based on whats missing.
+ * ToDo | Make them build buildings and upgrade them strategicly. based on whats missing and what they need.
  * ToDo | Goods system. Must be able to collect their goods
+ * ToDo -> Tooltip repair Cost and description + Destroy tooltip
+ * Player vs AI
+ * Income Yes | Yes
+ * Food Yes | Yes
+ * Goods Yes | Yes
+ * Population Yes | No
  * Should AI has a population system|
  * --------------------------------------------
  * 0.3.5
  * DIPLOMACY & EXCHANGE
  * EXANGE MONEY OR RESSOURCES FOR FOOD. IN TRADE.
+ * Province buffs.
  *
  * --------------------------------------------
  * 0.4.0
  * Kingdom -> different houses from 1 kingdom. Logo next to castle name
  * ~ Battle Conquests of settlements and battle army ~
- * Creation of lods and armies, Unit cards
+ * Creation of lods and armies, Unit cards in the campaign
  * Different Movement Army stance
  * --------------------------------------------
  * 0.4.5
