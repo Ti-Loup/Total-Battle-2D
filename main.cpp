@@ -785,6 +785,13 @@ public:
     float hoveredTopRightButtonsTooltipX = 0.0f;
     float hoveredTopRightButtonsTooltipY = 0.0f;
     int hoveredTopRightButtonIndex = -1;
+
+    //Repair Button Hovered Ui
+    bool bMouseOnRepairIcon = false;
+    float repairTooltipX = 0.0f;
+    float repairTooltipY = 0.0f;
+    BuildingType hoveredRepairBuildingType = BuildingType::None;//to know which building repair is hovered on.
+
     //toggle tax province
     //bool bToggleCollectIncome = true; is global and for each settlement i need to use Province.h
     SDL_FRect toggleTaxIncomeCollect = {0.f,0.f,14.f,14.f};
@@ -4688,6 +4695,8 @@ private://constructor
     //UI of the region with their castle/villages when you click on a settlement from that province ID
     void RenderProvinceUI() {
         if (!bHasClickedOnASettlement || selectedSettlementIndex < 0) return;
+        bMouseOnRepairIcon = false;//reset
+        hoveredRepairBuildingType = BuildingType::None;//reset
 
         const Settlement& clickedSettlement = settlements[selectedSettlementIndex];
         int provinceID = clickedSettlement.settlementData.provinceID;//name of the province
@@ -5779,6 +5788,21 @@ private://constructor
                             SDL_RenderTexture(renderer, gameRepairBuildingButtonIconUi, nullptr, &r);
                         }
                         repairButtonRects.push_back({repairButtonRect, {hoveredCardIndex, 0}});
+
+                        //main Building hovered
+                        float mouseXmainBuildingRepair;
+                        float mouseYmainBuildingRepair;
+                        SDL_GetMouseState(&mouseXmainBuildingRepair, &mouseYmainBuildingRepair);
+                        float lenghtXmainBuildingRepair;
+                        float lenghtYmainBuildingRepair;
+                        SDL_RenderCoordinatesFromWindow(renderer, mouseXmainBuildingRepair, mouseYmainBuildingRepair, &lenghtXmainBuildingRepair, &lenghtYmainBuildingRepair);
+                        SDL_FPoint mainBuildingRepairPt= {lenghtXmainBuildingRepair, lenghtYmainBuildingRepair};
+                        if (SDL_PointInRectFloat(&mainBuildingRepairPt, &repairButtonRect)) {
+                            bMouseOnRepairIcon = true;
+                            repairTooltipX = lenghtXmainBuildingRepair;
+                            repairTooltipY = lenghtYmainBuildingRepair;
+                            hoveredRepairBuildingType = provinceSettl->settlementData.buildings[0];//mainbuilding
+                        }
                     }
                 }
             }
@@ -6110,6 +6134,21 @@ private://constructor
                 }
                 if (repairAvailableHere)
                     repairButtonRects.push_back({repairButtonRect, {categoryPopupCardIndex, buildMenuSlotIndex}});
+
+                //Mouse hovered Repair button
+                float mouseXRepair;
+                float mouseYRepair;
+                SDL_GetMouseState(&mouseXRepair, &mouseYRepair);
+                float lenghtXRepair;
+                float lenghtYRepair;
+                SDL_RenderCoordinatesFromWindow(renderer, mouseXRepair, mouseYRepair, &lenghtXRepair, &lenghtYRepair);
+                SDL_FPoint mouseRepairPt = {lenghtXRepair, lenghtYRepair};
+                bMouseOnRepairIcon = SDL_PointInRectFloat(&mouseRepairPt, &repairButtonRect);
+                if (bMouseOnRepairIcon) {
+                    repairTooltipX = lenghtXRepair;
+                    repairTooltipY = lenghtYRepair;
+                    hoveredRepairBuildingType = builtHere;
+                }
             }
         }
 
@@ -8784,6 +8823,74 @@ private:
     SDL_SetTextureAlphaMod(gameReturnButtons, 255);
 }
 
+    //Render Repair tooltip
+void RenderRepairTooltip() {
+    if (!bMouseOnRepairIcon || hoveredRepairBuildingType == BuildingType::None) return;
+
+    int repairCost = GetRepairCost(hoveredRepairBuildingType);
+    const char* descText = "If you do not repair this building, it will slowly repair itself over time.";
+
+    float tooltipW = 260.f;
+    float titleH   = 28.f;
+    float wrapW    = tooltipW - 20.f;
+
+    TTF_SetTextWrapWidth(gameStatUIText, (int)wrapW);
+    TTF_SetTextString(gameStatUIText, descText, 0);
+    int descW, descH;
+    TTF_GetTextSize(gameStatUIText, &descW, &descH);
+
+    float costRowH = 26.f;
+    float tooltipH = titleH + 10.f + (float)descH + 12.f + costRowH + 10.f;
+
+    float tooltipX = repairTooltipX + 20.f;
+    float tooltipY = repairTooltipY + 20.f;
+    if (tooltipX + tooltipW > 1910.f) tooltipX = repairTooltipX - tooltipW - 12.f;
+    if (tooltipY + tooltipH > 1075.f) tooltipY = 1075.f - tooltipH;
+    if (tooltipY < 5.f) tooltipY = 5.f;
+
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+    SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+    SDL_FRect bg = {tooltipX, tooltipY, tooltipW, tooltipH};
+    SDL_RenderFillRect(renderer, &bg);
+
+    SDL_SetRenderDrawColor(renderer, 40, 90, 150, 255);
+    SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, titleH};
+    SDL_RenderFillRect(renderer, &titleBar);
+
+    SDL_SetRenderDrawColor(renderer, 90, 140, 190, 255);
+    SDL_RenderRect(renderer, &bg);
+
+    TTF_SetTextWrapWidth(gameStatUITitleText, 0);
+    TTF_SetTextString(gameStatUITitleText, "Repair", 0);
+    TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
+    TTF_DrawRendererText(gameStatUITitleText, tooltipX + 10.f, tooltipY + 4.f);
+
+    float lineY = tooltipY + titleH + 6.f;
+
+    TTF_SetTextColor(gameStatUIText, 220, 220, 220, 255);
+    TTF_DrawRendererText(gameStatUIText, tooltipX + 10.f, lineY);
+    TTF_SetTextWrapWidth(gameStatUIText, 0);
+    lineY += (float)descH + 12.f;
+
+    TTF_SetTextString(gameStatUIText, "Cost to repair:", 0);
+    TTF_SetTextColor(gameStatUIText, 220, 220, 220, 255);
+    TTF_DrawRendererText(gameStatUIText, tooltipX + 10.f, lineY + 4.f);
+    int labelW, labelH;
+    TTF_GetTextSize(gameStatUIText, &labelW, &labelH);
+
+    float coinSize = 20.f;
+    SDL_FRect coinRect = {tooltipX + 15.f + labelW, lineY, coinSize, coinSize};
+    SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &coinRect);
+
+    std::string costStr = std::to_string(repairCost);
+    TTF_SetTextString(gameStatUIText, costStr.c_str(), 0);
+    bool canAfford = player.currentGold >= repairCost;
+    TTF_SetTextColor(gameStatUIText, canAfford ? 127 : 220, canAfford ? 255 : 60, canAfford ? 0 : 60, 255);
+    TTF_DrawRendererText(gameStatUIText, coinRect.x + coinSize + 6.f, lineY + 4.f);
+}
+
+
     //For Decrees, you can activate them for bonuses.
     // 3 different ones and each need a certain amount of raw goods and money. (candle, beer, greentea)
         //For Decrees, you can activate them for bonuses.
@@ -10087,6 +10194,7 @@ void RenderCategoryBuildingInfoUI() {
         RenderPopulationTooltip();
         RenderSeasonTooltip();
         RenderGoodsStorageTooltip();
+        RenderRepairTooltip();
         RenderBuildingInfoUI();
         RenderCategoryBuildingInfoUI();
         RenderWorldEventInfoPopup();
@@ -10359,7 +10467,7 @@ public:
     bool IsBuildingSlotBeingRepaired(int settlementIndex, int slotIndex) {
         return buildingsBeingRepaired.count(settlementIndex * 100 + slotIndex) > 0;
     }
-
+    //repair cost of a building
     int GetRepairCost(BuildingType type) {
         const BuildingData* data = GetBuildingData(type);
         if (!data) return 0;
