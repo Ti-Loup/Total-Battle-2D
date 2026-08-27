@@ -343,7 +343,7 @@ public:
     Circle TechnologyButtonReturnGame = {900.f, 1000.f, 25};
 
     //Circle to bring World events info popup to false again
-    Circle WorlEventsButtonReturnGame = {1000.f, 770.f, 20};
+    Circle WorldEventsButtonReturnGame = {1000.f, 770.f, 20};
     SDL_Texture *gameReturnButtons = nullptr;
 
     //Circle for goods Production manager
@@ -9583,8 +9583,22 @@ void RenderWorldEventEffectRows(const WorldEventsData* data, float x, float righ
         else if (bHoveredDeliver) drawJusticeHoverTooltip("Deliver him to justice");
 
     } else {
+        //mouse hovered on return button World Event
+        float mouseXWEReturn;
+        float mouseYWEReturn;
+        SDL_GetMouseState(&mouseXWEReturn, &mouseYWEReturn);
+        float lenghtXWEReturn;
+        float lenghtYWEReturn;
+        SDL_RenderCoordinatesFromWindow(renderer, mouseXWEReturn,mouseYWEReturn, &lenghtXWEReturn, &lenghtYWEReturn);
+        SDL_FPoint mouseWEReturnPt = {lenghtXWEReturn, lenghtYWEReturn};
+        bool bHoveredWEReturnButton = ClickInsideCircle(lenghtXWEReturn, lenghtYWEReturn, WorldEventsButtonReturnGame);
+        //alpha modifier
+        Uint8 WEReturnAlpha = bHoveredWEReturnButton ? 255:200;
+        SDL_SetTextureAlphaMod(gameReturnButtons, WEReturnAlpha);
+
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
-        RenderBoutonCercle(WorlEventsButtonReturnGame, nullptr, gameReturnButtons, 0, 0, 0);
+        RenderBoutonCercle(WorldEventsButtonReturnGame, nullptr, gameReturnButtons, 0, 0, 0);
+        SDL_SetTextureAlphaMod(gameReturnButtons, 255);
     }
 }
 
@@ -11861,7 +11875,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 }
 
         //Button WorldEvent To remove Ui
-        if (app.ClickInsideCircle(nouveauX, nouveauY, app.WorlEventsButtonReturnGame)) {
+        if (app.ClickInsideCircle(nouveauX, nouveauY, app.WorldEventsButtonReturnGame)) {
             app.bWorldEventInfoPopup = false;
             return SDL_APP_CONTINUE;
         }
