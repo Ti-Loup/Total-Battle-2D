@@ -30,35 +30,12 @@
 /*
 
 
- * --------------------------------------------
- * 0.3.0
- *
- * RESOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
- *
- * Done -> Code the remaining World Events Curently(10/12)
- * ToDo - Work on Degree, Win achievments, and more.
- *
- * Done -> THE RESSOURCES ARE STORED IN (warehouse or castle).
- * Done -> Mines produced their own orb
- * Done -> fishing ports gives food and produce fish
- * Done -> If you have the raw material you can then construct industrial buildings from this material.(gold mine -> jewlery) Forged Steel Production, FISH, medicine plants, Candle
- * Done -> Industrial buildings can only be buy if you have the raw material
- * Done -> Settlement next to the name shows a texture of mine to show its a mine + fish for a fish port and boat for military
- * Done -> Goods Manager
- * Done -> World Events Icons next to settlements name
- *
- * Fixes:
- * Fixed | The repair button wasnt disappearing for ports after repairing.
- * Fixed | Fix the Goods manager displaying the goods outside of the ui
- * To Fix | Plague not spreading to next province when the current province is all infected
- * To Fix | Earthquake event doesnt show the damage Buildings Effects.
- * --------------------------------------------
  * 0.3.25
  * Ai Focus
  * Done | faction ai has base income and next turn one based on their settlements
  * Done | faction ai has Food system like The player
- * ToDo | Make them build buildings and upgrade them strategicly. based on whats missing and what they need.
  * ToDo | Goods system. Must be able to collect their goods
+ * ToDo | Make them build buildings and upgrade them strategicly. based on whats missing and what they need.
  * ToDo -> Tooltip repair Cost and description + Destroy tooltip
  * Player vs AI
  * Income Yes | Yes
@@ -162,6 +139,29 @@
  * Fixed | Income Tooltip Wrong TTF Size compare to others Tooltips
  * Fixed | WareHouse and Granary Tier 3 was still grey while in tier 3 .
 
+* -------------------------------------------
+ * 0.3.0
+ *
+ * RESOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
+ *
+ * Done -> Code the remaining World Events Curently(10/12)
+ * ToDo - Work on Degree, Win achievments, and more.
+ *
+ * Done -> THE RESSOURCES ARE STORED IN (warehouse or castle).
+ * Done -> Mines produced their own orb
+ * Done -> fishing ports gives food and produce fish
+ * Done -> If you have the raw material you can then construct industrial buildings from this material.(gold mine -> jewlery) Forged Steel Production, FISH, medicine plants, Candle
+ * Done -> Industrial buildings can only be buy if you have the raw material
+ * Done -> Settlement next to the name shows a texture of mine to show its a mine + fish for a fish port and boat for military
+ * Done -> Goods Manager
+ * Done -> World Events Icons next to settlements name
+ *
+ * Fixes:
+ * Fixed | The repair button wasnt disappearing for ports after repairing.
+ * Fixed | Fix the Goods manager displaying the goods outside of the ui
+ * Fixed | Plague not spreading to next province when the current province is all infected
+ * Fixed | Earthquake event doesnt show the damage Buildings Effects.
+ * --------------------------------------------
  */
 
 
