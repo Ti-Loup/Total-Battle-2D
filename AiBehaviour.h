@@ -5,6 +5,7 @@
 #ifndef TOTALBATTLE2D_AIBEHAVIOUR_H
 #define TOTALBATTLE2D_AIBEHAVIOUR_H
 #include "Province.h" // FactionZone
+#include "Resources.h"
 #include <unordered_map>
 
 //Ai's Gold/Food/Population
@@ -22,6 +23,13 @@ struct AiFactionState{
     int currentPeasantryAmount = 1000;
     int currentNobilityAmount = 100;
     int currentClergyAmount = 10;
+
+    //Goods
+    std::unordered_map<int, std::unordered_map<ResourceType, int>> goodsStoredByProvinceAndType;
+    std::unordered_map<int, int> goodsStorageCapacityByProvince;
+    std::unordered_map<ResourceType, int> goodsStoredByType;
+    int currentGoods = 0;
+    int goodsStorage = 0;
 
    // Base birth/death rates. Re-randomized every turn. Same has Player
     int basePeasantryBirth = 40 + rand() % 21; // 40-60

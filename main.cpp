@@ -918,7 +918,7 @@ private://constructor
         // -> MENU <-
         gameInProgressFont = TTF_OpenFont("assets/KnightFont.ttf", 40);
         gameVersionFont = TTF_OpenFont("assets/Rubik.ttf", 35);
-        gameVersionText = TTF_CreateText (textEngine, gameVersionFont, "Version (0.3.0)", 16);
+        gameVersionText = TTF_CreateText (textEngine, gameVersionFont, "Version (0.3.25)", 16);
         if (gameVersionText == nullptr) {
             SDL_LogWarn(0,"failed to create text for gameVersionText", SDL_GetError());
         }
@@ -4730,24 +4730,39 @@ private://constructor
         }
 
         //what's inside that region warehouse right now
+        //hard coded just for the player
+        //now we want it to be for the palyer but also the other factions
+        // int provinceGoodsCurrent = 0;
+        // if (goodsStoredByProvinceAndType.count(provinceID)) {
+        //     for (auto& [type, amount] : goodsStoredByProvinceAndType[provinceID])
+        //         provinceGoodsCurrent += amount;
+        // }
+        const std::unordered_map<int, std::unordered_map<ResourceType, int>>* provinceGoodsMapPtr = nullptr;
+        if (province.owner == player.faction) {
+            provinceGoodsMapPtr = &goodsStoredByProvinceAndType;
+        } else if (AiFactionState* aiState = aiBehaviour.GetState(province.owner)) {
+            provinceGoodsMapPtr = &aiState->goodsStoredByProvinceAndType;
+        }
+
         int provinceGoodsCurrent = 0;
-        if (goodsStoredByProvinceAndType.count(provinceID)) {
-            for (auto& [type, amount] : goodsStoredByProvinceAndType[provinceID])
+        if (provinceGoodsMapPtr && provinceGoodsMapPtr->count(provinceID)) {
+            for (auto& [type, amount] : provinceGoodsMapPtr->at(provinceID))
                 provinceGoodsCurrent += amount;
         }
         player.perProvinceGoodsStorage = provinceGoodsCapacity;
         player.perProvinceCurrentGoods = provinceGoodsCurrent;
+
         //breakdown of exactly what's stored here, for the icon+amount rows under "Region Goods Stored"
         std::vector<std::pair<ResourceType,int>> provinceGoodsList;
-        if (goodsStoredByProvinceAndType.count(provinceID)) {
-            for (auto& [type, amount] : goodsStoredByProvinceAndType[provinceID]) {
+        if (provinceGoodsMapPtr && provinceGoodsMapPtr->count(provinceID)) {
+            for (auto& [type, amount] : provinceGoodsMapPtr->at(provinceID)) {
                 if (amount > 0) provinceGoodsList.push_back({type, amount});
             }
         }
         std::sort(provinceGoodsList.begin(), provinceGoodsList.end(),
             [](const auto& a, const auto& b) { return (int)a.first < (int)b.first; });
 
-
+        
         //set the color
         SDL_Color factionColor;
         if(province.owner == FactionZone::Knight) {
@@ -7156,6 +7171,118 @@ int CalculateFactionFoodNextTurn(FactionZone faction) {
         }
         return income;
     }
+
+    // AI ONLY: mirrors the player's per-settlement goods production loop
+std::unordered_map<int, std::unordered_map<ResourceType, int>> CalculateFactionGoodsProductionByProvince(
+    FactionZone faction, std::unordered_map<int, int>& outStorageCapacityByProvince)
+{
+    std::unordered_map<int, std::unordered_map<ResourceType, int>> producedByProvince;
+    outStorageCapacityByProvince.clear();
+
+    float worldEventFishMultiplier = 1.0f;
+    if (const WorldEventsData* activeEvent = GetActiveWorldEventData()) {
+        worldEventFishMultiplier = activeEvent->resourceFishingProductionMultiplier;
+    }
+
+    for (const auto &s : settlements) {
+        if (provinces[s.settlementData.provinceID].owner != faction) continue;
+        int provID = s.settlementData.provinceID;
+        int settlement_index = (int)(&s - &settlements[0]);
+
+        for (int slot_index = 0; slot_index < (int)s.settlementData.buildings.size(); slot_index++) {
+            BuildingType bt = s.settlementData.buildings[slot_index];
+            if (bt == BuildingType::None) continue;
+            const BuildingData* bd = GetBuildingData(bt);
+            if (!bd) continue;
+
+            outStorageCapacityByProvince[provID] += bd->resourcesStorage;
+            if (IsBuildingSlotDamaged(settlement_index, slot_index)) continue;
+
+            for (const auto& resource_amount : bd->resourcesProduced) {
+                int amount = resource_amount.amount;
+                if (resource_amount.type == ResourceType::Fish) {
+                    amount = (int)std::round(amount * worldEventFishMultiplier);
+                }
+                producedByProvince[provID][resource_amount.type] += amount;
+            }
+        }
+    }
+    return producedByProvince;
+}
+
+// AI ONLY: same distribution logic as the player's goods/ Process the Raw materials into transformed
+void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) {
+    std::unordered_map<int, int> storageCapacityByProvince;
+    auto producedThisTurnByProvince = CalculateFactionGoodsProductionByProvince(faction, storageCapacityByProvince);
+    aiState.goodsStorageCapacityByProvince = storageCapacityByProvince;
+
+    for (auto& [provinceID, producedByType] : producedThisTurnByProvince) {
+        int capacity = storageCapacityByProvince.count(provinceID) ? storageCapacityByProvince[provinceID] : 0;
+        auto& provinceStock = aiState.goodsStoredByProvinceAndType[provinceID];
+
+        int currentStoredInProvince = 0;
+        for (auto& [type, amount] : provinceStock) currentStoredInProvince += amount;
+
+        // Raw materials first
+        for (auto& [type, producedAmount] : producedByType) {
+            const ResourceData* resData = GetResourceData(type);
+            if (!resData || resData->goodsCategory != ResourceCategory::Raw) continue;
+
+            int spaceLeft = capacity - currentStoredInProvince;
+            if (spaceLeft <= 0) break;
+
+            int toAdd = std::min(producedAmount, spaceLeft);
+            provinceStock[type] += toAdd;
+            currentStoredInProvince += toAdd;
+        }
+
+        // Transformed goods second, consuming raw stock
+        for (auto& [type, producedAmount] : producedByType) {
+            const ResourceData* resData = GetResourceData(type);
+            if (!resData || resData->goodsCategory != ResourceCategory::Transformed) continue;
+
+            int spaceLeft = capacity - currentStoredInProvince;
+            if (spaceLeft <= 0) break;
+
+            int toAdd = producedAmount;
+            ResourceType rawType = ResourceType::Fish;
+            int consumePerUnit = 0;
+            bool needsRaw = GetRawResourceForTransformed(type, rawType, consumePerUnit);
+            if (needsRaw) {
+                int rawAvailable = provinceStock.count(rawType) ? provinceStock[rawType] : 0;
+                toAdd = std::min(toAdd, rawAvailable / consumePerUnit);
+            }
+            toAdd = std::min(toAdd, spaceLeft);
+            if (toAdd <= 0) continue;
+
+            provinceStock[type] += toAdd;
+            currentStoredInProvince += toAdd;
+
+            if (needsRaw) {
+                int consumedAmount = toAdd * consumePerUnit;
+                provinceStock[rawType] -= consumedAmount;
+                currentStoredInProvince -= consumedAmount;
+            }
+        }
+    }
+
+    // Rebuild faction-wide totals from the per-province stockpiles
+    aiState.currentGoods = 0;
+    aiState.goodsStorage = 0;
+    for (auto& [provID, cap] : aiState.goodsStorageCapacityByProvince) aiState.goodsStorage += cap;
+
+    aiState.goodsStoredByType.clear();
+    for (auto& [provinceID, typeMap] : aiState.goodsStoredByProvinceAndType) {
+        for (auto& [type, amount] : typeMap) {
+            aiState.currentGoods += amount;
+            aiState.goodsStoredByType[type] += amount;
+        }
+    }
+}
+
+
+
+
 
     //MONEY HOVERED UI FR DETAILS OF INCOME/UPKEEP
     void RenderMoneyTooltip() {
@@ -10779,6 +10906,9 @@ public:
 
                 ProcessAiFactionFoodForTurn(faction, *aiState);
                 SDL_Log("AI faction %d food: %d/%d stored (net this turn: %d)", (int)faction, aiState->foodStored, aiState->foodStorage, aiState->nextTurnFood);
+
+                ProcessAiFactionGoodsForTurn(faction, *aiState);
+                SDL_Log("AI faction %d goods: %d/%d stored", (int)faction, aiState->currentGoods, aiState->goodsStorage);
             }
         }
 
