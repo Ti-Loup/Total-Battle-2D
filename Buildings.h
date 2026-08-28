@@ -493,6 +493,53 @@ inline BuildingType GetMineBuildingType(ResourceType resource, int tier) {
     }
     return BuildingType::None;
 }
+//AI Only: what building a raw goods shoud trigger (for player its calculated with the ui(main)
+inline BuildingType GetIndustryBuildingForRawResource(ResourceType resource, FactionZone faction) {
+    switch (resource) {
+        case ResourceType::Fish:
+            if (faction == FactionZone::Knight)  return BuildingType::KnightOilPress_T1;
+            if (faction == FactionZone::Viking)  return BuildingType::VikingOilPress_T1;
+            if (faction == FactionZone::Samurai) return BuildingType::SamuraiOilPress_T1;
+            break;
+        case ResourceType::Lumber:
+            if (faction == FactionZone::Knight)  return BuildingType::KnightCarpentry_T1;
+            if (faction == FactionZone::Viking)  return BuildingType::VikingCarpentry_T1;
+            if (faction == FactionZone::Samurai) return BuildingType::SamuraiCarpentry_T1;
+            break;
+        case ResourceType::Wool:
+            if (faction == FactionZone::Knight)  return BuildingType::KnightTextile_T1;
+            if (faction == FactionZone::Viking)  return BuildingType::VikingTextile_T1;
+            if (faction == FactionZone::Samurai) return BuildingType::SamuraiTextile_T1;
+            break;
+        case ResourceType::Copper:
+            if (faction == FactionZone::Knight)  return BuildingType::KnightArtisan_T1;
+            if (faction == FactionZone::Viking)  return BuildingType::VikingArtisan_T1;
+            if (faction == FactionZone::Samurai) return BuildingType::SamuraiArtisan_T1;
+            break;
+        case ResourceType::Tin:
+            if (faction == FactionZone::Knight)  return BuildingType::KnightTinsmith_T2;
+            if (faction == FactionZone::Viking)  return BuildingType::VikingTinsmith_T2;
+            if (faction == FactionZone::Samurai) return BuildingType::SamuraiTinsmith_T2;
+            break;
+        case ResourceType::Silver:
+            if (faction == FactionZone::Knight)  return BuildingType::KnightMint_T2;
+            if (faction == FactionZone::Viking)  return BuildingType::VikingMint_T2;
+            if (faction == FactionZone::Samurai) return BuildingType::SamuraiMint_T2;
+            break;
+        case ResourceType::Iron:
+            if (faction == FactionZone::Knight)  return BuildingType::KnightForge_T3;
+            if (faction == FactionZone::Viking)  return BuildingType::VikingForge_T3;
+            if (faction == FactionZone::Samurai) return BuildingType::SamuraiForge_T3;
+            break;
+        case ResourceType::Gold:
+            if (faction == FactionZone::Knight)  return BuildingType::KnightJeweller_T3;
+            if (faction == FactionZone::Viking)  return BuildingType::VikingJeweller_T3;
+            if (faction == FactionZone::Samurai) return BuildingType::SamuraiJeweller_T3;
+            break;
+        default: break;
+    }
+    return BuildingType::None;
+}
 
 inline FoodCategory GetFoodCategory(BuildingType buildingType){
     switch (buildingType){

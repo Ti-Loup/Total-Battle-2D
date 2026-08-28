@@ -24,6 +24,7 @@
 #include "Settlements.h"
 #include "Player.h"
 #include "AiBehaviour.h"
+#include "AiContruction.h"
 #include "WorldEvents.h"
 #include "Decrees.h"
 
