@@ -40,6 +40,7 @@
  * Player vs AI
  * Income Yes | Yes
  * Food Yes | Yes
+ * Building YES | YES
  * Goods Yes | Yes
  * Population Yes | No
  * Should AI has a population system|
@@ -4762,7 +4763,7 @@ private://constructor
         std::sort(provinceGoodsList.begin(), provinceGoodsList.end(),
             [](const auto& a, const auto& b) { return (int)a.first < (int)b.first; });
 
-        
+
         //set the color
         SDL_Color factionColor;
         if(province.owner == FactionZone::Knight) {
