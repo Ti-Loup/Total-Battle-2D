@@ -551,6 +551,10 @@ public:
     SDL_Texture *provinceKnightBannerTexture = nullptr;
     SDL_Texture *provinceVikingBannerTexture = nullptr;
     SDL_Texture *provinceSamuraiBannerTexture = nullptr;
+    //Texture Faction campaign Flag
+    SDL_Texture *settlementKnightBannerTexture = nullptr;
+    SDL_Texture *settlementVikingBannerTexture = nullptr;
+    SDL_Texture *settlementSamuraiBannerTexture = nullptr;
 
     SDL_Texture *gameMilitaryPortIconTexture = nullptr;
     // ~ TEXTURES RESOURCES ~
@@ -1384,7 +1388,22 @@ private://constructor
         SDL_SetTextureScaleMode(provinceVikingBannerTexture, SDL_SCALEMODE_NEAREST);
         SDL_SetTextureScaleMode(provinceKnightBannerTexture, SDL_SCALEMODE_NEAREST);
         SDL_SetTextureScaleMode(provinceSamuraiBannerTexture, SDL_SCALEMODE_NEAREST);
-
+        //Textures settlements banner icon faction
+        settlementKnightBannerTexture = IMG_LoadTexture(renderer, "assets/SettlementKnightBanner.png");
+        if (settlementKnightBannerTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture settlementKnightBannerTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementKnightBannerTexture, SDL_SCALEMODE_NEAREST);
+        settlementVikingBannerTexture = IMG_LoadTexture(renderer, "assets/SettlementVikingBanner.png");
+        if (settlementVikingBannerTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture settlementVikingBannerTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementVikingBannerTexture, SDL_SCALEMODE_NEAREST);
+        settlementSamuraiBannerTexture = IMG_LoadTexture(renderer, "assets/SettlementSamuraiBanner.png");
+        if (settlementSamuraiBannerTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture settlementSamuraiBannerTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(settlementSamuraiBannerTexture, SDL_SCALEMODE_NEAREST);
         //Texture Bouton UI Province
         provinceTextureUIBuilding = IMG_LoadTexture(renderer, "assets/BuildingUILogo.png");
         if (provinceTextureUIBuilding == nullptr) {
@@ -3830,6 +3849,9 @@ private://constructor
         SDL_DestroyTexture(provinceKnightBannerTexture);
         SDL_DestroyTexture(provinceVikingBannerTexture);
         SDL_DestroyTexture(provinceSamuraiBannerTexture);
+        SDL_DestroyTexture(settlementKnightBannerTexture);
+        SDL_DestroyTexture(settlementVikingBannerTexture);
+        SDL_DestroyTexture(settlementSamuraiBannerTexture);
         SDL_DestroyTexture(provinceTextureUIBuilding);
         SDL_DestroyTexture(provinceTextureUIGarrison);
         SDL_DestroyTexture(hammerUIBuildingUpgradeTexture);
