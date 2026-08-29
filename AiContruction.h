@@ -140,6 +140,7 @@ inline void EvaluateProvinceConstructionNeeds(
     int provinceGoodsCapacity,
     int factionNextTurnGold,
     int factionRawGoodStored,
+    bool factionAlreadyHasRawGoodBuilding,
     std::vector<AiConstructionCandidate>& outCandidates)
 {
     static const BuildingCategory kAllCategories[] = {
@@ -156,7 +157,8 @@ inline void EvaluateProvinceConstructionNeeds(
     bool bGoodsStorageFull = provinceGoodsCapacity <= 0 ||
         (float)provinceGoodsStored >= (float)provinceGoodsCapacity * AiConstructionWeights::kGoodsStorageFullRatio;
     bool bMoneyNextTurnNegative = factionNextTurnGold < 0;
-    bool bMissingFactionRawGood = factionRawGoodStored <= 0;
+    // Only counts as missing if nobody in the faction already has it built or pending anywhere.
+    bool bMissingFactionRawGood = factionRawGoodStored <= 0 && !factionAlreadyHasRawGoodBuilding;
 
     BuildingType granaryRoot = GetFactionGranaryRoot(faction);
     BuildingType warehouseRoot = GetFactionWarehouseRoot(faction);

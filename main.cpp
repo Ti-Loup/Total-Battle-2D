@@ -7303,65 +7303,99 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
         }
     }
 }
-
+    //AI ONLY: true if any settlement in the faction already has this production chain built or pending.
+    bool FactionAlreadyHasChainBuilt(const std::unordered_map<int, std::vector<int>>& settlementsByProvince, BuildingType chainRoot) {
+        if (chainRoot == BuildingType::None) return false;
+        for (auto& [provinceID, settlementIndices] : settlementsByProvince) {
+            for (int idx : settlementIndices) {
+                if (SettlementAlreadyHasChain(settlements[idx], chainRoot)) return true;
+            }
+        }
+        return false;
+    }
     //AI ONLY
     void ProcessAiFactionConstructionForTurn(FactionZone faction, AiFactionState &aiState) {
-        std::vector<AiConstructionCandidate> candidates;
-
         std::unordered_map<int, std::vector<int>> settlementsByProvince;
         for (int i = 0; i < (int)settlements.size(); i++) {
             if (provinces[settlements[i].settlementData.provinceID].owner != faction) continue;
             settlementsByProvince[settlements[i].settlementData.provinceID].push_back(i);
         }
+        if (settlementsByProvince.empty()) return;
 
-        //Faction-wide context the priority checks need
-        int factionNextTurnGold = CalculateFactionIncome(faction);
         ResourceType factionRawGoodType = GetFactionRawGoodResourceType(faction);
-        int factionRawGoodStored = aiState.goodsStoredByType.count(factionRawGoodType) ? aiState.goodsStoredByType[factionRawGoodType] : 0;
+        BuildingType factionRawGoodRoot = GetFactionRawGoodBuildingRoot(faction);
 
-        for (auto& [provinceID, settlementIndices] : settlementsByProvince) {
-            //Food storage is a shared map (granaries belong to the province, not the owner)
-            int provinceFoodStored = foodStoredByProvince.count(provinceID) ? foodStoredByProvince[provinceID] : 0;
-            int provinceFoodCapacity = foodStorageCapacityByProvince.count(provinceID) ? foodStorageCapacityByProvince[provinceID] : 0;
-
-            //Goods storage is tracked per faction inside aiState
-            int provinceGoodsStored = 0;
-            if (aiState.goodsStoredByProvinceAndType.count(provinceID)) {
-                for (auto& [type, amount] : aiState.goodsStoredByProvinceAndType[provinceID]) provinceGoodsStored += amount;
-            }
-            int provinceGoodsCapacity = aiState.goodsStorageCapacityByProvince.count(provinceID) ? aiState.goodsStorageCapacityByProvince[provinceID] : 0;
-
-            EvaluateProvinceConstructionNeeds(provinceID, settlementIndices, settlements, faction,
-                provinceFoodStored, provinceFoodCapacity,
-                provinceGoodsStored, provinceGoodsCapacity,
-                factionNextTurnGold, factionRawGoodStored,
-                candidates);
-        }
-
-        // Highest priority first
-        std::sort(candidates.begin(), candidates.end(),
-            [](const auto& a, const auto& b) { return a.buildingPriority > b.buildingPriority; });
-
-        // Greedily build what it can afford, one build per settlement per turn to avoid dumping all gold at once
+        // One build per settlement per turn, tracked across every re-evaluation below.
         std::unordered_map<int, bool> settlementUsedThisTurn;
-        for (auto& candidate : candidates) {
-            if (settlementUsedThisTurn.count(candidate.settlementIndex)) continue;
 
-            const BuildingData* data = GetBuildingData(candidate.buildingToConstruct);
-            if (!data || aiState.currentGold < data->cost) continue;
+        // Build one building at a time, then recompute every need from scratch so the next pick
+        // always reflects what's still actually needed instead of a stale one-shot list.
+        /*
+        instead of sorting one static list and walking it, the AI now builds one building,
+        then throws away the candidate list and rebuilds it fresh from the current state (gold, pending buildings)
+        before picking the next one — exactly the "redo the entire construction weight" behavior
+         */
+        while (true) {
+            int factionNextTurnGold = CalculateFactionIncome(faction);
+            int factionRawGoodStored = aiState.goodsStoredByType.count(factionRawGoodType) ? aiState.goodsStoredByType[factionRawGoodType] : 0;
+            bool factionAlreadyHasRawGoodBuilding = FactionAlreadyHasChainBuilt(settlementsByProvince, factionRawGoodRoot);
 
-            Settlement& sel = settlements[candidate.settlementIndex];
-            if (sel.settlementData.buildings[candidate.slotIndex] != BuildingType::None ||
-                sel.settlementData.pendingBuildings[candidate.slotIndex] != BuildingType::None) continue;
+            std::vector<AiConstructionCandidate> candidates;
+            for (auto& [provinceID, settlementIndices] : settlementsByProvince) {
+                //Food storage is a shared map (granaries belong to the province, not the owner)
+                int provinceFoodStored = foodStoredByProvince.count(provinceID) ? foodStoredByProvince[provinceID] : 0;
+                int provinceFoodCapacity = foodStorageCapacityByProvince.count(provinceID) ? foodStorageCapacityByProvince[provinceID] : 0;
 
-            aiState.currentGold -= data->cost;
-            sel.settlementData.pendingBuildings[candidate.slotIndex] = candidate.buildingToConstruct;
-            sel.settlementData.slotConstructionTimes[candidate.slotIndex] = data->constructionTurns;
-            settlementUsedThisTurn[candidate.settlementIndex] = true;
+                //Goods storage is tracked per faction inside aiState
+                int provinceGoodsStored = 0;
+                if (aiState.goodsStoredByProvinceAndType.count(provinceID)) {
+                    for (auto& [type, amount] : aiState.goodsStoredByProvinceAndType[provinceID]) provinceGoodsStored += amount;
+                }
+                int provinceGoodsCapacity = aiState.goodsStorageCapacityByProvince.count(provinceID) ? aiState.goodsStorageCapacityByProvince[provinceID] : 0;
+
+                EvaluateProvinceConstructionNeeds(provinceID, settlementIndices, settlements, faction,
+                    provinceFoodStored, provinceFoodCapacity,
+                    provinceGoodsStored, provinceGoodsCapacity,
+                    factionNextTurnGold, factionRawGoodStored, factionAlreadyHasRawGoodBuilding,
+                    candidates);
+            }
+
+            if (candidates.empty()) break; // nothing left the AI wants to build this turn
+
+            // Highest priority first
+            std::sort(candidates.begin(), candidates.end(),
+                [](const auto& a, const auto& b) { return a.buildingPriority > b.buildingPriority; });
+
+            // Pick the single best candidate we can actually afford and still have a free settlement for
+            const AiConstructionCandidate* chosen = nullptr;
+            for (auto& candidate : candidates) {
+                if (settlementUsedThisTurn.count(candidate.settlementIndex)) continue;
+
+                const BuildingData* data = GetBuildingData(candidate.buildingToConstruct);
+                if (!data || aiState.currentGold < data->cost) continue;
+
+                const Settlement& sel = settlements[candidate.settlementIndex];
+                if (sel.settlementData.buildings[candidate.slotIndex] != BuildingType::None ||
+                    sel.settlementData.pendingBuildings[candidate.slotIndex] != BuildingType::None) continue;
+
+                chosen = &candidate;
+                break;
+            }
+
+            if (!chosen) break; // nothing affordable/buildable remains this turn
+
+            const BuildingData* chosenData = GetBuildingData(chosen->buildingToConstruct);
+            Settlement& sel = settlements[chosen->settlementIndex];
+
+            aiState.currentGold -= chosenData->cost;
+            sel.settlementData.pendingBuildings[chosen->slotIndex] = chosen->buildingToConstruct;
+            sel.settlementData.slotConstructionTimes[chosen->slotIndex] = chosenData->constructionTurns;
+            settlementUsedThisTurn[chosen->settlementIndex] = true;
 
             SDL_Log("AI faction %d building %d in slot %d of %s (%s)",
-                (int)faction, (int)candidate.buildingToConstruct, candidate.slotIndex,
-                sel.settlementData.cityName.c_str(), candidate.buildingReason);
+                (int)faction, (int)chosen->buildingToConstruct, chosen->slotIndex,
+                sel.settlementData.cityName.c_str(), chosen->buildingReason);
+            // Loop back around: re-evaluate every need from scratch before the next purchase.
         }
     }
 
