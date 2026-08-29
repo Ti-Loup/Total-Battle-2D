@@ -7314,8 +7314,28 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
             settlementsByProvince[settlements[i].settlementData.provinceID].push_back(i);
         }
 
+        //Faction-wide context the priority checks need
+        int factionNextTurnGold = CalculateFactionIncome(faction);
+        ResourceType factionRawGoodType = GetFactionRawGoodResourceType(faction);
+        int factionRawGoodStored = aiState.goodsStoredByType.count(factionRawGoodType) ? aiState.goodsStoredByType[factionRawGoodType] : 0;
+
         for (auto& [provinceID, settlementIndices] : settlementsByProvince) {
-            EvaluateProvinceConstructionNeeds(provinceID, settlementIndices, settlements, faction, candidates);
+            //Food storage is a shared map (granaries belong to the province, not the owner)
+            int provinceFoodStored = foodStoredByProvince.count(provinceID) ? foodStoredByProvince[provinceID] : 0;
+            int provinceFoodCapacity = foodStorageCapacityByProvince.count(provinceID) ? foodStorageCapacityByProvince[provinceID] : 0;
+
+            //Goods storage is tracked per faction inside aiState
+            int provinceGoodsStored = 0;
+            if (aiState.goodsStoredByProvinceAndType.count(provinceID)) {
+                for (auto& [type, amount] : aiState.goodsStoredByProvinceAndType[provinceID]) provinceGoodsStored += amount;
+            }
+            int provinceGoodsCapacity = aiState.goodsStorageCapacityByProvince.count(provinceID) ? aiState.goodsStorageCapacityByProvince[provinceID] : 0;
+
+            EvaluateProvinceConstructionNeeds(provinceID, settlementIndices, settlements, faction,
+                provinceFoodStored, provinceFoodCapacity,
+                provinceGoodsStored, provinceGoodsCapacity,
+                factionNextTurnGold, factionRawGoodStored,
+                candidates);
         }
 
         // Highest priority first
@@ -7331,7 +7351,6 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
             if (!data || aiState.currentGold < data->cost) continue;
 
             Settlement& sel = settlements[candidate.settlementIndex];
-            // Re-check the slot's still free (another candidate for the same settlement may have claimed it)
             if (sel.settlementData.buildings[candidate.slotIndex] != BuildingType::None ||
                 sel.settlementData.pendingBuildings[candidate.slotIndex] != BuildingType::None) continue;
 

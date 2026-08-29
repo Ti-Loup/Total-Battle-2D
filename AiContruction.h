@@ -21,11 +21,26 @@ struct AiConstructionCandidate {
 
 //strenght of a priority building to be there
 namespace AiConstructionWeights{
-    constexpr float kPublicOrderBase = 6.0f;
-    constexpr float kPublicOrderPerNegatif = 0.3f;//extra priotiy per points of negative public order
-    constexpr float kRawMaterialUnused = 8.0f;//Raw materials idle has higer chance to build transformed building in priority
-    constexpr float kEconomyFiller = 2.0f; // less priority for the rest
+    //All 6 construction categories start on the exact same footing; only a
+    //genuine need below is allowed to push one candidate above the others.
+    constexpr float kCategoryBase = 3.0f;
+
+    //Boosts stacked on top of kCategoryBase once a real need is detected.
+    constexpr float kFoodStorageTooSmall   = 7.0f;//granary: province can't hold much more food
+    constexpr float kGoodsStorageFull      = 7.0f;//warehouse: province goods storage overflowing
+    constexpr float kMoneyNextTurnNegative = 7.0f;//any economy building: losing gold next turn
+    constexpr float kPublicOrderWeak       = 7.0f;//any religious building: base bump
+    constexpr float kPublicOrderPerNegatif = 0.3f;//extra priority per point of negative public order
+    constexpr float kMissingFactionRawGood = 7.0f;//beehives/brew house/tea garden, needed for decrees
+
+    //Thresholds deciding whether storage counts as "too small" / "full".
+    //Predict for the future his needs.
+    constexpr float kFoodStorageFullRatio  = 0.85f;//stored >= 85% of capacity -> need more granaries
+    constexpr float kGoodsStorageFullRatio = 0.85f;//stored >= 85% of capacity -> need more warehouses
+
+    constexpr float kRawMaterialUnused = 8.0f;//idle raw resource -> build its industry chain (province-wide)
 }
+
 //To find the first empty slot to be unlockable. (main building == 0 so above that)
 inline int FindEmptyBuildableSlot(const Settlement& s) {
     int tier = s.settlementData.settlementTier;
@@ -62,6 +77,16 @@ inline bool SettlementAlreadyHasChain(const Settlement& s, BuildingType chainRoo
     return false;
 }
 
+// Returns the first building root in the list not already present (built or pending)
+// anywhere in the settlement, so a filled slot lets a category move on to its next
+// option instead of getting stuck rejecting the same building forever.
+inline BuildingType FindFirstMissingBuildingInList(const Settlement& s, const std::vector<BuildingType>& options) {
+    for (BuildingType bt : options) {
+        if (!SettlementAlreadyHasChain(s, bt)) return bt;
+    }
+    return BuildingType::None;
+}
+
 inline int FindProvinceMainSettlement(const std::vector<int>& settlementIndices, const std::vector<Settlement>& settlements) {
     for (int idx : settlementIndices) {
         SettlementType t = settlements[idx].settlementData.type;
@@ -70,32 +95,130 @@ inline int FindProvinceMainSettlement(const std::vector<int>& settlementIndices,
     return -1;
 }
 
+//Faction's dedicated raw-good religion building (produces the resource decrees are paid with)
+inline BuildingType GetFactionRawGoodBuildingRoot(FactionZone faction) {
+    switch (faction) {
+        case FactionZone::Knight:  return BuildingType::KnightBeeKeeper_T1;  //Candle
+        case FactionZone::Viking:  return BuildingType::VikingBrewKeeper_T1; //Beer
+        case FactionZone::Samurai: return BuildingType::SamuraiTeaDry_T1;    //GreenTea
+        default: return BuildingType::None;
+    }
+}
+inline ResourceType GetFactionRawGoodResourceType(FactionZone faction) {
+    switch (faction) {
+        case FactionZone::Knight:  return ResourceType::Candle;
+        case FactionZone::Viking:  return ResourceType::Beer;
+        case FactionZone::Samurai: return ResourceType::GreenTea;
+        default: return ResourceType::Fish;
+    }
+}
+inline BuildingType GetFactionGranaryRoot(FactionZone faction) {
+    switch (faction) {
+        case FactionZone::Knight:  return BuildingType::KnightGranary_T3;
+        case FactionZone::Viking:  return BuildingType::VikingGranary_T3;
+        case FactionZone::Samurai: return BuildingType::SamuraiGranary_T3;
+        default: return BuildingType::None;
+    }
+}
+inline BuildingType GetFactionWarehouseRoot(FactionZone faction) {
+    switch (faction) {
+        case FactionZone::Knight:  return BuildingType::KnightWareHouse_T3;
+        case FactionZone::Viking:  return BuildingType::VikingWareHouse_T3;
+        case FactionZone::Samurai: return BuildingType::SamuraiWareHouse_T3;
+        default: return BuildingType::None;
+    }
+}
+
 inline void EvaluateProvinceConstructionNeeds(
     int provinceID,
     const std::vector<int>& settlementIndices,
     const std::vector<Settlement>& settlements,
     FactionZone faction,
+    int provinceFoodStored,
+    int provinceFoodCapacity,
+    int provinceGoodsStored,
+    int provinceGoodsCapacity,
+    int factionNextTurnGold,
+    int factionRawGoodStored,
     std::vector<AiConstructionCandidate>& outCandidates)
 {
-    //Per-settlement needs: public order + baseline growth 
+    static const BuildingCategory kAllCategories[] = {
+        BuildingCategory::Military,
+        BuildingCategory::AdvancedMilitary,
+        BuildingCategory::Defence,
+        BuildingCategory::Economy,
+        BuildingCategory::Industry,
+        BuildingCategory::Religion,
+    };
+
+    bool bFoodStorageTooSmall = provinceFoodCapacity <= 0 ||
+        (float)provinceFoodStored >= (float)provinceFoodCapacity * AiConstructionWeights::kFoodStorageFullRatio;
+    bool bGoodsStorageFull = provinceGoodsCapacity <= 0 ||
+        (float)provinceGoodsStored >= (float)provinceGoodsCapacity * AiConstructionWeights::kGoodsStorageFullRatio;
+    bool bMoneyNextTurnNegative = factionNextTurnGold < 0;
+    bool bMissingFactionRawGood = factionRawGoodStored <= 0;
+
+    BuildingType granaryRoot = GetFactionGranaryRoot(faction);
+    BuildingType warehouseRoot = GetFactionWarehouseRoot(faction);
+    BuildingType rawGoodBuildingRoot = GetFactionRawGoodBuildingRoot(faction);
+
     for (int idx : settlementIndices) {
         const Settlement& s = settlements[idx];
         int emptySlot = FindEmptyBuildableSlot(s);
         if (emptySlot < 0) continue;
 
-        if (s.settlementData.publicOrder < 0) {
-            std::vector<BuildingType> religionOptions = GetBuildingsForCategory(BuildingCategory::Religion, faction, 1);
-            if (!religionOptions.empty() && !SettlementAlreadyHasChain(s, religionOptions[0])) {
-                float priority = AiConstructionWeights::kPublicOrderBase
-                                + (-s.settlementData.publicOrder) * AiConstructionWeights::kPublicOrderPerNegatif;
-                outCandidates.push_back({idx, emptySlot, religionOptions[0], priority, "Negative public order"});
-                continue; // don't also queue filler for this slot
+        int tier = s.settlementData.settlementTier;
+
+        //One candidate per category, every one starting at the same base weight.
+        for (BuildingCategory category : kAllCategories) {
+            std::vector<BuildingType> options = GetBuildingsForCategory(category, faction, tier);
+            BuildingType pick = FindFirstMissingBuildingInList(s, options);
+            if (pick == BuildingType::None) continue;
+
+            float priority = AiConstructionWeights::kCategoryBase;
+            const char* reason = "Baseline growth";
+
+            if (category == BuildingCategory::Economy && bMoneyNextTurnNegative) {
+                priority += AiConstructionWeights::kMoneyNextTurnNegative;
+                reason = "Losing gold next turn";
+            }
+            if (category == BuildingCategory::Religion && s.settlementData.publicOrder < 0) {
+                priority += AiConstructionWeights::kPublicOrderWeak
+                          + (-s.settlementData.publicOrder) * AiConstructionWeights::kPublicOrderPerNegatif;
+                reason = "Weak public order";
+            }
+
+            outCandidates.push_back({idx, emptySlot, pick, priority, reason});
+        }
+
+        //Granary jumps the queue directly once the province struggles to store its food.
+        if (bFoodStorageTooSmall && granaryRoot != BuildingType::None && !SettlementAlreadyHasChain(s, granaryRoot)) {
+            const BuildingData* granaryData = GetBuildingData(granaryRoot);
+            if (granaryData && granaryData->Tier <= tier) {
+                outCandidates.push_back({idx, emptySlot, granaryRoot,
+                    AiConstructionWeights::kCategoryBase + AiConstructionWeights::kFoodStorageTooSmall,
+                    "Food storage nearly full"});
             }
         }
 
-        std::vector<BuildingType> economyOptions = GetBuildingsForCategory(BuildingCategory::Economy, faction, s.settlementData.settlementTier);
-        if (!economyOptions.empty() && !SettlementAlreadyHasChain(s, economyOptions[0])) {
-            outCandidates.push_back({idx, emptySlot, economyOptions[0], AiConstructionWeights::kEconomyFiller, "Baseline growth"});
+        //Warehouse jumps the queue directly once the province's goods storage is full.
+        if (bGoodsStorageFull && warehouseRoot != BuildingType::None && !SettlementAlreadyHasChain(s, warehouseRoot)) {
+            const BuildingData* warehouseData = GetBuildingData(warehouseRoot);
+            if (warehouseData && warehouseData->Tier <= tier) {
+                outCandidates.push_back({idx, emptySlot, warehouseRoot,
+                    AiConstructionWeights::kCategoryBase + AiConstructionWeights::kGoodsStorageFull,
+                    "Goods storage full"});
+            }
+        }
+
+        //Faction has none of its own raw good (Candle/Beer/GreenTea) for decrees -> build the production building.
+        if (bMissingFactionRawGood && rawGoodBuildingRoot != BuildingType::None && !SettlementAlreadyHasChain(s, rawGoodBuildingRoot)) {
+            const BuildingData* rawGoodData = GetBuildingData(rawGoodBuildingRoot);
+            if (rawGoodData && rawGoodData->Tier <= tier) {
+                outCandidates.push_back({idx, emptySlot, rawGoodBuildingRoot,
+                    AiConstructionWeights::kCategoryBase + AiConstructionWeights::kMissingFactionRawGood,
+                    "Missing faction raw good"});
+            }
         }
     }
 
