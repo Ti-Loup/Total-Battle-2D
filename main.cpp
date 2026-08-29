@@ -7304,6 +7304,47 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
     }
 }
 
+    //AI ONLY
+    void ProcessAiFactionConstructionForTurn(FactionZone faction, AiFactionState &aiState) {
+        std::vector<AiConstructionCandidate> candidates;
+
+        std::unordered_map<int, std::vector<int>> settlementsByProvince;
+        for (int i = 0; i < (int)settlements.size(); i++) {
+            if (provinces[settlements[i].settlementData.provinceID].owner != faction) continue;
+            settlementsByProvince[settlements[i].settlementData.provinceID].push_back(i);
+        }
+
+        for (auto& [provinceID, settlementIndices] : settlementsByProvince) {
+            EvaluateProvinceConstructionNeeds(provinceID, settlementIndices, settlements, faction, candidates);
+        }
+
+        // Highest priority first
+        std::sort(candidates.begin(), candidates.end(),
+            [](const auto& a, const auto& b) { return a.buildingPriority > b.buildingPriority; });
+
+        // Greedily build what it can afford, one build per settlement per turn to avoid dumping all gold at once
+        std::unordered_map<int, bool> settlementUsedThisTurn;
+        for (auto& candidate : candidates) {
+            if (settlementUsedThisTurn.count(candidate.settlementIndex)) continue;
+
+            const BuildingData* data = GetBuildingData(candidate.buildingToConstruct);
+            if (!data || aiState.currentGold < data->cost) continue;
+
+            Settlement& sel = settlements[candidate.settlementIndex];
+            // Re-check the slot's still free (another candidate for the same settlement may have claimed it)
+            if (sel.settlementData.buildings[candidate.slotIndex] != BuildingType::None ||
+                sel.settlementData.pendingBuildings[candidate.slotIndex] != BuildingType::None) continue;
+
+            aiState.currentGold -= data->cost;
+            sel.settlementData.pendingBuildings[candidate.slotIndex] = candidate.buildingToConstruct;
+            sel.settlementData.slotConstructionTimes[candidate.slotIndex] = data->constructionTurns;
+            settlementUsedThisTurn[candidate.settlementIndex] = true;
+
+            SDL_Log("AI faction %d building %d in slot %d of %s (%s)",
+                (int)faction, (int)candidate.buildingToConstruct, candidate.slotIndex,
+                sel.settlementData.cityName.c_str(), candidate.buildingReason);
+        }
+    }
 
 
 
@@ -10933,6 +10974,9 @@ public:
 
                 ProcessAiFactionGoodsForTurn(faction, *aiState);
                 SDL_Log("AI faction %d goods: %d/%d stored", (int)faction, aiState->currentGoods, aiState->goodsStorage);
+
+                //for the ai construction buildings
+                ProcessAiFactionConstructionForTurn(faction, *aiState);
             }
         }
 
