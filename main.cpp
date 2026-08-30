@@ -2678,6 +2678,22 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture VikingWareHouse_T5", SDL_GetError());
         }
         SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::VikingWareHouse_T5], SDL_SCALEMODE_NEAREST);
+        //roads
+        buildingTypeTextures[BuildingType::KnightRoads_T1] = IMG_LoadTexture(renderer, "assets/Knight/RoadsTier1.png");
+        if (buildingTypeTextures[BuildingType::KnightRoads_T1] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightRoads_T1", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightRoads_T1], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightRoads_T2] = IMG_LoadTexture(renderer, "assets/Knight/RoadsTier2.png");
+        if (buildingTypeTextures[BuildingType::KnightRoads_T2] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightRoads_T2", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightRoads_T2], SDL_SCALEMODE_NEAREST);
+        buildingTypeTextures[BuildingType::KnightRoads_T3] = IMG_LoadTexture(renderer, "assets/Knight/RoadsTier3.png");
+        if (buildingTypeTextures[BuildingType::KnightRoads_T3] == nullptr) {
+            SDL_LogWarn(0, "failed to load texture KnightRoads_T3", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(buildingTypeTextures[BuildingType::KnightRoads_T3], SDL_SCALEMODE_NEAREST);
 
         buildingTypeTextures[BuildingType::VikingMint_T2] = IMG_LoadTexture(renderer, "assets/Viking/MintTier2.png");
         if (buildingTypeTextures[BuildingType::VikingMint_T2]  == nullptr) {
