@@ -11049,10 +11049,13 @@ public:
     for (auto& s : settlements) {
         int provID = s.settlementData.provinceID;
 
-        // tax only for player. with toggleCollectIncome
+        // tax only for player. with toggleCollectIncome (minus 4 from tax for all not just player)
         if (provinces[provID].owner == player.faction && provinces[provID].bToggleCollectIncome) {
             goldEarned += s.settlementData.baseIncome;
-            s.settlementData.publicOrder -= 4; //minus 4 if collected
+            //s.settlementData.publicOrder -= 4; //minus 4 if collected
+        }
+        if (provinces[provID].bToggleCollectIncome) {
+            s.settlementData.publicOrder -= 4;
         }
 
         // applied bonus to all province
