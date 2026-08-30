@@ -874,7 +874,7 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::Settlement_Capital_Knight_T2, {"Town Capital", "Busting streets and markets\nexpand the local economy.", 3100, 65, 0,  1, 2, 6, 10, 0, 50, 0, 0, 0, 0, BuildingType::Settlement_Capital_Knight_T3});
     add(BuildingType::Settlement_Capital_Knight_T3, {"City Capital", "A wealthy city filled with trader,\ncraftsmen and influence.", 4000, 140, 0,  1, 3, 8, 15, 0, 50, 0, 0, 0, 0, BuildingType::Settlement_Capital_Knight_T4});
     add(BuildingType::Settlement_Capital_Knight_T4, {"Large Capital", "Great districts and stone roads\nshape the mighty capital.", 6900, 220, 0,  2, 4, 10, 20, 0, 50, 0, 0, 0, 0, BuildingType::Settlement_Capital_Knight_T5});
-    add(BuildingType::Settlement_Capital_Knight_T5, {"Royal Capital", "The glorious center of the kingdom,\nruled by powerful lords and nobility. ", 8000, 300, 0, 3, 5, 12, 40, 0, 50, 0, 0, 0, 0, BuildingType::None});
+    add(BuildingType::Settlement_Capital_Knight_T5, {"Royal Capital", "The glorious center of the kingdom,\nruled by powerful lords and nobility.", 8000, 300, 0, 3, 5, 12, 40, 0, 50, 0, 0, 0, 0, BuildingType::None});
 
     // ── PORTS (KNIGHT) ──
     add(BuildingType::KnightMilitaryPort_T1, {"Naval Yard", "Modest docks where light vessels\nare built to patrol the coast\nand ferry troops abroad.", 500, 10, 0, 0, 1, 4, 0,0, 0, 0,0,0, 0, BuildingType::KnightMilitaryPort_T2});
@@ -888,19 +888,19 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::KnightFishingPort_T3, {"Grand Fishing Harbor", "A thriving harbor where fishermen\nreturn each day with catches\nenough to feed the whole province.", 1100, 0, 40, 0, 3, 6, 0, 25, 0, 0,0,0, 0, BuildingType::None});
 
     // ── VIKING SETTLEMENTS ──
-    add(BuildingType::Settlement_Village_Viking_T1, {"Small Settlement", "A small farm built by\nhardworking northern clans.", 0, 0, 25,  0, 1, 1, 0, 5, 0, 0, 0, 0, 0, BuildingType::Settlement_Village_Viking_T2});
-    add(BuildingType::Settlement_Village_Viking_T2, {"Settlement",       "Wooden homes and fishing docks\nsupport the growing community.", 0, 0, 50,  0, 2, 1, 0, 10, 0, 0, 0, 0, 0, BuildingType::Settlement_Village_Viking_T3});
-    add(BuildingType::Settlement_Village_Viking_T3, {"Large Settlement", "Thriving farms and busy harbors\nbring wealth to the village", 0, 0, 100, 0, 3, 1, 0, 15, 0, 0, 0, 0, 0, BuildingType::None});
-    add(BuildingType::Settlement_Castle_Viking_T1,  {"Small Longfort",   "A defensive camp protecting\nraiders and nearby villages.", 0, 0, 100, 0, 1, 1, 5, 0, 25, 0, 0, 0, 0, BuildingType::Settlement_Castle_Viking_T2});
-    add(BuildingType::Settlement_Castle_Viking_T2,  {"Longfort",         "Strong wooden palisades guard\nthe warriors of the clan.", 0, 0, 175, 0, 2, 1, 10, 0, 25, 0, 0, 0, 0, BuildingType::Settlement_Castle_Viking_T3});
-    add(BuildingType::Settlement_Castle_Viking_T3,  {"Great Longfort",   "A mighty stronghold where fierce\nvikings prepare for war.", 0, 0, 275, 0, 3, 1, 15, 0, 25, 0, 0, 0, 0, BuildingType::Settlement_Castle_Viking_T4});
-    add(BuildingType::Settlement_Castle_Viking_T4,  {"Viking Fortress",  "Towering defenses and war camps\ndominate the northern lands.", 0, 0, 400, 0, 4, 1, 20, 0, 25, 0, 0, 0, 0, BuildingType::Settlement_Castle_Viking_T5});
-    add(BuildingType::Settlement_Castle_Viking_T5,  {"Jarl's Keep",      "the seat of a powerful Jarl\nfeared across the seas.", 0, 0, 550, 0, 5, 1, 25, 0, 25, 0, 0, 0, 0, BuildingType::None});
-    add(BuildingType::Settlement_Capital_Viking_T1, {"Small Longhouse Capital",  "A modest hall where the clan\nleaders gather and feast.", 0, 0, 200,  0, 1, 1, 5, 0, 50, 0, 0, 0, 0, BuildingType::Settlement_Capital_Viking_T2});
-    add(BuildingType::Settlement_Capital_Viking_T2, {"Longhouse Capital",        "A great wooden hall filled with\nwarriors, merchants and skalds.", 0, 0, 350,  0, 2, 1, 10, 0, 50, 0, 0, 0, 0, BuildingType::Settlement_Capital_Viking_T3});
-    add(BuildingType::Settlement_Capital_Viking_T3, {"Great Longhouse Capital",  "Large feasts and proud warriors\nstrength the clan's influence.", 0, 0, 550,  0, 3, 1, 15, 0, 50, 0, 0, 0, 0, BuildingType::Settlement_Capital_Viking_T4});
-    add(BuildingType::Settlement_Capital_Viking_T4, {"Viking City Capital", "A prosperous northern city built\nthrough trade and conquest.", 0, 0, 800,  0, 4, 1, 20, 0, 50, 0, 0, 0,0, BuildingType::Settlement_Capital_Viking_T5});
-    add(BuildingType::Settlement_Capital_Viking_T5, {"Jarl's Capital",   "The glorious capital of the Jarls,\nruling the northern kingdoms.", 0, 0, 1100, 0, 5, 1, 40, 0, 50, 0, 0, 0, 0, BuildingType::None});
+    add(BuildingType::Settlement_Village_Viking_T1, {"Small Settlement", "A small farm built by\nhardworking northern clans.", 0, 0, 10,  0, 1, 1, 0, 5, 0, 0, 0, 0, 0, BuildingType::Settlement_Village_Viking_T2});
+    add(BuildingType::Settlement_Village_Viking_T2, {"Settlement", "Wooden homes and fishing docks\nsupport the growing community.", 250, 0, 25,  0, 2, 4, 0, 10, 0, 0, 0, 0, 0, BuildingType::Settlement_Village_Viking_T3});
+    add(BuildingType::Settlement_Village_Viking_T3, {"Large Settlement", "Thriving farms and busy harbors\nbring wealth to the village", 1000, 0, 50, 0, 3, 6, 0, 15, 0, 0, 0, 0, 0, BuildingType::None});
+    add(BuildingType::Settlement_Castle_Viking_T1,  {"Small Longfort", "A defensive camp protecting\nraiders and nearby villages.", 900, 0, 0, 0, 1, 1, 5, 0, 25,0, 0, 0, 0, BuildingType::Settlement_Castle_Viking_T2});
+    add(BuildingType::Settlement_Castle_Viking_T2,  {"Longfort", "Strong wooden palisades guard\nthe warriors of the clan.", 1100, 50, 0, 1, 2, 6, 10, 0, 25,0, 0, 0, 0, BuildingType::Settlement_Castle_Viking_T3});
+    add(BuildingType::Settlement_Castle_Viking_T3,  {"Great Longfort", "A mighty stronghold where fierce\nvikings prepare for war.", 2000, 120, 0, 1, 3, 8, 15, 0, 25, 0, 0, 0, 0, BuildingType::Settlement_Castle_Viking_T4});
+    add(BuildingType::Settlement_Castle_Viking_T4,  {"Viking Fortress", "Towering defenses and war camps\ndominate the northern lands.", 3100, 190, 0, 2, 4, 10, 20, 0, 25, 0, 0, 0, 0, BuildingType::Settlement_Castle_Viking_T5});
+    add(BuildingType::Settlement_Castle_Viking_T5,  {"Jarl's Keep", "the seat of a powerful Jarl\nfeared across the seas.", 4000, 260, 0, 3, 5, 12, 25, 0, 25, 0, 0, 0, 0,BuildingType::None});
+    add(BuildingType::Settlement_Capital_Viking_T1, {"Small Longhouse Capital", "A modest hall where the clan\nleaders gather and feast.", 1500, 0, 0,  0, 1, 0, 5, 0, 50, 0, 0, 0, 0, BuildingType::Settlement_Capital_Viking_T2});
+    add(BuildingType::Settlement_Capital_Viking_T2, {"Longhouse Capital", "A great wooden hall filled with\nwarriors, merchants and skalds.", 3100, 65, 0,  1, 2, 6, 10, 0, 50, 0, 0, 0, 0, BuildingType::Settlement_Capital_Viking_T3});
+    add(BuildingType::Settlement_Capital_Viking_T3, {"Great Longhouse Capital", "Large feasts and proud warriors\nstrength the clan's influence.", 4000, 140, 0,  1, 3, 8, 15, 0, 50, 0, 0, 0, 0, BuildingType::Settlement_Capital_Viking_T4});
+    add(BuildingType::Settlement_Capital_Viking_T4, {"Viking City Capital", "A prosperous northern city built\nthrough trade and conquest.", 6900, 220, 0,  2, 4, 10, 20, 0, 50, 0, 0, 0, 0, BuildingType::Settlement_Capital_Viking_T5});
+    add(BuildingType::Settlement_Capital_Viking_T5, {"Jarl's Capital", "The glorious capital of the Jarls,\nruling the northern kingdoms.", 8000, 300, 0, 3, 5, 12, 40, 0, 50, 0, 0, 0, 0, BuildingType::None});
 
     // ── PORTS (VIKING) ──
     add(BuildingType::VikingMilitaryPort_T1, {"Drakkar Yard", "A raw shipyard where young longships\nare hewn from northern timber,\nready for raid and plunder.", 500, 10, 0, 0, 1, 4, 0,0,0, 0,0,0, 0, BuildingType::VikingMilitaryPort_T2});
@@ -914,19 +914,19 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
     add(BuildingType::VikingFishingPort_T3, {"Grand Fishing Fjord", "A bustling fjord harbor where\nfishermen return laden with catch,\nfeeding villages up and down the coast.", 1100, 0, 40, 0, 3, 6, 0, 25, 0, 0,0,0, 0, BuildingType::None});
 
     // ── SAMURAI SETTLEMENTS ──
-    add(BuildingType::Settlement_Village_Samurai_T1, {"Small Village", "A peaceful village surrounded\nby rice flields and farmers.", 0, 0, 25,  0, 1, 1, 0, 5, 0, 0, 0, 0, 0, BuildingType::Settlement_Village_Samurai_T2});
-    add(BuildingType::Settlement_Village_Samurai_T2, {"Village", "Growing farms and skilled workers\nsupport the local clan.", 0, 0, 50,  0, 2, 1, 0, 10, 0, 0, 0, 0, 0, BuildingType::Settlement_Village_Samurai_T3});
-    add(BuildingType::Settlement_Village_Samurai_T3, {"Large Village", "Prosperous lands and busy markets\nbring honor to the Shogun", 0, 0, 100, 0, 3, 1, 0, 15, 0, 0, 0, 0,0, BuildingType::None});
-    add(BuildingType::Settlement_Castle_Samurai_T1,  {"Small Yashiro", "A modest stronghold guardgin\nthe nearby population", 0, 0, 100, 0, 1, 1, 5, 0, 25, 0, 0, 0, 0, BuildingType::Settlement_Castle_Samurai_T2});
-    add(BuildingType::Settlement_Castle_Samurai_T2,  {"Yashiro", "Samurai warriors defend the clan\nfrom behind sturdy walls.", 0, 0, 175, 0, 2, 1, 10, 0, 25, 0, 0, 0,0, BuildingType::Settlement_Castle_Samurai_T3});
-    add(BuildingType::Settlement_Castle_Samurai_T3,  {"Castle", "A respected castle housing\nwhere study and tradition meet protection.", 0, 0, 275, 0, 3, 1, 15, 0, 25, 0, 0, 0, 0, BuildingType::Settlement_Castle_Samurai_T4});
-    add(BuildingType::Settlement_Castle_Samurai_T4,  {"Large Castle", "Tall towers and fortified gates\nprotect the province.", 0, 0, 400, 0, 4, 1, 20, 0, 25, 0, 0, 0, 0, BuildingType::Settlement_Castle_Samurai_T5});
-    add(BuildingType::Settlement_Castle_Samurai_T5,  {"Fortress", "An immense fortress symbolizing\nthe power of the daimyo.", 0, 0, 550, 0, 5, 1, 25, 0, 25, 0, 0, 0, 0, BuildingType::None});
-    add(BuildingType::Settlement_Capital_Samurai_T1, {"Small Town Capital", "A growing Capital where merchants\nand farmers gather", 0, 0, 200,  0, 1, 1, 5, 0, 50, 0, 0, 0,0, BuildingType::Settlement_Capital_Samurai_T2});
-    add(BuildingType::Settlement_Capital_Samurai_T2, {"Town Capital", "Bustling streets and temples\nculture and military power.", 0, 0, 350,  0, 2, 1, 10, 0, 50, 0, 0, 0, 0, BuildingType::Settlement_Capital_Samurai_T3});
-    add(BuildingType::Settlement_Capital_Samurai_T3, {"City Capital", "A wealthy Capital known for trade,\nculture and military power.", 0, 0, 550,  0, 3, 1, 15, 0, 50, 0, 0, 0, 0, BuildingType::Settlement_Capital_Samurai_T4});
-    add(BuildingType::Settlement_Capital_Samurai_T4, {"Large City Capital", "Great districts and noble estates\nshape the mighty city", 0, 0, 800,  0, 4, 1, 20, 0, 50, 0, 0, 0, 0, BuildingType::Settlement_Capital_Samurai_T5});
-    add(BuildingType::Settlement_Capital_Samurai_T5, {"Shogun's Capital", "The glorious seat of the Shogun,\nruling the empire with honor.", 0, 0, 1100, 0, 5, 1, 40, 0, 50, 0, 0, 0, 0, BuildingType::None});
+    add(BuildingType::Settlement_Village_Samurai_T1, {"Small Village", "A peaceful village surrounded\nby rice flields and farmers.", 0, 0, 10,  0, 1, 1, 0, 5, 0, 0, 0, 0, 0, BuildingType::Settlement_Village_Samurai_T2});
+    add(BuildingType::Settlement_Village_Samurai_T2, {"Village", "Growing farms and skilled workers\nsupport the local clan.", 250, 0, 25, 0, 2, 4, 0, 10, 0, 0, 0, 0,0, BuildingType::Settlement_Village_Samurai_T3});
+    add(BuildingType::Settlement_Village_Samurai_T3, {"Large Village", "Prosperous lands and busy markets\nbring honor to the Shogun", 1000, 0, 50, 0, 3, 6, 0, 15, 0, 0, 0, 0,0, BuildingType::None});
+    add(BuildingType::Settlement_Castle_Samurai_T1,  {"Small Yashiro", "A modest stronghold guardgin\nthe nearby population", 900, 0, 0, 0, 1, 1, 5, 0, 25,0, 0, 0, 0, BuildingType::Settlement_Castle_Samurai_T2});
+    add(BuildingType::Settlement_Castle_Samurai_T2,  {"Yashiro", "Samurai warriors defend the clan\nfrom behind sturdy walls.", 1100, 50, 0, 1, 2, 6, 10, 0, 25,0, 0, 0, 0, BuildingType::Settlement_Castle_Samurai_T3});
+    add(BuildingType::Settlement_Castle_Samurai_T3,  {"Castle", "A respected castle housing\nwhere study and tradition meet protection.", 2000, 120, 0, 1, 3, 8, 15, 0, 25, 0, 0, 0, 0, BuildingType::Settlement_Castle_Samurai_T4});
+    add(BuildingType::Settlement_Castle_Samurai_T4,  {"Large Castle", "Tall towers and fortified gates\nprotect the province.", 3100, 190, 0, 2, 4, 10, 20, 0, 25, 0, 0, 0, 0, BuildingType::Settlement_Castle_Samurai_T5});
+    add(BuildingType::Settlement_Castle_Samurai_T5,  {"Fortress", "An immense fortress symbolizing\nthe power of the daimyo.", 4000, 260, 0, 3, 5, 12, 25, 0, 25, 0, 0, 0, 0, BuildingType::None});
+    add(BuildingType::Settlement_Capital_Samurai_T1, {"Small Town Capital", "A growing Capital where merchants\nand farmers gather", 1500, 0, 0,  0, 1, 0, 5, 0, 50, 0, 0, 0, 0, BuildingType::Settlement_Capital_Samurai_T2});
+    add(BuildingType::Settlement_Capital_Samurai_T2, {"Town Capital", "Bustling streets and temples\nculture and military power.", 3100, 65, 0,  1, 2, 6, 10, 0, 50, 0, 0, 0, 0, BuildingType::Settlement_Capital_Samurai_T3});
+    add(BuildingType::Settlement_Capital_Samurai_T3, {"City Capital", "A wealthy Capital known for trade,\nculture and military power.", 4000, 140, 0,  1, 3, 8, 15, 0, 50, 0, 0, 0, 0, BuildingType::Settlement_Capital_Samurai_T4});
+    add(BuildingType::Settlement_Capital_Samurai_T4, {"Large City Capital", "Great districts and noble estates\nshape the mighty city", 6900, 220, 0,  2, 4, 10, 20, 0, 50, 0, 0, 0, 0, BuildingType::Settlement_Capital_Samurai_T5});
+    add(BuildingType::Settlement_Capital_Samurai_T5, {"Shogun's Capital", "The glorious seat of the Shogun,\nruling the empire with honor.", 8000, 300, 0, 3, 5, 12, 40, 0, 50, 0, 0, 0, 0, BuildingType::None});
 
     // ── PORTS (SAMURAI) ──
     add(BuildingType::SamuraiMilitaryPort_T1, {"Coastal Shipwright", "A modest wharf where shipwrights\ncraft light vessels to guard\nthe coastline and ferry troops.", 500, 10, 0, 0, 1, 4, 0,0,0, 0,0,0, 0, BuildingType::SamuraiMilitaryPort_T2});
@@ -1005,7 +1005,7 @@ inline const std::unordered_map<BuildingType, BuildingData>& GetBuildingDatabase
 
     // ── KNIGHT RELIGION ──
     //Reconstitution
-    add(BuildingType::KnightAlmsHouse_T1, {"Small Hospital",    "Improves public order.",  100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, 0, BuildingType::KnightAlmsHouse_T2});
+    add(BuildingType::KnightAlmsHouse_T1, {"Small Hospital",    "Improves public order.", 100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, 0, BuildingType::KnightAlmsHouse_T2});
     add(BuildingType::KnightAlmsHouse_T2, {"Medium hospital",    "Strong public order.",    250, 10, 0, 3, 2, 3, 0, 0, 0, 0, 0, 3, 0, BuildingType::None});
     //Bee production
     add(BuildingType::KnightBeeKeeper_T1, {"Beehives","It takes a heavenly grace to be happy\namongst bees.",  100,  5, 0,  2, 1, 2, 0, 0, 0, 0, 0, 1, 0, BuildingType::KnightBeeKeeper_T2});
