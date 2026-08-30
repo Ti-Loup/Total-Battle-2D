@@ -77,12 +77,21 @@ inline bool SettlementAlreadyHasChain(const Settlement& s, BuildingType chainRoo
     return false;
 }
 
+// True if this exact building type or any tier in its chain already exists (built or pending)
+// anywhere in the province so two different settlements in the same province never both
+// end up wanting the same building. Ports are unaffected: they're assigned directly at settlement creation via bIsPort and never go through this candidate system.
+inline bool ProvinceAlreadyHasChain(const std::vector<int>& settlementIndices, const std::vector<Settlement>& settlements, BuildingType chainRoot) {
+    for (int idx : settlementIndices) {
+        if (SettlementAlreadyHasChain(settlements[idx], chainRoot)) return true;
+    }
+    return false;
+}
+
 // Returns the first building root in the list not already present (built or pending)
-// anywhere in the settlement, so a filled slot lets a category move on to its next
-// option instead of getting stuck rejecting the same building forever.
-inline BuildingType FindFirstMissingBuildingInList(const Settlement& s, const std::vector<BuildingType>& options) {
+// anywhere in the province, so a filled slot in one settlement lets a category move on to its next option instead of a sibling settlement building the exact same thing.
+inline BuildingType FindFirstMissingBuildingInProvince(const std::vector<int>& settlementIndices, const std::vector<Settlement>& settlements, const std::vector<BuildingType>& options) {
     for (BuildingType bt : options) {
-        if (!SettlementAlreadyHasChain(s, bt)) return bt;
+        if (!ProvinceAlreadyHasChain(settlementIndices, settlements, bt)) return bt;
     }
     return BuildingType::None;
 }
@@ -174,7 +183,7 @@ inline void EvaluateProvinceConstructionNeeds(
         //One candidate per category, every one starting at the same base weight.
         for (BuildingCategory category : kAllCategories) {
             std::vector<BuildingType> options = GetBuildingsForCategory(category, faction, tier);
-            BuildingType pick = FindFirstMissingBuildingInList(s, options);
+            BuildingType pick = FindFirstMissingBuildingInProvince(settlementIndices, settlements, options);
             if (pick == BuildingType::None) continue;
 
             float priority = AiConstructionWeights::kCategoryBase;
@@ -194,7 +203,7 @@ inline void EvaluateProvinceConstructionNeeds(
         }
 
         //Granary jumps the queue directly once the province struggles to store its food.
-        if (bFoodStorageTooSmall && granaryRoot != BuildingType::None && !SettlementAlreadyHasChain(s, granaryRoot)) {
+        if (bFoodStorageTooSmall && granaryRoot != BuildingType::None && !ProvinceAlreadyHasChain(settlementIndices, settlements, granaryRoot)) {
             const BuildingData* granaryData = GetBuildingData(granaryRoot);
             if (granaryData && granaryData->Tier <= tier) {
                 outCandidates.push_back({idx, emptySlot, granaryRoot,
@@ -204,7 +213,7 @@ inline void EvaluateProvinceConstructionNeeds(
         }
 
         //Warehouse jumps the queue directly once the province's goods storage is full.
-        if (bGoodsStorageFull && warehouseRoot != BuildingType::None && !SettlementAlreadyHasChain(s, warehouseRoot)) {
+        if (bGoodsStorageFull && warehouseRoot != BuildingType::None && !ProvinceAlreadyHasChain(settlementIndices, settlements, warehouseRoot)) {
             const BuildingData* warehouseData = GetBuildingData(warehouseRoot);
             if (warehouseData && warehouseData->Tier <= tier) {
                 outCandidates.push_back({idx, emptySlot, warehouseRoot,
