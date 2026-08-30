@@ -7362,77 +7362,92 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
     }
     //AI ONLY
     void ProcessAiFactionConstructionForTurn(FactionZone faction, AiFactionState &aiState) {
-        std::unordered_map<int, std::vector<int>> settlementsByProvince;
-        for (int i = 0; i < (int)settlements.size(); i++) {
-            if (provinces[settlements[i].settlementData.provinceID].owner != faction) continue;
-            settlementsByProvince[settlements[i].settlementData.provinceID].push_back(i);
-        }
-        if (settlementsByProvince.empty()) return;
+    std::unordered_map<int, std::vector<int>> settlementsByProvince;
+    for (int i = 0; i < (int)settlements.size(); i++) {
+        if (provinces[settlements[i].settlementData.provinceID].owner != faction) continue;
+        settlementsByProvince[settlements[i].settlementData.provinceID].push_back(i);
+    }
+    if (settlementsByProvince.empty()) return;
 
-        ResourceType factionRawGoodType = GetFactionRawGoodResourceType(faction);
-        BuildingType factionRawGoodRoot = GetFactionRawGoodBuildingRoot(faction);
+    ResourceType factionRawGoodType = GetFactionRawGoodResourceType(faction);
+    BuildingType factionRawGoodRoot = GetFactionRawGoodBuildingRoot(faction);
 
-        // One build per settlement per turn, tracked across every re-evaluation below.
-        std::unordered_map<int, bool> settlementUsedThisTurn;
+    std::unordered_map<int, bool> settlementUsedThisTurn;
 
-        // Build one building at a time, then recompute every need from scratch so the next pick
-        // always reflects what's still actually needed instead of a stale one-shot list.
-        /*
-        instead of sorting one static list and walking it, the AI now builds one building,
-        then throws away the candidate list and rebuilds it fresh from the current state (gold, pending buildings)
-        before picking the next one — exactly the "redo the entire construction weight" behavior
-         */
-        while (true) {
-            int factionNextTurnGold = CalculateFactionIncome(faction);
-            int factionRawGoodStored = aiState.goodsStoredByType.count(factionRawGoodType) ? aiState.goodsStoredByType[factionRawGoodType] : 0;
-            bool factionAlreadyHasRawGoodBuilding = FactionAlreadyHasChainBuilt(settlementsByProvince, factionRawGoodRoot);
+    while (true) {
+        int factionNextTurnGold = CalculateFactionIncome(faction);
+        int factionRawGoodStored = aiState.goodsStoredByType.count(factionRawGoodType) ? aiState.goodsStoredByType[factionRawGoodType] : 0;
+        bool factionAlreadyHasRawGoodBuilding = FactionAlreadyHasChainBuilt(settlementsByProvince, factionRawGoodRoot);
 
-            std::vector<AiConstructionCandidate> candidates;
-            for (auto& [provinceID, settlementIndices] : settlementsByProvince) {
-                //Food storage is a shared map (granaries belong to the province, not the owner)
-                int provinceFoodStored = foodStoredByProvince.count(provinceID) ? foodStoredByProvince[provinceID] : 0;
-                int provinceFoodCapacity = foodStorageCapacityByProvince.count(provinceID) ? foodStorageCapacityByProvince[provinceID] : 0;
+        std::vector<AiConstructionCandidate> candidates;
+        for (auto& [provinceID, settlementIndices] : settlementsByProvince) {
+            int provinceFoodStored = foodStoredByProvince.count(provinceID) ? foodStoredByProvince[provinceID] : 0;
+            int provinceFoodCapacity = foodStorageCapacityByProvince.count(provinceID) ? foodStorageCapacityByProvince[provinceID] : 0;
 
-                //Goods storage is tracked per faction inside aiState
-                int provinceGoodsStored = 0;
-                if (aiState.goodsStoredByProvinceAndType.count(provinceID)) {
-                    for (auto& [type, amount] : aiState.goodsStoredByProvinceAndType[provinceID]) provinceGoodsStored += amount;
-                }
-                int provinceGoodsCapacity = aiState.goodsStorageCapacityByProvince.count(provinceID) ? aiState.goodsStorageCapacityByProvince[provinceID] : 0;
-
-                EvaluateProvinceConstructionNeeds(provinceID, settlementIndices, settlements, faction,
-                    provinceFoodStored, provinceFoodCapacity,
-                    provinceGoodsStored, provinceGoodsCapacity,
-                    factionNextTurnGold, factionRawGoodStored, factionAlreadyHasRawGoodBuilding,
-                    candidates);
+            int provinceGoodsStored = 0;
+            if (aiState.goodsStoredByProvinceAndType.count(provinceID)) {
+                for (auto& [type, amount] : aiState.goodsStoredByProvinceAndType[provinceID]) provinceGoodsStored += amount;
             }
+            int provinceGoodsCapacity = aiState.goodsStorageCapacityByProvince.count(provinceID) ? aiState.goodsStorageCapacityByProvince[provinceID] : 0;
 
-            if (candidates.empty()) break; // nothing left the AI wants to build this turn
+            EvaluateProvinceConstructionNeeds(provinceID, settlementIndices, settlements, faction,
+                provinceFoodStored, provinceFoodCapacity,
+                provinceGoodsStored, provinceGoodsCapacity,
+                factionNextTurnGold, factionRawGoodStored, factionAlreadyHasRawGoodBuilding,
+                candidates);
+        }
 
-            // Highest priority first
-            std::sort(candidates.begin(), candidates.end(),
-                [](const auto& a, const auto& b) { return a.buildingPriority > b.buildingPriority; });
+        if (candidates.empty()) break;
 
-            // Pick the single best candidate we can actually afford and still have a free settlement for
-            const AiConstructionCandidate* chosen = nullptr;
-            for (auto& candidate : candidates) {
-                if (settlementUsedThisTurn.count(candidate.settlementIndex)) continue;
+        std::sort(candidates.begin(), candidates.end(),
+            [](const auto& a, const auto& b) { return a.buildingPriority > b.buildingPriority; });
 
+        const AiConstructionCandidate* chosen = nullptr;
+        for (auto& candidate : candidates) {
+            if (settlementUsedThisTurn.count(candidate.settlementIndex)) continue;
+            const Settlement& sel = settlements[candidate.settlementIndex];
+
+            if (candidate.actionType == AiConstructionActionType::MainSettlementUpgrade) {
+                if (sel.settlementData.bBuidingUnderConstruction) continue;
+                const BuildingData* mainData = GetBuildingData(sel.settlementData.buildings[0]);
+                const BuildingData* nextData = (mainData && mainData->upgradesTo != BuildingType::None)
+                    ? GetBuildingData(mainData->upgradesTo) : nullptr;
+                if (!nextData || aiState.currentGold < nextData->cost) continue;
+            }
+            else {
                 const BuildingData* data = GetBuildingData(candidate.buildingToConstruct);
                 if (!data || aiState.currentGold < data->cost) continue;
 
-                const Settlement& sel = settlements[candidate.settlementIndex];
-                if (sel.settlementData.buildings[candidate.slotIndex] != BuildingType::None ||
-                    sel.settlementData.pendingBuildings[candidate.slotIndex] != BuildingType::None) continue;
-
-                chosen = &candidate;
-                break;
+                bool slotOccupied = sel.settlementData.buildings[candidate.slotIndex] != BuildingType::None;
+                bool slotPending  = sel.settlementData.pendingBuildings[candidate.slotIndex] != BuildingType::None;
+                if (slotPending) continue;
+                if (candidate.actionType == AiConstructionActionType::NewBuilding && slotOccupied) continue;
+                if (candidate.actionType == AiConstructionActionType::UpgradeBuilding && !slotOccupied) continue;
             }
 
-            if (!chosen) break; // nothing affordable/buildable remains this turn
+            chosen = &candidate;
+            break;
+        }
 
+        if (!chosen) break; // plus rien d'abordable/possible ce tour-ci
+
+        Settlement& sel = settlements[chosen->settlementIndex];
+
+        if (chosen->actionType == AiConstructionActionType::MainSettlementUpgrade) {
+            const BuildingData* mainData = GetBuildingData(sel.settlementData.buildings[0]);
+            const BuildingData* nextData = GetBuildingData(mainData->upgradesTo);
+
+            aiState.currentGold -= nextData->cost;
+            sel.settlementData.bBuidingUnderConstruction = true;
+            sel.settlementData.pendingTier = sel.settlementData.settlementTier + 1;
+            sel.settlementData.constructionTime = nextData->constructionTurns;
+            settlementUsedThisTurn[chosen->settlementIndex] = true;
+
+            SDL_Log("AI faction %d upgrades main settlement of %s to tier %d (%s)",
+                (int)faction, sel.settlementData.cityName.c_str(), sel.settlementData.pendingTier, chosen->buildingReason);
+        }
+        else {
             const BuildingData* chosenData = GetBuildingData(chosen->buildingToConstruct);
-            Settlement& sel = settlements[chosen->settlementIndex];
 
             aiState.currentGold -= chosenData->cost;
             sel.settlementData.pendingBuildings[chosen->slotIndex] = chosen->buildingToConstruct;
@@ -7442,9 +7457,9 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
             SDL_Log("AI faction %d building %d in slot %d of %s (%s)",
                 (int)faction, (int)chosen->buildingToConstruct, chosen->slotIndex,
                 sel.settlementData.cityName.c_str(), chosen->buildingReason);
-            // Loop back around: re-evaluate every need from scratch before the next purchase.
         }
     }
+}
 
 
 
@@ -11061,25 +11076,6 @@ public:
 
     // Player gold added
     player.AddGold(player.nextTurnGold);
-    //Ai gold added + food added
-        for (FactionZone faction : {FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai}) {
-            if (faction == player.faction) continue;
-            if (AiFactionState *aiState = aiBehaviour.GetState(faction)) {
-                int income = CalculateFactionIncome(faction);
-                aiState->currentGold += income;
-                SDL_Log("AI faction %d earned %d gold (total: %d)", (int)faction, income, aiState->currentGold);
-
-                ProcessAiFactionFoodForTurn(faction, *aiState);
-                SDL_Log("AI faction %d food: %d/%d stored (net this turn: %d)", (int)faction, aiState->foodStored, aiState->foodStorage, aiState->nextTurnFood);
-
-                ProcessAiFactionGoodsForTurn(faction, *aiState);
-                SDL_Log("AI faction %d goods: %d/%d stored", (int)faction, aiState->currentGoods, aiState->goodsStorage);
-
-                //for the ai construction buildings
-                ProcessAiFactionConstructionForTurn(faction, *aiState);
-            }
-        }
-
     // //food added
     // player.currentFood = player.nextTurnFood;
     //     SDL_Log("Food: %d ", player.currentFood, player.nextTurnFood);
@@ -11113,6 +11109,25 @@ public:
             }
         }
     }
+        //Ai gold added + food added
+        for (FactionZone faction : {FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai}) {
+            if (faction == player.faction) continue;
+            if (AiFactionState *aiState = aiBehaviour.GetState(faction)) {
+                int income = CalculateFactionIncome(faction);
+                aiState->currentGold += income;
+                SDL_Log("AI faction %d earned %d gold (total: %d)", (int)faction, income, aiState->currentGold);
+
+                ProcessAiFactionFoodForTurn(faction, *aiState);
+                SDL_Log("AI faction %d food: %d/%d stored (net this turn: %d)", (int)faction, aiState->foodStored, aiState->foodStorage, aiState->nextTurnFood);
+
+                ProcessAiFactionGoodsForTurn(faction, *aiState);
+                SDL_Log("AI faction %d goods: %d/%d stored", (int)faction, aiState->currentGoods, aiState->goodsStorage);
+
+                //for the ai construction buildings
+                ProcessAiFactionConstructionForTurn(faction, *aiState);
+            }
+        }
+
         // Building destructions (takes 1 turn)
         for (auto it = buildingsMarkedDestroyed.begin(); it != buildingsMarkedDestroyed.end(); ) {
             it->second--;

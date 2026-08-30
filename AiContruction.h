@@ -11,12 +11,20 @@
 #include "Province.h"
 #include <vector>
 
+//the ai will first construct new buildings and once its full they will upgrade the main settlements and then upgrade the buildings/construct new ones.
+enum class AiConstructionActionType {
+    NewBuilding,
+    MainSettlementUpgrade,
+    UpgradeBuilding
+};
+
 struct AiConstructionCandidate {
     int settlementIndex;
     int slotIndex;
     BuildingType buildingToConstruct;
     float buildingPriority;//importance of a certain building to be constructed
     const char *buildingReason;//Log Reason/ debug
+    AiConstructionActionType actionType = AiConstructionActionType::NewBuilding;
 };
 
 //strenght of a priority building to be there
@@ -26,10 +34,10 @@ namespace AiConstructionWeights{
     constexpr float kCategoryBase = 3.0f;
 
     //Boosts stacked on top of kCategoryBase once a real need is detected.
-    constexpr float kFoodStorageTooSmall   = 7.0f;//granary: province can't hold much more food
-    constexpr float kGoodsStorageFull      = 7.0f;//warehouse: province goods storage overflowing
+    constexpr float kFoodStorageTooSmall = 7.0f;//granary: province can't hold much more food
+    constexpr float kGoodsStorageFull = 7.0f;//warehouse: province goods storage overflowing
     constexpr float kMoneyNextTurnNegative = 7.0f;//any economy building: losing gold next turn
-    constexpr float kPublicOrderWeak       = 7.0f;//any religious building: base bump
+    constexpr float kPublicOrderWeak = 7.0f;//any religious building: base bump
     constexpr float kPublicOrderPerNegatif = 0.3f;//extra priority per point of negative public order
     constexpr float kMissingFactionRawGood = 7.0f;//beehives/brew house/tea garden, needed for decrees
 
@@ -39,6 +47,9 @@ namespace AiConstructionWeights{
     constexpr float kGoodsStorageFullRatio = 0.85f;//stored >= 85% of capacity -> need more warehouses
 
     constexpr float kRawMaterialUnused = 8.0f;//idle raw resource -> build its industry chain (province-wide)
+
+    constexpr float kMainSettlementUpgrade = 6.0f;
+    constexpr float kUpgradeBuildingBase = 4.0f;
 }
 
 //To find the first empty slot to be unlockable. (main building == 0 so above that)
@@ -175,60 +186,88 @@ inline void EvaluateProvinceConstructionNeeds(
 
     for (int idx : settlementIndices) {
         const Settlement& s = settlements[idx];
-        int emptySlot = FindEmptyBuildableSlot(s);
-        if (emptySlot < 0) continue;
-
         int tier = s.settlementData.settlementTier;
+        int emptySlot = FindEmptyBuildableSlot(s);
 
-        //One candidate per category, every one starting at the same base weight.
-        for (BuildingCategory category : kAllCategories) {
-            std::vector<BuildingType> options = GetBuildingsForCategory(category, faction, tier);
-            BuildingType pick = FindFirstMissingBuildingInProvince(settlementIndices, settlements, options);
-            if (pick == BuildingType::None) continue;
+        if (emptySlot >= 0) {
+            // Room available -> build new things
+            for (BuildingCategory category : kAllCategories) {
+                std::vector<BuildingType> options = GetBuildingsForCategory(category, faction, tier);
+                BuildingType pick = FindFirstMissingBuildingInProvince(settlementIndices, settlements, options);
+                if (pick == BuildingType::None) continue;
 
-            float priority = AiConstructionWeights::kCategoryBase;
-            const char* reason = "Baseline growth";
+                float priority = AiConstructionWeights::kCategoryBase;
+                const char* reason = "Baseline growth";
 
-            if (category == BuildingCategory::Economy && bMoneyNextTurnNegative) {
-                priority += AiConstructionWeights::kMoneyNextTurnNegative;
-                reason = "Losing gold next turn";
+                if (category == BuildingCategory::Economy && bMoneyNextTurnNegative) {
+                    priority += AiConstructionWeights::kMoneyNextTurnNegative;
+                    reason = "Losing gold next turn";
+                }
+                if (category == BuildingCategory::Religion && s.settlementData.publicOrder < 0) {
+                    priority += AiConstructionWeights::kPublicOrderWeak
+                              + (-s.settlementData.publicOrder) * AiConstructionWeights::kPublicOrderPerNegatif;
+                    reason = "Weak public order";
+                }
+                outCandidates.push_back({idx, emptySlot, pick, priority, reason, AiConstructionActionType::NewBuilding});
             }
-            if (category == BuildingCategory::Religion && s.settlementData.publicOrder < 0) {
-                priority += AiConstructionWeights::kPublicOrderWeak
-                          + (-s.settlementData.publicOrder) * AiConstructionWeights::kPublicOrderPerNegatif;
-                reason = "Weak public order";
-            }
 
-            outCandidates.push_back({idx, emptySlot, pick, priority, reason});
+            if (bFoodStorageTooSmall && granaryRoot != BuildingType::None && !ProvinceAlreadyHasChain(settlementIndices, settlements, granaryRoot)) {
+                const BuildingData* granaryData = GetBuildingData(granaryRoot);
+                if (granaryData && granaryData->Tier <= tier)
+                    outCandidates.push_back({idx, emptySlot, granaryRoot,
+                        AiConstructionWeights::kCategoryBase + AiConstructionWeights::kFoodStorageTooSmall,
+                        "Food storage nearly full", AiConstructionActionType::NewBuilding});
+            }
+            if (bGoodsStorageFull && warehouseRoot != BuildingType::None && !ProvinceAlreadyHasChain(settlementIndices, settlements, warehouseRoot)) {
+                const BuildingData* warehouseData = GetBuildingData(warehouseRoot);
+                if (warehouseData && warehouseData->Tier <= tier)
+                    outCandidates.push_back({idx, emptySlot, warehouseRoot,
+                        AiConstructionWeights::kCategoryBase + AiConstructionWeights::kGoodsStorageFull,
+                        "Goods storage full", AiConstructionActionType::NewBuilding});
+            }
+            if (bMissingFactionRawGood && rawGoodBuildingRoot != BuildingType::None && !SettlementAlreadyHasChain(s, rawGoodBuildingRoot)) {
+                const BuildingData* rawGoodData = GetBuildingData(rawGoodBuildingRoot);
+                if (rawGoodData && rawGoodData->Tier <= tier)
+                    outCandidates.push_back({idx, emptySlot, rawGoodBuildingRoot,
+                        AiConstructionWeights::kCategoryBase + AiConstructionWeights::kMissingFactionRawGood,
+                        "Missing faction raw good", AiConstructionActionType::NewBuilding});
+            }
         }
-
-        //Granary jumps the queue directly once the province struggles to store its food.
-        if (bFoodStorageTooSmall && granaryRoot != BuildingType::None && !ProvinceAlreadyHasChain(settlementIndices, settlements, granaryRoot)) {
-            const BuildingData* granaryData = GetBuildingData(granaryRoot);
-            if (granaryData && granaryData->Tier <= tier) {
-                outCandidates.push_back({idx, emptySlot, granaryRoot,
-                    AiConstructionWeights::kCategoryBase + AiConstructionWeights::kFoodStorageTooSmall,
-                    "Food storage nearly full"});
+        else {
+            // No room -> upgrade main settlement (unlocks slots)
+            if (!s.settlementData.bBuidingUnderConstruction) {
+                const BuildingData* mainBd = GetBuildingData(s.settlementData.buildings[0]);
+                if (mainBd && mainBd->upgradesTo != BuildingType::None) {
+                    outCandidates.push_back({idx, 0, BuildingType::None,
+                        AiConstructionWeights::kMainSettlementUpgrade,
+                        "No room left, upgrading main settlement",
+                        AiConstructionActionType::MainSettlementUpgrade});
+                }
             }
-        }
+            // Also try upgrading buildings already constructed
+            for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
+                BuildingType built = s.settlementData.buildings[b];
+                if (built == BuildingType::None) continue;
+                if (s.settlementData.pendingBuildings[b] != BuildingType::None) continue;
 
-        //Warehouse jumps the queue directly once the province's goods storage is full.
-        if (bGoodsStorageFull && warehouseRoot != BuildingType::None && !ProvinceAlreadyHasChain(settlementIndices, settlements, warehouseRoot)) {
-            const BuildingData* warehouseData = GetBuildingData(warehouseRoot);
-            if (warehouseData && warehouseData->Tier <= tier) {
-                outCandidates.push_back({idx, emptySlot, warehouseRoot,
-                    AiConstructionWeights::kCategoryBase + AiConstructionWeights::kGoodsStorageFull,
-                    "Goods storage full"});
-            }
-        }
+                const BuildingData* builtData = GetBuildingData(built);
+                if (!builtData || builtData->upgradesTo == BuildingType::None) continue;
+                const BuildingData* nextData = GetBuildingData(builtData->upgradesTo);
+                if (!nextData || nextData->Tier > tier) continue;
 
-        //Faction has none of its own raw good (Candle/Beer/GreenTea) for decrees -> build the production building.
-        if (bMissingFactionRawGood && rawGoodBuildingRoot != BuildingType::None && !SettlementAlreadyHasChain(s, rawGoodBuildingRoot)) {
-            const BuildingData* rawGoodData = GetBuildingData(rawGoodBuildingRoot);
-            if (rawGoodData && rawGoodData->Tier <= tier) {
-                outCandidates.push_back({idx, emptySlot, rawGoodBuildingRoot,
-                    AiConstructionWeights::kCategoryBase + AiConstructionWeights::kMissingFactionRawGood,
-                    "Missing faction raw good"});
+                float priority = AiConstructionWeights::kUpgradeBuildingBase;
+                const char* reason = "Upgrading existing building";
+                BuildingCategory cat = GetBuildingCategory(built);
+                if (cat == BuildingCategory::Economy && bMoneyNextTurnNegative) {
+                    priority += AiConstructionWeights::kMoneyNextTurnNegative;
+                    reason = "Upgrading economy building, losing gold";
+                }
+                if (cat == BuildingCategory::Religion && s.settlementData.publicOrder < 0) {
+                    priority += AiConstructionWeights::kPublicOrderWeak
+                              + (-s.settlementData.publicOrder) * AiConstructionWeights::kPublicOrderPerNegatif;
+                    reason = "Upgrading religious building, weak public order";
+                }
+                outCandidates.push_back({idx, b, builtData->upgradesTo, priority, reason, AiConstructionActionType::UpgradeBuilding});
             }
         }
     }
