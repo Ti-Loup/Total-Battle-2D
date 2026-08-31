@@ -4443,6 +4443,21 @@ private://constructor
                 float barX   = centerX - barW / 2.f;
                 float barY   = bottomY + barGap;
 
+                //The faction texture of each faction
+                //rect of the texture
+                float bannerIconSize = 32.f;
+                SDL_FRect factionSettlementBannerRect = {barX, barY, bannerIconSize, bannerIconSize};
+                FactionZone zone = provinces[s.settlementData.provinceID].owner;
+
+                if (zone == FactionZone::Knight) {
+                    SDL_RenderTexture(renderer,settlementKnightBannerTexture, nullptr, &factionSettlementBannerRect);
+                }
+                if (zone == FactionZone::Viking) {
+                    SDL_RenderTexture(renderer, settlementVikingBannerTexture, nullptr, &factionSettlementBannerRect);
+                }
+                if (zone == FactionZone::Samurai) {
+                    SDL_RenderTexture(renderer, settlementSamuraiBannerTexture, nullptr, &factionSettlementBannerRect);
+                }
 
                 // the name of the settlement
                 TTF_SetTextString(gameStatUITitleText, s.settlementData.cityName.c_str(), 0);
@@ -4581,7 +4596,7 @@ private://constructor
                     }
                 }
 
-                //Outside the main Bare, REsource Icon
+                //Outside the main Bare, Resource Icon
                 if (settlementResourceIcon) {
                     SDL_FRect resourceIconRect = {backgroundX + backgroundW + resourceSlotGap,nameY + (nameH - resourceSlotSize) / 2.f, resourceSlotSize, resourceSlotSize};
                     SDL_RenderTexture(renderer, settlementResourceIcon, nullptr, &resourceIconRect);
@@ -4675,9 +4690,7 @@ private://constructor
                 }
 
 
-
-
-                // INFO BAR
+                // INFO BAR smallest under the big one
                 SDL_SetRenderDrawColor(renderer, 10, 10, 10, 210);
                 SDL_FRect infoBar = {barX, barY, barW, barH};
                 SDL_RenderFillRect(renderer, &infoBar);
