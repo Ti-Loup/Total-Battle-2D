@@ -10,6 +10,8 @@
 #include "Settlements.h"
 #include "Province.h"
 #include <vector>
+#include <algorithm>
+#include <cstdlib>
 
 //the ai will first construct new buildings and once its full they will upgrade the main settlements and then upgrade the buildings/construct new ones.
 enum class AiConstructionActionType {
@@ -29,9 +31,17 @@ struct AiConstructionCandidate {
 
 //strenght of a priority building to be there
 namespace AiConstructionWeights{
-    //All 6 construction categories start on the exact same footing; only a
-    //genuine need below is allowed to push one candidate above the others.
-    constexpr float kCategoryBase = 3.0f;
+     //Used only for the granary/warehouse/raw-good candidates (not the category loop below).
+        constexpr float kCategoryBase = 3.0f;
+
+        //Per-category base priority for the general building loop. Lower numbers mean
+        //the AI is less eager to reach for that category when everything else is equal.
+        constexpr float kCategoryBaseMilitary = 1.0f;
+        constexpr float kCategoryBaseAdvancedMilitary = 1.0f;
+        constexpr float kCategoryBaseDefence = 1.0f;
+        constexpr float kCategoryBaseEconomy = 3.0f;
+        constexpr float kCategoryBaseIndustry = 5.0f;
+        constexpr float kCategoryBaseReligion = 2.0f;
 
     //Boosts stacked on top of kCategoryBase once a real need is detected.
     constexpr float kFoodStorageTooSmall = 7.0f;//granary: province can't hold much more food
@@ -39,6 +49,7 @@ namespace AiConstructionWeights{
     constexpr float kMoneyNextTurnNegative = 7.0f;//any economy building: losing gold next turn
     constexpr float kPublicOrderWeak = 7.0f;//any religious building: base bump
     constexpr float kPublicOrderPerNegatif = 0.3f;//extra priority per point of negative public order
+    constexpr float kPublicOrderNeedThreshold = -25.0f;//religion buildings not considered at all until public order drops below this
     constexpr float kMissingFactionRawGood = 7.0f;//beehives/brew house/tea garden, needed for decrees
 
     //Thresholds deciding whether storage counts as "too small" / "full".
@@ -46,10 +57,24 @@ namespace AiConstructionWeights{
     constexpr float kFoodStorageFullRatio  = 0.85f;//stored >= 85% of capacity -> need more granaries
     constexpr float kGoodsStorageFullRatio = 0.85f;//stored >= 85% of capacity -> need more warehouses
 
-    constexpr float kRawMaterialUnused = 8.0f;//idle raw resource -> build its industry chain (province-wide)
+    constexpr float kRawMaterialUnused = 15.0f;//idle raw resource -> build its industry chain (province-wide)
 
-    constexpr float kMainSettlementUpgrade = 6.0f;
+    constexpr float kMainSettlementUpgrade = 14.0f;
     constexpr float kUpgradeBuildingBase = 4.0f;
+}
+
+//Maps a category to its base priority weight, so Military/Defence/etc. can each
+//have their own eagerness instead of sharing one flat base value.
+inline float GetCategoryBaseWeight(BuildingCategory category) {
+    switch (category) {
+        case BuildingCategory::Military: return AiConstructionWeights::kCategoryBaseMilitary;
+        case BuildingCategory::AdvancedMilitary: return AiConstructionWeights::kCategoryBaseAdvancedMilitary;
+        case BuildingCategory::Defence: return AiConstructionWeights::kCategoryBaseDefence;
+        case BuildingCategory::Economy: return AiConstructionWeights::kCategoryBaseEconomy;
+        case BuildingCategory::Industry: return AiConstructionWeights::kCategoryBaseIndustry;
+        case BuildingCategory::Religion: return AiConstructionWeights::kCategoryBaseReligion;
+        default: return AiConstructionWeights::kCategoryBase;
+    }
 }
 
 //To find the first empty slot to be unlockable. (main building == 0 so above that)
@@ -98,13 +123,23 @@ inline bool ProvinceAlreadyHasChain(const std::vector<int>& settlementIndices, c
     return false;
 }
 
-// Returns the first building root in the list not already present (built or pending)
-// anywhere in the province, so a filled slot in one settlement lets a category move on to its next option instead of a sibling settlement building the exact same thing.
 inline BuildingType FindFirstMissingBuildingInProvince(const std::vector<int>& settlementIndices, const std::vector<Settlement>& settlements, const std::vector<BuildingType>& options) {
     for (BuildingType bt : options) {
         if (!ProvinceAlreadyHasChain(settlementIndices, settlements, bt)) return bt;
     }
     return BuildingType::None;
+}
+
+inline BuildingType FindRandomMissingBuildingInProvince(const std::vector<int>& settlementIndices, const std::vector<Settlement>& settlements, const std::vector<BuildingType>& options) {
+    std::vector<BuildingType> missing;
+    for (BuildingType bt : options) {
+        if (!ProvinceAlreadyHasChain(settlementIndices, settlements, bt)) {
+            missing.push_back(bt);
+        }
+    }
+    if (missing.empty()) return BuildingType::None;
+    int randomIndex = rand() % (int)missing.size();
+    return missing[randomIndex];
 }
 
 inline int FindProvinceMainSettlement(const std::vector<int>& settlementIndices, const std::vector<Settlement>& settlements) {
@@ -176,7 +211,7 @@ inline void EvaluateProvinceConstructionNeeds(
         (float)provinceFoodStored >= (float)provinceFoodCapacity * AiConstructionWeights::kFoodStorageFullRatio;
     bool bGoodsStorageFull = provinceGoodsCapacity <= 0 ||
         (float)provinceGoodsStored >= (float)provinceGoodsCapacity * AiConstructionWeights::kGoodsStorageFullRatio;
-    bool bMoneyNextTurnNegative = factionNextTurnGold < 0;
+    bool bMoneyNextTurnNegative = factionNextTurnGold < 100;
     // Only counts as missing if nobody in the faction already has it built or pending anywhere.
     bool bMissingFactionRawGood = factionRawGoodStored <= 0 && !factionAlreadyHasRawGoodBuilding;
 
@@ -193,20 +228,30 @@ inline void EvaluateProvinceConstructionNeeds(
             // Room available -> build new things
             for (BuildingCategory category : kAllCategories) {
                 std::vector<BuildingType> options = GetBuildingsForCategory(category, faction, tier);
-                BuildingType pick = FindFirstMissingBuildingInProvince(settlementIndices, settlements, options);
+                if (category == BuildingCategory::Religion && s.settlementData.publicOrder >= AiConstructionWeights::kPublicOrderNeedThreshold) {
+                    continue;
+                }
+                // The faction's raw-good building (candle/beer/tea) is handled by its own
+                // dedicated faction-wide check below — skip it here so every province doesn't
+                // independently think it's "missing" and build its own copy.
+                if (rawGoodBuildingRoot != BuildingType::None) {
+                    options.erase(std::remove(options.begin(), options.end(), rawGoodBuildingRoot), options.end());
+                }
+
+                BuildingType pick = FindRandomMissingBuildingInProvince(settlementIndices, settlements, options);
                 if (pick == BuildingType::None) continue;
 
-                float priority = AiConstructionWeights::kCategoryBase;
+                float priority = GetCategoryBaseWeight(category);
                 const char* reason = "Baseline growth";
 
                 if (category == BuildingCategory::Economy && bMoneyNextTurnNegative) {
                     priority += AiConstructionWeights::kMoneyNextTurnNegative;
                     reason = "Losing gold next turn";
                 }
-                if (category == BuildingCategory::Religion && s.settlementData.publicOrder < 0) {
-                    priority += AiConstructionWeights::kPublicOrderWeak
-                              + (-s.settlementData.publicOrder) * AiConstructionWeights::kPublicOrderPerNegatif;
-                    reason = "Weak public order";
+                if (category == BuildingCategory::Religion && s.settlementData.publicOrder < AiConstructionWeights::kPublicOrderNeedThreshold) {
+                     priority += AiConstructionWeights::kPublicOrderWeak
+                     + (-s.settlementData.publicOrder) * AiConstructionWeights::kPublicOrderPerNegatif;
+                     reason = "Weak public order";
                 }
                 outCandidates.push_back({idx, emptySlot, pick, priority, reason, AiConstructionActionType::NewBuilding});
             }
@@ -262,11 +307,11 @@ inline void EvaluateProvinceConstructionNeeds(
                     priority += AiConstructionWeights::kMoneyNextTurnNegative;
                     reason = "Upgrading economy building, losing gold";
                 }
-                if (cat == BuildingCategory::Religion && s.settlementData.publicOrder < 0) {
+                if (cat == BuildingCategory::Religion && s.settlementData.publicOrder < AiConstructionWeights::kPublicOrderNeedThreshold) {
                     priority += AiConstructionWeights::kPublicOrderWeak
-                              + (-s.settlementData.publicOrder) * AiConstructionWeights::kPublicOrderPerNegatif;
+                    + (-s.settlementData.publicOrder) * AiConstructionWeights::kPublicOrderPerNegatif;
                     reason = "Upgrading religious building, weak public order";
-                }
+                    }
                 outCandidates.push_back({idx, b, builtData->upgradesTo, priority, reason, AiConstructionActionType::UpgradeBuilding});
             }
         }
