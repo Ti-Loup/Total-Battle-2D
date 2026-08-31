@@ -2,6 +2,11 @@
 // Created by Louis-Philippe on 8/28/2026.
 //
 
+
+
+//issue the castles are never upgraded because they cost more than a village and other buildings.
+//so need a way for the ai to save more 
+
 #pragma once
 #ifndef TOTALBATTLE2D_AICONSTRUCTION_H
 #define TOTALBATTLE2D_AICONSTRUCTION_H
@@ -36,7 +41,7 @@ namespace AiConstructionWeights{
 
         //Per-category base priority for the general building loop. Lower numbers mean
         //the AI is less eager to reach for that category when everything else is equal.
-        constexpr float kCategoryBaseMilitary = 1.0f;
+        constexpr float kCategoryBaseMilitary = 2.0f;
         constexpr float kCategoryBaseAdvancedMilitary = 1.0f;
         constexpr float kCategoryBaseDefence = 1.0f;
         constexpr float kCategoryBaseEconomy = 3.0f;
