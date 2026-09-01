@@ -1,5 +1,22 @@
+//
+// AiContruction.h
+//
 // Decides what the AI factions should build, region by region, in a way
 // that is actually accountable for its own upkeep.
+//
+// The old version picked randomly among "missing" buildings in a category
+// and only cared about the up-front gold cost. That let the AI happily
+// queue buildings whose ongoing upkeep it couldn't sustain, build industry
+// buildings in provinces that don't even produce
+// the raw material they need, and treat a fishing port (zero upkeep,
+// produces both food AND gold) the same as a Barracks (pure upkeep, no
+// return at all with no combat system live yet).
+//
+// This version scores every candidate on its real economics - net gold per
+// turn, payback period, whether it costs food to run - and refuses to
+// propose anything the faction can't actually sustain. See the tuning
+// constants below for the knobs that control how cautious/ambitious the AI
+// is.
 
 #pragma once
 #ifndef TOTALBATTLE2D_AICONSTRUCTION_H
@@ -13,6 +30,8 @@
 #include <limits>
 
 // Candidate model
+// Unchanged on purpose: GameApp.cpp reads these fields directly, so the
+// shape stays identical even though how they get filled in changed.
 
 enum class AiConstructionActionType {
     NewBuilding,
@@ -69,11 +88,17 @@ namespace AiConstructionTuning {
 
     // Turning an idle raw resource into its finished good - but only ever
     // proposed in a province that actually produces that raw resource.
-    constexpr float kRawMaterialConversionBonus = 7.0f;
+    // Kept close to a mid-tier Economy building's score (see AiEconomicScore)
+    // so an idle mine gets addressed within a few turns instead of being
+    // starved out indefinitely by an endless queue of "objectively better"
+    // Economy picks - a mine producing into a full warehouse with nowhere
+    // to convert it is real waste, not a low-priority nice-to-have.
+    constexpr float kRawMaterialConversionBonus = 14.0f;
     constexpr float kMissingFactionRawGoodBonus = 7.0f; // candle/beer/tea, needed for decrees
 
     // Military, advanced military and defence currently have no combat
-    // system to justify their upkeep  so they stay optional luxuries gated behind a genuinely
+    // system to justify their upkeep (per the roadmap that's a later
+    // milestone), so they stay optional luxuries gated behind a genuinely
     // healthy economy rather than baseline priorities.
     constexpr float kMilitaryBaseline = 0.5f;
     constexpr float kAdvancedMilitaryBaseline = 0.3f;
@@ -88,9 +113,9 @@ namespace AiConstructionTuning {
     constexpr float kUpgradeBaseline = 2.0f;
     constexpr float kUpgradeEconomyStrugglingBonus = 4.0f;
 
-    // Safety rails
+    // ── Safety rails ──
     // The AI will not knowingly plan its projected income below this floor
-    // unless the treasury can comfortably absorb it.
+    // unless the treasury can comfortably absorb it (see runway below).
     constexpr int kMinProjectedIncomeFloor = -30;
     // How many turns of the resulting deficit the treasury must be able to
     // cover before a net-negative building is allowed anyway.
@@ -129,7 +154,9 @@ inline float AiEconomicScore(const BuildingData& data) {
     return score;
 }
 
-// True if the faction can sustain this building's recurring gold cost once ir completed
+// True if the faction can sustain this building's recurring gold cost once
+// it completes, given what's already been committed to earlier in the same
+// turn. Buildings that pay for themselves (net gold >= 0) are always fine.
 inline bool AiCanAffordUpkeep(const BuildingData& data, int factionCurrentGold, int factionNextTurnGold, int committedUpkeepThisTurn) {
     float netGold = AiNetGoldPerTurn(data);
     if (netGold >= 0.0f) return true;
@@ -358,6 +385,28 @@ inline void EvaluateProvinceConstructionNeeds(
                     if (s.settlementData.publicOrder >= AiConstructionTuning::kPublicOrderComfortLine) continue; // nothing to guard against
                 }
 
+                // All three Religion sub-lines (reconstitution, the raw-good
+                // producer, and the public-order line) each carry some
+                // baseline public order on their own, so once a province has
+                // any one of them there's rarely a reason to also build the
+                // others just because the category still lists "missing"
+                // options - that's how a province ends up with two
+                // functionally-redundant religious buildings for no real
+                // benefit.
+                bool bReligionAlreadyCovered = false;
+                if (category == BuildingCategory::Religion) {
+                    for (int otherIdx : settlementIndices) {
+                        for (BuildingType allReligionOpt : GetBuildingsForCategory(BuildingCategory::Religion, faction, 5)) {
+                            if (SettlementAlreadyHasChain(settlements[otherIdx], allReligionOpt)) { bReligionAlreadyCovered = true; break; }
+                        }
+                        if (bReligionAlreadyCovered) break;
+                    }
+                    bool orderStillLow = s.settlementData.publicOrder < AiConstructionTuning::kPublicOrderComfortLine;
+                    if (bReligionAlreadyCovered && !orderStillLow) {
+                        continue; // one religious building is already covering this province
+                    }
+                }
+
                 std::vector<BuildingType> options = GetBuildingsForCategory(category, faction, tier);
 
                 // Storage and the faction's raw-good building have their own
@@ -369,6 +418,36 @@ inline void EvaluateProvinceConstructionNeeds(
                     options.erase(std::remove(options.begin(), options.end(), granaryRoot), options.end());
                 if (warehouseRoot != BuildingType::None)
                     options.erase(std::remove(options.begin(), options.end(), warehouseRoot), options.end());
+
+                // A second religious building is only worth proposing when
+                // order is still genuinely low - and in that case only the
+                // public-order line actually helps further (Hospital/
+                // AlmsHouse/Shrine and the raw-good producer both already
+                // contributed their share; building another copy of either
+                // adds nothing new). That line consistently unlocks at a
+                // higher tier than the reconstitution line across every
+                // faction (Chapel/Church/Sacrifice Ritual start at tier 3 vs
+                // Hospital/AlmsHouse/Shrine at tier 1), which is how we tell
+                // them apart without hardcoding building names per faction.
+                //
+                if (category == BuildingCategory::Religion && bReligionAlreadyCovered) {
+                    std::vector<BuildingType> allReligionRoots = GetBuildingsForCategory(BuildingCategory::Religion, faction, 5);
+                    BuildingType publicOrderLine = BuildingType::None;
+                    int highestTier = -1;
+                    for (BuildingType bt : allReligionRoots) {
+                        if (bt == rawGoodBuildingRoot) continue;
+                        const BuildingData* d = GetBuildingData(bt);
+                        if (d && d->Tier > highestTier) { highestTier = d->Tier; publicOrderLine = bt; }
+                    }
+
+                    options.clear();
+                    if (publicOrderLine != BuildingType::None) {
+                        const BuildingData* d = GetBuildingData(publicOrderLine);
+                        if (d && d->Tier <= tier) { // only offer it if this settlement can actually host it yet
+                            options.push_back(publicOrderLine);
+                        }
+                    }
+                }
 
                 BuildingType pick = FindBestMissingBuildingInProvince(settlementIndices, settlements, options);
                 if (pick == BuildingType::None) continue;
@@ -515,15 +594,24 @@ inline void EvaluateProvinceConstructionNeeds(
         }
     }
 
-    // Province-wide: turn an idle raw material into its finished good, in
-    // the province's main settlement, and only if that raw material is
-    // genuinely being produced somewhere in the province.
+    // Province-wide: turn every idle raw material into its finished good.
+    //
+    // Previously this only ever tried to place the converter in the
+    // province's main settlement (Castle/Capital) - which meant every mine
+    // in the province was fighting over that one settlement's few slots,
+    // against Economy/Religion/Military candidates that usually score much
+    // higher. With three or four mines sharing one contested slot, the
+    // industry building effectively never won.
+    //
+    // Now each mine tries to host its own converter locally first (a Copper
+    // mine village builds its own Artisan once it has a spare slot, exactly
+    // like a real workshop sitting next to the mine) and only falls back to
+    // the main settlement if the mine's own settlement has no room. This
+    // spreads the competition across the whole province instead of piling
+    // it all onto one settlement, so idle raw materials actually get
+    // converted instead of sitting in storage until the warehouse caps out
+    // and the extra production is simply thrown away.
     int mainSettlementIndex = FindProvinceMainSettlement(settlementIndices, settlements);
-    if (mainSettlementIndex < 0) return;
-
-    const Settlement& mainSettlement = settlements[mainSettlementIndex];
-    int industrySlot = FindEmptyBuildableSlot(mainSettlement);
-    if (industrySlot < 0) return;
 
     for (int idx : settlementIndices) {
         const Settlement& mine = settlements[idx];
@@ -541,16 +629,31 @@ inline void EvaluateProvinceConstructionNeeds(
 
         BuildingType industryRoot = GetIndustryBuildingForRawResource(mineResource, faction);
         if (industryRoot == BuildingType::None) continue;
-        if (SettlementAlreadyHasChain(mainSettlement, industryRoot)) continue;
+        // Check the whole province, not just one settlement, now that the
+        // converter can end up anywhere.
+        if (ProvinceAlreadyHasChain(settlementIndices, settlements, industryRoot)) continue;
+
+        // Prefer the mine's own settlement; fall back to the main
+        // settlement only if that settlement is already full.
+        int targetSettlementIndex = idx;
+        int targetSlot = FindEmptyBuildableSlot(mine);
+        if (targetSlot < 0) {
+            if (mainSettlementIndex < 0 || mainSettlementIndex == idx) continue;
+            targetSettlementIndex = mainSettlementIndex;
+            targetSlot = FindEmptyBuildableSlot(settlements[mainSettlementIndex]);
+            if (targetSlot < 0) continue;
+        }
 
         const BuildingData* industryData = GetBuildingData(industryRoot);
-        if (!industryData || industryData->Tier > mainSettlement.settlementData.settlementTier) continue;
+        int hostTier = settlements[targetSettlementIndex].settlementData.settlementTier;
+        if (!industryData || industryData->Tier > hostTier) continue;
         if (!AiCanAffordUpkeep(*industryData, factionCurrentGold, factionNextTurnGold, factionCommittedUpkeepThisTurn)) continue;
 
-        outCandidates.push_back({mainSettlementIndex, industrySlot, industryRoot,
+        outCandidates.push_back({targetSettlementIndex, targetSlot, industryRoot,
             AiConstructionTuning::kBaselineWeight + AiConstructionTuning::kRawMaterialConversionBonus,
             "Putting an idle raw material to use", AiConstructionActionType::NewBuilding});
-        break;
+        // Don't stop here - each mine is a separate settlement (usually),
+        // so several converters can legitimately be proposed in one pass.
     }
 }
 
@@ -562,14 +665,6 @@ inline void EvaluateProvinceConstructionNeeds(
 // back in as factionCommittedUpkeepThisTurn, so a burst of individually
 // affordable purchases can't collectively overcommit an economy that looked
 // fine one building at a time.
-//
-// In GameApp.cpp's ProcessAiFactionConstructionForTurn(), this means:
-//   1) `int committedUpkeepThisTurn = 0;` before the `while (true)` loop.
-//   2) Pass `, aiState.currentGold, committedUpkeepThisTurn` as the last two
-//      arguments to EvaluateProvinceConstructionNeeds(...).
-//   3) Right after a candidate is chosen and bought (after both branches of
-//      the `if (chosen->actionType == ...)` block), add:
-//      `committedUpkeepThisTurn += AiEstimateFutureUpkeepDelta(*chosen, settlements);`
 inline int AiEstimateFutureUpkeepDelta(const AiConstructionCandidate& candidate, const std::vector<Settlement>& settlements) {
     const Settlement& sel = settlements[candidate.settlementIndex];
 
