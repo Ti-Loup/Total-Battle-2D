@@ -1,4 +1,3 @@
-
 #define SDL_MAIN_USE_CALLBACKS
 
 //La librairie
@@ -7046,7 +7045,7 @@ private://constructor
                 return (player.foodStored > 0) ? 0 : -4;
             case 3:
                 return (player.foodStored > 0) ? 0 : -2;
-            case 4: 
+            case 4:
                 return 1;
             case 5:
                 return 2;
@@ -7392,6 +7391,15 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
         int factionRawGoodStored = aiState.goodsStoredByType.count(factionRawGoodType) ? aiState.goodsStoredByType[factionRawGoodType] : 0;
         bool factionAlreadyHasRawGoodBuilding = FactionAlreadyHasChainBuilt(settlementsByProvince, factionRawGoodRoot);
 
+        // Lowest settlementTier anywhere in the faction  to be priotize into being constructed
+        int factionMinSettlementTier = std::numeric_limits<int>::max();
+        for (auto& [provinceID, settlementIndices] : settlementsByProvince) {
+            for (int idx : settlementIndices) {
+                factionMinSettlementTier = std::min(factionMinSettlementTier, settlements[idx].settlementData.settlementTier);
+            }
+        }
+        if (factionMinSettlementTier == std::numeric_limits<int>::max()) factionMinSettlementTier = 1;
+
         std::vector<AiConstructionCandidate> candidates;
         for (auto& [provinceID, settlementIndices] : settlementsByProvince) {
             int provinceFoodStored = foodStoredByProvince.count(provinceID) ? foodStoredByProvince[provinceID] : 0;
@@ -7407,7 +7415,8 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
                 provinceFoodStored, provinceFoodCapacity,
                 provinceGoodsStored, provinceGoodsCapacity,
                 factionNextTurnGold, factionRawGoodStored, factionAlreadyHasRawGoodBuilding,
-                candidates);
+                candidates,
+                aiState.currentGold, 0, factionMinSettlementTier);
         }
 
         if (candidates.empty()) break;

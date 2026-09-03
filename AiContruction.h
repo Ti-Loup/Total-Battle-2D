@@ -109,6 +109,11 @@ namespace AiConstructionTuning {
     constexpr float kMainUpgradeBaseline = 2.0f;
     constexpr float kMainUpgradeSlotsFullBonus = 9.0f;
 
+    // Fairness across the faction: without this, whichever settlement fills
+    constexpr int kMainUpgradeMaxTierLead = 1;
+    constexpr float kMainUpgradeLeadPenaltyPerTier = 12.0f; // > kMainUpgradeSlotsFullBonus, so exceeding the lead cap by even 1 tier fully cancels the bonus
+    constexpr float kMainUpgradeThrottledFloor = 0.1f; // never fully dead - still buildable if it's genuinely the only option left this turn
+
     // Upgrading something already built.
     constexpr float kUpgradeBaseline = 2.0f;
     constexpr float kUpgradeEconomyStrugglingBonus = 4.0f;
@@ -333,7 +338,8 @@ inline void EvaluateProvinceConstructionNeeds(
     bool factionAlreadyHasRawGoodBuilding,
     std::vector<AiConstructionCandidate>& outCandidates,
     int factionCurrentGold = 0,               // pass aiState.currentGold for full treasury awareness
-    int factionCommittedUpkeepThisTurn = 0)   // pass a running tally to stay safe across one turn's spending
+    int factionCommittedUpkeepThisTurn = 0,   // pass a running tally to stay safe across one turn's spending
+    int factionMinSettlementTier = 1)         // pass the lowest settlementTier the faction owns anywhere, for tier-lead throttling below
 {
     // Both new parameters default to conservative values (no treasury
     // cushion assumed, nothing committed yet), which makes the safety
@@ -546,8 +552,18 @@ inline void EvaluateProvinceConstructionNeeds(
 
                         if (AiCanAffordUpkeep(upkeepProbe, factionCurrentGold, factionNextTurnGold, factionCommittedUpkeepThisTurn)) {
                             float priority = AiConstructionTuning::kMainUpgradeBaseline + AiConstructionTuning::kMainUpgradeSlotsFullBonus;
+                            const char* reason = "No room left, growing the settlement";
+
+                            int tierLead = tier - factionMinSettlementTier;
+                            int laggingBy = tierLead - AiConstructionTuning::kMainUpgradeMaxTierLead;
+                            if (laggingBy > 0) {
+                                priority -= laggingBy * AiConstructionTuning::kMainUpgradeLeadPenaltyPerTier;
+                                priority = std::max(priority, AiConstructionTuning::kMainUpgradeThrottledFloor);
+                                reason = "Letting other settlements catch up first";
+                            }
+
                             outCandidates.push_back({idx, 0, BuildingType::None, priority,
-                                "No room left, growing the settlement", AiConstructionActionType::MainSettlementUpgrade});
+                                reason, AiConstructionActionType::MainSettlementUpgrade});
                         }
                     }
                 }
@@ -660,11 +676,7 @@ inline void EvaluateProvinceConstructionNeeds(
 // Turn-level bookkeeping
 
 // Rough estimate of how much a chosen candidate will worsen (positive) the
-// faction's steady-state gold income once construction completes. Sum this
-// across every purchase made in the same turn and feed the running total
-// back in as factionCommittedUpkeepThisTurn, so a burst of individually
-// affordable purchases can't collectively overcommit an economy that looked
-// fine one building at a time.
+// faction's steady-state gold income once construction completes.
 inline int AiEstimateFutureUpkeepDelta(const AiConstructionCandidate& candidate, const std::vector<Settlement>& settlements) {
     const Settlement& sel = settlements[candidate.settlementIndex];
 
