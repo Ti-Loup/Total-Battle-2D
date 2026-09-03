@@ -7391,7 +7391,7 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
         int factionRawGoodStored = aiState.goodsStoredByType.count(factionRawGoodType) ? aiState.goodsStoredByType[factionRawGoodType] : 0;
         bool factionAlreadyHasRawGoodBuilding = FactionAlreadyHasChainBuilt(settlementsByProvince, factionRawGoodRoot);
 
-        // Lowest settlementTier anywhere in the faction  to be priotize into being constructed
+        // Lowest settlementTier anywhere in the faction right now.
         int factionMinSettlementTier = std::numeric_limits<int>::max();
         for (auto& [provinceID, settlementIndices] : settlementsByProvince) {
             for (int idx : settlementIndices) {
@@ -7424,9 +7424,24 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
         std::sort(candidates.begin(), candidates.end(),
             [](const auto& a, const auto& b) { return a.buildingPriority > b.buildingPriority; });
 
+        // If a settlement's own main-settlement upgrade is sitting at full,
+        // unthrottled priority (i.e. this settlement isn't ahead of anyone -
+        // see kMainUpgradeMaxTierLead) but the faction can't afford it yet,
+        constexpr float kFullMainUpgradePriority = AiConstructionTuning::kMainUpgradeBaseline + AiConstructionTuning::kMainUpgradeSlotsFullBonus;
+        bool bReservingForMainUpgrade = false;
+        for (auto& c : candidates) {
+            if (c.actionType != AiConstructionActionType::MainSettlementUpgrade) continue;
+            if (c.buildingPriority < kFullMainUpgradePriority - 0.01f) continue; // throttled - not what we're saving for
+            const BuildingData* mainData = GetBuildingData(settlements[c.settlementIndex].settlementData.buildings[0]);
+            const BuildingData* nextData = (mainData && mainData->upgradesTo != BuildingType::None)
+                ? GetBuildingData(mainData->upgradesTo) : nullptr;
+            if (nextData && aiState.currentGold < nextData->cost) { bReservingForMainUpgrade = true; break; }
+        }
+
         const AiConstructionCandidate* chosen = nullptr;
         for (auto& candidate : candidates) {
             if (settlementUsedThisTurn.count(candidate.settlementIndex)) continue;
+            if (bReservingForMainUpgrade && candidate.buildingPriority < kFullMainUpgradePriority - 0.01f) continue;
             const Settlement& sel = settlements[candidate.settlementIndex];
 
             if (candidate.actionType == AiConstructionActionType::MainSettlementUpgrade) {
@@ -7451,7 +7466,25 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
             break;
         }
 
-        if (!chosen) break; // plus rien d'abordable/possible ce tour-ci
+        if (!chosen) {
+            if (bReservingForMainUpgrade) {
+                // Purely for visibility in the log name what we're saving
+                for (auto& c : candidates) {
+                    if (c.actionType != AiConstructionActionType::MainSettlementUpgrade) continue;
+                    if (c.buildingPriority < kFullMainUpgradePriority - 0.01f) continue;
+                    const BuildingData* mainData = GetBuildingData(settlements[c.settlementIndex].settlementData.buildings[0]);
+                    const BuildingData* nextData = (mainData && mainData->upgradesTo != BuildingType::None)
+                        ? GetBuildingData(mainData->upgradesTo) : nullptr;
+                    if (nextData && aiState.currentGold < nextData->cost) {
+                        SDL_Log("AI faction %d saving up for %s's next tier (%d/%d gold)",
+                            (int)faction, settlements[c.settlementIndex].settlementData.cityName.c_str(),
+                            aiState.currentGold, nextData->cost);
+                        break;
+                    }
+                }
+            }
+            break; // plus rien d'abordable/possible ce tour-ci
+        }
 
         Settlement& sel = settlements[chosen->settlementIndex];
 

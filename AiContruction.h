@@ -110,6 +110,14 @@ namespace AiConstructionTuning {
     constexpr float kMainUpgradeSlotsFullBonus = 9.0f;
 
     // Fairness across the faction: without this, whichever settlement fills
+    // its slots first keeps winning the (very high) "no room left" bonus
+    // every time it fills up again, snowballing to Tier 5 while its sibling
+    // castles/villages are still sitting on Tier 1. Once a settlement is
+    // more than kMainUpgradeMaxTierLead tiers ahead of the least-developed
+    // settlement the faction owns, its own next tier-up is docked so a
+    // lagging settlement's upgrade (still carrying the full bonus, since it
+    // has no lead) naturally outranks it. This doesn't touch normal slot
+    // filling - only the race to the next tier.
     constexpr int kMainUpgradeMaxTierLead = 1;
     constexpr float kMainUpgradeLeadPenaltyPerTier = 12.0f; // > kMainUpgradeSlotsFullBonus, so exceeding the lead cap by even 1 tier fully cancels the bonus
     constexpr float kMainUpgradeThrottledFloor = 0.1f; // never fully dead - still buildable if it's genuinely the only option left this turn
@@ -676,7 +684,11 @@ inline void EvaluateProvinceConstructionNeeds(
 // Turn-level bookkeeping
 
 // Rough estimate of how much a chosen candidate will worsen (positive) the
-// faction's steady-state gold income once construction completes.
+// faction's steady-state gold income once construction completes. Sum this
+// across every purchase made in the same turn and feed the running total
+// back in as factionCommittedUpkeepThisTurn, so a burst of individually
+// affordable purchases can't collectively overcommit an economy that looked
+// fine one building at a time.
 inline int AiEstimateFutureUpkeepDelta(const AiConstructionCandidate& candidate, const std::vector<Settlement>& settlements) {
     const Settlement& sel = settlements[candidate.settlementIndex];
 
