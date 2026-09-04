@@ -653,6 +653,12 @@ public:
     SDL_Texture *gameDecree2SamuraiTexture = nullptr;
     SDL_Texture *gameDecree3SamuraiTexture = nullptr;
 
+    //Trade Icons
+    SDL_Texture *tradeDiplomacyIconTexture = nullptr;//current trade parters
+    SDL_Texture *defensiveAllianceDiplomacyIconTexture = nullptr;
+    SDL_Texture *militaryAllianceDiplomacyIconTexture = nullptr;
+    SDL_Texture *warDiplomacyIconTexture = nullptr;
+
     // -> CREDITS <-
     TTF_Font *creditsTitleFont = nullptr;
     TTF_Text *creditsTitleText = nullptr;
@@ -1962,6 +1968,28 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture gameDecree3SamuraiTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameDecree3SamuraiTexture, SDL_SCALEMODE_NEAREST);
+        //Diplomacy Icons by types
+        tradeDiplomacyIconTexture = IMG_LoadTexture (renderer, "assets/TradeDiplomacyIcon.png");
+        if (tradeDiplomacyIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture tradeDiplomacyIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(tradeDiplomacyIconTexture, SDL_SCALEMODE_NEAREST);
+        defensiveAllianceDiplomacyIconTexture = IMG_LoadTexture(renderer, "assets/DefensiveAllianceDiplomacyIcon.png");
+        if (defensiveAllianceDiplomacyIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture defensiveAllianceDiplomacyIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(defensiveAllianceDiplomacyIconTexture, SDL_SCALEMODE_NEAREST);
+        militaryAllianceDiplomacyIconTexture = IMG_LoadTexture (renderer, "assets/MilitaryAllianceDiplomacyIcon.png");
+        if (militaryAllianceDiplomacyIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture militaryAllianceDiplomacyIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(militaryAllianceDiplomacyIconTexture, SDL_SCALEMODE_NEAREST);
+        warDiplomacyIconTexture = IMG_LoadTexture(renderer, "assets/WarDiplomacyIcon.png");
+        if (warDiplomacyIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture warDiplomacyIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(warDiplomacyIconTexture, SDL_SCALEMODE_NEAREST);
+
         // BUILDING UIS
         //                  ! KNIGHT !
         //capitals
@@ -4032,6 +4060,10 @@ private://constructor
         SDL_DestroyTexture(gameDecree1SamuraiTexture);
         SDL_DestroyTexture(gameDecree2SamuraiTexture);
         SDL_DestroyTexture(gameDecree3SamuraiTexture);
+        SDL_DestroyTexture(tradeDiplomacyIconTexture);
+        SDL_DestroyTexture(defensiveAllianceDiplomacyIconTexture);
+        SDL_DestroyTexture(militaryAllianceDiplomacyIconTexture);
+        SDL_DestroyTexture(warDiplomacyIconTexture);
         // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
