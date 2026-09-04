@@ -4442,22 +4442,6 @@ private://constructor
                 float barX   = centerX - barW / 2.f;
                 float barY   = bottomY + barGap;
 
-                //The faction texture of each faction
-                //rect of the texture
-                float bannerIconSize = 32.f;
-                SDL_FRect factionSettlementBannerRect = {barX, barY, bannerIconSize, bannerIconSize};
-                FactionZone zone = provinces[s.settlementData.provinceID].owner;
-
-                if (zone == FactionZone::Knight) {
-                    SDL_RenderTexture(renderer,settlementKnightBannerTexture, nullptr, &factionSettlementBannerRect);
-                }
-                if (zone == FactionZone::Viking) {
-                    SDL_RenderTexture(renderer, settlementVikingBannerTexture, nullptr, &factionSettlementBannerRect);
-                }
-                if (zone == FactionZone::Samurai) {
-                    SDL_RenderTexture(renderer, settlementSamuraiBannerTexture, nullptr, &factionSettlementBannerRect);
-                }
-
                 // the name of the settlement
                 TTF_SetTextString(gameStatUITitleText, s.settlementData.cityName.c_str(), 0);
                 TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
@@ -4550,6 +4534,24 @@ private://constructor
                 SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 160);
                 SDL_RenderRect(renderer, &nameBackground);
                 TTF_DrawRendererText(gameStatUITitleText, nameX, nameY);
+
+
+                //rect of the texture
+                float bannerIconSize = 45.f;
+                float bannerIconGap = 6.f;
+                SDL_FRect factionSettlementBannerRect = {nameX - bannerIconGap - bannerIconSize,  nameY +(nameH - bannerIconSize) / 2, bannerIconSize, bannerIconSize
+                };
+                FactionZone zone = provinces[s.settlementData.provinceID].owner;
+
+                if (zone == FactionZone::Knight) {
+                    SDL_RenderTexture(renderer,settlementKnightBannerTexture, nullptr, &factionSettlementBannerRect);
+                }
+                if (zone == FactionZone::Viking) {
+                    SDL_RenderTexture(renderer, settlementVikingBannerTexture, nullptr, &factionSettlementBannerRect);
+                }
+                if (zone == FactionZone::Samurai) {
+                    SDL_RenderTexture(renderer, settlementSamuraiBannerTexture, nullptr, &factionSettlementBannerRect);
+                }
 
                 if (bCanConstruct && hammerUIBuildingUpgradeTexture) {
                     SDL_FRect hammerIconRect = {
