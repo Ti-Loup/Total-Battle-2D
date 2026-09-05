@@ -157,46 +157,80 @@ public:
     UnitCardKnight_LongBowmenLateStage();
 };
 //Stable_T1
-class UnitCardKnight_PeasantHorsemen : public Entity {
+class UnitCardKnight_PeasantHorsemenEarlyStage : public Entity {
 public:
     int maxEntities = 30;
     int currentEntities = 30;
 
-    UnitCardKnight_PeasantHorsemen();
+    UnitCardKnight_PeasantHorsemenEarlyStage();
+};
+class UnitCardKnight_PeasantHorsemenLateStage : public Entity {
+public:
+    int maxEntities = 30;
+    int currentEntities = 30;
+
+    UnitCardKnight_PeasantHorsemenLateStage();
 };
 
 //Stable_T2
-class UnitCardKnight_LightCavalry : public Entity {
+class UnitCardKnight_LightCavalryEarlyStage : public Entity {
 public:
     int maxEntities = 20;
     int currentEntities = 20;
 
-    UnitCardKnight_LightCavalry();
+    UnitCardKnight_LightCavalryEarlyStage();
+};
+class UnitCardKnight_LightCavalryLateStage : public Entity {
+public:
+    int maxEntities = 20;
+    int currentEntities = 20;
+
+    UnitCardKnight_LightCavalryLateStage();
 };
 //Stable_T3
-class UnitCardKnight_HeavyCavalry : public Entity {
+class UnitCardKnight_HeavyCavalryEarlyStage : public Entity {
 public:
     int maxEntities = 20;
     int currentEntities = 20;
 
-    UnitCardKnight_HeavyCavalry();
+    UnitCardKnight_HeavyCavalryEarlyStage();
+};
+class UnitCardKnight_HeavyCavalryLateStage : public Entity {
+public:
+    int maxEntities = 20;
+    int currentEntities = 20;
+
+    UnitCardKnight_HeavyCavalryLateStage();
 };
 
 //BUILDING ADV. MILITARY
 //Artillery_T4
-class UnitCardKnight_Catapult : public Entity {
+class UnitCardKnight_CatapultEarlyStage : public Entity {
 public:
     int maxEntities = 4;
     int currentEntities = 4;
 
-    UnitCardKnight_Catapult();
+    UnitCardKnight_CatapultEarlyStage();
 };
-//Artillery_T5
-class UnitCardKnight_Trebuchet : public Entity {
+class UnitCardKnight_CatapultLateStage : public Entity {
+public:
     int maxEntities = 4;
     int currentEntities = 4;
 
-    UnitCardKnight_Trebuchet();
+    UnitCardKnight_CatapultLateStage();
+};
+//Artillery_T5
+class UnitCardKnight_TrebuchetEarlyStage : public Entity {
+    int maxEntities = 4;
+    int currentEntities = 4;
+
+    UnitCardKnight_TrebuchetEarlyStage();
+};
+class UnitCardKnight_TrebuchetLateStage : public Entity {
+    int maxEntities = 4;
+    int currentEntities = 4;
+
+    UnitCardKnight_TrebuchetLateStage();
 };
 
 //Religion (future dlc for religious troops)
