@@ -246,118 +246,225 @@ class UnitCardKnight_TrebuchetLateStage : public Entity {
 //todo Shaman
 
 //Viking Units PEASANTS(TIER 0 / ALREADY UNLOCKED)
-class UnitCardViking_Peasant : public Entity {
+class UnitCardViking_PeasantEarlyStage : public Entity {
 public:
     int maxEntities = 60;
     int currentEntities = 60;
 
-    UnitCardViking_Peasant();
+    UnitCardViking_PeasantEarlyStage();
 };
+class UnitCardViking_PeasantLateStage : public Entity {
+public:
+    int maxEntities = 60;
+    int currentEntities = 60;
 
-class UnitCardViking_PeasantArchers : public Entity {
+    UnitCardViking_PeasantLateStage();
+};
+class UnitCardViking_PeasantArchersEarlyStage : public Entity {
     public:
     int maxEntities = 60;
     int currentEntities = 60;
+
+    UnitCardViking_PeasantArchersEarlyStage();
+};
+class UnitCardViking_PeasantArchersLateStage : public Entity {
+public:
+    int maxEntities = 60;
+    int currentEntities = 60;
+
+    UnitCardViking_PeasantArchersLateStage();
 };
 
 //Military
 //WarLodge_T1
-class UnitCardViking_Axemen : public Entity {
+class UnitCardViking_AxemenEarlyStage : public Entity {
     public:
     int maxEntities = 40;
     int currentEntities = 40;
 
-    UnitCardViking_Axemen();
+    UnitCardViking_AxemenEarlyStage();
+};
+class UnitCardViking_AxemenLateStage : public Entity {
+public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardViking_AxemenLateStage();
 };
 //Warlodge_T2
-class UnitCardViking_SwordAndShield : public Entity {
+class UnitCardViking_SwordAndShieldEarlyStage : public Entity {
     public:
     int maxEntities = 40;
     int currentEntities = 40;
 
-    UnitCardViking_SwordAndShield();
+    UnitCardViking_SwordAndShieldEarlyStage();
 };
+class UnitCardViking_SwordAndShieldLateStage : public Entity {
+public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardViking_SwordAndShieldLateStage();
+};
+
 //Warlodge_T3
-class UnitCardViking_LongAxe : public Entity {
+class UnitCardViking_LongAxeEarlyStage : public Entity {
     public:
     int maxEntities = 40;
     int currentEntities = 40;
 
-    UnitCardViking_LongAxe();
+    UnitCardViking_LongAxeEarlyStage();
 };
+class UnitCardViking_LongAxeLateStage : public Entity {
+public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardViking_LongAxeLateStage();
+};
+
 //ShootingGround_T1
-class UnitCardViking_Archers : public Entity {
+class UnitCardViking_ArchersEarlyStage : public Entity {
 public:
     int maxEntities = 40;
     int currentEntities = 40;
 
-    UnitCardViking_Archers();
+    UnitCardViking_ArchersEarlyStage();
 };
+class UnitCardViking_ArchersLateStage : public Entity {
+public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardViking_ArchersLateStage();
+};
+
 //ShootingGround_T2
-class UnitCardViking_LongbowArchers : public Entity {
+class UnitCardViking_LongbowArchersEarlyStage : public Entity {
     public:
     int maxEntities = 40;
     int currentEntities = 40;
 
-    UnitCardViking_LongbowArchers();
+    UnitCardViking_LongbowArchersEarlyStage();
 } ;
-//ShootingGround_T3
-class UnitCardViking_EliteLongbowArchers : public Entity {
+class UnitCardViking_LongbowArchersLateStage : public Entity {
 public:
     int maxEntities = 40;
     int currentEntities = 40;
 
-    UnitCardViking_EliteLongbowArchers();
+    UnitCardViking_LongbowArchersLateStage();
+} ;
+
+//ShootingGround_T3
+class UnitCardViking_EliteLongbowArchersEarlyStage : public Entity {
+public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardViking_EliteLongbowArchersEarlyStage();
 };
+class UnitCardViking_EliteLongbowArchersLateStage : public Entity {
+public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardViking_EliteLongbowArchersLateStage();
+};
+
 //HorseTraining_T1
-class UnitCardViking_PeasantHorsemen : public Entity {
+class UnitCardViking_PeasantHorsemenEarlyStage : public Entity {
     public:
     int maxEntities = 30;
     int currentEntities = 30;
 
-    UnitCardViking_PeasantHorsemen();
+    UnitCardViking_PeasantHorsemenEarlyStage();
 };
+class UnitCardViking_PeasantHorsemenLateStage : public Entity {
+public:
+    int maxEntities = 30;
+    int currentEntities = 30;
+
+    UnitCardViking_PeasantHorsemenLateStage();
+};
+
 //HorseTraining_T2
-class UnitCardViking_LightCavalry : public Entity {
+class UnitCardViking_LightCavalryEarlyStage : public Entity {
 public:
     int maxEntities = 20;
     int currentEntities = 20;
 
-    UnitCardViking_LightCavalry();
+    UnitCardViking_LightCavalryEarlyStage();
 };
+class UnitCardViking_LightCavalryLateStage : public Entity {
+public:
+    int maxEntities = 20;
+    int currentEntities = 20;
+
+    UnitCardViking_LightCavalryLateStage();
+};
+
 //HorseTraining_T3
-class UnitCardViking_HeavyCavalry : public Entity {
+class UnitCardViking_HeavyCavalryEarlyStage : public Entity {
     public:
     int maxEntities = 20;
     int currentEntities = 20;
 
-    UnitCardViking_HeavyCavalry();
+    UnitCardViking_HeavyCavalryEarlyStage();
+};
+class UnitCardViking_HeavyCavalryLateStage : public Entity {
+public:
+    int maxEntities = 20;
+    int currentEntities = 20;
+
+    UnitCardViking_HeavyCavalryLateStage();
 };
 
 //ADV.VMILITARY
 //ChosensOfOdin_T3
-class UnitCardViking_Berserkers : public Entity {
+class UnitCardViking_BerserkersEarlyStage : public Entity {
 public:
     int maxEntities = 30;
     int currentEntities = 30;
 
-    UnitCardViking_Berserkers();
+    UnitCardViking_BerserkersEarlyStage();
 };
+class UnitCardViking_BerserkersLateStage : public Entity {
+public:
+    int maxEntities = 30;
+    int currentEntities = 30;
+
+    UnitCardViking_BerserkersLateStage();
+};
+
 //ChosensOfOdin_T4
-class UnitCardViking_ArmouredBerserkers : public Entity {
+class UnitCardViking_ArmouredBerserkersEarlyStage : public Entity {
 public :
     int maxEntities = 30;
     int currentEntities = 30;
 
-    UnitCardViking_ArmouredBerserkers();
+    UnitCardViking_ArmouredBerserkersEarlyStage();
+};
+class UnitCardViking_ArmouredBerserkersLateStage : public Entity {
+public :
+    int maxEntities = 30;
+    int currentEntities = 30;
+
+    UnitCardViking_ArmouredBerserkersLateStage();
 };
 //ChosensOfOdin_T5 (peaux de loup) elite warriors
-class UnitCardViking_Ulfhednar : public Entity {
+class UnitCardViking_UlfhednarEarlyStage : public Entity {
     public:
     int maxEntities = 30;
     int currentEntities = 30;
 
-    UnitCardViking_Ulfhednar();
+    UnitCardViking_UlfhednarEarlyStage();
+};
+class UnitCardViking_UlfhednarLateStage : public Entity {
+public:
+    int maxEntities = 30;
+    int currentEntities = 30;
+
+    UnitCardViking_UlfhednarLateStage();
 };
 //Religion Future dlc
 ////////////////////////////////////
