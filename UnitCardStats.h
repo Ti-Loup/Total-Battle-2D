@@ -14,6 +14,8 @@ class UnitCardStats {
 DLC Units Ideas Knight
 - Assassins, Centurion, Prest warriors(different categories), Gladiators
 
+
+- 2 tier per units (Early game and late game units). Available in the technology tree
 */
 
 //KNIGHT LORDS :
@@ -24,73 +26,135 @@ DLC Units Ideas Knight
 
 
 //Knight Units PEASANT(TIER 0 / ALREADY UNLOCKED)
-class UnitCardKnight_Peasant : public Entity {
+class UnitCardKnight_PeasantEarlyStage : public Entity {
     public:
     int maxEntities = 60;
     int currentEntities = 60;
 
-    UnitCardKnight_Peasant();
+    UnitCardKnight_PeasantEarlyStage();
 
+};
+class UnitCardKnight_PeasantLateStage : public Entity{
+    public:
+    int maxEntities = 60;
+    int currentEntities = 60;
+
+    UnitCardKnight_PeasantLateStage();
 };
 
 //PEASANT ARCHERS (TIER 0 / ALREADY UNLOCKED)
-class UnitCardKnight_PeasantArchers : public Entity {
+class UnitCardKnight_PeasantArchersEarlyStage : public Entity {
 public:
     int maxEntities = 60;
     int currentEntities = 60;
 
-    UnitCardKnight_PeasantArchers();
+    UnitCardKnight_PeasantArchersEarlyStage();
+
+};
+
+class UnitCardKnight_PeasantArchersLateStage : public Entity {
+public:
+    int maxEntities = 60;
+    int currentEntities = 60;
+
+    UnitCardKnight_PeasantArchersLateStage();
 
 };
 
 //BUILDING MILITARY
 //Barracks_T1
-class UnitCardKnight_Swordmen : public Entity {
+class UnitCardKnight_SwordmenEarlyStage : public Entity {
 public:
     int maxEntities = 40;
     int currentEntities = 40;
 
-    UnitCardKnight_Swordmen();
+    UnitCardKnight_SwordmenEarlyStage();
 };
+class UnitCardKnight_SwordmenLateStage : public Entity {
+public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardKnight_SwordmenLateStage();
+};
+
 //Barracks_T2
-class UnitCardKnight_SwordAndShield : public Entity {
+class UnitCardKnight_SwordAndShieldEarlyStage : public Entity {
 public:
     int maxEntities = 40;
     int currentEntities = 40;
 
-    UnitCardKnight_SwordAndShield();
+    UnitCardKnight_SwordAndShieldEarlyStage();
 };
-//Barracks_T3
-class UnitCardKnight_MaceAndShield : public Entity {
+class UnitCardKnight_SwordAndShieldLateStage : public Entity {
 public:
     int maxEntities = 40;
     int currentEntities = 40;
 
-    UnitCardKnight_MaceAndShield();
+    UnitCardKnight_SwordAndShieldLateStage();
+};
+
+//Barracks_T3
+class UnitCardKnight_MaceAndShieldEarlyStage : public Entity {
+public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardKnight_MaceAndShieldEarlyStage();
+};
+class UnitCardKnight_MaceAndShieldLateStage : public Entity {
+public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardKnight_MaceAndShieldLateStage();
 };
 //ArcheryRange_T1
-class UnitCardKnight_Hunters : public Entity {
+class UnitCardKnight_HuntersEarlyStage : public Entity {
 public:
     int maxEntities = 40;
     int currentEntities = 40;
 
-    UnitCardKnight_Hunters();
+    UnitCardKnight_HuntersEarlyStage();
 };
+class UnitCardKnight_HuntersLateStage : public Entity {
+public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardKnight_HuntersLateStage();
+};
+
 //ArcheryRange_T2
-class UnitCardKnight_Archers : public Entity {
+class UnitCardKnight_ArchersEarlyStage : public Entity {
 public:
     int maxEntities = 40;
     int currentEntities = 40;
 
-    UnitCardKnight_Archers();
+    UnitCardKnight_ArchersEarlyStage();
 };
-//ArcheryRange_T3
-class UnitCardKnight_LongBowmen : public Entity {
+class UnitCardKnight_ArchersLateStage : public Entity {
 public:
     int maxEntities = 40;
     int currentEntities = 40;
 
-    UnitCardKnight_LongBowmen();
+    UnitCardKnight_ArchersLateStage();
+};
+
+//ArcheryRange_T3
+class UnitCardKnight_LongBowmenEarlyStage : public Entity {
+public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardKnight_LongBowmenEarlyStage();
+};
+class UnitCardKnight_LongBowmenLateStage : public Entity {
+public:
+    int maxEntities = 40;
+    int currentEntities = 40;
+
+    UnitCardKnight_LongBowmenLateStage();
 };
 //Stable_T1
 class UnitCardKnight_PeasantHorsemen : public Entity {

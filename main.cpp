@@ -5041,8 +5041,6 @@ private://constructor
         statY += 34.f;
 
 
-
-
         //Goods Per settlements stock
         if (province.owner == FactionZone::Knight) {
             SDL_SetRenderDrawColor(renderer, 60, 40, 20, 200);
@@ -5406,7 +5404,7 @@ private://constructor
                                                 }
                                             }
                                         }
-                                        // Always register the slot — even at max tier, even damaged — so the
+                                        // Always register the slot even at max tier, even damaged — so the
                                         // destroy/repair popup stays reachable regardless of upgrade state.
                                         availableSlotRects.push_back(slot);
                                         availableSlotInfo.push_back({i, b});
