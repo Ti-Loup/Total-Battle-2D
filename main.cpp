@@ -29,26 +29,15 @@
 
 /*
 
-
- * 0.3.25
- * Ai Focus
- * Done | faction ai has base income and next turn one based on their settlements
- * Done | faction ai has Food system like The player
- * ToDo | Goods system. Must be able to collect their goods
- * ToDo | Make them build buildings and upgrade them strategicly. based on whats missing and what they need.
- * ToDo -> Tooltip repair Cost and description + Destroy tooltip
- * Player vs AI
- * Income Yes | Yes
- * Food Yes | Yes
- * Building YES | YES
- * Goods Yes | Yes
- * Population Yes | No
- * Should AI has a population system|
  * --------------------------------------------
  * 0.3.5
  * DIPLOMACY & EXCHANGE
  * EXANGE MONEY OR RESSOURCES FOR FOOD. IN TRADE.
  * Province buffs.
+ * ToDo | Treasury posibility to increase of reduce taxes. that increase the public orxder or reduce it
+ * ToDo | UI remove when diplomacy button precess To show Different UI
+ * ToDo | Factions attitude to everyone. Possibility to trade goods make peace, war, alliances.
+ * ToDo | Possibility to give money to improve relations
  *
  * --------------------------------------------
  * 0.4.0
@@ -163,6 +152,23 @@
  * Fixed | Plague not spreading to next province when the current province is all infected
  * Fixed | Earthquake event doesnt show the damage Buildings Effects.
  * --------------------------------------------
+ *
+ * 0.3.25
+ * Ai Focus
+ * Done | faction ai has base income and next turn one based on their settlements
+ * Done | faction ai has Food system like The player
+ * Done | Goods system. Must be able to collect their goods
+ * Done | Make them build buildings and upgrade them strategicly. based on whats missing and what they need.
+ * Done -> Tooltip repair Cost and description + Destroy tooltip
+ * Player vs AI
+ * Income Yes | Yes
+ * Food Yes | Yes
+ * Building YES | YES
+ * Goods Yes | Yes
+ * Population Yes | No
+ *
+ * --------------------------------------------
+
  */
 
 
@@ -929,7 +935,7 @@ private://constructor
         // -> MENU <-
         gameInProgressFont = TTF_OpenFont("assets/KnightFont.ttf", 40);
         gameVersionFont = TTF_OpenFont("assets/Rubik.ttf", 35);
-        gameVersionText = TTF_CreateText (textEngine, gameVersionFont, "Version (0.3.25)", 16);
+        gameVersionText = TTF_CreateText (textEngine, gameVersionFont, "Version (0.3.5)", 16);
         if (gameVersionText == nullptr) {
             SDL_LogWarn(0,"failed to create text for gameVersionText", SDL_GetError());
         }
