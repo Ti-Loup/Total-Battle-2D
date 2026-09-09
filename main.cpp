@@ -672,6 +672,12 @@ public:
     SDL_Texture *militaryAllianceDiplomacyIconTexture = nullptr;
     SDL_Texture *warDiplomacyIconTexture = nullptr;
 
+    //buttons Win condition +Missions
+    //900.f, 185.f, 200, 40
+    SDL_FRect WinConditionsButton = {800.f, 250.f, 200, 40};
+    SDL_FRect WinMissionsButton = {1000.f, 250.f, 200, 40};
+    bool bIsWinConditionsButton = false;
+    bool bIsWinMissonsButton = false;
     // -> CREDITS <-
     TTF_Font *creditsTitleFont = nullptr;
     TTF_Text *creditsTitleText = nullptr;
@@ -9607,7 +9613,29 @@ void RenderRepairTooltip() {
         TTF_GetTextSize(gameObjectivesTitleText, &objectivesTitleW, &objectivesTitleH);
         TTF_DrawRendererText(gameObjectivesTitleText, ObjectivesTitleRect.x + (ObjectivesTitleRect.w - objectivesTitleW) / 2.f, ObjectivesTitleRect.y + (ObjectivesTitleRect.h - objectivesTitleH) / 2.f);
         //Buttons subtitle (Win Conditions + Missions)
+        //button Win condition
+        SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
+        SDL_RenderFillRect(renderer, &WinConditionsButton);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 139, 255); //if hovered it will go higer the rgb()~
+        SDL_RenderRect (renderer, &WinConditionsButton);
+        //Text
+        TTF_SetTextString(gameObjectivesSousTitleText, "Victory Conditions", 0);
+        TTF_SetTextColor(gameObjectivesSousTitleText, 255, 255, 255, 255);
+        //positionning
+        int victoryConditionSousTitleW, victoryConditionSousTitleH;
+        TTF_GetTextSize(gameObjectivesSousTitleText, &victoryConditionSousTitleW, &victoryConditionSousTitleH);
+        TTF_DrawRendererText(gameObjectivesSousTitleText, WinConditionsButton.x + (WinConditionsButton.w - victoryConditionSousTitleW) / 2.f, WinConditionsButton.y + (WinConditionsButton.h -victoryConditionSousTitleH)/2.f);
+        // - - -
+        //Button Missions
+        SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
+        SDL_RenderFillRect(renderer, &WinMissionsButton);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 139, 255);
+        SDL_RenderRect(renderer, &WinMissionsButton);
+
+        //Hovered of the buttons (changes rgb color)
+
         //Need 2 Sub Area 1 Conquest win and the other one Construction tier 5 castle win.(construct 1 tier 5 small victory | 3 for long)
+
 
         //Return button
         //Mouse detection Button Return
