@@ -676,7 +676,7 @@ public:
     //900.f, 185.f, 200, 40
     SDL_FRect WinConditionsButton = {800.f, 250.f, 200, 40};
     SDL_FRect WinMissionsButton = {1000.f, 250.f, 200, 40};
-    bool bIsWinConditionsButton = false;
+    bool bIsWinConditionsButton = true;//button active by default.
     bool bIsWinMissonsButton = false;
     // -> CREDITS <-
     TTF_Font *creditsTitleFont = nullptr;
@@ -9613,10 +9613,11 @@ void RenderRepairTooltip() {
         TTF_GetTextSize(gameObjectivesTitleText, &objectivesTitleW, &objectivesTitleH);
         TTF_DrawRendererText(gameObjectivesTitleText, ObjectivesTitleRect.x + (ObjectivesTitleRect.w - objectivesTitleW) / 2.f, ObjectivesTitleRect.y + (ObjectivesTitleRect.h - objectivesTitleH) / 2.f);
         //Buttons subtitle (Win Conditions + Missions)
-        //button Win condition
-        SDL_SetRenderDrawColor(renderer, 0, 0, 139, 255);
+         SDL_Color winConditionsFill   = bIsWinConditionsButton ? SDL_Color{0, 60, 220, 255} : SDL_Color{0, 0, 100, 255};
+        SDL_Color winConditionsBorder = bIsWinConditionsButton ? SDL_Color{80, 150, 255, 255} : SDL_Color{0, 0, 140, 255};
+        SDL_SetRenderDrawColor(renderer, winConditionsFill.r, winConditionsFill.g, winConditionsFill.b, winConditionsFill.a);
         SDL_RenderFillRect(renderer, &WinConditionsButton);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 180, 255); //if hovered it will go higer the rgb()~
+        SDL_SetRenderDrawColor(renderer, winConditionsBorder.r, winConditionsBorder.g, winConditionsBorder.b, winConditionsBorder.a);
         SDL_RenderRect (renderer, &WinConditionsButton);
         //Text
         TTF_SetTextString(gameObjectivesSousTitleText, "Victory Conditions", 0);
@@ -9626,10 +9627,12 @@ void RenderRepairTooltip() {
         TTF_GetTextSize(gameObjectivesSousTitleText, &victoryConditionSousTitleW, &victoryConditionSousTitleH);
         TTF_DrawRendererText(gameObjectivesSousTitleText, WinConditionsButton.x + (WinConditionsButton.w - victoryConditionSousTitleW) / 2.f, WinConditionsButton.y + (WinConditionsButton.h -victoryConditionSousTitleH)/2.f);
         // - - -
-        //Button Missions
-        SDL_SetRenderDrawColor(renderer, 0, 0, 139, 255);
+        //Button Missions -> brighter when its tab is the active one
+        SDL_Color winMissionsFill   = bIsWinMissonsButton ? SDL_Color{0, 60, 220, 255} : SDL_Color{0, 0, 100, 255};
+        SDL_Color winMissionsBorder = bIsWinMissonsButton ? SDL_Color{80, 150, 255, 255} : SDL_Color{0, 0, 140, 255};
+        SDL_SetRenderDrawColor(renderer, winMissionsFill.r, winMissionsFill.g, winMissionsFill.b, winMissionsFill.a);
         SDL_RenderFillRect(renderer, &WinMissionsButton);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 180, 255);
+        SDL_SetRenderDrawColor(renderer, winMissionsBorder.r, winMissionsBorder.g, winMissionsBorder.b, winMissionsBorder.a);
         SDL_RenderRect(renderer, &WinMissionsButton);
         //Text
         TTF_SetTextString(gameObjectivesSousTitleText, "Missions", 0);
@@ -9638,8 +9641,6 @@ void RenderRepairTooltip() {
         int missionsSousTitleW, missionsSousTitleH;
         TTF_GetTextSize(gameObjectivesSousTitleText, &missionsSousTitleW, &missionsSousTitleH);
         TTF_DrawRendererText(gameObjectivesSousTitleText, WinMissionsButton.x + (WinMissionsButton.w - missionsSousTitleW) /2.f, WinMissionsButton.y + (WinMissionsButton.h - missionsSousTitleH) / 2.f);
-
-        //Hovered of the buttons (changes rgb color)
 
         //Need 2 Sub Area 1 Conquest win and the other one Construction tier 5 castle win.(construct 1 tier 5 small victory | 3 for long)
 
@@ -12504,6 +12505,18 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             if (app.ClickInsideCircle(nouveauX, nouveauY, app.TechnologyButtonReturnGame)) {
                 app.StateActuel = State::Game;
                 return SDL_APP_CONTINUE;
+            }
+        }
+
+        //Win Conditions / Missions tab toggle
+        if (app.bWinConditionsInfoPopup) {
+            if (SDL_PointInRectFloat(&MousePT, &app.WinConditionsButton)) {
+                app.bIsWinConditionsButton = true;
+                app.bIsWinMissonsButton = false;
+            }
+            else if (SDL_PointInRectFloat(&MousePT, &app.WinMissionsButton)) {
+                app.bIsWinConditionsButton = false;
+                app.bIsWinMissonsButton = true;
             }
         }
 
