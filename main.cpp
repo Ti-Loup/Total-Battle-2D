@@ -9614,9 +9614,9 @@ void RenderRepairTooltip() {
         TTF_DrawRendererText(gameObjectivesTitleText, ObjectivesTitleRect.x + (ObjectivesTitleRect.w - objectivesTitleW) / 2.f, ObjectivesTitleRect.y + (ObjectivesTitleRect.h - objectivesTitleH) / 2.f);
         //Buttons subtitle (Win Conditions + Missions)
         //button Win condition
-        SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 139, 255);
         SDL_RenderFillRect(renderer, &WinConditionsButton);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 139, 255); //if hovered it will go higer the rgb()~
+        SDL_SetRenderDrawColor(renderer, 0, 0, 180, 255); //if hovered it will go higer the rgb()~
         SDL_RenderRect (renderer, &WinConditionsButton);
         //Text
         TTF_SetTextString(gameObjectivesSousTitleText, "Victory Conditions", 0);
@@ -9627,10 +9627,17 @@ void RenderRepairTooltip() {
         TTF_DrawRendererText(gameObjectivesSousTitleText, WinConditionsButton.x + (WinConditionsButton.w - victoryConditionSousTitleW) / 2.f, WinConditionsButton.y + (WinConditionsButton.h -victoryConditionSousTitleH)/2.f);
         // - - -
         //Button Missions
-        SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
-        SDL_RenderFillRect(renderer, &WinMissionsButton);
         SDL_SetRenderDrawColor(renderer, 0, 0, 139, 255);
+        SDL_RenderFillRect(renderer, &WinMissionsButton);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 180, 255);
         SDL_RenderRect(renderer, &WinMissionsButton);
+        //Text
+        TTF_SetTextString(gameObjectivesSousTitleText, "Missions", 0);
+        TTF_SetTextColor(gameObjectivesSousTitleText, 255, 255, 255, 255);
+        //positionning
+        int missionsSousTitleW, missionsSousTitleH;
+        TTF_GetTextSize(gameObjectivesSousTitleText, &missionsSousTitleW, &missionsSousTitleH);
+        TTF_DrawRendererText(gameObjectivesSousTitleText, WinMissionsButton.x + (WinMissionsButton.w - missionsSousTitleW) /2.f, WinMissionsButton.y + (WinMissionsButton.h - missionsSousTitleH) / 2.f);
 
         //Hovered of the buttons (changes rgb color)
 
