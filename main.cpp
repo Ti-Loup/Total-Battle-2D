@@ -9675,7 +9675,7 @@ void RenderRepairTooltip() {
                     SDL_SetRenderDrawColor(renderer, 25, 65, 55, 255);
                 }
                 //TitleBar
-                SDL_FRect slotTitleBar = (cardX, cardY, cardW, 40.f);
+                SDL_FRect slotTitleBar = {cardX, cardY, cardW, 40.f};
                 SDL_RenderFillRect(renderer, &slotTitleBar);
                 TTF_SetTextString(gameObjectivesSousTitleText, "TODO", 0);//a faire win database
                 TTF_SetTextColor(gameObjectivesSousTitleText, 240, 240, 240, 255);
@@ -9683,11 +9683,6 @@ void RenderRepairTooltip() {
 
             }
 
-
-    //     SDL_FRect cardTitleBar = {cardX, cardY, cardW, 40.f};
-    //     SDL_RenderFillRect(renderer, &cardTitleBar);
-    //     TTF_SetTextString(gameDecreeSousTitleText, decreeData->name.c_str(), 0);
-    //     TTF_SetTextColor(gameDecreeSousTitleText, 240, 220, 160, 255);
     //     int nameW, nameH;
     //     TTF_GetTextSize(gameDecreeSousTitleText, &nameW, &nameH);
     //     TTF_DrawRendererText(gameDecreeSousTitleText,
