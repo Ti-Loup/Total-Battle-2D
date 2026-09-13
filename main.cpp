@@ -26,6 +26,7 @@
 #include "AiContruction.h"
 #include "WorldEvents.h"
 #include "Decrees.h"
+#include "WinConditions.h"
 
 /*
 
@@ -349,7 +350,7 @@ public:
 
     //Circles to return to game - - - - -
     Circle DecreesButtonReturnGame = {1000.f, 900.f, 25};
-    Circle WinConditionButtonReturnGame = {1000.f, 900.f, 25};
+    Circle WinConditionButtonReturnGame = {960.f, 915.f, 25};
     Circle TreasuryButtonReturnGame = {1000.f, 900.f, 25};
     Circle DiplomacyButtonReturnGame = {1000.f, 900.f, 25};
     Circle FamilyHierarchyButtonReturnGame = {1000.f, 900.f, 25};
@@ -439,6 +440,16 @@ public:
     //Buildings Texture
     //hammer
     SDL_Texture *hammerUIBuildingUpgradeTexture = nullptr;
+
+    //Win conditions textures
+    SDL_Texture *gameWinConditionConquestShortIconTexture = nullptr;
+    SDL_Texture *gameWinConditionConquestLongIconTexture = nullptr;
+    SDL_Texture *gameWinConditionConstructionShortIconTexture = nullptr;
+    SDL_Texture *gameWinConditionConstructionLongIconTexture = nullptr;
+    SDL_Texture *gameWinConditionTradeShortIconTexture = nullptr;
+    SDL_Texture *gameWinConditionTradeLongIconTexture = nullptr;
+    SDL_Texture *gameWinConditionUltimateIconTexture = nullptr;
+
 
     //mains settlements buildings textures
     //                 ~ KNIGHT ~
@@ -1592,8 +1603,53 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture cameraResetPannelTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(cameraResetPannelTexture, SDL_SCALEMODE_NEAREST);
-        //SETTLEMENTS EVOLUTIF IN CAMPAIGN FOR EACH FACTION
 
+        // Win Conditions Icons
+        gameWinConditionConquestShortIconTexture = IMG_LoadTexture(renderer, "assets/WinConditions/ConquestShort.png");
+        if (gameWinConditionConquestShortIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameWinConditionConquestShortIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameWinConditionConquestShortIconTexture, SDL_SCALEMODE_NEAREST);
+
+        gameWinConditionConquestLongIconTexture = IMG_LoadTexture(renderer, "assets/WinConditions/ConquestLong.png");
+        if (gameWinConditionConquestLongIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameWinConditionConquestLongIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameWinConditionConquestLongIconTexture, SDL_SCALEMODE_NEAREST);
+
+        gameWinConditionConstructionShortIconTexture = IMG_LoadTexture(renderer, "assets/WinConditions/ConstructionShort.png");
+        if (gameWinConditionConstructionShortIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameWinConditionConstructionShortIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameWinConditionConstructionShortIconTexture, SDL_SCALEMODE_NEAREST);
+
+        gameWinConditionConstructionLongIconTexture = IMG_LoadTexture(renderer, "assets/WinConditions/ConstructionLong.png");
+        if (gameWinConditionConstructionLongIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameWinConditionConstructionLongIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameWinConditionConstructionLongIconTexture, SDL_SCALEMODE_NEAREST);
+
+        gameWinConditionTradeShortIconTexture = IMG_LoadTexture(renderer, "assets/WinConditions/TradeShort.png");
+        if (gameWinConditionTradeShortIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameWinConditionTradeShortIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameWinConditionTradeShortIconTexture, SDL_SCALEMODE_NEAREST);
+
+        gameWinConditionTradeLongIconTexture = IMG_LoadTexture(renderer, "assets/WinConditions/TradeLong.png");
+        if (gameWinConditionTradeLongIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameWinConditionTradeLongIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameWinConditionTradeLongIconTexture, SDL_SCALEMODE_NEAREST);
+
+        gameWinConditionUltimateIconTexture = IMG_LoadTexture(renderer, "assets/WinConditions/Ultimate.png");
+        if (gameWinConditionUltimateIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameWinConditionUltimateIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameWinConditionUltimateIconTexture, SDL_SCALEMODE_NEAREST);
+
+
+
+        //SETTLEMENTS EVOLUTIF IN CAMPAIGN FOR EACH FACTION
         /*
          *Castle and capital Tier 1 no wall, Tier 2 wood wall, Tier 3 Stone wall, Tier 4 Better wall, Tier 5 2 layout of walls.
          *
@@ -4105,6 +4161,13 @@ private://constructor
         SDL_DestroyTexture(defensiveAllianceDiplomacyIconTexture);
         SDL_DestroyTexture(militaryAllianceDiplomacyIconTexture);
         SDL_DestroyTexture(warDiplomacyIconTexture);
+        SDL_DestroyTexture(gameWinConditionConquestShortIconTexture);
+        SDL_DestroyTexture(gameWinConditionConquestLongIconTexture);
+        SDL_DestroyTexture(gameWinConditionConstructionShortIconTexture);
+        SDL_DestroyTexture(gameWinConditionConstructionLongIconTexture);
+        SDL_DestroyTexture(gameWinConditionTradeShortIconTexture);
+        SDL_DestroyTexture(gameWinConditionTradeLongIconTexture);
+        SDL_DestroyTexture(gameWinConditionUltimateIconTexture);
         // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
@@ -4195,6 +4258,65 @@ private://constructor
         }
         return BuildingType::None;
     }
+
+int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
+    switch (category) {
+        case WinConditionCategory::Conquest: {
+            if (objectiveIndex == 0) {
+                int count = 0;
+                for (const auto& s : settlements)
+                    if (provinces[s.settlementData.provinceID].owner == player.faction) count++;
+                return count;
+            }
+            if (objectiveIndex == 1) {
+                int count = 0;
+                for (const auto& p : provinces)
+                    if (p.owner == player.faction) count++;
+                return count;
+            }
+            return 0;
+        }
+        case WinConditionCategory::Construction: {
+            if (objectiveIndex == 0) {
+                int count = 0;
+                for (const auto& s : settlements) {
+                    if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
+                    for (BuildingType bt : s.settlementData.buildings) {
+                        if (bt == BuildingType::None) continue;
+                        const BuildingData* bd = GetBuildingData(bt);
+                        if (bd && bd->Tier >= 3) count++;
+                    }
+                }
+                return count;
+            }
+            if (objectiveIndex == 1) {
+                int count = 0;
+                for (const auto& s : settlements) {
+                    if (provinces[s.settlementData.provinceID].owner != player.faction) continue;
+                    int maxTier = (s.settlementData.type == SettlementType::Village) ? 3 : 5;
+                    if (s.settlementData.settlementTier >= maxTier) count++;
+                }
+                return count;
+            }
+            return 0;
+        }
+        case WinConditionCategory::Trade: {
+            if (objectiveIndex == 0) return player.currentGold;
+            if (objectiveIndex == 1) {
+                int totalValue = 0;
+                for (auto& [type, amount] : goodsStoredByType) {
+                    const ResourceData* resData = GetResourceData(type);
+                    if (resData) totalValue += resData->ResourceValue * amount;
+                }
+                return totalValue;
+            }
+            return 0;
+        }
+        default:
+            return 0;
+    }
+}
+
 
     //to render the Buttons
     void RenderBoutons(const SDL_FRect &rect, TTF_Text *buttonText, Uint8 buttonr, Uint8 buttong, Uint8 buttonb, Uint8 buttona) {
@@ -9593,300 +9715,238 @@ void RenderRepairTooltip() {
      * +
      * Show current missions. (Need own mecanic)
      */
+    SDL_Texture* GetWinConditionSectionIcon(WinConditionCategory category, WinConditionLength length) {
+        bool isShort = (length == WinConditionLength::Short);
+        if (category == WinConditionCategory::Conquest)
+            return isShort ? gameWinConditionConquestShortIconTexture : gameWinConditionConquestLongIconTexture;
+        if (category == WinConditionCategory::Construction)
+            return isShort ? gameWinConditionConstructionShortIconTexture : gameWinConditionConstructionLongIconTexture;
+        if (category == WinConditionCategory::Trade)
+            return isShort ? gameWinConditionTradeShortIconTexture : gameWinConditionTradeLongIconTexture;
+        return nullptr;
+    }
+    void RenderVictorySection(float x, float y, float w, float h, WinConditionCategory category, WinConditionLength length, SDL_Texture* icon) {
+        const WinConditionData* data = GetWinConditionData(category, length);
+        if (!data) return;
+
+        if (player.faction == FactionZone::Knight)       SDL_SetRenderDrawColor(renderer, 60, 50, 20, 255);
+        else if (player.faction == FactionZone::Viking)  SDL_SetRenderDrawColor(renderer, 60, 20, 20, 255);
+        else if (player.faction == FactionZone::Samurai) SDL_SetRenderDrawColor(renderer, 25, 65, 55, 255);
+        float titleH = 30.f;
+        SDL_FRect titleBar = {x, y, w, titleH};
+        SDL_RenderFillRect(renderer, &titleBar);
+
+        TTF_SetTextString(gameObjectivesSousTitleText, data->name.c_str(), 0);
+        TTF_SetTextColor(gameObjectivesSousTitleText, 240, 220, 160, 255);
+        int nameW, nameH;
+        TTF_GetTextSize(gameObjectivesSousTitleText, &nameW, &nameH);
+        TTF_DrawRendererText(gameObjectivesSousTitleText,
+        titleBar.x + (titleBar.w - nameW) / 2.f,
+        titleBar.y + (titleBar.h - nameH) / 2.f);
+
+        float contentTop = y + titleH + 8.f;
+        float contentBottom = y + h - 8.f;
+        float iconPad = 12.f;
+        float desiredIconSize = std::clamp(w * 0.22f, 55.f, 85.f);
+        float availableIconSpace = std::max(20.f, contentBottom - contentTop - 4.f);
+        float iconSize = icon ? std::min(desiredIconSize, availableIconSpace) : 0.f;
+        float wrapW = icon ? (w - iconSize - iconPad * 2.f - 10.f) : (w - 20.f);
+
+        float lineY = contentTop;
+        for (int i = 0; i < (int)data->objectives.size(); i++) {
+           const auto& objective = data->objectives[i];
+           std::string line = FormatWinConditionObjective(objective);
+
+            TTF_SetTextWrapWidth(gameObjectivesDescText, (int)wrapW);
+            TTF_SetTextString(gameObjectivesDescText, line.c_str(), 0);
+            TTF_SetTextColor(gameObjectivesDescText, 220, 220, 220, 255);
+            TTF_DrawRendererText(gameObjectivesDescText, x + 10.f, lineY);
+            int descW, descH;
+            TTF_GetTextSize(gameObjectivesDescText, &descW, &descH);
+            TTF_SetTextWrapWidth(gameObjectivesDescText, 0);
+            lineY += descH + 3.f;
+
+            int currentAmount = GetWinConditionProgress(category, i);
+            std::string currentStr = "(Current: " + std::to_string(currentAmount) + ")";
+            TTF_SetTextString(gameObjectivesDescText, currentStr.c_str(), 0);
+            bool met = currentAmount >= objective.targetAmount;
+            TTF_SetTextColor(gameObjectivesDescText, met ? 127 : 220, met ? 255 : 200, met ? 0 : 100, 255);
+            TTF_DrawRendererText(gameObjectivesDescText, x + 10.f, lineY);
+            lineY += 18.f;
+        }
+
+        if (icon) {
+            float iconY = contentTop;
+            SDL_FRect iconRect = {x + w - iconSize - iconPad, iconY, iconSize, iconSize};
+
+            SDL_SetRenderDrawColor(renderer, 15, 15, 15, 200);
+            SDL_FRect iconFrame = {iconRect.x - 4.f, iconRect.y - 4.f, iconSize + 8.f, iconSize + 8.f};
+            SDL_RenderFillRect(renderer, &iconFrame);
+            SDL_SetRenderDrawColor(renderer, 110, 90, 40, 255);
+            SDL_RenderRect(renderer, &iconFrame);
+
+            SDL_RenderTexture(renderer, icon, nullptr, &iconRect);
+        }
+}
+    void RenderVictoryConditionsTab(const SDL_FRect& background) {
+        WinConditionCategory columns[3] = {
+            WinConditionCategory::Conquest,
+            WinConditionCategory::Construction,
+            WinConditionCategory::Trade
+        };
+
+        float cardMargin = 20.f;
+        float cardGap = 15.f;
+        float columnsTopY = background.y + 100.f;
+        float ultimateBarHeight = 90.f;
+        float ultimateBarGap = 15.f;
+        float bottomMargin = 15.f;
+        float columnsAreaW = background.w - cardMargin * 2.f;
+        float columnW = (columnsAreaW - cardGap * 2.f) / 3.f;
+        float columnsAreaH = background.h - 100.f - ultimateBarHeight - ultimateBarGap - bottomMargin;
+        float sectionH = columnsAreaH / 2.f; // Short and long has same slot
+
+        float middleColumnX = background.x + cardMargin + (columnW + cardGap);
+
+        for (int c = 0; c < 3; c++) {
+            float columnX = background.x + cardMargin + c * (columnW + cardGap);
+
+
+            SDL_SetRenderDrawColor(renderer, 25, 25, 25, 230);
+            SDL_FRect columnRect = {columnX, columnsTopY, columnW, columnsAreaH};
+            SDL_RenderFillRect(renderer, &columnRect);
+            SDL_SetRenderDrawColor(renderer, 110, 90, 40, 255);
+            SDL_RenderRect(renderer, &columnRect);
+
+            RenderVictorySection(columnX, columnsTopY, columnW, sectionH,
+                columns[c], WinConditionLength::Short, GetWinConditionSectionIcon(columns[c], WinConditionLength::Short));
+            //small line
+            SDL_SetRenderDrawColor(renderer, 90, 75, 35, 200);
+            SDL_RenderLine(renderer, columnX + 4.f, columnsTopY + sectionH, columnX + columnW - 4.f, columnsTopY + sectionH);
+
+            RenderVictorySection(columnX, columnsTopY + sectionH, columnW, sectionH,
+                columns[c], WinConditionLength::Long, GetWinConditionSectionIcon(columns[c], WinConditionLength::Long));
+        }
+
+    // Ultimate Victory
+        float ultimateY = columnsTopY + columnsAreaH + ultimateBarGap;
+        SDL_FRect ultimateRect = {middleColumnX, ultimateY, columnW, ultimateBarHeight};
+        SDL_SetRenderDrawColor(renderer, 25, 25, 25, 230);
+        SDL_RenderFillRect(renderer, &ultimateRect);
+        SDL_SetRenderDrawColor(renderer, 200, 170, 60, 255);
+        SDL_RenderRect(renderer, &ultimateRect);
+
+        const WinConditionData* ultimateData = GetWinConditionData(WinConditionCategory::Ultimate, WinConditionLength::None);
+        if (ultimateData) {
+            SDL_SetRenderDrawColor(renderer, 90, 70, 20, 255);
+            float ultimateTitleH = 26.f;
+            SDL_FRect ultimateTitleBar = {ultimateRect.x, ultimateRect.y, ultimateRect.w, ultimateTitleH};
+            SDL_RenderFillRect(renderer, &ultimateTitleBar);
+
+            TTF_SetTextString(gameObjectivesSousTitleText, ultimateData->name.c_str(), 0);
+            TTF_SetTextColor(gameObjectivesSousTitleText, 240, 220, 160, 255);
+            int nameW, nameH;
+            TTF_GetTextSize(gameObjectivesSousTitleText, &nameW, &nameH);
+            TTF_DrawRendererText(gameObjectivesSousTitleText,
+                ultimateTitleBar.x + (ultimateTitleBar.w - nameW) / 2.f,
+                ultimateTitleBar.y + (ultimateTitleBar.h - nameH) / 2.f);
+
+            float contentTop = ultimateTitleBar.y + ultimateTitleBar.h + 6.f;
+            float contentBottom = ultimateRect.y + ultimateRect.h - 6.f;
+            float ultimateIconPad = 10.f;
+            float desiredUltimateIconSize = std::clamp(ultimateRect.w * 0.16f, 30.f, 60.f);
+            float availableUltimateIconSpace = std::max(20.f, contentBottom - contentTop - 4.f);
+            float ultimateIconSize = gameWinConditionUltimateIconTexture
+                ? std::min(desiredUltimateIconSize, availableUltimateIconSpace)
+                : 0.f;
+            float wrapW = ultimateRect.w - ultimateIconSize - ultimateIconPad * 2.f - 10.f;
+
+            float lineY = contentTop;
+            for (const auto& objective : ultimateData->objectives) {
+                TTF_SetTextWrapWidth(gameObjectivesDescText, (int)wrapW);
+                TTF_SetTextString(gameObjectivesDescText, objective.descriptionTemplate.c_str(), 0);
+                TTF_SetTextColor(gameObjectivesDescText, 210, 210, 210, 255);
+                TTF_DrawRendererText(gameObjectivesDescText, ultimateRect.x + 10.f, lineY);
+                int descW, descH;
+                TTF_GetTextSize(gameObjectivesDescText, &descW, &descH);
+                TTF_SetTextWrapWidth(gameObjectivesDescText, 0);
+                lineY += descH + 4.f;
+            }
+
+        if (gameWinConditionUltimateIconTexture) {
+            float iconY = contentTop;
+            SDL_FRect ultimateIconRect = {ultimateRect.x + ultimateRect.w - ultimateIconSize - ultimateIconPad, iconY, ultimateIconSize, ultimateIconSize};
+
+            SDL_SetRenderDrawColor(renderer, 15, 15, 15, 200);
+            SDL_FRect ultimateIconFrame = {ultimateIconRect.x - 3.f, ultimateIconRect.y - 3.f, ultimateIconSize + 6.f, ultimateIconSize + 6.f};
+            SDL_RenderFillRect(renderer, &ultimateIconFrame);
+            SDL_SetRenderDrawColor(renderer, 200, 170, 60, 255);
+            SDL_RenderRect(renderer, &ultimateIconFrame);
+
+            SDL_RenderTexture(renderer, gameWinConditionUltimateIconTexture, nullptr, &ultimateIconRect);
+        }
+    }
+}
     void RenderWinConditionsInfoPopup() {
         if (!bWinConditionsInfoPopup) return;
-        //Background
+
         SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
-        SDL_FRect ObjectivesBackgroundRect = {400.f, 200.f, 1200, 700};
+        SDL_FRect ObjectivesBackgroundRect = {410.f, 200.f, 1100, 680};
         SDL_RenderFillRect(renderer, &ObjectivesBackgroundRect);
         SDL_SetRenderDrawColor(renderer, 110, 90, 40, 255);
-        SDL_RenderRect (renderer, &ObjectivesBackgroundRect);
+        SDL_RenderRect(renderer, &ObjectivesBackgroundRect);
 
-        //Title background + Title
         SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
-        SDL_FRect ObjectivesTitleRect = {900.f, 185.f, 200, 40};
+        SDL_FRect ObjectivesTitleRect = {860.f, 185.f, 200, 40};
         SDL_RenderFillRect(renderer, &ObjectivesTitleRect);
-        //- - -
         TTF_SetTextString(gameObjectivesTitleText, "Objectives", 0);
         TTF_SetTextColor(gameObjectivesTitleText, 255, 255, 255, 255);
         int objectivesTitleW, objectivesTitleH;
         TTF_GetTextSize(gameObjectivesTitleText, &objectivesTitleW, &objectivesTitleH);
-        TTF_DrawRendererText(gameObjectivesTitleText, ObjectivesTitleRect.x + (ObjectivesTitleRect.w - objectivesTitleW) / 2.f, ObjectivesTitleRect.y + (ObjectivesTitleRect.h - objectivesTitleH) / 2.f);
-        //Buttons subtitle (Win Conditions + Missions)
-         SDL_Color winConditionsFill   = bIsWinConditionsButton ? SDL_Color{0, 60, 220, 255} : SDL_Color{0, 0, 100, 255};
+        TTF_DrawRendererText(gameObjectivesTitleText,
+            ObjectivesTitleRect.x + (ObjectivesTitleRect.w - objectivesTitleW) / 2.f,
+            ObjectivesTitleRect.y + (ObjectivesTitleRect.h - objectivesTitleH) / 2.f);
+
+        WinConditionsButton = {750.f, 250.f, 200, 40};
+        WinMissionsButton   = {970.f, 250.f, 200, 40};
+
+        SDL_Color winConditionsFill   = bIsWinConditionsButton ? SDL_Color{0, 60, 220, 255} : SDL_Color{0, 0, 100, 255};
         SDL_Color winConditionsBorder = bIsWinConditionsButton ? SDL_Color{80, 150, 255, 255} : SDL_Color{0, 0, 140, 255};
         SDL_SetRenderDrawColor(renderer, winConditionsFill.r, winConditionsFill.g, winConditionsFill.b, winConditionsFill.a);
         SDL_RenderFillRect(renderer, &WinConditionsButton);
         SDL_SetRenderDrawColor(renderer, winConditionsBorder.r, winConditionsBorder.g, winConditionsBorder.b, winConditionsBorder.a);
-        SDL_RenderRect (renderer, &WinConditionsButton);
-        //Text
+        SDL_RenderRect(renderer, &WinConditionsButton);
         TTF_SetTextString(gameObjectivesSousTitleText, "Victory Conditions", 0);
         TTF_SetTextColor(gameObjectivesSousTitleText, 255, 255, 255, 255);
-        //positionning
-        int victoryConditionSousTitleW, victoryConditionSousTitleH;
-        TTF_GetTextSize(gameObjectivesSousTitleText, &victoryConditionSousTitleW, &victoryConditionSousTitleH);
-        TTF_DrawRendererText(gameObjectivesSousTitleText, WinConditionsButton.x + (WinConditionsButton.w - victoryConditionSousTitleW) / 2.f, WinConditionsButton.y + (WinConditionsButton.h -victoryConditionSousTitleH)/2.f);
-        // - - -
-        //Button Missions -> brighter when its tab is the active one
+        int vW, vH;
+        TTF_GetTextSize(gameObjectivesSousTitleText, &vW, &vH);
+        TTF_DrawRendererText(gameObjectivesSousTitleText,
+            WinConditionsButton.x + (WinConditionsButton.w - vW) / 2.f,
+            WinConditionsButton.y + (WinConditionsButton.h - vH) / 2.f);
+
         SDL_Color winMissionsFill   = bIsWinMissonsButton ? SDL_Color{0, 60, 220, 255} : SDL_Color{0, 0, 100, 255};
         SDL_Color winMissionsBorder = bIsWinMissonsButton ? SDL_Color{80, 150, 255, 255} : SDL_Color{0, 0, 140, 255};
         SDL_SetRenderDrawColor(renderer, winMissionsFill.r, winMissionsFill.g, winMissionsFill.b, winMissionsFill.a);
         SDL_RenderFillRect(renderer, &WinMissionsButton);
         SDL_SetRenderDrawColor(renderer, winMissionsBorder.r, winMissionsBorder.g, winMissionsBorder.b, winMissionsBorder.a);
         SDL_RenderRect(renderer, &WinMissionsButton);
-        //Text
         TTF_SetTextString(gameObjectivesSousTitleText, "Missions", 0);
         TTF_SetTextColor(gameObjectivesSousTitleText, 255, 255, 255, 255);
-        //positionning
-        int missionsSousTitleW, missionsSousTitleH;
-        TTF_GetTextSize(gameObjectivesSousTitleText, &missionsSousTitleW, &missionsSousTitleH);
-        TTF_DrawRendererText(gameObjectivesSousTitleText, WinMissionsButton.x + (WinMissionsButton.w - missionsSousTitleW) /2.f, WinMissionsButton.y + (WinMissionsButton.h - missionsSousTitleH) / 2.f);
+        int mW, mH;
+        TTF_GetTextSize(gameObjectivesSousTitleText, &mW, &mH);
+        TTF_DrawRendererText(gameObjectivesSousTitleText,
+            WinMissionsButton.x + (WinMissionsButton.w - mW) / 2.f,
+            WinMissionsButton.y + (WinMissionsButton.h - mH) / 2.f);
 
-        //If Button Win Conditions true ~!
-        if (bIsWinConditionsButton) {
+        if (bIsWinConditionsButton) RenderVictoryConditionsTab(ObjectivesBackgroundRect);
 
-            //Sub area for win Slots with their icon
-            float cardMargin = 30.f;
-            float cardGap = 10.f;
-            float cardsTopY = ObjectivesBackgroundRect.y + 95.f;
-            float cardsAreaW = ObjectivesBackgroundRect.w - cardMargin * 2.f;
-            float cardW = (cardsAreaW - cardGap * 2.f) / 3.f;
-            float cardH = 560.f;
-
-            for (int slot = 0; slot < 3; slot++) {
-                //for 1 slot
-                float cardX = ObjectivesBackgroundRect.x + cardMargin + slot * (cardW + cardGap);
-                float cardY = cardsTopY;
-
-                //background for 1 slot
-                SDL_FRect cardRect = {cardX, cardY, cardW, cardH};
-                SDL_SetRenderDrawColor(renderer, 25, 25 ,25, 255);
-                SDL_RenderFillRect(renderer, &cardRect);
-                SDL_SetRenderDrawColor(renderer, 110, 90, 40, 255);
-                SDL_RenderRect(renderer, &cardRect);
-                //Slot titles
-                if (player.faction == FactionZone::Knight) {
-                    SDL_SetRenderDrawColor(renderer, 60, 50, 20, 255);
-                }
-                else if (player.faction == FactionZone::Viking) {
-                    SDL_SetRenderDrawColor(renderer, 60, 20, 20, 255);
-                }
-                else if (player.faction == FactionZone::Samurai) {
-                    SDL_SetRenderDrawColor(renderer, 25, 65, 55, 255);
-                }
-                //TitleBar
-                SDL_FRect slotTitleBar = {cardX, cardY, cardW, 40.f};
-                SDL_RenderFillRect(renderer, &slotTitleBar);
-                TTF_SetTextString(gameObjectivesSousTitleText, "TODO", 0);//a faire win database
-                TTF_SetTextColor(gameObjectivesSousTitleText, 240, 240, 240, 255);
-                
-
-            }
-
-    //     int nameW, nameH;
-    //     TTF_GetTextSize(gameDecreeSousTitleText, &nameW, &nameH);
-    //     TTF_DrawRendererText(gameDecreeSousTitleText,
-    //         cardTitleBar.x + (cardTitleBar.w - nameW) / 2.f,
-    //         cardTitleBar.y + (cardTitleBar.h - nameH) / 2.f);
-    //
-    //     //Cooldown / Duration row
-    //     float infoRowY = cardY + 45.f;
-    //     float infoIconSize = 16.f;
-    //     float infoIconGap = 4.f;
-    //
-    //     //Cooldown label, icon, number
-    //     std::string cooldownLabelStr = "Cooldown:";
-    //     TTF_SetTextString(gameDecreeDescText, cooldownLabelStr.c_str(), 0);
-    //     TTF_SetTextColor(gameDecreeDescText, 220, 220, 220, 255);
-    //     TTF_DrawRendererText(gameDecreeDescText, cardX + 15.f, infoRowY);
-    //     int cooldownLabelW, cooldownLabelH;
-    //     TTF_GetTextSize(gameDecreeDescText, &cooldownLabelW, &cooldownLabelH);
-    //
-    //     float cooldownIconX = cardX + 15.f + cooldownLabelW + infoIconGap;
-    //     SDL_FRect cooldownIconRect = {cooldownIconX, infoRowY, infoIconSize, infoIconSize};
-    //     SDL_RenderTexture(renderer, gameTurnAmountTexture, nullptr, &cooldownIconRect);
-    //
-    //     std::string cooldownNumStr = std::to_string(decreeData->decreeCooldown);
-    //     TTF_SetTextString(gameDecreeDescText, cooldownNumStr.c_str(), 0);
-    //     TTF_SetTextColor(gameDecreeDescText, 220, 220, 220, 255);
-    //     TTF_DrawRendererText(gameDecreeDescText, cooldownIconX + infoIconSize + infoIconGap, infoRowY);
-    //
-    //     //Duration label, icon, number
-    //     std::string durationLabelStr = "Duration:";
-    //     TTF_SetTextString(gameDecreeDescText, durationLabelStr.c_str(), 0);
-    //     int durationLabelW, durationLabelH;
-    //     TTF_GetTextSize(gameDecreeDescText, &durationLabelW, &durationLabelH);
-    //
-    //     std::string durationNumStr = std::to_string(decreeData->decreeDuration);
-    //     TTF_SetTextString(gameDecreeDescText, durationNumStr.c_str(), 0);
-    //     int durationNumW, durationNumH;
-    //     TTF_GetTextSize(gameDecreeDescText, &durationNumW, &durationNumH);
-    //
-    //     float durationTotalW = durationLabelW + infoIconGap + infoIconSize + infoIconGap + durationNumW;
-    //     float durationStartX = cardX + cardW - 15.f - durationTotalW;
-    //
-    //     TTF_SetTextString(gameDecreeDescText, durationLabelStr.c_str(), 0);
-    //     TTF_SetTextColor(gameDecreeDescText, 220, 220, 220, 255);
-    //     TTF_DrawRendererText(gameDecreeDescText, durationStartX, infoRowY);
-    //
-    //     float durationIconX = durationStartX + durationLabelW + infoIconGap;
-    //     SDL_FRect durationIconRect = {durationIconX, infoRowY, infoIconSize, infoIconSize};
-    //     SDL_RenderTexture(renderer, gameTurnAmountTexture, nullptr, &durationIconRect);
-    //
-    //     TTF_SetTextString(gameDecreeDescText, durationNumStr.c_str(), 0);
-    //     TTF_SetTextColor(gameDecreeDescText, 220, 220, 220, 255);
-    //     TTF_DrawRendererText(gameDecreeDescText, durationIconX + infoIconSize + infoIconGap, infoRowY);
-    //
-    //     //Texture Image
-    //     SDL_FRect imageRect = {cardX + 15.f, infoRowY + 24.f, cardW - 30.f, 175.f};
-    //     SDL_SetRenderDrawColor(renderer, 20, 40, 15, 255);
-    //     SDL_RenderFillRect(renderer, &imageRect);
-    //     SDL_Texture* decreeTexture = GetDecreeTexture(player.faction, slot);
-    //     if (decreeTexture) SDL_RenderTexture(renderer, decreeTexture, nullptr, &imageRect);
-    //
-    //     //Description (effects)
-    //     float descY = imageRect.y + imageRect.h + 15.f;
-    //     TTF_SetTextWrapWidth(gameDecreeDescText, (int)(cardW - 30.f));
-    //     TTF_SetTextString(gameDecreeDescText, decreeData->description.c_str(), 0);
-    //     TTF_SetTextColor(gameDecreeDescText, 210, 210, 210, 255);
-    //     TTF_DrawRendererText(gameDecreeDescText, cardX + 15.f, descY);
-    //     TTF_SetTextWrapWidth(gameDecreeDescText, 0);
-    //
-    //     //Affordability checks
-    //     int haveResourceAmount = goodsStoredByType.count(decreeData->costResourceType) ? goodsStoredByType[decreeData->costResourceType] : 0;
-    //     bool bHasEnoughResource = haveResourceAmount >= decreeData->costResourceAmount;
-    //     bool bHasEnoughGold = player.currentGold >= decreeData->decreeCost;
-    //     bool bCanAfford = bHasEnoughResource && bHasEnoughGold;
-    //
-    //     //Decree activity state
-    //     bool bIsActive = decreeDurationRemaining.count(slot) > 0;
-    //     bool bIsCooldown = decreeCooldownRemaining.count(slot) > 0;
-    //     bool bClickable = !bIsActive && !bIsCooldown && bCanAfford;//button can be clicked if all false
-    //
-    //     //Status message box
-    //     float statusY = cardY + cardH - 200.f;
-    //     SDL_SetRenderDrawColor(renderer, 15, 15, 15, 180);
-    //     SDL_FRect statusRect = {cardX + 10.f, statusY, cardW - 20.f, 80.f};
-    //     SDL_RenderFillRect(renderer, &statusRect);
-    //     SDL_SetRenderDrawColor(renderer, 90, 90, 90, 150);
-    //     SDL_RenderRect(renderer, &statusRect);
-    //
-    //     std::string statusStr;
-    //     SDL_Color statusColor = {220, 220, 220, 255};
-    //     if (bIsActive) {
-    //         statusStr = "Active - " + std::to_string(decreeDurationRemaining[slot]) + " turn(s) remaining.";
-    //         statusColor = {100, 220, 255, 255};
-    //     } else if (bIsCooldown) {
-    //         statusStr = "On cooldown - " + std::to_string(decreeCooldownRemaining[slot]) + " turn(s) remaining.";
-    //         statusColor = {180, 180, 180, 255};
-    //     } else if (bCanAfford) {
-    //         statusStr = "This decree is available.";
-    //     } else {
-    //         statusStr = "You can not afford to enact this decree.";
-    //         statusColor = {220, 60, 60, 255};
-    //     }
-    //
-    //     TTF_SetTextWrapWidth(gameDecreeDescText, (int)(cardW - 40.f));
-    //     TTF_SetTextString(gameDecreeDescText, statusStr.c_str(), 0);
-    //     TTF_SetTextColor(gameDecreeDescText, statusColor.r, statusColor.g, statusColor.b, 255);
-    //     int statusW, statusH;
-    //     TTF_GetTextSize(gameDecreeDescText, &statusW, &statusH);
-    //     TTF_DrawRendererText(gameDecreeDescText,
-    //         statusRect.x + (statusRect.w - statusW) / 2.f,
-    //         statusRect.y + (statusRect.h - statusH) / 2.f);
-    //     TTF_SetTextWrapWidth(gameDecreeDescText, 0);
-    //
-    //     //Cost row (resource + gold), colored green if affordable, red if not
-    //     float costY = cardY + cardH - 90.f;
-    //     SDL_SetRenderDrawColor(renderer, 15, 15, 15, 200);
-    //     SDL_FRect costRow = {cardX + 10.f, costY, cardW - 20.f, 35.f};
-    //     SDL_RenderFillRect(renderer, &costRow);
-    //
-    //     //Resource cost (left side)
-    //     SDL_Texture* costIcon = GetResourceTypeIcon(decreeData->costResourceType);
-    //     SDL_FRect costIconRect = {costRow.x + 5.f, costRow.y + 5.f, 25.f, 25.f};
-    //     if (costIcon) SDL_RenderTexture(renderer, costIcon, nullptr, &costIconRect);
-    //
-    //     std::string resourceCostStr = "-" + std::to_string(decreeData->costResourceAmount);
-    //     TTF_SetTextString(gameDecreeDescText, resourceCostStr.c_str(), 0);
-    //     if (bHasEnoughResource) TTF_SetTextColor(gameDecreeDescText, 127, 255, 0, 255);
-    //     else TTF_SetTextColor(gameDecreeDescText, 220, 60, 60, 255);
-    //     TTF_DrawRendererText(gameDecreeDescText, costIconRect.x + 32.f, costIconRect.y + 3.f);
-    //
-    //     //Gold cost (right side)
-    //     float goldIconSize = 25.f;
-    //     SDL_FRect goldIconRect = {costRow.x + costRow.w - 90.f, costRow.y + 5.f, goldIconSize, goldIconSize};
-    //     SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &goldIconRect);
-    //
-    //     std::string goldCostStr = "-" + std::to_string(decreeData->decreeCost);
-    //     TTF_SetTextString(gameDecreeDescText, goldCostStr.c_str(), 0);
-    //     if (bHasEnoughGold) TTF_SetTextColor(gameDecreeDescText, 255, 255, 255, 255);
-    //     else TTF_SetTextColor(gameDecreeDescText, 220, 60, 60, 255);
-    //     TTF_DrawRendererText(gameDecreeDescText, goldIconRect.x + 32.f, goldIconRect.y + 3.f);
-    //
-    //     //Button Enact
-    //     SDL_FRect enactButtonRect = {cardX + 10.f, cardY + cardH - 45.f, cardW - 20.f, 35.f};
-    //     //Mouse detection
-    //     float mouseXEnact;
-    //     float mouseYEnact;
-    //     SDL_GetMouseState(&mouseXEnact, &mouseYEnact);
-    //     float lenghtXEnact;
-    //     float lenghtYEnact;
-    //     SDL_RenderCoordinatesFromWindow(renderer, mouseXEnact, mouseYEnact, &lenghtXEnact, &lenghtYEnact);
-    //     SDL_FPoint mouseEnactPt = {lenghtXEnact,lenghtYEnact};
-    //     bool bHoveredEnact = SDL_PointInRectFloat(&mouseEnactPt, &enactButtonRect);
-    //
-    //     SDL_Color enactBg;
-    //     const char* enactLabel = "Enact";
-    //     if (bIsActive) { enactBg = {40, 70, 90, 255}; enactLabel = "Active"; }
-    //     else if (bIsCooldown) { enactBg = {50, 50, 50, 255}; enactLabel = "Cooldown"; }
-    //     else {
-    //         if (bClickable && bHoveredEnact) {
-    //             enactBg = {60, 95, 140, 255};
-    //         }else {
-    //             enactBg = {40, 70, 110, 255};
-    //         }
-    //         enactLabel = "Enact";
-    //     }
-    //
-    //     SDL_SetRenderDrawColor(renderer, enactBg.r, enactBg.g, enactBg.b, 255);
-    //     SDL_RenderFillRect(renderer, &enactButtonRect);
-    //     SDL_SetRenderDrawColor(renderer, 110, 90, 40, 255);
-    //     SDL_RenderRect(renderer, &enactButtonRect);
-    //     TTF_SetTextString(gameDecreeSousTitleText, enactLabel, 0);
-    //     TTF_SetTextColor(gameDecreeSousTitleText, bClickable ? 255 : 150, bClickable ? 255 : 150, bClickable ? 255 : 150, 255);
-    //     int enactW, enactH;
-    //     TTF_GetTextSize(gameDecreeSousTitleText, &enactW, &enactH);
-    //     TTF_DrawRendererText(gameDecreeSousTitleText,
-    //         enactButtonRect.x + (enactButtonRect.w - enactW) / 2.f,
-    //         enactButtonRect.y + (enactButtonRect.h - enactH) / 2.f);
-    //
-    //     if (bClickable) {
-    //         decreeEnactButtonRects.push_back({enactButtonRect, slot});
-    //     }
-    // }
-        }
-        //if Button Missions Selected true ~!
-        if (bIsWinMissonsButton) {
-
-        }
-
-        //If Button Missions True
-
-        //Return button
-        //Mouse detection Button Return
-        float mouseXReturn;
-        float mouseYReturn;
-        SDL_GetMouseState(&mouseXReturn,&mouseYReturn);
-        float lenghtXReturn;
-        float lenghtYReturn;
+        float mouseXReturn, mouseYReturn;
+        SDL_GetMouseState(&mouseXReturn, &mouseYReturn);
+        float lenghtXReturn, lenghtYReturn;
         SDL_RenderCoordinatesFromWindow(renderer, mouseXReturn, mouseYReturn, &lenghtXReturn, &lenghtYReturn);
-        SDL_FPoint mouseReturnPt = {lenghtXReturn, lenghtYReturn};
         bool bHoveredReturnButton = ClickInsideCircle(lenghtXReturn, lenghtYReturn, WinConditionButtonReturnGame);
-        //ButtonToReturn
         Uint8 returnAlpha = bHoveredReturnButton ? 255 : 200;
         SDL_SetTextureAlphaMod(gameReturnButtons, returnAlpha);
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
         RenderBoutonCercle(WinConditionButtonReturnGame, nullptr, gameReturnButtons, 0, 0, 0);
         SDL_SetTextureAlphaMod(gameReturnButtons, 255);
     }
