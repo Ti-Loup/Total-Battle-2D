@@ -350,7 +350,7 @@ public:
 
     //Circles to return to game - - - - -
     Circle DecreesButtonReturnGame = {1000.f, 900.f, 25};
-    Circle WinConditionButtonReturnGame = {960.f, 915.f, 25};
+    Circle WinConditionButtonReturnGame = {960.f, 900.f, 25};
     Circle TreasuryButtonReturnGame = {1000.f, 900.f, 25};
     Circle DiplomacyButtonReturnGame = {1000.f, 900.f, 25};
     Circle FamilyHierarchyButtonReturnGame = {1000.f, 900.f, 25};
@@ -12674,6 +12674,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         //log message for now -> ui poping on later
         SDL_LogWarn(0, "Clicked CameraResetPannel");
         //Reset camera
+        app.camera.targetZoom = 0.8f;
     }
 
 }
