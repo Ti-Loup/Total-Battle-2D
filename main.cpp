@@ -40,6 +40,8 @@
  * ToDo | Factions attitude to everyone. Possibility to trade goods make peace, war, alliances.
  * ToDo | Possibility to give money to improve relations
  *
+ * Bugs:
+ * Fix | The UI overlaps
  * --------------------------------------------
  * 0.4.0
  * Kingdom -> different houses from 1 kingdom. Logo next to castle name
@@ -316,6 +318,13 @@ public:
     TTF_Text *gameObjectivesTitleText = nullptr;
     TTF_Text *gameObjectivesSousTitleText = nullptr;
     TTF_Text *gameObjectivesDescText = nullptr;
+    //Treasury text
+    TTF_Font *gameTreasuryInfoTitleFont = nullptr;
+    TTF_Font *gameTreasuryInfoSousTitleFont = nullptr;
+    TTF_Font *gameTreasuryInfoDescFont = nullptr;
+    TTF_Text *gameTreasuryInfoTitleText = nullptr;
+    TTF_Text *gameTreasuryInfoSousTitleText = nullptr;
+    TTF_Text *gameTreasuryInfoDescText = nullptr;
     //Buttons UI
     bool bButtonUIBuildingIsPressed = true;
     bool bButtonUIGarrisonIsPressed = false;
@@ -677,11 +686,12 @@ public:
     SDL_Texture *gameDecree2SamuraiTexture = nullptr;
     SDL_Texture *gameDecree3SamuraiTexture = nullptr;
 
-    //Trade Icons
+    //Trade and diplomacy Icons
     SDL_Texture *tradeDiplomacyIconTexture = nullptr;//current trade parters
     SDL_Texture *defensiveAllianceDiplomacyIconTexture = nullptr;
     SDL_Texture *militaryAllianceDiplomacyIconTexture = nullptr;
     SDL_Texture *warDiplomacyIconTexture = nullptr;
+
 
     //buttons Win condition +Missions
     //900.f, 185.f, 200, 40
@@ -1133,6 +1143,9 @@ private://constructor
         gameObjectivesTitleFont = TTF_OpenFont("assets/Rubik.ttf", 25);
         gameObjectivesSousTitleFont = TTF_OpenFont("assets/Rubik.ttf", 19);
         gameObjectivesDescFont = TTF_OpenFont("assets/Rubik.ttf", 15);
+        gameTreasuryInfoTitleFont = TTF_OpenFont("assets/Rubik.ttf", 25);
+        gameTreasuryInfoSousTitleFont = TTF_OpenFont("assets/Rubik.ttf", 19);
+        gameTreasuryInfoDescFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         //same font has AnticipatedMoneyUiText
         gameCurrentFoodUiText = TTF_CreateText(textEngine, gameCurrentFoodUiFont, "", 25);
         if (gameCurrentFoodUiText == nullptr) {
@@ -1236,7 +1249,20 @@ private://constructor
         }
         gameObjectivesDescText = TTF_CreateText(textEngine, gameObjectivesDescFont, "", 25);
         if (gameObjectivesDescText == nullptr) {
-            SDL_LogWarn(0, "failed to load text gameObjectivesDescText");
+            SDL_LogWarn(0, "failed to load text gameObjectivesDescText", SDL_GetError());
+        }
+        //Treasury Text
+        gameTreasuryInfoTitleText = TTF_CreateText(textEngine, gameTreasuryInfoTitleFont, "", 25);
+        if (gameTreasuryInfoTitleText == nullptr) {
+            SDL_LogWarn(0, "failed to load text gameTreasuryInfoTitleText", SDL_GetError());
+        }
+        gameTreasuryInfoSousTitleText = TTF_CreateText(textEngine, gameTreasuryInfoSousTitleFont, "", 25);
+        if (gameTreasuryInfoSousTitleText == nullptr) {
+            SDL_LogWarn(0, "failed to load text gameTreasuryInfoSousTitleText", SDL_GetError());
+        }
+        gameTreasuryInfoDescText = TTF_CreateText(textEngine, gameTreasuryInfoDescFont, "", 25);
+        if (gameTreasuryInfoDescText == nullptr) {
+            SDL_LogWarn(0, "failed to load text gameTreasuryInfoDescText",SDL_GetError());
         }
         //CREATION OF THE SETTLEMENTS
         //KNIGHT
@@ -3963,6 +3989,9 @@ private://constructor
         TTF_CloseFont(gameObjectivesTitleFont);
         TTF_CloseFont(gameObjectivesSousTitleFont);
         TTF_CloseFont(gameObjectivesDescFont);
+        TTF_CloseFont(gameTreasuryInfoTitleFont);
+        TTF_CloseFont(gameTreasuryInfoSousTitleFont);
+        TTF_CloseFont(gameTreasuryInfoDescFont);
         // ---------------------------------
         TTF_DestroyText(fpsText);
         TTF_DestroyText(menuText);
@@ -4016,6 +4045,9 @@ private://constructor
         TTF_DestroyText(gameObjectivesTitleText);
         TTF_DestroyText(gameObjectivesSousTitleText);
         TTF_DestroyText(gameObjectivesDescText);
+        TTF_DestroyText(gameTreasuryInfoTitleText);
+        TTF_DestroyText(gameTreasuryInfoSousTitleText);
+        TTF_DestroyText(gameTreasuryInfoDescText);
         // ---------------------------------
         SDL_DestroyTexture(provinceKnightBannerTexture);
         SDL_DestroyTexture(provinceVikingBannerTexture);
@@ -9953,6 +9985,33 @@ void RenderRepairTooltip() {
 
     void RenderTreasuryInfoPopup() {
         if (!bTreasuryInfoPopup) return;
+
+        //background of the treasury info
+        SDL_SetRenderDrawColor(renderer, 40, 40,40,255);
+        SDL_FRect TreasuryInfoBackground = {610.f, 800.f, 900, 480};
+        SDL_RenderFillRect(renderer, &TreasuryInfoBackground);
+        SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+        SDL_RenderRect(renderer, &TreasuryInfoBackground);
+
+        //Title rect
+        SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
+        SDL_FRect TreasuryInfoTitleRect = {900.f, 750.f, 200, 40};
+        SDL_RenderFillRect(renderer, &TreasuryInfoTitleRect);
+        SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+        SDL_RenderRect(renderer, &TreasuryInfoTitleRect);
+
+        //Title text
+
+
+
+//TTF_SetTextString(gameObjectivesTitleText, "Objectives", 0)
+//       TTF_SetTextColor(gameObjectivesTitleText, 255, 255, 255, 255);
+//        int objectivesTitleW, objectivesTitleH;
+//        TTF_GetTextSize(gameObjectivesTitleText, &objectivesTitleW, &objectivesTitleH);
+//        TTF_DrawRendererText(gameObjectivesTitleText,
+//            ObjectivesTitleRect.x + (ObjectivesTitleRect.w - objectivesTitleW) / 2.f,
+//            ObjectivesTitleRect.y + (ObjectivesTitleRect.h - objectivesTitleH) / 2.f);
+
     }
     //Technology tree
     void TechnologyTree(float deltaTime) {
