@@ -325,6 +325,8 @@ public:
     TTF_Text *gameTreasuryInfoTitleText = nullptr;
     TTF_Text *gameTreasuryInfoSousTitleText = nullptr;
     TTF_Text *gameTreasuryInfoDescText = nullptr;
+    //Treasury Icon
+    SDL_Texture *gameTreasuryChestIconTexture = nullptr;
     //Buttons UI
     bool bButtonUIBuildingIsPressed = true;
     bool bButtonUIGarrisonIsPressed = false;
@@ -1672,6 +1674,12 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture gameWinConditionUltimateIconTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameWinConditionUltimateIconTexture, SDL_SCALEMODE_NEAREST);
+        //Treasury Info Textures
+        gameTreasuryChestIconTexture = IMG_LoadTexture(renderer, "assets/TreasuryChest.png");
+        if (gameTreasuryChestIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to laod texture gameTreasuryChestIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameTreasuryChestIconTexture, SDL_SCALEMODE_NEAREST);
 
 
 
@@ -4200,6 +4208,7 @@ private://constructor
         SDL_DestroyTexture(gameWinConditionTradeShortIconTexture);
         SDL_DestroyTexture(gameWinConditionTradeLongIconTexture);
         SDL_DestroyTexture(gameWinConditionUltimateIconTexture);
+        SDL_DestroyTexture(gameTreasuryChestIconTexture);
         // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
@@ -9987,20 +9996,25 @@ void RenderRepairTooltip() {
         if (!bTreasuryInfoPopup) return;
 
         //background of the treasury info
-        SDL_SetRenderDrawColor(renderer, 40, 40,40,255);
-        SDL_FRect TreasuryInfoBackground = {610.f, 800.f, 900, 480};
+        SDL_SetRenderDrawColor(renderer, 60, 60,60,255);
+        SDL_FRect TreasuryInfoBackground = {550.f, 575.f, 900, 400};
         SDL_RenderFillRect(renderer, &TreasuryInfoBackground);
-        SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+        SDL_SetRenderDrawColor(renderer, 238, 177, 71, 255);
         SDL_RenderRect(renderer, &TreasuryInfoBackground);
 
         //Title rect
-        SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
-        SDL_FRect TreasuryInfoTitleRect = {900.f, 750.f, 200, 40};
+        SDL_SetRenderDrawColor(renderer, 90, 90, 90, 255);
+        SDL_FRect TreasuryInfoTitleRect = {900.f, 550.f, 200, 40};
         SDL_RenderFillRect(renderer, &TreasuryInfoTitleRect);
         SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
         SDL_RenderRect(renderer, &TreasuryInfoTitleRect);
 
         //Title text
+        TTF_SetTextString(gameTreasuryInfoTitleText, "Treasury", 0);
+        TTF_SetTextColor(gameTreasuryInfoTitleText, 255, 255, 255, 255);
+        int treasuryTitleW, treasuryTitleH;
+        TTF_GetTextSize(gameTreasuryInfoTitleText, &treasuryTitleW, &treasuryTitleH);
+        TTF_DrawRendererText(gameTreasuryInfoTitleText, TreasuryInfoTitleRect.x + (TreasuryInfoTitleRect.w - treasuryTitleW) /2, TreasuryInfoTitleRect.y +(TreasuryInfoTitleRect.h - treasuryTitleH) / 2.f);
 
 
 
