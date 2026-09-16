@@ -10036,7 +10036,7 @@ void RenderRepairTooltip() {
             { 30, 130,  30, 255},
         };
         //position
-        float rectPositionX = ChestIconPosition.x + 20.f;
+        float rectPositionX = (ChestIconPosition.x + ChestIconPosition.w) + 20.f;
         float rectPositionY = ChestIconPosition.y + 10.f;
         //for to create the rects
         float rectangleW = 30.f;
