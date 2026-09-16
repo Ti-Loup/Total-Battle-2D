@@ -10020,15 +10020,37 @@ void RenderRepairTooltip() {
         TTF_DrawRendererText(gameTreasuryInfoTitleText, TreasuryInfoTitleRect.x + (TreasuryInfoTitleRect.w - treasuryTitleW) /2, TreasuryInfoTitleRect.y +(TreasuryInfoTitleRect.h - treasuryTitleH) / 2.f);
 
         //Ajout Texture Gap + 5 rect clickable ~
-        float xGap = TreasuryInfoBackground.x + 5.f;
-        float yGap = TreasuryInfoBackground.y + 5.f;
+        float xGap = TreasuryInfoBackground.x + 15.f;
+        float yGap = TreasuryInfoBackground.y + 15.f;
 
         //Chest Icon
-        SDL_FRect ChestIconPosition = {xGap, yGap, 40, 40};
+        SDL_FRect ChestIconPosition = {xGap, yGap, 120, 120};
         SDL_RenderTexture(renderer, gameTreasuryChestIconTexture, nullptr, &ChestIconPosition);
 
         //5 buttons (red /->/ green)
+        SDL_Color TreasuryTaxColors[5] = {
+            {150,  30,  30, 255},
+            {220, 120, 120, 255},
+            {150, 150, 150, 255},
+            {150, 220, 150, 255},
+            { 30, 130,  30, 255},
+        };
         //position
+        float rectPositionX = ChestIconPosition.x + 20.f;
+        float rectPositionY = ChestIconPosition.y + 10.f;
+        //for to create the rects
+        float rectangleW = 30.f;
+        float rectangleH = 25.f;
+        for (int i = 0; i < 5; i++) {
+            //Rectangle
+            SDL_SetRenderDrawColor(renderer, TreasuryTaxColors[i].r, TreasuryTaxColors[i].g, TreasuryTaxColors[i].b, TreasuryTaxColors[i].a);
+
+            SDL_FRect TreasuryTaxRateRect = {rectPositionX, rectPositionY, rectangleW, rectangleH};
+            SDL_RenderFillRect (renderer, &TreasuryTaxRateRect);
+
+            //Change position of Rect each time
+            rectPositionX += rectangleW + 5.f;
+        }
 
 
     }
