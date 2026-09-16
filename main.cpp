@@ -325,8 +325,9 @@ public:
     TTF_Text *gameTreasuryInfoTitleText = nullptr;
     TTF_Text *gameTreasuryInfoSousTitleText = nullptr;
     TTF_Text *gameTreasuryInfoDescText = nullptr;
-    //Treasury Icon
+    //Treasury Icon + Buttons
     SDL_Texture *gameTreasuryChestIconTexture = nullptr;
+
     //Buttons UI
     bool bButtonUIBuildingIsPressed = true;
     bool bButtonUIGarrisonIsPressed = false;
@@ -4209,6 +4210,8 @@ private://constructor
         SDL_DestroyTexture(gameWinConditionTradeLongIconTexture);
         SDL_DestroyTexture(gameWinConditionUltimateIconTexture);
         SDL_DestroyTexture(gameTreasuryChestIconTexture);
+
+
         // ---------------------------------
         SDL_DestroyCursor(cursor);
         delete tileMap;
@@ -10016,15 +10019,17 @@ void RenderRepairTooltip() {
         TTF_GetTextSize(gameTreasuryInfoTitleText, &treasuryTitleW, &treasuryTitleH);
         TTF_DrawRendererText(gameTreasuryInfoTitleText, TreasuryInfoTitleRect.x + (TreasuryInfoTitleRect.w - treasuryTitleW) /2, TreasuryInfoTitleRect.y +(TreasuryInfoTitleRect.h - treasuryTitleH) / 2.f);
 
+        //Ajout Texture Gap + 5 rect clickable ~
+        float xGap = TreasuryInfoBackground.x + 5.f;
+        float yGap = TreasuryInfoBackground.y + 5.f;
 
+        //Chest Icon
+        SDL_FRect ChestIconPosition = {xGap, yGap, 40, 40};
+        SDL_RenderTexture(renderer, gameTreasuryChestIconTexture, nullptr, &ChestIconPosition);
 
-//TTF_SetTextString(gameObjectivesTitleText, "Objectives", 0)
-//       TTF_SetTextColor(gameObjectivesTitleText, 255, 255, 255, 255);
-//        int objectivesTitleW, objectivesTitleH;
-//        TTF_GetTextSize(gameObjectivesTitleText, &objectivesTitleW, &objectivesTitleH);
-//        TTF_DrawRendererText(gameObjectivesTitleText,
-//            ObjectivesTitleRect.x + (ObjectivesTitleRect.w - objectivesTitleW) / 2.f,
-//            ObjectivesTitleRect.y + (ObjectivesTitleRect.h - objectivesTitleH) / 2.f);
+        //5 buttons (red /->/ green)
+        //position
+
 
     }
     //Technology tree
