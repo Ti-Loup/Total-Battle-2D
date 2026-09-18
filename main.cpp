@@ -647,6 +647,10 @@ public:
     std::vector<std::pair<SDL_FRect, int>> decreeEnactButtonRects;//rebuilt each frame the rect
     bool bWinConditionsInfoPopup = false;
     bool bTreasuryInfoPopup = false;
+    std::vector<SDL_FRect>treasuryTaxRateRects;
+    int treasuryTaxRateIndex = 2;//2 neutral, 0 dark red, 5 dark red
+    int hoveredTaxRateIndex = -1;//For rgb higger when mouse on it
+    SDL_Texture *gameTreasuryTaxRateIndicatorTexture = nullptr;
     //technology doesnt need it
     bool bDiplomacyInfoPopup = false;
     bool bFamilyHierarchyInfoPopup= false;
@@ -4210,7 +4214,7 @@ private://constructor
         SDL_DestroyTexture(gameWinConditionTradeLongIconTexture);
         SDL_DestroyTexture(gameWinConditionUltimateIconTexture);
         SDL_DestroyTexture(gameTreasuryChestIconTexture);
-
+        SDL_DestroyTexture(gameTreasuryTaxRateIndicatorTexture);
 
         // ---------------------------------
         SDL_DestroyCursor(cursor);
@@ -10047,6 +10051,9 @@ void RenderRepairTooltip() {
         float rectangleH = 25.f;
         float gapW = rectangleW + 5.f;
         float gapH = rectangleH + 5.f;
+
+
+
         //small background for the rects
         SDL_SetRenderDrawColor(renderer, 30, 30 ,30 ,255);
         SDL_FRect TreasuryTaxRateBackgroundRect = {rectPositionX - 5.f, rectPositionY - 5.f, gapW * 5 + 5, gapH + 5};
@@ -10054,11 +10061,32 @@ void RenderRepairTooltip() {
 
         //for to create the rects
         for (int i = 0; i < 5; i++) {
+            //color change when hovered
+            SDL_Color color = TreasuryTaxColors[i];
+            if (i == hoveredTaxRateIndex) {
+                const int colorBrigten = 40;
+                color.r = (Uint8)std::min(255, color.r + colorBrigten);
+                color.g = (Uint8)std::min(255, color.g + colorBrigten);
+                color.b = (Uint8)std::min(255, color.b + colorBrigten);
+            }
+            SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
             //Rectangle
-            SDL_SetRenderDrawColor(renderer, TreasuryTaxColors[i].r, TreasuryTaxColors[i].g, TreasuryTaxColors[i].b, TreasuryTaxColors[i].a);
+            //SDL_SetRenderDrawColor(renderer, TreasuryTaxColors[i].r, TreasuryTaxColors[i].g, TreasuryTaxColors[i].b, TreasuryTaxColors[i].a);
 
             SDL_FRect TreasuryTaxRateRect = {rectPositionX, rectPositionY, rectangleW, rectangleH};
             SDL_RenderFillRect (renderer, &TreasuryTaxRateRect);
+
+            //to click the right rect
+            treasuryTaxRateRects.push_back(TreasuryTaxRateRect);
+
+            //hightlight the one currently selected + texture
+            if (i == treasuryTaxRateIndex) {
+                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                SDL_FRect selectedOutline = {TreasuryTaxRateRect.x - 2.f, TreasuryTaxRateRect.y - 2.f, TreasuryTaxRateRect.w + 4.f, TreasuryTaxRateRect.h + 4.f};
+                SDL_RenderRect(renderer, &selectedOutline);
+                SDL_FRect selectedIndicator = {TreasuryTaxRateRect.x + 15.f, TreasuryTaxRateRect.y + 5.f, 25, 25};
+                SDL_RenderTexture(renderer, gameTreasuryTaxRateIndicatorTexture, nullptr, &selectedIndicator);
+            }
 
             //Change position of Rect each time
             rectPositionX += rectangleW + 5.f;
@@ -12895,6 +12923,16 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         if (app.ClickInsideCircle(nouveauX, nouveauY, app.TreasuryButtonReturnGame)) {
             app.bTreasuryInfoPopup = false;
         }
+        //rect clickable treasury
+        if (app.bTreasuryInfoPopup) {
+            for (int i = 0; i < (int)app.treasuryTaxRateRects.size(); i++) {
+                if (SDL_PointInRectFloat(&MousePT, &app.treasuryTaxRateRects[i])) {
+                    app.treasuryTaxRateIndex = i;
+                    SDL_Log("Treasury taxe rate button set to %d", i);
+                    return SDL_APP_CONTINUE;
+                }
+            }
+        }
         if (app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyButtonReturnGame)) {
             app.bDiplomacyInfoPopup = false;
         }
@@ -13074,6 +13112,19 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         app.publicOrderTooltipX = nouveauX;
         app.publicOrderTooltipY = nouveauY;
     }
+    if (event->type == SDL_EVENT_MOUSE_MOTION && app.StateActuel == State::Game && app.bTreasuryInfoPopup) {
+        float mx, my;
+        SDL_RenderCoordinatesFromWindow(app.renderer, event->motion.x, event->motion.y, &mx, &my);
+        SDL_FPoint taxPt = {mx, my};
+
+        app.hoveredTaxRateIndex = -1;
+        for (int i = 0; i < (int)app.treasuryTaxRateRects.size(); i++) {
+            if (SDL_PointInRectFloat(&taxPt, &app.treasuryTaxRateRects[i])) {
+                app.hoveredTaxRateIndex = i;
+                break;
+            }
+        }
+    }
 
     // Zoom
     if (event->type == SDL_EVENT_MOUSE_WHEEL && app.StateActuel == State::Game) {
@@ -13105,8 +13156,6 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             app.camera.Zoom(factor, 1920.f, 1080.f);
         }
     }
-    //When Mouse touch a edge it
-
 
 
     if (event->type == SDL_EVENT_KEY_DOWN) {
