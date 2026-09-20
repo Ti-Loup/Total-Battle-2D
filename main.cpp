@@ -363,7 +363,7 @@ public:
     //Circles to return to game - - - - -
     Circle DecreesButtonReturnGame = {1000.f, 900.f, 25};
     Circle WinConditionButtonReturnGame = {960.f, 900.f, 25};
-    Circle TreasuryButtonReturnGame = {1000.f, 900.f, 25};
+    Circle TreasuryButtonReturnGame = {1000.f, 990.f, 25};
     Circle DiplomacyButtonReturnGame = {1000.f, 900.f, 25};
     Circle FamilyHierarchyButtonReturnGame = {1000.f, 900.f, 25};
     //Circle to return to game when in technology section
@@ -10010,14 +10010,14 @@ void RenderRepairTooltip() {
 
         //background of the treasury info
         SDL_SetRenderDrawColor(renderer, 60, 60,60,255);
-        SDL_FRect TreasuryInfoBackground = {550.f, 575.f, 900, 400};
+        SDL_FRect TreasuryInfoBackground = {625.f, 700.f, 750, 275};
         SDL_RenderFillRect(renderer, &TreasuryInfoBackground);
         SDL_SetRenderDrawColor(renderer, 238, 177, 71, 255);
         SDL_RenderRect(renderer, &TreasuryInfoBackground);
 
         //Title rect
         SDL_SetRenderDrawColor(renderer, 90, 90, 90, 255);
-        SDL_FRect TreasuryInfoTitleRect = {900.f, 550.f, 200, 40};
+        SDL_FRect TreasuryInfoTitleRect = {900.f, 665.f, 200, 40};
         SDL_RenderFillRect(renderer, &TreasuryInfoTitleRect);
         SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
         SDL_RenderRect(renderer, &TreasuryInfoTitleRect);
@@ -10034,7 +10034,7 @@ void RenderRepairTooltip() {
         float yGap = TreasuryInfoBackground.y + 25.f;
 
         //Chest Icon
-        SDL_FRect ChestIconPosition = {xGap, yGap, 120, 120};
+        SDL_FRect ChestIconPosition = {xGap, yGap, 80, 80};
         SDL_RenderTexture(renderer, gameTreasuryChestIconTexture, nullptr, &ChestIconPosition);
 
 
@@ -10050,11 +10050,11 @@ void RenderRepairTooltip() {
             { 30, 130,  30, 255},
         };
         //position
-        float rectPositionX = (ChestIconPosition.x + ChestIconPosition.w) + 20.f;
+        float rectPositionX = (ChestIconPosition.x + ChestIconPosition.w) + 10.f;
         float rectPositionY = ChestIconPosition.y + ChestIconPosition.h / 2;
 
-        float rectangleW = 30.f;
-        float rectangleH = 25.f;
+        float rectangleW = 25.f;
+        float rectangleH = 15.f;
         float gapW = rectangleW + 5.f;
         float gapH = rectangleH + 5.f;
 
@@ -10062,7 +10062,7 @@ void RenderRepairTooltip() {
 
         //small background for the rects
         SDL_SetRenderDrawColor(renderer, 30, 30 ,30 ,255);
-        SDL_FRect TreasuryTaxRateBackgroundRect = {rectPositionX - 5.f, rectPositionY - 5.f, gapW * 5 + 5, gapH + 5};
+        SDL_FRect TreasuryTaxRateBackgroundRect = {rectPositionX - 4.f, rectPositionY - 4.f, gapW * 5 + 3, gapH + 3};
         SDL_RenderFillRect (renderer, &TreasuryTaxRateBackgroundRect);
 
         //for to create the rects
@@ -10090,14 +10090,76 @@ void RenderRepairTooltip() {
                 SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
                 SDL_FRect selectedOutline = {TreasuryTaxRateRect.x - 2.f, TreasuryTaxRateRect.y - 2.f, TreasuryTaxRateRect.w + 4.f, TreasuryTaxRateRect.h + 4.f};
                 SDL_RenderRect(renderer, &selectedOutline);
-                SDL_FRect selectedIndicator = {TreasuryTaxRateRect.x + 15.f, TreasuryTaxRateRect.y + 5.f, 25, 25};
+                SDL_FRect selectedIndicator = {TreasuryTaxRateRect.x + 6.f, TreasuryTaxRateRect.y + 1.f, 13, 13};
                 SDL_RenderTexture(renderer, gameTreasuryTaxRateIndicatorTexture, nullptr, &selectedIndicator);
             }
 
             //Change position of Rect each time
             rectPositionX += rectangleW + 5.f;
         }
+        //Rect position text
+        float descTextBackgroundGapX= 1.6f;
+        float descTextBackgroundGapY= 10.f;
+        SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
+        SDL_FRect TreasuryDescriptionTextRect = {TreasuryInfoBackground.x * descTextBackgroundGapX, TreasuryInfoBackground.y + descTextBackgroundGapY, TreasuryInfoBackground.w - 385, TreasuryInfoBackground.h - 20.f};
+        SDL_RenderFillRect(renderer, &TreasuryDescriptionTextRect);
+        SDL_SetRenderDrawColor(renderer,238, 177, 71, 255);
+        SDL_RenderRect(renderer, &TreasuryDescriptionTextRect);
+        //Descriptiontext of the different Tax options
+         struct TreasuryTaxDescription { const char*categoryName; const char* description;};
+        TreasuryTaxDescription treasuryTaxDescriptions[5] {
+            {"Dark Red:", "+Increase Higly ."},
+            {"Light Red:", "TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST."},
+            {"Neutral:", "TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST."},
+            {"Light Green:", "TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST."},
+            {"Dark Green:", "TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST."},
+        };
 
+        //gap x y
+        float treasuryDescLeftGapX = 4.f;
+        float treasuryDescTopGapY = TreasuryDescriptionTextRect.y + 4.f;
+        //Right edge for the text not to go over
+        float treasuryDescRightEdge = TreasuryDescriptionTextRect.x + TreasuryDescriptionTextRect.w - treasuryDescLeftGapX;
+        //for loop if the different categories
+        for (int i = 0; i < 5; i++) {
+            float treasuryDescLeftEdgeStart = TreasuryDescriptionTextRect.x + treasuryDescLeftGapX;
+            //Titles
+            TTF_SetTextWrapWidth(gameTreasuryInfoDescText, 0);
+            TTF_SetTextString(gameTreasuryInfoDescText, treasuryTaxDescriptions[i].categoryName, 0);
+            //title same color has the rect
+            TTF_SetTextColor(gameTreasuryInfoDescText, TreasuryTaxColors[i].r,TreasuryTaxColors[i].g, TreasuryTaxColors[i].b, TreasuryTaxColors[i].a);
+            TTF_DrawRendererText(gameTreasuryInfoDescText, treasuryDescLeftEdgeStart, treasuryDescTopGapY);
+            int categoryNameW;
+            int categoryNameH;
+            TTF_GetTextSize(gameTreasuryInfoDescText, &categoryNameW, &categoryNameH);
+
+
+            //description of treasuryTaxDescriptions In struct
+            float descStartX = treasuryDescLeftEdgeStart + categoryNameW;//takes the name + the left edge start to be at the right place
+            TTF_SetTextWrapWidth(gameTreasuryInfoDescText, (int)std::max(20.f, treasuryDescRightEdge - descStartX ));
+            TTF_SetTextString(gameTreasuryInfoDescText, treasuryTaxDescriptions[i].description, 0);
+            TTF_SetTextColor(gameTreasuryInfoDescText, 255, 255, 255, 255);
+            TTF_DrawRendererText(gameTreasuryInfoDescText, descStartX, treasuryDescTopGapY);
+            int categoryDescriptionW;
+            int categoryDescriptionH;
+            TTF_GetTextSize(gameTreasuryInfoDescText, &categoryDescriptionW, &categoryDescriptionH);
+            //Skip next line when full at the right Height
+            treasuryDescTopGapY += std::max((float )categoryNameH, (float )categoryDescriptionH) + 8.f;
+        }
+        TTF_SetTextWrapWidth(gameTreasuryInfoDescText, 0); //reset ~!
+
+
+        //return button
+        SDL_SetRenderDrawColor(renderer, 0,0,0,0);
+        float mouseXReturn, mouseYReturn;
+        SDL_GetMouseState(&mouseXReturn, &mouseYReturn);
+        float lenghtXReturn, lenghtYReturn;
+        SDL_RenderCoordinatesFromWindow(renderer, mouseXReturn, mouseYReturn, &lenghtXReturn, &lenghtYReturn);
+        bool bHoveredReturnButton = ClickInsideCircle(lenghtXReturn, lenghtYReturn, TreasuryButtonReturnGame);
+        Uint8 returnAlpha = bHoveredReturnButton ? 255 : 200;
+        SDL_SetTextureAlphaMod(gameReturnButtons, returnAlpha);
+        RenderBoutonCercle(TreasuryButtonReturnGame, nullptr, gameReturnButtons, 0, 0, 0);
+        SDL_SetTextureAlphaMod(gameReturnButtons, 255);
 
     }
     //Technology tree
