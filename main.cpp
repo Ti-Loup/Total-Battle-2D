@@ -35,7 +35,7 @@
  * DIPLOMACY & EXCHANGE
  * EXANGE MONEY OR RESSOURCES FOR FOOD. IN TRADE.
  * Province buffs.
- * ToDo | Treasury posibility to increase of reduce taxes. that increase the public orxder or reduce it
+ * ToDo | Treasury posibility to increase of reduce taxes. that increase the public order or reduce it
  * ToDo | UI remove when diplomacy button precess To show Different UI
  * ToDo | Factions attitude to everyone. Possibility to trade goods make peace, war, alliances.
  * ToDo | Possibility to give money to improve relations
@@ -2119,6 +2119,12 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture warDiplomacyIconTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(warDiplomacyIconTexture, SDL_SCALEMODE_NEAREST);
+        //Treasury
+        gameTreasuryTaxRateIndicatorTexture = IMG_LoadTexture (renderer, "assets/TreasuryTaxRateIndicator.png");
+        if (gameTreasuryTaxRateIndicatorTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameTreasuryTaxRateIndicatorTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameTreasuryTaxRateIndicatorTexture, SDL_SCALEMODE_NEAREST);
 
         // BUILDING UIS
         //                  ! KNIGHT !
