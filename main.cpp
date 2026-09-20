@@ -10031,13 +10031,33 @@ void RenderRepairTooltip() {
 
         //Ajout Texture Gap + 5 rect clickable ~
         float xGap = TreasuryInfoBackground.x + 15.f;
-        float yGap = TreasuryInfoBackground.y + 25.f;
+        float yGap = TreasuryInfoBackground.y + 5.f;
 
         //Chest Icon
-        SDL_FRect ChestIconPosition = {xGap, yGap, 80, 80};
+        SDL_FRect ChestIconPosition = {xGap, yGap, 40, 40};
         SDL_RenderTexture(renderer, gameTreasuryChestIconTexture, nullptr, &ChestIconPosition);
-
-
+        //Red Size Public order decrees, Food Production Increase + money increasetextures
+        SDL_FRect DarkRedPublicOrderIcon = {xGap + 45.f, yGap + 55.f, 25, 25};
+        SDL_FRect DarkRedFoodIcon = {xGap + 65.f, yGap + 50.f, 35, 35};
+        SDL_FRect DarkRedFoodIndicator = {xGap + 77.f, yGap + 70.f, 20, 10};
+        SDL_FRect DarkRedCoinIcon = {xGap + 95.f, yGap + 55.f, 25, 25};
+        SDL_FRect DarkRedCoinIndicator = {xGap + 105.f, yGap + 70.f, 20, 10};
+        SDL_RenderTexture(renderer, gamePublicOrderNegatifTexture, nullptr, &DarkRedPublicOrderIcon);
+        SDL_RenderTexture(renderer, gameFoodIconUi, nullptr, &DarkRedFoodIcon);
+        SDL_RenderTexture(renderer, gamePositiveUiIcon, nullptr, &DarkRedFoodIndicator);
+        SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &DarkRedCoinIcon);
+        SDL_RenderTexture(renderer, gamePositiveUiIcon, nullptr, &DarkRedCoinIndicator);
+        //Green Side, Public Order bonus, Reduce Food Production and reduce Money taxation textures
+        SDL_FRect DarkGreenPublicOrderIcon = {xGap + 275.f, yGap + 55.f, 25, 25};
+        SDL_FRect DarkGreenFoodIcon = {xGap + 245.f, yGap + 50.f, 35, 35};
+        SDL_FRect DarkGreenFoodIndicator = {xGap + 250.f, yGap + 75.f, 20, 10};
+        SDL_FRect DarkGreenCoinIcon = {xGap + 225.f, yGap + 55.f, 25, 25};
+        SDL_FRect DarkGreenCoinIndicator = {xGap + 220.f, yGap + 75.f, 20, 10};
+        SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &DarkGreenCoinIcon);
+        SDL_RenderTexture(renderer, gameNegativeUiIcon, nullptr, &DarkGreenCoinIndicator);
+        SDL_RenderTexture(renderer, gameFoodIconUi, nullptr, &DarkGreenFoodIcon);
+        SDL_RenderTexture(renderer, gameNegativeUiIcon, nullptr, &DarkGreenFoodIndicator);
+        SDL_RenderTexture(renderer, gamePublicOrderPositifTexture, nullptr, &DarkGreenPublicOrderIcon);
 
 
         // little rect background
@@ -10050,8 +10070,8 @@ void RenderRepairTooltip() {
             { 30, 130,  30, 255},
         };
         //position
-        float rectPositionX = (ChestIconPosition.x + ChestIconPosition.w) + 10.f;
-        float rectPositionY = ChestIconPosition.y + ChestIconPosition.h / 2;
+        float rectPositionX = (ChestIconPosition.x + ChestIconPosition.w) + 60.f;
+        float rectPositionY = ChestIconPosition.y + ChestIconPosition.h / 2 + 15.f;
 
         float rectangleW = 25.f;
         float rectangleH = 15.f;
