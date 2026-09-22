@@ -10149,13 +10149,13 @@ void RenderRepairTooltip() {
             //title same color has the rect
             TTF_SetTextColor(gameTreasuryInfoDescText, TreasuryTaxColors[i].r,TreasuryTaxColors[i].g, TreasuryTaxColors[i].b, TreasuryTaxColors[i].a);
             TTF_DrawRendererText(gameTreasuryInfoDescText, treasuryDescLeftEdgeStart, treasuryDescTopGapY);
-            int categoryNameW;
-            int categoryNameH;
-            TTF_GetTextSize(gameTreasuryInfoDescText, &categoryNameW, &categoryNameH);
-
+            // int categoryNameW;
+             int categoryNameH;
+             TTF_GetTextSize(gameTreasuryInfoDescText, nullptr, &categoryNameH);
+            float descTextStart = 85.f;
 
             //description of treasuryTaxDescriptions In struct
-            float descStartX = treasuryDescLeftEdgeStart + categoryNameW;//takes the name + the left edge start to be at the right place
+            float descStartX = treasuryDescLeftEdgeStart + descTextStart ;//takes the name + the left edge start to be at the right place
             TTF_SetTextWrapWidth(gameTreasuryInfoDescText, (int)std::max(20.f, treasuryDescRightEdge - descStartX ));
             TTF_SetTextString(gameTreasuryInfoDescText, treasuryTaxDescriptions[i].description, 0);
             TTF_SetTextColor(gameTreasuryInfoDescText, 255, 255, 255, 255);
