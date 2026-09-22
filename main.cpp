@@ -11286,6 +11286,9 @@ if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
     //public order based on season
     Date::Season tooltipSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
     int seasonModifier = GetSeasonModifiers(tooltipSeason). publicOrderBonus;
+    //Treasury punlic order modifier
+    TreasuryModifiers treasuryModifiers = GetTreasuryModifiers(treasuryTaxRateIndex);
+    int treasuryPublicOrderModifiers = bIsPlayerProvince ? GetTreasuryModifiers(treasuryTaxRateIndex).publicOrderModifier : 0;
     //Money public order penalty
     int taxPenalty = collecting ? -4 : 0;
     //Public order based on WorldEvents - global sauf pour Plague (colonie infectée seulement)
@@ -11312,7 +11315,7 @@ if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
         }
     }
     //total
-    int totalDelta = taxPenalty + provinceBuildingBonus + foodModifier + seasonModifier + worldEventPublicOrder;
+    int totalDelta = taxPenalty + provinceBuildingBonus + foodModifier + seasonModifier + worldEventPublicOrder + treasuryPublicOrderModifiers;
     int nextPO  = std::clamp(po + totalDelta, -100, 100);
 
     // add the high difference for each categories
@@ -11323,6 +11326,7 @@ if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
     if (foodModifier != 0) tooltipH += 24.f;
     if (seasonModifier != 0) tooltipH += 24.f;
     if (worldEventPublicOrder != 0) tooltipH += 24.f;
+    if (treasuryPublicOrderModifiers != 0) tooltipH += 24.f;
     tooltipH += 10.f; // padding
 
     float tooltipX = publicOrderTooltipX + 12.f;
@@ -11412,6 +11416,7 @@ if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
     if (taxPenalty != 0) drawModLine("Collected income",  taxPenalty);
     if (foodModifier != 0) drawModLine ("Food", foodModifier);
     if (seasonModifier != 0) drawModLine("Season", seasonModifier);
+    if (treasuryPublicOrderModifiers != 0) drawModLine ("Tax Rate modifier", treasuryPublicOrderModifiers);
     if (worldEventPublicOrder != 0) {
         std::string worldEventPOLabel = activePublicOrderEvent? ("World Event (" + activePublicOrderEvent->name + ")") : "World Event";
         drawModLine(worldEventPOLabel.c_str(), worldEventPublicOrder);
@@ -11752,6 +11757,9 @@ public:
     Date::Season endTurnSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
     SeasonModifiers endTurnSeasonMods = GetSeasonModifiers(endTurnSeason);
     int seasonPublicOrderModifier = GetSeasonModifiers(endTurnSeason).publicOrderBonus;
+    //Tresury public order modifier
+    TreasuryModifiers  endTurnTreasuryModifiers = GetTreasuryModifiers(treasuryTaxRateIndex);
+    int treasuryPublicOrderModifier = GetTreasuryModifiers(treasuryTaxRateIndex).publicOrderModifier;
     //World Events Public Order modifier (Is global exept for plague)
     int worldEventsPublicOrderModifier = 0;
     const WorldEventsData *activeEventForPublicOrder = GetActiveWorldEventData();
@@ -11793,8 +11801,6 @@ public:
         if (provinces[provID].bToggleCollectIncome) {
             s.settlementData.publicOrder -= 4;
         }
-        //Public order Modifier based on Treasury
-
 
         // applied bonus to all province
         s.settlementData.publicOrder += provincePublicOrderBonus[provID];
@@ -11809,6 +11815,8 @@ public:
 
         if (provinces[provID].owner == player.faction) {
             s.settlementData.publicOrder += foodPublicOrderModifier;
+            //Public order Modifier based on Treasury
+            s.settlementData.publicOrder += treasuryPublicOrderModifier;
         }
 
         s.settlementData.publicOrder = std::clamp(s.settlementData.publicOrder, -100, 100);
