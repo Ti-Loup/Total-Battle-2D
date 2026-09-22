@@ -5044,8 +5044,11 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
         int incomeTotal = 0;
         int publicOrderTotal = 0;
         int provinceGoodsCapacity = 0;
+        //Public order modifier treasury based
+
         for (auto* s : provinceSettlements) {
             int settlementGlobalIndex = (int)(s - &settlements[0]);
+
             //if no damage
             if (!IsBuildingSlotDamaged(settlementGlobalIndex, 0))
                 incomeTotal += s->settlementData.baseIncome;
@@ -8831,6 +8834,22 @@ float rightEdge2 = tooltipX + tooltipW - 5.f;
             case Date::Season::Autumn: return {  1, 1.50f, 1.05f, 0.95f, 1.00f };
         }
     }
+    //treasury public order modifier.
+    struct TreasuryModifiers {
+        int publicOrderModifier = 0;
+        float foodProductionMultiplier = 1.0f;//multiplicator
+        float incomeMultiplier = 1.0f;//base
+    };
+    //5 rects so 5 cases
+    TreasuryModifiers GetTreasuryModifiers(int taxRateIndex) {
+        switch (taxRateIndex) {
+            case 0: return {-8, 1.25f, 1.25f};//darkred
+            case 1: return {-4, 1.10f, 1.10f};
+            case 2: return {0, 1.0f, 1.0f};//neutral
+            case 3: return {4, 0.90f, 0.90f};
+            case 4: return {8, 0.75f, 0.75f };    //darkred
+        }
+    }
 
 
     //When hovered Season is true, the interface will show next to the mouse
@@ -10128,11 +10147,11 @@ void RenderRepairTooltip() {
         //Descriptiontext of the different Tax options
          struct TreasuryTaxDescription { const char*categoryName; const char* description;};
         TreasuryTaxDescription treasuryTaxDescriptions[5] {
-            {"Dark Red:", "+Increase Higly ."},
-            {"Light Red:", "TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST."},
-            {"Neutral:", "TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST."},
-            {"Light Green:", "TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST."},
-            {"Dark Green:", "TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST."},
+            {"Dark Red:", "-8 Public Order, +25% Food Production, +25% Tax Rate"},
+            {"Light Red:", "-4 Public Order, +10% Food Production, +10% Tax Rate"},
+            {"Neutral:", "No Modifier"},
+            {"Light Green:", "+4 Public Order, -10% Food Production, -10% Tax Rate"},
+            {"Dark Green:", "+8 Public Order, -25% Food Production, -25% Tax Rate"},
         };
 
         //gap x y
@@ -11723,6 +11742,7 @@ public:
             if (building_data && building_data->publicOrderBonus != 0)
                 provincePublicOrderBonus[provID] += building_data->publicOrderBonus;
         }
+
     }
 
     // money & food  // bonus public order inside a province
@@ -11773,6 +11793,8 @@ public:
         if (provinces[provID].bToggleCollectIncome) {
             s.settlementData.publicOrder -= 4;
         }
+        //Public order Modifier based on Treasury
+
 
         // applied bonus to all province
         s.settlementData.publicOrder += provincePublicOrderBonus[provID];
