@@ -5040,6 +5040,11 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
         for (const auto& s : settlements)
             if (s.settlementData.provinceID == provinceID)provinceSettlements.push_back(&s);
 
+        //TreasuryTaxModifier applied In Ui Province + Season
+        Date::Season provinceIncomeSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
+        SeasonModifiers provinceIncomeSeasonMod = GetSeasonModifiers(provinceIncomeSeason);
+        float treasurySettlementTaxModifier = GetTreasuryModifiers(treasuryTaxRateIndex).incomeMultiplier;
+
         //Provinces Own Income, Public order and stored Goods amount.
         int incomeTotal = 0;
         int publicOrderTotal = 0;
@@ -5047,24 +5052,52 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
         //Public order modifier treasury based
 
         for (auto* s : provinceSettlements) {
-            int settlementGlobalIndex = (int)(s - &settlements[0]);
+    int settlementGlobalIndex = (int)(s - &settlements[0]);
 
-            //if no damage
-            if (!IsBuildingSlotDamaged(settlementGlobalIndex, 0))
-                incomeTotal += s->settlementData.baseIncome;
-            for (int slot_index = 1; slot_index < (int)s->settlementData.buildings.size(); slot_index++) {
-                if (s->settlementData.buildings[slot_index] != BuildingType::None) {
-                    const BuildingData* bd = GetBuildingData(s->settlementData.buildings[slot_index]);
-                    if (bd && !IsBuildingSlotDamaged(settlementGlobalIndex, slot_index)) incomeTotal += bd->incomeBonus;
-                }
-            }
-            publicOrderTotal = s->settlementData.publicOrder;
-            for (BuildingType bt : s->settlementData.buildings) {
-                if (bt == BuildingType::None) continue;
-                const BuildingData* bd = GetBuildingData(bt);
-                if (bd) provinceGoodsCapacity += bd->resourcesStorage;
-            }
+            float worldEventFarmMult = 1.0f, worldEventCommerceMult = 1.0f, worldEventIndustryMult = 1.0f, worldEventReligionMult = 1.0f, worldEventMaritimeMult = 1.0f;
+    if (const WorldEventsData* activeEvent = GetActiveWorldEventData()) {
+        if (IsSettlementAffectedByCurrentWorldEvent(*s)) {
+            worldEventFarmMult = activeEvent->goldIncomeFarmMultiplier;
+            worldEventCommerceMult = activeEvent->goldIncomeCommerceMultiplier;
+            worldEventIndustryMult = activeEvent->goldIncomeIndustryMultiplier;
+            worldEventReligionMult = activeEvent->goldIncomeReligionMultiplier;
+            worldEventMaritimeMult = activeEvent->goldIncomeMaritimeMultiplier;
         }
+    }
+
+    //main building
+    if (!IsBuildingSlotDamaged(settlementGlobalIndex, 0)) {
+    int mainIncome = (int)(s->settlementData.baseIncome * treasurySettlementTaxModifier);
+    if (GetTaxCategory(s->settlementData.buildings[0]) == TaxCategory::Farm)
+        mainIncome = (int)std::round(mainIncome * provinceIncomeSeasonMod.incomeFarmMultiplier * worldEventFarmMult);
+    incomeTotal += mainIncome;
+}
+
+    //other buildings
+    for (int slot_index = 1; slot_index < (int)s->settlementData.buildings.size(); slot_index++) {
+        if (s->settlementData.buildings[slot_index] == BuildingType::None) continue;
+        const BuildingData* bd = GetBuildingData(s->settlementData.buildings[slot_index]);
+        if (!bd || IsBuildingSlotDamaged(settlementGlobalIndex, slot_index)) continue;
+
+        int incomeBonus = bd->incomeBonus;
+        switch (GetTaxCategory(s->settlementData.buildings[slot_index])) {
+            case TaxCategory::Farm:      incomeBonus = (int)std::round(incomeBonus * provinceIncomeSeasonMod.incomeFarmMultiplier * worldEventFarmMult); break;
+            case TaxCategory::Commerce:  incomeBonus = (int)std::round(incomeBonus * worldEventCommerceMult); break;
+            case TaxCategory::Industry:  incomeBonus = (int)std::round(incomeBonus * worldEventIndustryMult); break;
+            case TaxCategory::Religious: incomeBonus = (int)std::round(incomeBonus * worldEventReligionMult); break;
+            case TaxCategory::Maritime:  incomeBonus = (int)std::round(incomeBonus * worldEventMaritimeMult); break;
+            default: break;
+        }
+        incomeTotal += (int)(incomeBonus * treasurySettlementTaxModifier);
+    }
+
+    publicOrderTotal = s->settlementData.publicOrder;
+    for (BuildingType bt : s->settlementData.buildings) {
+        if (bt == BuildingType::None) continue;
+        const BuildingData* bd = GetBuildingData(bt);
+        if (bd) provinceGoodsCapacity += bd->resourcesStorage;
+    }
+}
 
         //what's inside that region warehouse right now
         //hard coded just for the player
@@ -7793,6 +7826,7 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
 
         int armyUpkeep = 0;
         int damagedIncomeLoss = 0;//raw income being lost to damage, across all categories
+        int treasuryIncomeDelta = 0;
         Date::Season coinTooltipSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
         SeasonModifiers coinTooltipSeasonModifier = GetSeasonModifiers(coinTooltipSeason);
         TreasuryModifiers TaxTooltipTreasuryModifier = GetTreasuryModifiers(treasuryTaxRateIndex);
@@ -7853,6 +7887,10 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
             }
 
             //for all the other buildings
+                if (!mainDamaged) {
+                    int mainAfterTreasury = (int)(mainRaw * taxTooltipTreasuryModifier);
+                    treasuryIncomeDelta += mainAfterTreasury - mainRaw;
+                }
             for (int slot_index = 1; slot_index < (int)s.settlementData.buildings.size(); slot_index++) {
                 BuildingType bt = s.settlementData.buildings[slot_index];
                 if (bt == BuildingType::None) continue;
@@ -7892,12 +7930,27 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
                 else if (cat == TaxCategory::Maritime) {
                     maritimeWorldEventGoldDelta += (int)std::round(raw * worldEventMaritimeGoldMultiplier) - raw;
                 }
+                if (!slotDamaged) {
+                    int modified = raw;
+                    if (cat == TaxCategory::Farm)
+                        modified = (int)std::round(raw * coinTooltipSeasonModifier.incomeFarmMultiplier * worldEventFarmGoldMultiplier);
+                    else if (cat == TaxCategory::Commerce)
+                        modified = (int)std::round(raw * worldEventCommerceGoldMultiplier);
+                    else if (cat == TaxCategory::Industry)
+                        modified = (int)std::round(raw * worldEventIndustryGoldMultiplier);
+                    else if (cat == TaxCategory::Religious)
+                        modified = (int)std::round(raw * worldEventReligionGoldMultiplier);
+                    else if (cat == TaxCategory::Maritime)
+                        modified = (int)std::round(raw * worldEventMaritimeGoldMultiplier);
+
+                    int afterTreasury = (int)(modified * taxTooltipTreasuryModifier);
+                    treasuryIncomeDelta += afterTreasury - modified;
+                }
             }
         }
     }
     int worldEventGoldDelta = farmWorldEventGoldDelta + commerceWorldEventGoldDelta + religiousWorldEventGoldDelta + industryWorldEventGoldDelta + maritimeWorldEventGoldDelta;
     int knownIncomeBeforeTreasury = taxIncome + farmIncomeBased + commerceIncome + industryIncome + religiousIncome + maritimeIncome + farmSeasonBonus - mainUpkeep - armyUpkeep - buildingMaintenance - damagedIncomeLoss + worldEventGoldDelta;
-    int treasuryIncomeDelta = player.nextTurnGold - knownIncomeBeforeTreasury;
 
     // Calcul dynamique de la hauteur
     float rowH   = 24.f;
