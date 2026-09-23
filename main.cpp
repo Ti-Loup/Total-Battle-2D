@@ -7793,7 +7793,6 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
 
         int armyUpkeep = 0;
         int damagedIncomeLoss = 0;//raw income being lost to damage, across all categories
-
         Date::Season coinTooltipSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
         SeasonModifiers coinTooltipSeasonModifier = GetSeasonModifiers(coinTooltipSeason);
         TreasuryModifiers TaxTooltipTreasuryModifier = GetTreasuryModifiers(treasuryTaxRateIndex);
@@ -7852,6 +7851,7 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
             else if (mainCat == TaxCategory::Maritime) {
                 maritimeWorldEventGoldDelta += (int)std::round(mainRaw * worldEventMaritimeGoldMultiplier) - mainRaw;
             }
+
             //for all the other buildings
             for (int slot_index = 1; slot_index < (int)s.settlementData.buildings.size(); slot_index++) {
                 BuildingType bt = s.settlementData.buildings[slot_index];
@@ -7896,9 +7896,8 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
         }
     }
     int worldEventGoldDelta = farmWorldEventGoldDelta + commerceWorldEventGoldDelta + religiousWorldEventGoldDelta + industryWorldEventGoldDelta + maritimeWorldEventGoldDelta;
-    int totalIncome = taxIncome + commerceIncome + industryIncome + religiousIncome + maritimeIncome + farmIncomeBased + (farmSeasonBonus > 0 ? farmSeasonBonus : 0);
-    int totalExpense = mainUpkeep + armyUpkeep + buildingMaintenance + damagedIncomeLoss - worldEventGoldDelta + (farmSeasonBonus < 0 ? -farmSeasonBonus : 0);
-    int goldNextTurn = totalIncome - totalExpense;
+    int knownIncomeBeforeTreasury = taxIncome + farmIncomeBased + commerceIncome + industryIncome + religiousIncome + maritimeIncome + farmSeasonBonus - mainUpkeep - armyUpkeep - buildingMaintenance - damagedIncomeLoss + worldEventGoldDelta;
+    int treasuryIncomeDelta = player.nextTurnGold - knownIncomeBeforeTreasury;
 
     // Calcul dynamique de la hauteur
     float rowH   = 24.f;
@@ -7909,11 +7908,14 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
 
     //if  seasonModifier is an expense it will go to the second row where we calculate all the negative values.
     bool seasonModifierIsExpense = (farmSeasonBonus < 0);
+        //Treasury tax expense showing
+        bool treasuryIsExpense = (treasuryIncomeDelta < 0);
     //The Row shows if its not 0 and has a value
     int incomeRows = 0;
     if (taxIncome != 0) incomeRows++;
     if (farmIncomeBased != 0) incomeRows++;
     if (farmSeasonBonus != 0 && !seasonModifierIsExpense) incomeRows++;
+        if (treasuryIncomeDelta != 0 && !treasuryIsExpense) incomeRows++;
     if (commerceIncome != 0)  incomeRows++;
     if (industryIncome != 0)  incomeRows++;
     if (religiousIncome != 0) incomeRows++;
@@ -7924,12 +7926,17 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
     if (armyUpkeep != 0) expenseRows++;
     if (buildingMaintenance != 0) expenseRows++;
     if (seasonModifierIsExpense) expenseRows++;
+        if (treasuryIsExpense) expenseRows++;
     if (farmWorldEventGoldDelta != 0) expenseRows++;
     if (commerceWorldEventGoldDelta != 0) expenseRows++;
     if (industryWorldEventGoldDelta != 0) expenseRows++;
     if (religiousWorldEventGoldDelta != 0) expenseRows++;
     if (maritimeWorldEventGoldDelta != 0) expenseRows++;
     if (damagedIncomeLoss != 0) expenseRows++;
+
+    int totalIncome = taxIncome + commerceIncome + industryIncome + religiousIncome + maritimeIncome + farmIncomeBased+ (farmSeasonBonus > 0 ? farmSeasonBonus : 0)+ (treasuryIncomeDelta > 0 ? treasuryIncomeDelta : 0);
+    int totalExpense = mainUpkeep + armyUpkeep + buildingMaintenance + damagedIncomeLoss - worldEventGoldDelta+ (farmSeasonBonus < 0 ? -farmSeasonBonus : 0) + (treasuryIncomeDelta < 0 ? -treasuryIncomeDelta : 0);
+    int goldNextTurn = totalIncome - totalExpense;
 
     float incomeSepH  = 0.f;
     if (incomeRows  > 0) incomeSepH  = sepH;
@@ -8028,8 +8035,10 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
         // Incomes
         drawRow("Tax (Province)", taxIncome, false);
         drawRow("Tax (Farm)", farmIncomeBased, false);
-            if (!seasonModifierIsExpense)//positive
-        drawRow("Season Modifier (Farm)", farmSeasonBonus, false); //bonus = modified - based
+        if (!seasonModifierIsExpense)//positive
+            drawRow("Season Modifier (Farm)", farmSeasonBonus, false); //bonus = modified - based
+        if (!treasuryIsExpense)
+            drawRow("Treasury Tax Rate", treasuryIncomeDelta, false);
         drawRow("Tax (Commerce)", commerceIncome, false);
         drawRow("Tax (Industry)", industryIncome, false);
         drawRow("Tax (Religious)", religiousIncome, false);
@@ -8041,16 +8050,18 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
         drawRow("Main Building Upkeep", mainUpkeep, true);
         drawRow("Army Upkeep",     armyUpkeep,          true);
         drawRow("Building Maint.", buildingMaintenance, true);
-            if (seasonModifierIsExpense)
-        drawRow("Season Modifier (Farm)", farmSeasonBonus, true); //negative season penalty
+        if (seasonModifierIsExpense)
+            drawRow("Season Modifier (Farm)", farmSeasonBonus, true); //negative season penalty
+        if (treasuryIsExpense)
+            drawRow("Treasury Tax Rate", treasuryIncomeDelta, true);
         drawRow("Damaged Buildings", damagedIncomeLoss, true);
         const WorldEventsData* activeGoldEventForLabel = GetActiveWorldEventData();
         std::string worldEventName = activeGoldEventForLabel ? activeGoldEventForLabel->name : "";
-        std::string worldEventFarmGoldLabel      = worldEventName.empty() ? "World Event (Farm)"      : ("World Event (" + worldEventName + ") - Farm");
-        std::string worldEventCommerceGoldLabel  = worldEventName.empty() ? "World Event (Commerce)"  : ("World Event (" + worldEventName + ") - Commerce");
-        std::string worldEventIndustryGoldLabel  = worldEventName.empty() ? "World Event (Industry)"  : ("World Event (" + worldEventName + ") - Industry");
+        std::string worldEventFarmGoldLabel  = worldEventName.empty() ? "World Event (Farm)"      : ("World Event (" + worldEventName + ") - Farm");
+        std::string worldEventCommerceGoldLabel = worldEventName.empty() ? "World Event (Commerce)"  : ("World Event (" + worldEventName + ") - Commerce");
+        std::string worldEventIndustryGoldLabel = worldEventName.empty() ? "World Event (Industry)"  : ("World Event (" + worldEventName + ") - Industry");
         std::string worldEventReligiousGoldLabel = worldEventName.empty() ? "World Event (Religious)" : ("World Event (" + worldEventName + ") - Religious");
-        std::string worldEventMaritimeGoldLabel  = worldEventName.empty() ? "World Event (Maritime)"  : ("World Event (" + worldEventName + ") - Maritime");
+        std::string worldEventMaritimeGoldLabel = worldEventName.empty() ? "World Event (Maritime)"  : ("World Event (" + worldEventName + ") - Maritime");
         drawRow(worldEventFarmGoldLabel.c_str(), farmWorldEventGoldDelta, false);
         drawRow(worldEventCommerceGoldLabel.c_str(), commerceWorldEventGoldDelta, false);
         drawRow(worldEventIndustryGoldLabel.c_str(), industryWorldEventGoldDelta, false);
