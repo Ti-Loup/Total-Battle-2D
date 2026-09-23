@@ -4962,8 +4962,10 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
                 cursor += iconSize + 3.f;
                 //the number that shows the income per settlement(baseIncome)
                 //bool toggle income to show 0 if no income
+                //Treasury money modifier
+                float treasurySettlementGoldModifier = GetTreasuryModifiers(treasuryTaxRateIndex).incomeMultiplier;
                 bool collectingIncome = provinces[s.settlementData.provinceID].bToggleCollectIncome;
-                int totalSettlementIncome = s.settlementData.baseIncome;
+                int totalSettlementIncome = s.settlementData.baseIncome * treasurySettlementGoldModifier;
                 for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
                     if (s.settlementData.buildings[b] != BuildingType::None) {
                         const BuildingData* bd = GetBuildingData(s.settlementData.buildings[b]);
