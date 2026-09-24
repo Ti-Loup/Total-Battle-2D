@@ -4963,7 +4963,8 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
                 //the number that shows the income per settlement(baseIncome)
                 //bool toggle income to show 0 if no income
                 //Treasury money modifier
-                float treasurySettlementGoldModifier = GetTreasuryModifiers(treasuryTaxRateIndex).incomeMultiplier;
+                bool bIsPlayerSettlement = (provinces[s.settlementData.provinceID].owner == player.faction);
+                float treasurySettlementGoldModifier = bIsPlayerSettlement ? GetTreasuryModifiers(treasuryTaxRateIndex).incomeMultiplier : 1.0f;
                 bool collectingIncome = provinces[s.settlementData.provinceID].bToggleCollectIncome;
                 int totalSettlementIncome = s.settlementData.baseIncome * treasurySettlementGoldModifier;
                 for (int b = 1; b < (int)s.settlementData.buildings.size(); b++) {
@@ -6807,7 +6808,8 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
 
         Date::Season foodSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
         SeasonModifiers foodMods = GetSeasonModifiers(foodSeason);
-        player.nextTurnFood += (int)std::round(rawFoodTotal * foodMods.foodProductionMultiplier);
+        float treasuryFoodModifier = GetTreasuryModifiers(treasuryTaxRateIndex).foodProductionMultiplier;
+        player.nextTurnFood += (int)std::round(rawFoodTotal * foodMods.foodProductionMultiplier * treasuryFoodModifier);
 
         //Food texture
         SDL_FRect foodIconUIRect = {contentRect.x + 230.f, contentRect.y, 30.f,30.f};
@@ -8257,20 +8259,22 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
         const float foodRegionSeparatorHeight = 14.f;
 
         // Income/Expense breakdown values
-        int netFoodBeforeSeason = (farmFoodProducedModified - damagedFarmFoodLossModified)
-                                 + (maritimeFoodProducedModified - damagedMaritimeFoodLossModified);
+        int netFoodBeforeSeason = (farmFoodProducedModified - damagedFarmFoodLossModified) + (maritimeFoodProducedModified - damagedMaritimeFoodLossModified);
         int seasonedNetFood = (int)std::round(netFoodBeforeSeason * foodSeasonMods.foodProductionMultiplier);
         int seasonFoodDelta = seasonedNetFood - netFoodBeforeSeason;
+        //treasury
+        float treasuryFoodModifierPreview = GetTreasuryModifiers(treasuryTaxRateIndex).foodProductionMultiplier;
+        int treasuryFoodDelta = (int)std::round(netFoodBeforeSeason * treasuryFoodModifierPreview) - netFoodBeforeSeason;
 
-        int totalFoodIncome = farmFoodProducedModified + maritimeFoodProducedModified + (seasonFoodDelta > 0 ? seasonFoodDelta : 0);
-        int totalFoodExpense = buildingFoodUpkeepTotal + totalDamagedFoodLoss + std::abs(unitsFoodTotal) + (seasonFoodDelta < 0 ? -seasonFoodDelta : 0);
+        int totalFoodIncome = farmFoodProducedModified + maritimeFoodProducedModified + (seasonFoodDelta > 0 ? seasonFoodDelta : 0) + (treasuryFoodDelta > 0 ? treasuryFoodDelta:0);
+        int totalFoodExpense = buildingFoodUpkeepTotal + totalDamagedFoodLoss + std::abs(unitsFoodTotal) + (seasonFoodDelta < 0 ? -seasonFoodDelta : 0) + (treasuryFoodDelta < 0 ? -treasuryFoodDelta:0);
         int netFoodThisTurnComputed = totalFoodIncome - totalFoodExpense;
 
         const float foodRowH = 20.f;
         const float foodSepH = 10.f;
-        int foodIncomeRowCount = 2 + (seasonFoodDelta > 0 ? 1 : 0);
+        int foodIncomeRowCount = 2 + (seasonFoodDelta > 0 ? 1 : 0) + (treasuryFoodDelta > 0 ? 1 : 0);
         int foodExpenseRowCount = (unitsFoodTotal != 0 ? 1 : 0) + (buildingFoodUpkeepTotal != 0 ? 1 : 0)
-                                 + (totalDamagedFoodLoss != 0 ? 1 : 0) + (seasonFoodDelta < 0 ? 1 : 0);
+                                 + (totalDamagedFoodLoss != 0 ? 1 : 0) + (seasonFoodDelta < 0 ? 1 : 0) + (treasuryFoodDelta < 0 ? 1 : 0);
         float foodSectionHeight = foodIncomeRowCount * foodRowH
                                  + foodSepH
                                  + foodExpenseRowCount * foodRowH
@@ -8411,6 +8415,7 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
         drawFoodRow(maritimeLabel.c_str(), maritimeFoodProducedModified, false, true);
 
         if (seasonFoodDelta > 0) drawFoodRow("Season Modifier", seasonFoodDelta, false);
+        if (treasuryFoodDelta > 0) drawFoodRow("Treasury Tax Rate", treasuryFoodDelta, false);
 
         drawFoodSep();
 
@@ -8419,7 +8424,7 @@ void ProcessAiFactionGoodsForTurn(FactionZone faction, AiFactionState &aiState) 
         drawFoodRow("Building Upkeep", buildingFoodUpkeepTotal, true);
         drawFoodRow("Damaged Buildings", totalDamagedFoodLoss, true);
         if (seasonFoodDelta < 0) drawFoodRow("Season Modifier", seasonFoodDelta, true);
-
+        if (treasuryFoodDelta < 0) drawFoodRow("Treasury Tax Rate", treasuryFoodDelta, true);
         if (foodExpenseRowCount > 0) drawFoodSep();
 
         // Totals
