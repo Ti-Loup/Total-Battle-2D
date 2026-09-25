@@ -41,7 +41,9 @@
  * ToDo | Possibility to give money to improve relations
  *
  * Bugs:
- * Fix | The UI overlaps
+ * Fixed | The UI overlaps
+ * Fixed | taxe rate ui of the settlements modifies with the current tax rate
+ *
  * --------------------------------------------
  * 0.4.0
  * Kingdom -> different houses from 1 kingdom. Logo next to castle name
@@ -12972,18 +12974,24 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         //log message for now -> ui poping on later
         SDL_LogWarn(0, "Clicked DecreesPannel");
         app.bDecreesInfoPopup = true;
+        app.bWinConditionsInfoPopup = false;
+        app.bTreasuryInfoPopup = false;
     }
     //WinAchivements Ui Button pressed
     if (app.ClickInsideCircle(nouveauX, nouveauY, app.WinConditionPannel)) {
          //log message for now -> ui poping on later
          SDL_LogWarn(0, "Clicked WinConditionPannel");
         app.bWinConditionsInfoPopup = true;
+        app.bDecreesInfoPopup = false;
+        app.bTreasuryInfoPopup = false;
     }
     //Treasury Ui button pressed
     if (app.ClickInsideCircle(nouveauX, nouveauY, app.TreasuryPannel)) {
         //log message for now -> ui poping on later
         SDL_LogWarn(0, "Clicked TreasuryPannel");
         app.bTreasuryInfoPopup = true;
+        app.bDecreesInfoPopup = false;
+        app.bWinConditionsInfoPopup = false;
     }
     //Diplomacy UiButton pressed
     if (app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyPannel)) {
