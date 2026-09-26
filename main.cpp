@@ -11317,7 +11317,8 @@ void RenderCategoryBuildingInfoUI() {
             TTF_GetTextSize(gameKingdomSamuraiNameText, &textW, &textH);
             TTF_DrawRendererText(gameKingdomSamuraiNameText, sScreen.x - textW/2.f, sScreen.y - textH/2.f);;
         }
-
+//If diplomacy pressed the ui stop showing to show only the diplomacy area
+    if (!bDiplomacyInfoPopup) {
         //Render the UI of provinces
         RenderProvinceUI();
         RenderGeneralUI();
@@ -11334,170 +11335,176 @@ void RenderCategoryBuildingInfoUI() {
         RenderDecreesInfoPopup();
         RenderWinConditionsInfoPopup();
         RenderTreasuryInfoPopup();
-        RenderDiplomacyInfoPopup();
+
         RenderFamilyHierarchyInfoPopup();
 
         // Tooltip public order
-if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
-    const Settlement& sPO = settlements[hoveredPublicOrderSettlementIndex];
-    int provID = sPO.settlementData.provinceID;
-    bool collecting = provinces[provID].bToggleCollectIncome;
-    int po = sPO.settlementData.publicOrder;
+        if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
+            const Settlement& sPO = settlements[hoveredPublicOrderSettlementIndex];
+            int provID = sPO.settlementData.provinceID;
+            bool collecting = provinces[provID].bToggleCollectIncome;
+            int po = sPO.settlementData.publicOrder;
 
-    // Calcul province Building bonus
-    int provinceBuildingBonus = 0;
-    for (const auto& s : settlements) {
-        if (s.settlementData.provinceID != provID) continue;
-        for (auto bt : s.settlementData.buildings) {
-            if (bt == BuildingType::None) continue;
-            const BuildingData* bd = GetBuildingData(bt);
-            if (bd && bd->publicOrderBonus != 0)
-                provinceBuildingBonus += bd->publicOrderBonus;
-        }
-    }
-
-    //public order based on food UI
-    bool bIsPlayerProvince = (provinces[provID].owner == player.faction);
-    int foodModifier = bIsPlayerProvince ? GetFoodPublicOrderModifier() : 0;
-    //public order based on season
-    Date::Season tooltipSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
-    int seasonModifier = GetSeasonModifiers(tooltipSeason). publicOrderBonus;
-    //Treasury punlic order modifier
-    TreasuryModifiers treasuryModifiers = GetTreasuryModifiers(treasuryTaxRateIndex);
-    int treasuryPublicOrderModifiers = bIsPlayerProvince ? GetTreasuryModifiers(treasuryTaxRateIndex).publicOrderModifier : 0;
-    //Money public order penalty
-    int taxPenalty = collecting ? -4 : 0;
-    //Public order based on WorldEvents - global sauf pour Plague (colonie infectée seulement)
-    const WorldEventsData *activePublicOrderEvent = GetActiveWorldEventData();
-    int worldEventPublicOrder = 0;
-    if (activePublicOrderEvent) {
-        if (currentWorldsEvent == WorldEventsType::Plague || currentWorldsEvent == WorldEventsType::Fire) {
-            // add malus of infected settlementss in same province
-            // add malus from fire per settlements
-            for (const auto& other : settlements) {
-                if (other.settlementData.provinceID == provID && other.bIsInfectedByPlague) {
-                    worldEventPublicOrder += activePublicOrderEvent->publicOrderModifier;
-                }
-                if (other.settlementData.provinceID == provID && other.bIsOnFire) {
-                    worldEventPublicOrder += activePublicOrderEvent->publicOrderModifier;
+            // Calcul province Building bonus
+            int provinceBuildingBonus = 0;
+            for (const auto& s : settlements) {
+                if (s.settlementData.provinceID != provID) continue;
+                for (auto bt : s.settlementData.buildings) {
+                    if (bt == BuildingType::None) continue;
+                    const BuildingData* bd = GetBuildingData(bt);
+                    if (bd && bd->publicOrderBonus != 0)
+                        provinceBuildingBonus += bd->publicOrderBonus;
                 }
             }
-        } else {
-            worldEventPublicOrder = activePublicOrderEvent->publicOrderModifier;
-        }
 
-        if (currentWorldsEvent == WorldEventsType::Justice) {
-            worldEventPublicOrder = GetJusticePublicOrderModifier();
+            //public order based on food UI
+            bool bIsPlayerProvince = (provinces[provID].owner == player.faction);
+            int foodModifier = bIsPlayerProvince ? GetFoodPublicOrderModifier() : 0;
+            //public order based on season
+            Date::Season tooltipSeason = Date::GetCurrentSeason(currentTurn, dateStartMonth);
+            int seasonModifier = GetSeasonModifiers(tooltipSeason). publicOrderBonus;
+            //Treasury punlic order modifier
+            TreasuryModifiers treasuryModifiers = GetTreasuryModifiers(treasuryTaxRateIndex);
+            int treasuryPublicOrderModifiers = bIsPlayerProvince ? GetTreasuryModifiers(treasuryTaxRateIndex).publicOrderModifier : 0;
+            //Money public order penalty
+            int taxPenalty = collecting ? -4 : 0;
+            //Public order based on WorldEvents - global sauf pour Plague (colonie infectée seulement)
+            const WorldEventsData *activePublicOrderEvent = GetActiveWorldEventData();
+            int worldEventPublicOrder = 0;
+            if (activePublicOrderEvent) {
+                if (currentWorldsEvent == WorldEventsType::Plague || currentWorldsEvent == WorldEventsType::Fire) {
+                    // add malus of infected settlementss in same province
+                    // add malus from fire per settlements
+                    for (const auto& other : settlements) {
+                        if (other.settlementData.provinceID == provID && other.bIsInfectedByPlague) {
+                            worldEventPublicOrder += activePublicOrderEvent->publicOrderModifier;
+                        }
+                        if (other.settlementData.provinceID == provID && other.bIsOnFire) {
+                            worldEventPublicOrder += activePublicOrderEvent->publicOrderModifier;
+                        }
+                    }
+                } else {
+                    worldEventPublicOrder = activePublicOrderEvent->publicOrderModifier;
+                }
+
+                if (currentWorldsEvent == WorldEventsType::Justice) {
+                    worldEventPublicOrder = GetJusticePublicOrderModifier();
+                }
+            }
+            //total
+            int totalDelta = taxPenalty + provinceBuildingBonus + foodModifier + seasonModifier + worldEventPublicOrder + treasuryPublicOrderModifiers;
+            int nextPO  = std::clamp(po + totalDelta, -100, 100);
+
+            // add the high difference for each categories
+            float tooltipW = 260.f;
+            float tooltipH = 36.f + 30.f + 12.f; // titre + current + separator
+            if (provinceBuildingBonus != 0) tooltipH += 24.f;
+            if (taxPenalty != 0) tooltipH += 24.f;
+            if (foodModifier != 0) tooltipH += 24.f;
+            if (seasonModifier != 0) tooltipH += 24.f;
+            if (worldEventPublicOrder != 0) tooltipH += 24.f;
+            if (treasuryPublicOrderModifiers != 0) tooltipH += 24.f;
+            tooltipH += 10.f; // padding
+
+            float tooltipX = publicOrderTooltipX + 12.f;
+            float tooltipY = publicOrderTooltipY - tooltipH - 8.f;
+            if (tooltipX + tooltipW > 1910.f) tooltipX = publicOrderTooltipX - tooltipW - 12.f;
+            if (tooltipY < 5.f)               tooltipY = 5.f;
+
+            float rightEdge = tooltipX + tooltipW - 12.f;
+
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+            // Font
+            SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+            SDL_FRect bg = {tooltipX, tooltipY, tooltipW, tooltipH};
+            SDL_RenderFillRect(renderer, &bg);
+
+            // Title Bar
+            SDL_SetRenderDrawColor(renderer, 55, 45, 20, 255);
+            SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, 28.f};
+            SDL_RenderFillRect(renderer, &titleBar);
+
+            // Border
+            SDL_SetRenderDrawColor(renderer, 110, 90, 40, 255);
+            SDL_RenderRect(renderer, &bg);
+
+            // Title Public Order details
+            TTF_SetTextString(gameStatUITitleText, "Public Order Details", 0);
+            TTF_SetTextColor(gameStatUITitleText, 215, 190, 130, 255);
+            int titleW, titleH;
+            TTF_GetTextSize(gameStatUITitleText, &titleW, &titleH);
+            TTF_DrawRendererText(gameStatUITitleText,
+                tooltipX + (tooltipW - titleW) / 2.f,
+                tooltipY + (28.f - titleH) / 2.f);
+
+            float lineY = tooltipY + 36.f;
+
+            TTF_SetTextString(gameStatUIText, "Current", 0);
+            TTF_SetTextColor(gameStatUIText, 210, 210, 210, 255);
+            TTF_DrawRendererText(gameStatUIText, tooltipX + 10.f, lineY);
+            // current value (White)
+            std::string poStr = std::to_string(po);
+            TTF_SetTextString(gameStatUIText, poStr.c_str(), 0);
+            int poW, poH; TTF_GetTextSize(gameStatUIText, &poW, &poH);
+
+            // Delta red or green
+            std::string deltaStr = std::string(" (") + (totalDelta >= 0 ? "+" : "") + std::to_string(totalDelta) + ")";
+            TTF_SetTextString(gameStatUIText, deltaStr.c_str(), 0);
+            int dW, dH; TTF_GetTextSize(gameStatUIText, &dW, &dH);
+
+            float poX = rightEdge - poW - dW;
+            TTF_SetTextString(gameStatUIText, poStr.c_str(), 0);
+            TTF_SetTextColor(gameStatUIText, 255, 255, 255, 255);
+            TTF_DrawRendererText(gameStatUIText, poX, lineY);
+
+            TTF_SetTextString(gameStatUIText, deltaStr.c_str(), 0);
+            TTF_SetTextColor(gameStatUIText,
+                totalDelta >= 0 ? 80  : 220,
+                totalDelta >= 0 ? 200 : 60, 80, 255);
+            TTF_DrawRendererText(gameStatUIText, poX + poW, lineY);
+            lineY += 28.f;
+
+            // seperation
+            SDL_SetRenderDrawColor(renderer, 80, 65, 30, 200);
+            SDL_RenderLine(renderer,
+                tooltipX + 5.f, lineY,
+                tooltipX + tooltipW - 5.f, lineY);
+            lineY += 10.f;
+
+            // the lampda
+            auto drawModLine = [&](const char* label, int value) {
+                TTF_SetTextString(gameStatUIText, label, 0);
+                TTF_SetTextColor(gameStatUIText, 150, 145, 130, 255);
+                TTF_DrawRendererText(gameStatUIText, tooltipX + 22.f, lineY);
+
+                std::string valStr = (value > 0 ? "+" : "") + std::to_string(value);
+                TTF_SetTextString(gameStatUIText, valStr.c_str(), 0);
+                TTF_SetTextColor(gameStatUIText,
+                    value > 0 ? 80  : (value < 0 ? 220 : 130),
+                    value > 0 ? 200 : (value < 0 ? 60  : 130),
+                    80, 255);
+                int vW, vH; TTF_GetTextSize(gameStatUIText, &vW, &vH);
+                TTF_DrawRendererText(gameStatUIText, rightEdge - vW, lineY);
+                lineY += 24.f;
+            };
+
+            if (provinceBuildingBonus != 0) drawModLine("Buildings", provinceBuildingBonus);
+            if (taxPenalty != 0) drawModLine("Collected income",  taxPenalty);
+            if (foodModifier != 0) drawModLine ("Food", foodModifier);
+            if (seasonModifier != 0) drawModLine("Season", seasonModifier);
+            if (treasuryPublicOrderModifiers != 0) drawModLine ("Tax Rate modifier", treasuryPublicOrderModifiers);
+            if (worldEventPublicOrder != 0) {
+                std::string worldEventPOLabel = activePublicOrderEvent? ("World Event (" + activePublicOrderEvent->name + ")") : "World Event";
+                drawModLine(worldEventPOLabel.c_str(), worldEventPublicOrder);
+            }
         }
     }
-    //total
-    int totalDelta = taxPenalty + provinceBuildingBonus + foodModifier + seasonModifier + worldEventPublicOrder + treasuryPublicOrderModifiers;
-    int nextPO  = std::clamp(po + totalDelta, -100, 100);
+    //Diplomacy always shows when pressed
+    RenderDiplomacyInfoPopup();
 
-    // add the high difference for each categories
-    float tooltipW = 260.f;
-    float tooltipH = 36.f + 30.f + 12.f; // titre + current + separator
-    if (provinceBuildingBonus != 0) tooltipH += 24.f;
-    if (taxPenalty != 0) tooltipH += 24.f;
-    if (foodModifier != 0) tooltipH += 24.f;
-    if (seasonModifier != 0) tooltipH += 24.f;
-    if (worldEventPublicOrder != 0) tooltipH += 24.f;
-    if (treasuryPublicOrderModifiers != 0) tooltipH += 24.f;
-    tooltipH += 10.f; // padding
 
-    float tooltipX = publicOrderTooltipX + 12.f;
-    float tooltipY = publicOrderTooltipY - tooltipH - 8.f;
-    if (tooltipX + tooltipW > 1910.f) tooltipX = publicOrderTooltipX - tooltipW - 12.f;
-    if (tooltipY < 5.f)               tooltipY = 5.f;
 
-    float rightEdge = tooltipX + tooltipW - 12.f;
-
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-
-    // Font
-    SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
-    SDL_FRect bg = {tooltipX, tooltipY, tooltipW, tooltipH};
-    SDL_RenderFillRect(renderer, &bg);
-
-    // Title Bar
-    SDL_SetRenderDrawColor(renderer, 55, 45, 20, 255);
-    SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, 28.f};
-    SDL_RenderFillRect(renderer, &titleBar);
-
-    // Border
-    SDL_SetRenderDrawColor(renderer, 110, 90, 40, 255);
-    SDL_RenderRect(renderer, &bg);
-
-    // Title Public Order details
-    TTF_SetTextString(gameStatUITitleText, "Public Order Details", 0);
-    TTF_SetTextColor(gameStatUITitleText, 215, 190, 130, 255);
-    int titleW, titleH;
-    TTF_GetTextSize(gameStatUITitleText, &titleW, &titleH);
-    TTF_DrawRendererText(gameStatUITitleText,
-        tooltipX + (tooltipW - titleW) / 2.f,
-        tooltipY + (28.f - titleH) / 2.f);
-
-    float lineY = tooltipY + 36.f;
-
-    TTF_SetTextString(gameStatUIText, "Current", 0);
-    TTF_SetTextColor(gameStatUIText, 210, 210, 210, 255);
-    TTF_DrawRendererText(gameStatUIText, tooltipX + 10.f, lineY);
-    // current value (White)
-    std::string poStr = std::to_string(po);
-    TTF_SetTextString(gameStatUIText, poStr.c_str(), 0);
-    int poW, poH; TTF_GetTextSize(gameStatUIText, &poW, &poH);
-
-    // Delta red or green
-    std::string deltaStr = std::string(" (") + (totalDelta >= 0 ? "+" : "") + std::to_string(totalDelta) + ")";
-    TTF_SetTextString(gameStatUIText, deltaStr.c_str(), 0);
-    int dW, dH; TTF_GetTextSize(gameStatUIText, &dW, &dH);
-
-    float poX = rightEdge - poW - dW;
-    TTF_SetTextString(gameStatUIText, poStr.c_str(), 0);
-    TTF_SetTextColor(gameStatUIText, 255, 255, 255, 255);
-    TTF_DrawRendererText(gameStatUIText, poX, lineY);
-
-    TTF_SetTextString(gameStatUIText, deltaStr.c_str(), 0);
-    TTF_SetTextColor(gameStatUIText,
-        totalDelta >= 0 ? 80  : 220,
-        totalDelta >= 0 ? 200 : 60, 80, 255);
-    TTF_DrawRendererText(gameStatUIText, poX + poW, lineY);
-    lineY += 28.f;
-
-    // seperation
-    SDL_SetRenderDrawColor(renderer, 80, 65, 30, 200);
-    SDL_RenderLine(renderer,
-        tooltipX + 5.f, lineY,
-        tooltipX + tooltipW - 5.f, lineY);
-    lineY += 10.f;
-
-    // the lampda
-    auto drawModLine = [&](const char* label, int value) {
-        TTF_SetTextString(gameStatUIText, label, 0);
-        TTF_SetTextColor(gameStatUIText, 150, 145, 130, 255);
-        TTF_DrawRendererText(gameStatUIText, tooltipX + 22.f, lineY);
-
-        std::string valStr = (value > 0 ? "+" : "") + std::to_string(value);
-        TTF_SetTextString(gameStatUIText, valStr.c_str(), 0);
-        TTF_SetTextColor(gameStatUIText,
-            value > 0 ? 80  : (value < 0 ? 220 : 130),
-            value > 0 ? 200 : (value < 0 ? 60  : 130),
-            80, 255);
-        int vW, vH; TTF_GetTextSize(gameStatUIText, &vW, &vH);
-        TTF_DrawRendererText(gameStatUIText, rightEdge - vW, lineY);
-        lineY += 24.f;
-    };
-
-    if (provinceBuildingBonus != 0) drawModLine("Buildings", provinceBuildingBonus);
-    if (taxPenalty != 0) drawModLine("Collected income",  taxPenalty);
-    if (foodModifier != 0) drawModLine ("Food", foodModifier);
-    if (seasonModifier != 0) drawModLine("Season", seasonModifier);
-    if (treasuryPublicOrderModifiers != 0) drawModLine ("Tax Rate modifier", treasuryPublicOrderModifiers);
-    if (worldEventPublicOrder != 0) {
-        std::string worldEventPOLabel = activePublicOrderEvent? ("World Event (" + activePublicOrderEvent->name + ")") : "World Event";
-        drawModLine(worldEventPOLabel.c_str(), worldEventPublicOrder);
-    }
-}
         //fps
         TTF_DrawRendererText(fpsText, 10, 10);
 
@@ -12480,6 +12487,14 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         //IF IN GAME
         //When pressded it shows the position of 1 tile
         if (app.StateActuel == State::Game) {
+
+            // In diplomacy popup only Return button Works and nothing else from the background
+            if (app.bDiplomacyInfoPopup) {
+                if (app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyButtonReturnGame)) {
+                    app.bDiplomacyInfoPopup = false;
+                }
+                return SDL_APP_CONTINUE;
+            }
             // Minimap click -> jump camera there
             SDL_FPoint miniMapPt = {nouveauX, nouveauY};
             if (app.miniMapWorldScale > 0.f && SDL_PointInRectFloat(&miniMapPt, &app.miniMapBoxRect)) {
@@ -13133,9 +13148,9 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 }
             }
         }
-        if (app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyButtonReturnGame)) {
-            app.bDiplomacyInfoPopup = false;
-        }
+        //if (app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyButtonReturnGame)) {
+        //    app.bDiplomacyInfoPopup = false;
+        //}
         if (app.ClickInsideCircle(nouveauX, nouveauY, app.FamilyHierarchyButtonReturnGame)) {
             app.bFamilyHierarchyInfoPopup = false;
         }
