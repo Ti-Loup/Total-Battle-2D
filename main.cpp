@@ -36,9 +36,11 @@
  * EXANGE MONEY OR RESSOURCES FOR FOOD. IN TRADE.
  * Province buffs.
  * Done | Treasury posibility to increase of reduce taxes. that increase the public order or reduce it
- * ToDo | UI remove when diplomacy button precess To show Different UI
+ * Done | UI remove when diplomacy button precess To show Different UI
+ * ToDo | improve the Diplomacy Ui elements
  * ToDo | Factions attitude to everyone. Possibility to trade goods make peace, war, alliances.
  * ToDo | Possibility to give money to improve relations
+ * ToDo | Trade raw goods only with others. but transformed goods with a distant buyer 
  *
  * Bugs:
  * Fixed | The UI overlaps
