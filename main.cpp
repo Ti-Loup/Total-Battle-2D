@@ -331,6 +331,14 @@ public:
     TTF_Text *gameTreasuryInfoDescText = nullptr;
     //Treasury Icon + Buttons
     SDL_Texture *gameTreasuryChestIconTexture = nullptr;
+    //Diplomacy Text Font
+    TTF_Font *gameDiplomacyTitleFont = nullptr;
+    TTF_Font *gameDiplomacySousTitleFont = nullptr;
+    TTF_Font *gameDiplomacyDescFont = nullptr;
+    TTF_Text *gameDiplomacyTitleText = nullptr;
+    TTF_Text *gameDiplomacySousTitleText = nullptr;
+    TTF_Text *gameDiplomacyDescText = nullptr;
+
 
     //Buttons UI
     bool bButtonUIBuildingIsPressed = true;
@@ -656,7 +664,9 @@ public:
     int hoveredTaxRateIndex = -1;//For rgb higger when mouse on it
     SDL_Texture *gameTreasuryTaxRateIndicatorTexture = nullptr;
     //technology doesnt need it
+    //diplomacy
     bool bDiplomacyInfoPopup = false;
+    //family tree
     bool bFamilyHierarchyInfoPopup= false;
     //resetCamera doesnt need it
 
@@ -1157,6 +1167,9 @@ private://constructor
         gameTreasuryInfoTitleFont = TTF_OpenFont("assets/Rubik.ttf", 25);
         gameTreasuryInfoSousTitleFont = TTF_OpenFont("assets/Rubik.ttf", 19);
         gameTreasuryInfoDescFont = TTF_OpenFont("assets/Rubik.ttf", 15);
+        gameDiplomacyTitleFont = TTF_OpenFont("assets/Rubik.ttf", 25);
+        gameDiplomacySousTitleFont = TTF_OpenFont("assets/Rubik.ttf", 19);
+        gameDiplomacyDescFont = TTF_OpenFont("assets/Rubik.ttf", 15);
         //same font has AnticipatedMoneyUiText
         gameCurrentFoodUiText = TTF_CreateText(textEngine, gameCurrentFoodUiFont, "", 25);
         if (gameCurrentFoodUiText == nullptr) {
@@ -1274,6 +1287,18 @@ private://constructor
         gameTreasuryInfoDescText = TTF_CreateText(textEngine, gameTreasuryInfoDescFont, "", 25);
         if (gameTreasuryInfoDescText == nullptr) {
             SDL_LogWarn(0, "failed to load text gameTreasuryInfoDescText",SDL_GetError());
+        }
+        gameDiplomacyTitleText = TTF_CreateText(textEngine, gameDiplomacyTitleFont, "", 25);
+        if (gameDiplomacyTitleText == nullptr) {
+            SDL_LogWarn(0, "failed to load text gameDiplomacyTitleText", SDL_GetError());
+        }
+        gameDiplomacySousTitleText = TTF_CreateText(textEngine, gameDiplomacySousTitleFont, "", 25);
+        if (gameDiplomacySousTitleText == nullptr) {
+            SDL_LogWarn(0, "failed to load text gameDiplomaySousTitleText", SDL_GetError());
+        }
+        gameDiplomacyDescText = TTF_CreateText(textEngine, gameDiplomacyDescFont, "", 25);
+        if (gameDiplomacyDescText == nullptr) {
+            SDL_LogWarn(0, "failed to load text gameDiplomacyDescText", SDL_GetError());
         }
         //CREATION OF THE SETTLEMENTS
         //KNIGHT
@@ -4015,6 +4040,9 @@ private://constructor
         TTF_CloseFont(gameTreasuryInfoTitleFont);
         TTF_CloseFont(gameTreasuryInfoSousTitleFont);
         TTF_CloseFont(gameTreasuryInfoDescFont);
+        TTF_CloseFont(gameDiplomacyTitleFont);
+        TTF_CloseFont(gameDiplomacySousTitleFont);
+        TTF_CloseFont(gameDiplomacyDescFont);
         // ---------------------------------
         TTF_DestroyText(fpsText);
         TTF_DestroyText(menuText);
@@ -4071,6 +4099,9 @@ private://constructor
         TTF_DestroyText(gameTreasuryInfoTitleText);
         TTF_DestroyText(gameTreasuryInfoSousTitleText);
         TTF_DestroyText(gameTreasuryInfoDescText);
+        TTF_DestroyText(gameDiplomacyTitleText);
+        TTF_DestroyText(gameDiplomacySousTitleText);
+        TTF_DestroyText(gameDiplomacyDescText);
         // ---------------------------------
         SDL_DestroyTexture(provinceKnightBannerTexture);
         SDL_DestroyTexture(provinceVikingBannerTexture);
@@ -10294,6 +10325,38 @@ void RenderRepairTooltip() {
     }
     void RenderDiplomacyInfoPopup() {
         if (!bDiplomacyInfoPopup) return;
+        //player background
+        float backgroundPlayerX = 0.f;
+        float backgroundPlayerY = 600.f;
+        //other backgrounds
+        float backgroundOtherX = 1570.f;
+        float backgroundOtherY = 600.f;
+        //2 background
+        SDL_FRect diplomacyPlayerFactionRect = {backgroundPlayerX, backgroundPlayerY, 350, 480};
+        SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
+        SDL_RenderFillRect(renderer, &diplomacyPlayerFactionRect);
+        SDL_FRect diplomacyOtherFactionRect = {backgroundOtherX, backgroundOtherY, 350, 480};
+        SDL_RenderFillRect(renderer, &diplomacyOtherFactionRect);
+
+        float backgroundPlayerXGap = backgroundPlayerX + 5.0f;
+        float backgroundPlayerYGap = backgroundPlayerY + 5.0f;
+        //Player Faction Name + logo
+
+
+
+
+
+        //Retour Game
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+        float mouseXReturn, mouseYReturn;
+        SDL_GetMouseState(&mouseXReturn, &mouseYReturn);
+        float lenghtXReturn, lenghtYReturn;
+        SDL_RenderCoordinatesFromWindow(renderer, mouseXReturn, mouseYReturn, &lenghtXReturn, &lenghtYReturn);
+        bool bHoveredReturnButton = ClickInsideCircle(lenghtXReturn, lenghtYReturn, DiplomacyButtonReturnGame);
+        Uint8 returnAlpha = bHoveredReturnButton ? 255:200;
+        SDL_SetTextureAlphaMod(gameReturnButtons, returnAlpha);
+        RenderBoutonCercle(DiplomacyButtonReturnGame, nullptr, gameReturnButtons, 0, 0, 0);
+        SDL_SetTextureAlphaMod(gameReturnButtons, 255);
     }
     void RenderFamilyHierarchyInfoPopup() {
         if (!bFamilyHierarchyInfoPopup) return;
@@ -13014,6 +13077,9 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
     if (app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyPannel)) {
         SDL_LogWarn(0, "Clicked Diplomacy");
         app.bDiplomacyInfoPopup = true;
+        app.bDecreesInfoPopup = false;
+        app.bTreasuryInfoPopup = false;
+        app.bWinConditionsInfoPopup = false;
     }
     //When button Technology is pressed it goes to the Technology State
     if (app.ClickInsideCircle(nouveauX, nouveauY, app.TechnologyPannel)) {
