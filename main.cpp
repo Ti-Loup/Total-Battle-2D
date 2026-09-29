@@ -10335,14 +10335,37 @@ void RenderRepairTooltip() {
         SDL_FRect diplomacyPlayerFactionRect = {backgroundPlayerX, backgroundPlayerY, 350, 480};
         SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
         SDL_RenderFillRect(renderer, &diplomacyPlayerFactionRect);
+        SDL_SetRenderDrawColor(renderer, 180, 180, 180 ,255);
+        SDL_RenderRect(renderer, &diplomacyPlayerFactionRect);
         SDL_FRect diplomacyOtherFactionRect = {backgroundOtherX, backgroundOtherY, 350, 480};
+        SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
         SDL_RenderFillRect(renderer, &diplomacyOtherFactionRect);
+        SDL_SetRenderDrawColor(renderer, 180,180,180,255);
+        SDL_RenderRect(renderer, &diplomacyOtherFactionRect);
+        float backgroundPlayerXGap = backgroundPlayerX + 10.0f;
+        float backgroundPlayerYGap = backgroundPlayerY + 15.0f;
+        //player icon + name
+        SDL_FRect playerDiplomacyBannerRect = {backgroundPlayerXGap, backgroundPlayerYGap, 60, 60};
+        FactionZone playerZone = player.faction;
+        if (playerZone == FactionZone::Knight) {
+            SDL_RenderTexture(renderer, settlementKnightBannerTexture, nullptr, &playerDiplomacyBannerRect);
+           //text knight
+            TTF_SetTextString(gameDiplomacySousTitleText, "Knight", 0);
+        }
+        else if (playerZone == FactionZone::Viking) {
+            SDL_RenderTexture(renderer, settlementVikingBannerTexture, nullptr, &playerDiplomacyBannerRect);
+            TTF_SetTextString(gameDiplomacySousTitleText, "Viking", 0);
+        }
+        else if (playerZone == FactionZone::Samurai) {
+            SDL_RenderTexture(renderer, settlementSamuraiBannerTexture, nullptr, &playerDiplomacyBannerRect);
+            TTF_SetTextString(gameDiplomacySousTitleText, "Samurai", 0);
+        }
+        float factionNameX = backgroundPlayerXGap + playerDiplomacyBannerRect.w + 10.f;
+        float factionNameY = (backgroundPlayerYGap + playerDiplomacyBannerRect.h) /2.f ;
+        TTF_SetTextColor(gameDiplomacySousTitleText,255,255,255,255);
+        TTF_DrawRendererText(gameDiplomacySousTitleText, factionNameX, factionNameY);
 
-        float backgroundPlayerXGap = backgroundPlayerX + 5.0f;
-        float backgroundPlayerYGap = backgroundPlayerY + 5.0f;
-        //Player Faction Name + logo
-
-
+        //3 sous categories, Attributes(Strengh rank, Player Reliability/Others Traits), Relations(defence, military, war, trade), Trade goods
 
 
 
