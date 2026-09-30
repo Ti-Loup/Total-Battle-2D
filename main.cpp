@@ -10325,49 +10325,129 @@ void RenderRepairTooltip() {
     }
     void RenderDiplomacyInfoPopup() {
         if (!bDiplomacyInfoPopup) return;
-        //player background
-        float backgroundPlayerX = 0.f;
-        float backgroundPlayerY = 600.f;
-        //other backgrounds
-        float backgroundOtherX = 1570.f;
-        float backgroundOtherY = 600.f;
-        //2 background
-        SDL_FRect diplomacyPlayerFactionRect = {backgroundPlayerX, backgroundPlayerY, 350, 480};
-        SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
-        SDL_RenderFillRect(renderer, &diplomacyPlayerFactionRect);
-        SDL_SetRenderDrawColor(renderer, 180, 180, 180 ,255);
-        SDL_RenderRect(renderer, &diplomacyPlayerFactionRect);
-        SDL_FRect diplomacyOtherFactionRect = {backgroundOtherX, backgroundOtherY, 350, 480};
-        SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
-        SDL_RenderFillRect(renderer, &diplomacyOtherFactionRect);
-        SDL_SetRenderDrawColor(renderer, 180,180,180,255);
-        SDL_RenderRect(renderer, &diplomacyOtherFactionRect);
-        float backgroundPlayerXGap = backgroundPlayerX + 10.0f;
-        float backgroundPlayerYGap = backgroundPlayerY + 15.0f;
-        //player icon + name
-        SDL_FRect playerDiplomacyBannerRect = {backgroundPlayerXGap, backgroundPlayerYGap, 60, 60};
-        FactionZone playerZone = player.faction;
-        if (playerZone == FactionZone::Knight) {
-            SDL_RenderTexture(renderer, settlementKnightBannerTexture, nullptr, &playerDiplomacyBannerRect);
-           //text knight
-            TTF_SetTextString(gameDiplomacySousTitleText, "Knight", 0);
-        }
-        else if (playerZone == FactionZone::Viking) {
-            SDL_RenderTexture(renderer, settlementVikingBannerTexture, nullptr, &playerDiplomacyBannerRect);
-            TTF_SetTextString(gameDiplomacySousTitleText, "Viking", 0);
-        }
-        else if (playerZone == FactionZone::Samurai) {
-            SDL_RenderTexture(renderer, settlementSamuraiBannerTexture, nullptr, &playerDiplomacyBannerRect);
-            TTF_SetTextString(gameDiplomacySousTitleText, "Samurai", 0);
-        }
-        float factionNameX = backgroundPlayerXGap + playerDiplomacyBannerRect.w + 10.f;
-        float factionNameY = (backgroundPlayerYGap + playerDiplomacyBannerRect.h) /2.f ;
-        TTF_SetTextColor(gameDiplomacySousTitleText,255,255,255,255);
-        TTF_DrawRendererText(gameDiplomacySousTitleText, factionNameX, factionNameY);
+        const SDL_Color white = {255,255,255,255};
+        const SDL_Color grey = {190,190,190,255};
+        //precise position text with color
+        auto drawText = [&](TTF_Text *text, const char *string, float x, float y, SDL_Color color) {
+            TTF_SetTextWrapWidth(text, 0);
+            TTF_SetTextString(text, string, 0);
+            TTF_SetTextColor(text, color.r, color.g, color.b, color.a);
+            TTF_DrawRendererText(text, x, y);
+        };
+        //For Middle text inside rect with color (Soustitle)
+        auto drawTextCentered = [&](TTF_Text *text, const char *string, const SDL_FRect &rect, SDL_Color color) {
+            TTF_SetTextWrapWidth(text, 0);
+            TTF_SetTextString(text, string, 0);
+            TTF_SetTextColor(text, color.r, color.g, color.b, color.a);
+            int w = 0;
+            int h = 0;
+            TTF_GetTextSize(text, &w, &h);
+            TTF_DrawRendererText(text, rect.x + (rect.w - w) / 2.f, rect.y + (rect.h - h) / 2.f);
+        };
+        //Banner + Name of the faction ~~
+        auto getBanner = [&](FactionZone faction_zone) -> SDL_Texture* {
+            switch (faction_zone) {
+                case FactionZone::Knight: return settlementKnightBannerTexture;
+                case FactionZone::Viking: return settlementVikingBannerTexture;
+                case FactionZone::Samurai: return settlementSamuraiBannerTexture;
+                default: return nullptr;
+            }
+        };
+        auto getName = [&](FactionZone faction_zone) -> const char* {
+            switch (faction_zone) {
+                case FactionZone::Knight: return "Knight";
+                case FactionZone::Viking: return "Viking";
+                case FactionZone::Samurai: return "Samurai";
+                default: return "?";
+            }
+        };
+        //based Rect for each
+        auto drawSection = [&](const SDL_FRect &background_rect, const char* title) -> SDL_FRect {
+            const float headerH = 26.f;
+            SDL_SetRenderDrawColor(renderer, 12,18,28,255);
+            SDL_RenderFillRect(renderer, &background_rect);
+            SDL_SetRenderDrawColor(renderer, 90, 110, 140, 255);
+            SDL_RenderRect(renderer, &background_rect);
 
-        //3 sous categories, Attributes(Strengh rank, Player Reliability/Others Traits), Relations(defence, military, war, trade), Trade goods
+            SDL_FRect header = {background_rect.x, background_rect.y, background_rect.w, headerH}; // <-- headerH
+            SDL_SetRenderDrawColor(renderer, 25,45,70,255);
+            SDL_RenderFillRect(renderer, &header);
+            drawTextCentered(gameDiplomacySousTitleText, title, header, white);
+
+            return {background_rect.x + 4.f, background_rect.y + headerH + 6.f, background_rect.w - 8.f, background_rect.h - headerH - 10.f};
+        };
 
 
+        //Faction panel 1 left and 1 right (this script just to show one) || bool different from palyer vs other faction
+        auto drawFactionPanel = [&](const SDL_FRect &panel_rect, FactionZone faction, bool bIsPlayer) {
+            //back panel
+            SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
+            SDL_RenderFillRect(renderer, &panel_rect);
+            SDL_SetRenderDrawColor(renderer, 180, 180, 180, 255);
+            SDL_RenderRect(renderer, &panel_rect);
+
+            //banner + name // Call GetName + drawTextCentered
+            SDL_FRect factionBanner = {panel_rect.x + 10.f, panel_rect.y + 15.f, 60.f, 60.f};
+            if (SDL_Texture *texture = getBanner(faction)) SDL_RenderTexture(renderer, texture, nullptr, &factionBanner);
+            SDL_FRect nameRect = {factionBanner.x + factionBanner.w + 10.f, factionBanner.y, panel_rect.w - 90.f, factionBanner.h};
+            drawTextCentered(gameDiplomacySousTitleText, getName(faction), nameRect, white);
+
+            float boxY = factionBanner.y + factionBanner.h + 15.f;
+            const float gap = 10.f;
+            const float boxX = panel_rect.x + 10.f;
+            const float boxW = panel_rect.w - 20.f;
+            //Attributes area
+            {
+                SDL_FRect attributesRect = {boxX, boxY, boxW, 100.f };
+                SDL_FRect attributesContent = drawSection(attributesRect, "Attributes");
+                drawText(gameDiplomacySousTitleText, "Strength Rank: -", attributesContent.x + 6.f, attributesContent.y, grey);
+                drawText(gameDiplomacyDescText, bIsPlayer ? "Reliability: -" : "Protective",
+                     attributesContent.x + 6.f, attributesContent.y + 22.f, grey);
+                boxY += attributesRect.h + gap;
+            }
+
+            //Relations
+            SDL_FRect relationRect = {boxX, boxY, boxW, 150.f};
+            SDL_FRect relationContent = drawSection(relationRect, "Relations");
+            //textures of the icons diplomacy
+            SDL_Texture *relationIcons[4] {
+                tradeDiplomacyIconTexture,
+                defensiveAllianceDiplomacyIconTexture,
+                militaryAllianceDiplomacyIconTexture,
+                warDiplomacyIconTexture
+            };
+            float rowY = relationContent.y;
+            for (SDL_Texture* icon : relationIcons) {
+                SDL_FRect iconRect = {relationContent.x +2.0f, rowY, 22.f, 22.f};
+                if (icon) SDL_RenderTexture(renderer, icon, nullptr, &iconRect);
+
+                SDL_FRect relationBar = {relationContent.x + 30.f, rowY, relationContent.w - 34.f, 22.f};
+                SDL_SetRenderDrawColor(renderer, 18, 30, 48, 255);
+                SDL_RenderFillRect(renderer, &relationBar);
+                rowY += 28.f;
+            }
+            boxY += relationRect.h + gap;
+
+            //Trade Goods
+            {
+                SDL_FRect tradeRect = {boxX, boxY, boxW, 100.f};
+                drawSection(tradeRect, "Trade goods");
+            }
+
+        };
+        //Render of both pannels
+        FactionZone otherFaction = FactionZone::Viking; //viking just for test
+        for (FactionZone faction : {FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai}) {//if not the player it will take the second rect
+            if (faction != player.faction) {
+                otherFaction = faction;
+                break;
+            }
+        }
+
+        SDL_FRect playerPanel = {0.f, 600.f, 350.f, 480.f};
+        SDL_FRect otherPanel = {1570.f, 600.f, 350.f, 480.f};
+        drawFactionPanel(playerPanel, player.faction, true);
+        drawFactionPanel(otherPanel, otherFaction, false);
 
         //Retour Game
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
