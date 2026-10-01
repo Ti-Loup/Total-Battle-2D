@@ -10443,11 +10443,21 @@ void RenderRepairTooltip() {
                 break;
             }
         }
-
+        //rects
         SDL_FRect playerPanel = {0.f, 600.f, 350.f, 480.f};
         SDL_FRect otherPanel = {1570.f, 600.f, 350.f, 480.f};
         drawFactionPanel(playerPanel, player.faction, true);
         drawFactionPanel(otherPanel, otherFaction, false);
+        //Faction selection background
+        SDL_FRect factionSelectionBackgroundRect = {660.f, 750.f, 600, 280};
+        SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
+        SDL_RenderFillRect(renderer, &factionSelectionBackgroundRect);
+        SDL_SetRenderDrawColor(renderer, 190, 190, 190, 255);
+        SDL_RenderRect(renderer, &factionSelectionBackgroundRect);
+
+
+
+
 
         //Retour Game
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
