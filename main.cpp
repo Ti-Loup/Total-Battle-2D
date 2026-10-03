@@ -10341,6 +10341,21 @@ void RenderRepairTooltip() {
 
     void RenderDiplomacyInfoPopup() {
         if (!bDiplomacyInfoPopup) return;
+
+        //Render of both pannels
+        //list of the factions that are not the player
+        std::vector<FactionZone> allFactions = {FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai};
+        std::vector<FactionZone> otherFactions;//other factions than the player currently is playing
+        for (FactionZone faction_zone: allFactions) {
+            if (faction_zone != player.faction)otherFactions.push_back(faction_zone);
+        }
+        if (selectedDiplomacyFaction == player.faction && !otherFactions.empty()) {
+            selectedDiplomacyFaction = otherFactions[0];
+        }
+        FactionZone otherFaction = selectedDiplomacyFaction;
+
+
+
         const SDL_Color white = {255,255,255,255};
         const SDL_Color grey = {190,190,190,255};
         //precise position text with color
@@ -10393,6 +10408,9 @@ void RenderRepairTooltip() {
             return {background_rect.x + 4.f, background_rect.y + headerH + 6.f, background_rect.w - 8.f, background_rect.h - headerH - 10.f};
         };
 
+        //Strength max to fill the bars
+        int maxStrength = 1;
+        for (FactionZone f : allFactions) maxStrength = std::max(maxStrength, GetFactionStrength(f));
 
         //Faction panel 1 left and 1 right (this script just to show one) || bool different from palyer vs other faction
         auto drawFactionPanel = [&](const SDL_FRect &panel_rect, FactionZone faction, bool bIsPlayer) {
@@ -10412,11 +10430,12 @@ void RenderRepairTooltip() {
             const float gap = 10.f;
             const float boxX = panel_rect.x + 10.f;
             const float boxW = panel_rect.w - 20.f;
+            int strength = GetFactionStrength(faction);
             //Attributes area
             {
                 SDL_FRect attributesRect = {boxX, boxY, boxW, 100.f };
                 SDL_FRect attributesContent = drawSection(attributesRect, "Attributes");
-                drawText(gameDiplomacySousTitleText, "Strength Rank: -", attributesContent.x + 6.f, attributesContent.y, grey);
+                drawText(gameDiplomacySousTitleText, ("Strength Rank: " + std::to_string(strength)).c_str(), attributesContent.x + 6.f, attributesContent.y, grey);
                 drawText(gameDiplomacyDescText, bIsPlayer ? "Reliability: -" : "Protective",
                      attributesContent.x + 6.f, attributesContent.y + 22.f, grey);
                 boxY += attributesRect.h + gap;
@@ -10451,17 +10470,7 @@ void RenderRepairTooltip() {
             }
 
         };
-        //Render of both pannels
-        //list of the factions that are not the player
-        std::vector<FactionZone> allFactions = {FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai};
-        std::vector<FactionZone> otherFactions;//other factions than the player currently is playing
-        for (FactionZone faction_zone: allFactions) {
-            if (faction_zone != player.faction)otherFactions.push_back(faction_zone);
-        }
-        if (selectedDiplomacyFaction == player.faction && !otherFactions.empty()) {
-            selectedDiplomacyFaction = otherFactions[0];
-        }
-        FactionZone otherFaction = selectedDiplomacyFaction;
+
         //rects
         SDL_FRect playerPanel = {0.f, 600.f, 350.f, 480.f};
         SDL_FRect otherPanel = {1570.f, 600.f, 350.f, 480.f};
@@ -10517,10 +10526,6 @@ void RenderRepairTooltip() {
         float lenghtYRow;
         SDL_RenderCoordinatesFromWindow(renderer, mouseXRow, mouseYRow, &lenghtXRow, &lenghtYRow);
         SDL_FPoint mouseRowPt = {lenghtXRow, lenghtYRow};
-
-        //Strength max to fill the bars
-        int maxStrength = 1;
-        for (FactionZone f : allFactions) maxStrength = std::max(maxStrength, GetFactionStrength(f));
 
         //One row per other factions
         diplomacyFactionRowRects.clear();
