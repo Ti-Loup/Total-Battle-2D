@@ -376,7 +376,7 @@ public:
     Circle DecreesButtonReturnGame = {1000.f, 900.f, 25};
     Circle WinConditionButtonReturnGame = {960.f, 900.f, 25};
     Circle TreasuryButtonReturnGame = {1000.f, 990.f, 25};
-    Circle DiplomacyButtonReturnGame = {1000.f, 900.f, 25};
+    Circle DiplomacyButtonReturnGame = {980.f, 1050.f, 25};
     Circle FamilyHierarchyButtonReturnGame = {1000.f, 900.f, 25};
     //Circle to return to game when in technology section
     Circle TechnologyButtonReturnGame = {900.f, 1000.f, 25};
@@ -666,6 +666,8 @@ public:
     //technology doesnt need it
     //diplomacy
     bool bDiplomacyInfoPopup = false;
+    FactionZone selectedDiplomacyFaction = FactionZone::Viking;
+    std::vector<std::pair<SDL_FRect, FactionZone>> diplomacyFactionRowRects;
     //family tree
     bool bFamilyHierarchyInfoPopup= false;
     //resetCamera doesnt need it
@@ -10323,6 +10325,20 @@ void RenderRepairTooltip() {
         RenderBoutonCercle(TechnologyButtonReturnGame,nullptr, nullptr, 255,255,255);
         SDL_RenderPresent(renderer);
     }
+
+    //Temporary strenght score with constructions. (need with army)
+    int GetFactionStrength(FactionZone faction) {
+        int strength = 0;
+        for (const auto&s: settlements) {
+            if (provinces[s.settlementData.provinceID].owner != faction) continue;
+            strength += s.settlementData.settlementTier * 10;
+            for (BuildingType buildingType : s.settlementData.buildings ) {
+                if (buildingType != BuildingType::None) strength += 2;
+            }
+        }
+        return strength;
+    }
+
     void RenderDiplomacyInfoPopup() {
         if (!bDiplomacyInfoPopup) return;
         const SDL_Color white = {255,255,255,255};
@@ -10411,10 +10427,10 @@ void RenderRepairTooltip() {
             SDL_FRect relationContent = drawSection(relationRect, "Relations");
             //textures of the icons diplomacy
             SDL_Texture *relationIcons[4] {
-                tradeDiplomacyIconTexture,
                 defensiveAllianceDiplomacyIconTexture,
                 militaryAllianceDiplomacyIconTexture,
-                warDiplomacyIconTexture
+                warDiplomacyIconTexture,
+                tradeDiplomacyIconTexture
             };
             float rowY = relationContent.y;
             for (SDL_Texture* icon : relationIcons) {
@@ -10436,27 +10452,136 @@ void RenderRepairTooltip() {
 
         };
         //Render of both pannels
-        FactionZone otherFaction = FactionZone::Viking; //viking just for test
-        for (FactionZone faction : {FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai}) {//if not the player it will take the second rect
-            if (faction != player.faction) {
-                otherFaction = faction;
-                break;
-            }
+        //list of the factions that are not the player
+        std::vector<FactionZone> allFactions = {FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai};
+        std::vector<FactionZone> otherFactions;//other factions than the player currently is playing
+        for (FactionZone faction_zone: allFactions) {
+            if (faction_zone != player.faction)otherFactions.push_back(faction_zone);
         }
+        if (selectedDiplomacyFaction == player.faction && !otherFactions.empty()) {
+            selectedDiplomacyFaction = otherFactions[0];
+        }
+        FactionZone otherFaction = selectedDiplomacyFaction;
         //rects
         SDL_FRect playerPanel = {0.f, 600.f, 350.f, 480.f};
         SDL_FRect otherPanel = {1570.f, 600.f, 350.f, 480.f};
         drawFactionPanel(playerPanel, player.faction, true);
         drawFactionPanel(otherPanel, otherFaction, false);
+
         //Faction selection background
-        SDL_FRect factionSelectionBackgroundRect = {660.f, 750.f, 600, 280};
+        SDL_FRect factionSelectionBackgroundRect = {660.f, 750.f, 600, 330};
         SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
         SDL_RenderFillRect(renderer, &factionSelectionBackgroundRect);
         SDL_SetRenderDrawColor(renderer, 190, 190, 190, 255);
         SDL_RenderRect(renderer, &factionSelectionBackgroundRect);
+        //Title + Text
+        SDL_FRect factionSelectionTitleRect = { 835.f, 735.f, 250,30};
+        SDL_SetRenderDrawColor(renderer, 70, 70, 70, 255);
+        SDL_RenderFillRect(renderer, &factionSelectionTitleRect);
+        TTF_SetTextWrapWidth(gameDiplomacyTitleText, 0);
+        TTF_SetTextString(gameDiplomacyTitleText, "Known Factions", 0);
+        TTF_SetTextColor(gameDiplomacyTitleText, 255, 255, 255, 255);
+        int w= 0;
+        int h= 0;
+        TTF_GetTextSize(gameDiplomacyTitleText, &w, &h);
+        TTF_DrawRendererText(gameDiplomacyTitleText, factionSelectionTitleRect.x + (factionSelectionTitleRect.w - w) / 2.f, factionSelectionTitleRect.y + (factionSelectionTitleRect.h - h) / 2.f);
+        //Inside background Rect
+        float rectBackgroundCategoriesX = 10.f + factionSelectionBackgroundRect.x;
+        float rectBackgroundCategoriesY = 20.f + factionSelectionBackgroundRect.y;
+        //categories like faction, strength rank, regions, treaties, attitude.
+        SDL_FRect factionSelectionCategoriesRect = {rectBackgroundCategoriesX,rectBackgroundCategoriesY, factionSelectionBackgroundRect.w - 20.f, 25};
+        SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
+        SDL_RenderFillRect(renderer, &factionSelectionCategoriesRect);
+        SDL_SetRenderDrawColor(renderer, 150, 150, 150, 255);
+        SDL_RenderRect(renderer, &factionSelectionCategoriesRect);
 
+        //different col for each selection categories
+        const float colFactionNameX = factionSelectionCategoriesRect.x + 10.f;
+        const float colStrengthX = factionSelectionCategoriesRect.x + 190.f;
+        const float colRegionControlledX = factionSelectionCategoriesRect.x + 350.f;
+        const float colCurrentTreatiesX = factionSelectionCategoriesRect.x + 440.f;
+        const float colAttitudeX = factionSelectionCategoriesRect.x + 510.f;
+        float categoryTextY = factionSelectionCategoriesRect.y + 2.f;
+        //Names attributed to each col
+        drawText(gameDiplomacyDescText, "Faction", colFactionNameX, categoryTextY, white);
+        drawText(gameDiplomacyDescText, "Strength Rank", colStrengthX, categoryTextY, white);
+        drawText(gameDiplomacyDescText, "Regions", colRegionControlledX, categoryTextY, white);
+        drawText(gameDiplomacyDescText, "Treaties", colCurrentTreatiesX, categoryTextY, white);
+        drawText(gameDiplomacyDescText, "Attitude", colAttitudeX, categoryTextY, white);
 
+        //mouse hovered the rows
+        float mouseXRow;
+        float mouseYRow;
+        SDL_GetMouseState(&mouseXRow, &mouseYRow);
+        float lenghtXRow;
+        float lenghtYRow;
+        SDL_RenderCoordinatesFromWindow(renderer, mouseXRow, mouseYRow, &lenghtXRow, &lenghtYRow);
+        SDL_FPoint mouseRowPt = {lenghtXRow, lenghtYRow};
 
+        //Strength max to fill the bars
+        int maxStrength = 1;
+        for (FactionZone f : allFactions) maxStrength = std::max(maxStrength, GetFactionStrength(f));
+
+        //One row per other factions
+        diplomacyFactionRowRects.clear();
+        const float rowH = 60.f;
+        const float rowGap = 6.0f;
+        float rowY = factionSelectionCategoriesRect.y + factionSelectionCategoriesRect.h + 8.f;
+
+        //for|| to create the rect for each factions other than the player decided earlier
+        for (FactionZone faction_zone: otherFactions) {
+            //rowrects
+            SDL_FRect rowRect = {factionSelectionBackgroundRect.x + 10.f, rowY, factionSelectionBackgroundRect.w - 20.f, rowH};
+
+            //hovered row rect color change
+            bool bIsSelected = (faction_zone == selectedDiplomacyFaction);
+            bool bIsHovered = SDL_PointInRectFloat(&mouseRowPt, &rowRect);
+
+            if (bIsSelected)SDL_SetRenderDrawColor(renderer, 60, 75, 105, 255);
+            else if (bIsHovered) SDL_SetRenderDrawColor(renderer, 45, 45, 55, 255);
+            else SDL_SetRenderDrawColor(renderer, 22, 22, 22, 255);
+            SDL_RenderFillRect(renderer, &rowRect);
+            SDL_SetRenderDrawColor(renderer, bIsSelected ? 200: 90, bIsSelected ? 200:90, bIsSelected ? 200: 90, 255);
+            SDL_RenderRect(renderer, &rowRect);
+            float textY = rowRect.y + (rowRect.h - 22.f) / 2.0f;
+
+            //Faction name + Banner
+            SDL_FRect bannerRect = {colFactionNameX, rowRect.y + 8.0f, 44.f, 44.f};
+            if (SDL_Texture *bannerTexture = getBanner(faction_zone)) {
+                SDL_RenderTexture(renderer, bannerTexture, nullptr, &bannerRect);
+            }
+            drawText(gameDiplomacySousTitleText, getName(faction_zone), colFactionNameX + 52.f, textY, white);
+
+            //Strength rank section
+            int strength = GetFactionStrength(faction_zone);
+            drawText(gameDiplomacySousTitleText, std::to_string(strength).c_str(), colStrengthX, textY, white);
+            SDL_FRect strengthBarBg = {colStrengthX + 45.f, rowRect.y + (rowRect.h - 12.f) / 2.f, 90.f, 12.f};
+            SDL_SetRenderDrawColor(renderer, 120, 20, 20, 255);
+            SDL_RenderFillRect(renderer, &strengthBarBg);
+            SDL_FRect strengthBarFill = {strengthBarBg.x, strengthBarBg.y, strengthBarBg.w * ((float)strength / (float)maxStrength), strengthBarBg.h};
+            SDL_SetRenderDrawColor(renderer, 230, 190, 20, 255);
+            SDL_RenderFillRect(renderer, &strengthBarFill);
+            SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
+            SDL_RenderRect(renderer, &strengthBarBg);
+
+            //Regions settlements amount per settlements
+            int settlementcount = 0;
+            for (const auto& settlementsOwns: settlements) {
+                if (provinces[settlementsOwns.settlementData.provinceID].owner == faction_zone) {
+                    settlementcount ++;
+                }
+            }
+            drawText(gameDiplomacySousTitleText, std::to_string(settlementcount).c_str(), colRegionControlledX, textY, white);
+
+            //Treaties
+            //nothing for now
+
+            //Attitude place holder for now. Need real system with aversion and religion differences.
+            drawText(gameDiplomacySousTitleText, "Neutral", colAttitudeX, textY, white);
+            //Clickable of the vector
+            diplomacyFactionRowRects.push_back({rowRect, faction_zone});
+            rowY += rowH + rowGap; //to spawn the other rects after this one
+        }
 
 
         //Retour Game
@@ -12668,6 +12793,12 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
             // In diplomacy popup only Return button Works and nothing else from the background
             if (app.bDiplomacyInfoPopup) {
+                for (auto& [rect, faction] : app.diplomacyFactionRowRects) {
+                    if (SDL_PointInRectFloat(&MousePT, &rect)) {
+                        app.selectedDiplomacyFaction = faction;
+                        return SDL_APP_CONTINUE;
+                    }
+                }
                 if (app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyButtonReturnGame)) {
                     app.bDiplomacyInfoPopup = false;
                 }
