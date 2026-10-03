@@ -137,7 +137,9 @@ assets/               # Textures, fonts, audio, tilemaps, Resources<br>
 | **v0.3.0** | Special ressources(Mines) + Fishing/Military Ports + Industrial building item production | Released | September | 2026 |
 | **v0.3.2** | AI Focus: Patch 1 | Released | September | 2026 |
 | **v0.3.5** | diplomacy & exchange | In progress | October | 2026 |
-| **v0.3.75** | Ai Focus: Patch 2 | Planned | October | 2026 |
+| **v0.3.6** | Player Feedback + Code Refactor | Planned | October | 2026 |
+| **v0.3.75** | Ai Focus: Patch 2 | Planned | November | 2026 |
+| **v0.4.0** | Creation of Armies + Family Tree | Planned | December | 2026 |
 | **Future** | Roads, playable technology tree, faction Unique mechanic, cinematic intro | Vision | 2026 | 2027 |
 
 ---
