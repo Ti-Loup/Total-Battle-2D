@@ -10408,9 +10408,35 @@ void RenderRepairTooltip() {
             return {background_rect.x + 4.f, background_rect.y + headerH + 6.f, background_rect.w - 8.f, background_rect.h - headerH - 10.f};
         };
 
-        //Strength max to fill the bars
-        int maxStrength = 1;
-        for (FactionZone f : allFactions) maxStrength = std::max(maxStrength, GetFactionStrength(f));
+        //Faction strenght
+        std::unordered_map<FactionZone, int> strengthByFaction;
+        std::unordered_map<FactionZone, int> settlementCountByFaction;
+        for (FactionZone f : allFactions) {
+            strengthByFaction[f] = GetFactionStrength(f);
+            settlementCountByFaction[f] = 0;
+        }
+        for (const auto& st : settlements) {
+            FactionZone owner = provinces[st.settlementData.provinceID].owner;
+            settlementCountByFaction[owner]++;
+        }
+
+
+        auto isRankedAbove = [&](FactionZone a, FactionZone b) -> bool {
+            if (strengthByFaction[a] != strengthByFaction[b])
+                return strengthByFaction[a] > strengthByFaction[b];
+            if (settlementCountByFaction[a] != settlementCountByFaction[b])
+                return settlementCountByFaction[a] > settlementCountByFaction[b];
+            return (int)a < (int)b;
+        };
+
+        //rank 1 strongest
+        auto getStrengthRank = [&](FactionZone faction) {
+            int rank = 1;
+            for (FactionZone other : allFactions) {
+                if (other != faction && isRankedAbove(other, faction)) rank++;
+            }
+            return rank;
+        };
 
         //Faction panel 1 left and 1 right (this script just to show one) || bool different from palyer vs other faction
         auto drawFactionPanel = [&](const SDL_FRect &panel_rect, FactionZone faction, bool bIsPlayer) {
@@ -10430,12 +10456,11 @@ void RenderRepairTooltip() {
             const float gap = 10.f;
             const float boxX = panel_rect.x + 10.f;
             const float boxW = panel_rect.w - 20.f;
-            int strength = GetFactionStrength(faction);
             //Attributes area
             {
                 SDL_FRect attributesRect = {boxX, boxY, boxW, 100.f };
                 SDL_FRect attributesContent = drawSection(attributesRect, "Attributes");
-                drawText(gameDiplomacySousTitleText, ("Strength Rank: " + std::to_string(strength)).c_str(), attributesContent.x + 6.f, attributesContent.y, grey);
+                drawText(gameDiplomacySousTitleText, ("Strength Rank: " + std::to_string(getStrengthRank(faction))).c_str(), attributesContent.x + 6.f, attributesContent.y, grey);
                 drawText(gameDiplomacyDescText, bIsPlayer ? "Reliability: -" : "Protective",
                      attributesContent.x + 6.f, attributesContent.y + 22.f, grey);
                 boxY += attributesRect.h + gap;
@@ -10558,13 +10583,20 @@ void RenderRepairTooltip() {
             drawText(gameDiplomacySousTitleText, getName(faction_zone), colFactionNameX + 52.f, textY, white);
 
             //Strength rank section
-            int strength = GetFactionStrength(faction_zone);
-            drawText(gameDiplomacySousTitleText, std::to_string(strength).c_str(), colStrengthX, textY, white);
+            int strength = strengthByFaction[faction_zone];
+            int playerStrength = strengthByFaction[player.faction];
+
+            //Rank 1
+            drawText(gameDiplomacySousTitleText, std::to_string(getStrengthRank(faction_zone)).c_str(), colStrengthX, textY, white);
+            //yellow red Bar
+            float totalStrength = (float)(strength + playerStrength);
+            float playerShare = (totalStrength > 0.f) ? ((float)playerStrength / totalStrength) : 0.5f;
+
             SDL_FRect strengthBarBg = {colStrengthX + 45.f, rowRect.y + (rowRect.h - 12.f) / 2.f, 90.f, 12.f};
-            SDL_SetRenderDrawColor(renderer, 120, 20, 20, 255);
+            SDL_SetRenderDrawColor(renderer, 120, 20, 20, 255);   //red others
             SDL_RenderFillRect(renderer, &strengthBarBg);
-            SDL_FRect strengthBarFill = {strengthBarBg.x, strengthBarBg.y, strengthBarBg.w * ((float)strength / (float)maxStrength), strengthBarBg.h};
-            SDL_SetRenderDrawColor(renderer, 230, 190, 20, 255);
+            SDL_FRect strengthBarFill = {strengthBarBg.x, strengthBarBg.y, strengthBarBg.w * playerShare, strengthBarBg.h};
+            SDL_SetRenderDrawColor(renderer, 230, 190, 20, 255);  //yellowplayer
             SDL_RenderFillRect(renderer, &strengthBarFill);
             SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
             SDL_RenderRect(renderer, &strengthBarBg);
