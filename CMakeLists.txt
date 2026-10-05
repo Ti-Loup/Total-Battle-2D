@@ -42,6 +42,8 @@ add_executable(TotalBattle2D main.cpp
         AiContruction.h
         WinConditions.cpp
         WinConditions.h
+        FactionsAttributes.cpp
+        FactionsAttributes.h
 )
 
 target_include_directories(TotalBattle2D PRIVATE "${MIXER_PATH}/include")

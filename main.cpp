@@ -27,6 +27,7 @@
 #include "WorldEvents.h"
 #include "Decrees.h"
 #include "WinConditions.h"
+#include "FactionsAttributes.h"
 
 /*
 
@@ -10487,11 +10488,20 @@ void RenderRepairTooltip() {
             const float boxW = panel_rect.w - 20.f;
             //Attributes area
             {
-                SDL_FRect attributesRect = {boxX, boxY, boxW, 100.f };
+                SDL_FRect attributesRect = {boxX, boxY, boxW, 110.f};
                 SDL_FRect attributesContent = drawSection(attributesRect, "Attributes");
-                drawText(gameDiplomacySousTitleText, ("Strength Rank: " + std::to_string(getStrengthRank(faction))).c_str(), attributesContent.x + 6.f, attributesContent.y, grey);
-                drawText(gameDiplomacyDescText, bIsPlayer ? "Reliability: -" : "Protective",
-                     attributesContent.x + 6.f, attributesContent.y + 22.f, grey);
+
+                drawText(gameDiplomacySousTitleText, ("Strength Rank: " + std::to_string(getStrengthRank(faction))).c_str(),attributesContent.x + 6.f, attributesContent.y, grey);
+                float attributeY = attributesContent.y + 22.f;
+                if (!bIsPlayer) {
+                    if (const FactionAttributesData* attributeData = GetFactionAttributes(faction)) {
+                        for (const std::string& attribute : attributeData->attributes) {
+                            drawText(gameDiplomacyDescText, attribute.c_str(),
+                                     attributesContent.x + 6.f, attributeY, grey);
+                            attributeY += 18.f;
+                        }
+                    }
+                }
                 boxY += attributesRect.h + gap;
             }
 
@@ -10537,6 +10547,7 @@ void RenderRepairTooltip() {
         SDL_RenderFillRect(renderer, &factionSelectionBackgroundRect);
         SDL_SetRenderDrawColor(renderer, 190, 190, 190, 255);
         SDL_RenderRect(renderer, &factionSelectionBackgroundRect);
+
         if (!bIsTradingWithSpecificFaction) {
             //Title + Text
             SDL_FRect factionSelectionTitleRect = { 835.f, 735.f, 250,30};
