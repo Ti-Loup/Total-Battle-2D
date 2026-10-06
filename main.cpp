@@ -390,9 +390,9 @@ public:
     SDL_Texture *gameStartDiplomacyButton = nullptr;
     bool bIsTradingWithSpecificFaction = false; // if true it changes ui to specific
     //Diplomatic Inside Negitiating with specific faction
-    Circle DiplomacyMakeDealButton = {927.f, 1042.f, 25};
+    Circle DiplomacyMakeDealButton = {961.f, 1042.f, 25};
     SDL_Texture *gameMakeDealTexture = nullptr;
-    Circle DiplomacyQuitDealButton = {993.f, 1042.f, 25};
+    Circle DiplomacyQuitDealButton = {1018.f, 1042.f, 25};
     SDL_Texture *gameQuitDealTexture = nullptr;
     SDL_FRect DiplomacyAddOfferDemandButton = {0.f, 0.f, 300.f, 40.f};
     //Circle for goods Production manager
@@ -10541,7 +10541,7 @@ void RenderRepairTooltip() {
         drawFactionPanel(otherPanel, otherFaction, false);
 
         //Faction selection background
-        SDL_FRect factionSelectionBackgroundRect = {510.f, 750.f, 900, 330};
+        SDL_FRect factionSelectionBackgroundRect = {605.f, 745.f, 710.f, 335.f};
         SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
         SDL_RenderFillRect(renderer, &factionSelectionBackgroundRect);
         SDL_SetRenderDrawColor(renderer, 190, 190, 190, 255);
@@ -10549,7 +10549,7 @@ void RenderRepairTooltip() {
 
         if (!bIsTradingWithSpecificFaction) {
             //Title + Text
-            SDL_FRect factionSelectionTitleRect = { 835.f, 735.f, 250,30};
+            SDL_FRect factionSelectionTitleRect = { 830.f, 730.f, 260.f, 30.f};
             SDL_SetRenderDrawColor(renderer, 70, 70, 70, 255);
             SDL_RenderFillRect(renderer, &factionSelectionTitleRect);
             TTF_SetTextWrapWidth(gameDiplomacyTitleText, 0);
@@ -10570,11 +10570,11 @@ void RenderRepairTooltip() {
             SDL_RenderRect(renderer, &factionSelectionCategoriesRect);
 
             //different col for each selection categories
-            const float colFactionNameX = factionSelectionCategoriesRect.x + 20.f;
-            const float colStrengthX = factionSelectionCategoriesRect.x + 260.f;
-            const float colRegionControlledX = factionSelectionCategoriesRect.x + 480.f;
-            const float colCurrentTreatiesX = factionSelectionCategoriesRect.x + 620.f;
-            const float colAttitudeX = factionSelectionCategoriesRect.x + 750.f;
+            const float colFactionNameX = factionSelectionCategoriesRect.x + 15.f;
+            const float colStrengthX = factionSelectionCategoriesRect.x + 185.f;
+            const float colRegionControlledX = factionSelectionCategoriesRect.x + 345.f;
+            const float colCurrentTreatiesX = factionSelectionCategoriesRect.x + 440.f;
+            const float colAttitudeX = factionSelectionCategoriesRect.x + 560.f;
             float categoryTextY = factionSelectionCategoriesRect.y + 2.f;
             //Names attributed to each col
             drawText(gameDiplomacyDescText, "Faction", colFactionNameX, categoryTextY, white);
@@ -10685,7 +10685,7 @@ void RenderRepairTooltip() {
         }
         //Inside Specific trade with other faction
         if (bIsTradingWithSpecificFaction) {
-            SDL_FRect tradeTitleRect = {835.f, 730.f, 250.f, 30.f};
+            SDL_FRect tradeTitleRect = {830.f, 730.f, 260.f, 30.f};
             SDL_SetRenderDrawColor(renderer, 70, 70, 70, 255);
             SDL_RenderFillRect(renderer, &tradeTitleRect);
             SDL_SetRenderDrawColor(renderer, 190, 190, 190, 255);
@@ -10694,13 +10694,13 @@ void RenderRepairTooltip() {
 
             //Button to show the different possibilities to trade. If already have the treaty with the specific faction, must not show
             //2 different areas (Offer, Demand)
-            const float tradePadding = 15.f;
-            const float tradePanelGap = 15.f;
+            const float tradePadding = 24.f;
+            const float tradePanelGap = 21.f;
 
-            //Button "Add Offer/Demand" (top center)
+            //Button Add Offer/Demand top center
             DiplomacyAddOfferDemandButton = {
-                factionSelectionBackgroundRect.x + (factionSelectionBackgroundRect.w - 300.f) / 2.f,
-                factionSelectionBackgroundRect.y + 15.f, 300.f, 40.f
+                factionSelectionBackgroundRect.x + (factionSelectionBackgroundRect.w - 256.f) / 2.f,
+                factionSelectionBackgroundRect.y + 34.f, 256.f, 35.f
             };
             float mouseXAddOffer, mouseYAddOffer;
             SDL_GetMouseState(&mouseXAddOffer, &mouseYAddOffer);
@@ -10715,13 +10715,35 @@ void RenderRepairTooltip() {
             SDL_SetRenderDrawColor(renderer, 80, 150, 255, 255);
             SDL_RenderRect(renderer, &DiplomacyAddOfferDemandButton);
             drawTextCentered(gameDiplomacySousTitleText, "Add Offer/Demand", DiplomacyAddOfferDemandButton, white);
+            //Money of player currently
+            SDL_FRect dealGoldIconRect = {
+                factionSelectionBackgroundRect.x + 24.f,
+                factionSelectionBackgroundRect.y + 23.f,
+                18.f, 18.f
+            };
+            SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &dealGoldIconRect);
+            drawText(gameDiplomacySousTitleText, std::to_string(player.currentGold).c_str(), dealGoldIconRect.x + 24.f, factionSelectionBackgroundRect.y + 21.f, white);
+
+            float dealPlayerStrength = (float)strengthByFaction[player.faction];
+            float dealOtherStrength = (float)strengthByFaction[otherFaction];
+            float dealTotalStrength = dealPlayerStrength + dealOtherStrength;
+            float dealPlayerShare = (dealTotalStrength > 0.f) ? (dealPlayerStrength / dealTotalStrength) : 0.5f;
+
+            SDL_FRect dealBarRect = {factionSelectionBackgroundRect.x + 565.f,factionSelectionBackgroundRect.y + 32.f,80.f, 8.f};
+            SDL_SetRenderDrawColor(renderer, 120, 20, 20, 255);   //rouge = l'autre faction
+            SDL_RenderFillRect(renderer, &dealBarRect);
+            SDL_FRect dealBarFill = {dealBarRect.x, dealBarRect.y, dealBarRect.w * dealPlayerShare, dealBarRect.h};
+            SDL_SetRenderDrawColor(renderer, 230, 190, 20, 255);  //jaune = le joueur
+            SDL_RenderFillRect(renderer, &dealBarFill);
+            SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
+            SDL_RenderRect(renderer, &dealBarRect);
 
             //3 different pannels
-            const float panelsTop = DiplomacyAddOfferDemandButton.y + DiplomacyAddOfferDemandButton.h + 20.f;
-            const float panelsH = 200.f;
-            const float offersW = 300.f;
-            const float demandsW = 300.f;
-            const float treatiesW = factionSelectionBackgroundRect.w - tradePadding * 2.f - tradePanelGap * 2.f - offersW - demandsW;
+            const float panelsTop = factionSelectionBackgroundRect.y + 73.f;
+            const float panelsH = 191.f;
+            const float offersW = 250.f;
+            const float demandsW = 250.f;
+            const float treatiesW = 115.f;;
             const float panelsStartX = factionSelectionBackgroundRect.x + tradePadding;
 
             SDL_FRect yourOffersRect = {panelsStartX, panelsTop, offersW, panelsH};
