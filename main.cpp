@@ -387,9 +387,11 @@ public:
     SDL_Texture *gameReturnButtons = nullptr;
     //Diplomacy Button to start negiciations with specific faction
     Circle DiplomacyButtonStartGame = {927.f, 1042.f, 25};
-    SDL_Texture *gameStartDiplomacyButton = nullptr;
+    SDL_Texture *gameStartDiplomacyTexture = nullptr;
     bool bIsTradingWithSpecificFaction = false; // if true it changes ui to specific
     //Diplomatic Inside Negitiating with specific faction
+    Circle DiplomacyCounterDealButton = {893.f, 1042.f, 25};
+    SDL_Texture *gameCounterDealTexture = nullptr;
     Circle DiplomacyMakeDealButton = {961.f, 1042.f, 25};
     SDL_Texture *gameMakeDealTexture = nullptr;
     Circle DiplomacyQuitDealButton = {1018.f, 1042.f, 25};
@@ -2160,11 +2162,16 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture warDiplomacyIconTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(warDiplomacyIconTexture, SDL_SCALEMODE_NEAREST);
-        gameStartDiplomacyButton = IMG_LoadTexture(renderer, "assets/StartDiplomacyIcon.png");
-        if (gameStartDiplomacyButton == nullptr) {
-            SDL_LogWarn(0, "failed to load texture gameStartDiplomacyButton", SDL_GetError());
+        gameStartDiplomacyTexture = IMG_LoadTexture(renderer, "assets/StartDiplomacyIcon.png");
+        if (gameStartDiplomacyTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameStartDiplomacyTexture", SDL_GetError());
         }
-        SDL_SetTextureScaleMode(gameStartDiplomacyButton, SDL_SCALEMODE_NEAREST);
+        SDL_SetTextureScaleMode(gameStartDiplomacyTexture, SDL_SCALEMODE_NEAREST);
+        gameCounterDealTexture = IMG_LoadTexture(renderer, "assets/CounterDealIcon.png");
+        if (gameCounterDealTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameCounterDealTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameCounterDealTexture, SDL_SCALEMODE_NEAREST);
         gameMakeDealTexture = IMG_LoadTexture(renderer, "assets/MakeDealIcon.png");
         if (gameMakeDealTexture == nullptr) {
             SDL_LogWarn(0, "failed to load texture gameMakeDealTexture", SDL_GetError());
@@ -4262,7 +4269,8 @@ private://constructor
         SDL_DestroyTexture(gameRepairBuildingButtonIconUi);
         SDL_DestroyTexture(gameBuildingDamagedIconUi);
         SDL_DestroyTexture(gameReturnButtons);
-        SDL_DestroyTexture(gameStartDiplomacyButton);
+        SDL_DestroyTexture(gameStartDiplomacyTexture);
+        SDL_DestroyTexture(gameCounterDealTexture);
         SDL_DestroyTexture(gameMakeDealTexture);
         SDL_DestroyTexture(gameQuitDealTexture);
         SDL_DestroyTexture(gameDecree1KnightTexture);
@@ -10667,9 +10675,9 @@ void RenderRepairTooltip() {
             SDL_RenderCoordinatesFromWindow(renderer, mouseXStartDiplomacy, mouseYStartDiplomacy, &lenghtXStartDiplomacy, &lenghtYStartDiplomacy);
             bool bHoveredStartDiplomacyButton = ClickInsideCircle(lenghtXStartDiplomacy, lenghtYStartDiplomacy, DiplomacyButtonStartGame);
             Uint8 startAlpha = bHoveredStartDiplomacyButton ? 255:200;
-            SDL_SetTextureAlphaMod(gameReturnButtons, startAlpha);
-            RenderBoutonCercle(DiplomacyButtonStartGame, nullptr, gameReturnButtons, 0, 0, 0);
-            SDL_SetTextureAlphaMod(gameReturnButtons, 255);
+            SDL_SetTextureAlphaMod(gameStartDiplomacyTexture, startAlpha);
+            RenderBoutonCercle(DiplomacyButtonStartGame, nullptr, gameStartDiplomacyTexture, 0, 0, 0);
+            SDL_SetTextureAlphaMod(gameStartDiplomacyTexture, 255);
 
             //Retour Game
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
@@ -10679,9 +10687,9 @@ void RenderRepairTooltip() {
             SDL_RenderCoordinatesFromWindow(renderer, mouseXReturn, mouseYReturn, &lenghtXReturn, &lenghtYReturn);
             bool bHoveredReturnButton = ClickInsideCircle(lenghtXReturn, lenghtYReturn, DiplomacyButtonReturnGame);
             Uint8 returnAlpha = bHoveredReturnButton ? 255:200;
-            SDL_SetTextureAlphaMod(gameReturnButtons, returnAlpha);
-            RenderBoutonCercle(DiplomacyButtonReturnGame, nullptr, gameReturnButtons, 0, 0, 0);
-            SDL_SetTextureAlphaMod(gameReturnButtons, 255);
+            SDL_SetTextureAlphaMod(gameQuitDealTexture, returnAlpha);
+            RenderBoutonCercle(DiplomacyButtonReturnGame, nullptr, gameQuitDealTexture, 0, 0, 0);
+            SDL_SetTextureAlphaMod(gameQuitDealTexture, 255);
         }
         //Inside Specific trade with other faction
         if (bIsTradingWithSpecificFaction) {
@@ -10730,10 +10738,10 @@ void RenderRepairTooltip() {
             float dealPlayerShare = (dealTotalStrength > 0.f) ? (dealPlayerStrength / dealTotalStrength) : 0.5f;
 
             SDL_FRect dealBarRect = {factionSelectionBackgroundRect.x + 565.f,factionSelectionBackgroundRect.y + 32.f,80.f, 8.f};
-            SDL_SetRenderDrawColor(renderer, 120, 20, 20, 255);   //rouge = l'autre faction
+            SDL_SetRenderDrawColor(renderer, 120, 20, 20, 255);   //Red other factions
             SDL_RenderFillRect(renderer, &dealBarRect);
             SDL_FRect dealBarFill = {dealBarRect.x, dealBarRect.y, dealBarRect.w * dealPlayerShare, dealBarRect.h};
-            SDL_SetRenderDrawColor(renderer, 230, 190, 20, 255);  //jaune = le joueur
+            SDL_SetRenderDrawColor(renderer, 230, 190, 20, 255);  //yellow player
             SDL_RenderFillRect(renderer, &dealBarFill);
             SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
             SDL_RenderRect(renderer, &dealBarRect);
@@ -10754,6 +10762,17 @@ void RenderRepairTooltip() {
             SDL_FRect yourOffersContent = drawSection(yourOffersRect, "Your Offers");
             SDL_FRect yourDemandsContent = drawSection(yourDemandsRect, "Your Demands");
             SDL_FRect treatiesContent = drawSection(treatiesRect, "Treaties");
+            //Counter offer Deal button
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+            float mouseXCounterDeal,mouseYCounterDeal;
+            SDL_GetMouseState(&mouseXCounterDeal, &mouseYCounterDeal);
+            float lenghtXCounterDeal, lenghtYCounterDeal;
+            SDL_RenderCoordinatesFromWindow(renderer, mouseXCounterDeal, mouseYCounterDeal, &lenghtXCounterDeal, &lenghtYCounterDeal);
+            bool bHoveredCounterDealButton = ClickInsideCircle(lenghtXCounterDeal, lenghtYCounterDeal, DiplomacyCounterDealButton);
+            Uint8 counterDealAlpha = bHoveredCounterDealButton ? 255: 200;
+            SDL_SetTextureAlphaMod(gameCounterDealTexture, counterDealAlpha);
+            RenderBoutonCercle(DiplomacyCounterDealButton, nullptr, gameCounterDealTexture, 0, 0, 0);
+            SDL_SetTextureAlphaMod(gameCounterDealTexture, 255);
             //Make Deal button
             SDL_SetRenderDrawColor(renderer, 0, 0, 0,0);
             float mouseXDeal, mouseYDeal;
@@ -10762,9 +10781,9 @@ void RenderRepairTooltip() {
             SDL_RenderCoordinatesFromWindow(renderer, mouseXDeal, mouseYDeal, &lenghtXDeal, &lenghtYDeal);
             bool bHoveredDealButton = ClickInsideCircle(lenghtXDeal, lenghtYDeal, DiplomacyMakeDealButton);
             Uint8 dealAlpha = bHoveredDealButton ? 255:200;
-            SDL_SetTextureAlphaMod(gameReturnButtons, dealAlpha);//same texture just to text positions
-            RenderBoutonCercle(DiplomacyMakeDealButton, nullptr, gameReturnButtons, 0, 0, 0);
-            SDL_SetTextureAlphaMod(gameReturnButtons, 255);
+            SDL_SetTextureAlphaMod(gameMakeDealTexture, dealAlpha);//same texture just to text positions
+            RenderBoutonCercle(DiplomacyMakeDealButton, nullptr, gameMakeDealTexture, 0, 0, 0);
+            SDL_SetTextureAlphaMod(gameMakeDealTexture, 255);
             //Return To Faction Selection button
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
             float mouseXQuitDeal, mouseYQuitDeal;
@@ -10773,9 +10792,9 @@ void RenderRepairTooltip() {
             SDL_RenderCoordinatesFromWindow(renderer, mouseXQuitDeal, mouseYQuitDeal, &lenghtXQuitDeal, &lenghtYQuitDeal);
             bool bHoveredQuitDealButton = ClickInsideCircle(lenghtXQuitDeal, lenghtYQuitDeal, DiplomacyQuitDealButton);
             Uint8 quitDealAlpha = bHoveredQuitDealButton ? 255:200;
-            SDL_SetTextureAlphaMod(gameReturnButtons, quitDealAlpha);
-            RenderBoutonCercle(DiplomacyQuitDealButton, nullptr, gameReturnButtons, 0, 0, 0);
-            SDL_SetTextureAlphaMod(gameReturnButtons, 255);
+            SDL_SetTextureAlphaMod(gameQuitDealTexture, quitDealAlpha);
+            RenderBoutonCercle(DiplomacyQuitDealButton, nullptr, gameQuitDealTexture, 0, 0, 0);
+            SDL_SetTextureAlphaMod(gameQuitDealTexture, 255);
         }
     }
     void RenderFamilyHierarchyInfoPopup() {
