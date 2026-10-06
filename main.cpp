@@ -38,10 +38,13 @@
  * Province buffs.
  * Done | Treasury posibility to increase of reduce taxes. that increase the public order or reduce it
  * Done | UI remove when diplomacy button precess To show Different UI
- * ToDo | improve the Diplomacy Ui elements
+ * Done | improve the Diplomacy Ui elements
+ * ToDo | New Buttons textures
+ * ToDo | Different treaties possible to do.
  * ToDo | Factions attitude to everyone. Possibility to trade goods make peace, war, alliances.
  * ToDo | Possibility to give money to improve relations
- * ToDo | Trade raw goods only with others. but transformed goods with a distant buyer 
+ * ToDo | Trade raw goods only with others. but transformed goods with a distant buyer
+ * tOdO | Can trade goods periodicly instead (Like troy)
  *
  * Bugs:
  * Fixed | The UI overlaps
