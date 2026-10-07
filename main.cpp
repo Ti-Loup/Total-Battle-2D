@@ -7401,7 +7401,7 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
 
             //Feature add events of what happend last turn (events, Active armies, settlements, character)
             //background under minimap
-            SDL_FRect notificationEventsBackground = {miniMapBoxRect.x - 10.f, miniMapBoxRect.y + miniMapBoxRect.h, miniMapBoxRect.w + 10.f, 25.f};
+            SDL_FRect notificationEventsBackground = {miniMapBoxRect.x - 10.f, miniMapBoxRect.y + miniMapBoxRect.h, miniMapBoxRect.w + 15.f, 25.f};
             SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
             SDL_RenderFillRect(renderer, &notificationEventsBackground);
             SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
@@ -7409,15 +7409,16 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
             //rects 4 needed
             float gapX = 3.f;
             float gapY = 2.f;
-            for (int i = 0; i < 4; i++) {
-                //rect size of 1 button
-                SDL_FRect insideNotificationEventsRect = {notificationEventsBackground.x + gapX, notificationEventsBackground.y + gapY, 45.f, notificationEventsBackground.h - 4.f };
+            int count = 4;
+            float rectW = (notificationEventsBackground.w - gapX * (count + 1)) / count;
+
+            for (int i = 0; i < count; i++) {
+                SDL_FRect insideNotificationEventsRect = {notificationEventsBackground.x + gapX + i * (rectW + gapX),notificationEventsBackground.y + gapY, rectW, notificationEventsBackground.h - 4.f};
+
                 SDL_SetRenderDrawColor(renderer, 40, 40, 120, 255);
                 SDL_RenderFillRect(renderer, &insideNotificationEventsRect);
                 SDL_SetRenderDrawColor(renderer, 140, 140, 140, 255);
                 SDL_RenderRect(renderer, &insideNotificationEventsRect);
-
-
             }
 
 
