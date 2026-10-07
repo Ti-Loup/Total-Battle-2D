@@ -7398,6 +7398,30 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
 
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderRect(renderer, &camViewRect);
+
+            //Feature add events of what happend last turn (events, Active armies, settlements, character)
+            //background under minimap
+            SDL_FRect notificationEventsBackground = {miniMapBoxRect.x - 10.f, miniMapBoxRect.y + miniMapBoxRect.h, miniMapBoxRect.w + 10.f, 25.f};
+            SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
+            SDL_RenderFillRect(renderer, &notificationEventsBackground);
+            SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
+            SDL_RenderRect(renderer, &notificationEventsBackground);
+            //rects 4 needed
+            float gapX = 3.f;
+            float gapY = 2.f;
+            for (int i = 0; i < 4; i++) {
+                //rect size of 1 button
+                SDL_FRect insideNotificationEventsRect = {notificationEventsBackground.x + gapX, notificationEventsBackground.y + gapY, 45.f, notificationEventsBackground.h - 4.f };
+                SDL_SetRenderDrawColor(renderer, 40, 40, 120, 255);
+                SDL_RenderFillRect(renderer, &insideNotificationEventsRect);
+                SDL_SetRenderDrawColor(renderer, 140, 140, 140, 255);
+                SDL_RenderRect(renderer, &insideNotificationEventsRect);
+
+
+            }
+
+
+
         }
     }
     //PLAYER public order based on food (FILLEDS SEGS 1,2,3,4,5,6)
