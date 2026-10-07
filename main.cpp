@@ -726,6 +726,7 @@ public:
 
     //Trade and diplomacy Icons
     SDL_Texture *tradeDiplomacyIconTexture = nullptr;//current trade parters
+    SDL_Texture *vassalDiplomacyIconTexture = nullptr;
     SDL_Texture *defensiveAllianceDiplomacyIconTexture = nullptr;
     SDL_Texture *militaryAllianceDiplomacyIconTexture = nullptr;
     SDL_Texture *warDiplomacyIconTexture = nullptr;
@@ -2145,6 +2146,11 @@ private://constructor
         }
         SDL_SetTextureScaleMode(gameDecree3SamuraiTexture, SDL_SCALEMODE_NEAREST);
         //Diplomacy Icons by types
+        vassalDiplomacyIconTexture = IMG_LoadTexture(renderer, "assets/VassalDiplomacyIcon.png");
+        if (vassalDiplomacyIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture vassalDiplomacyIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(vassalDiplomacyIconTexture, SDL_SCALEMODE_NEAREST);
         tradeDiplomacyIconTexture = IMG_LoadTexture (renderer, "assets/TradeDiplomacyIcon.png");
         if (tradeDiplomacyIconTexture == nullptr) {
             SDL_LogWarn(0, "failed to load texture tradeDiplomacyIconTexture", SDL_GetError());
@@ -4286,6 +4292,7 @@ private://constructor
         SDL_DestroyTexture(gameDecree2SamuraiTexture);
         SDL_DestroyTexture(gameDecree3SamuraiTexture);
         SDL_DestroyTexture(tradeDiplomacyIconTexture);
+        SDL_DestroyTexture(vassalDiplomacyIconTexture);
         SDL_DestroyTexture(defensiveAllianceDiplomacyIconTexture);
         SDL_DestroyTexture(militaryAllianceDiplomacyIconTexture);
         SDL_DestroyTexture(warDiplomacyIconTexture);
@@ -10403,6 +10410,20 @@ void RenderRepairTooltip() {
         }
         return strength;
     }
+// Name of the different Treaties possible with 1 faction
+    struct TreatiesDiplomacyNames { const char *treatyName; const char* description;};
+    TreatiesDiplomacyNames treatiesDiplmacyNames[9] {
+        {"Payment", "Offer or demand payments. Offering payments makes the deal more attractive. If you offer payment and ask nothing in return there will be a diplomatic relations bonus."},
+        {"Arrange Marriage", "Diplomatic marriage can be used to strengthen ties between two factions. Offering or asking for a wife both improve relations, although factions might be reluctant to let one of their own go."},
+        {"Military access", "Military access removes the diplomatic penalty for trespassing on another faction's territory."},
+        {"Cancel vassal Kingdom status for", "Offer or demand the breaking of an existing treaty with a third party. Where the third party is disliked this option may make a deal more attractive."},
+        {"Military alliance", "Military allies are sworn to support each other if attacked or attacking another faction. This is the strongest form of treaty. When signed, it replaces a defensive pact."},
+        {"Create vassal kingdom", "Ask this faction to become your vassal kingdom. If you are strong enough and they accept your offer, they'll gain your protection but lose most of their diplomatic freedom, effectively becoming your puppets."},
+        {"Declare war", "Declaring war will end any agreements with this faction. This sometimes comes at the cost of deals with other factions, as they will pick sides."},
+        {"Declaration of friendship", "A declaration of friendship improves the relations betweem factions. It is an ideal first step in building good relations."},
+        {"Defensive pact", "Defensive allies are sworn to protect each other if war is declared. It is useful to be on friendly terms with a faction before requesting an alliance."}
+    };
+
 
     void RenderDiplomacyInfoPopup() {
         if (!bDiplomacyInfoPopup) return;
@@ -10544,7 +10565,8 @@ void RenderRepairTooltip() {
             SDL_FRect relationRect = {boxX, boxY, boxW, 150.f};
             SDL_FRect relationContent = drawSection(relationRect, "Relations");
             //textures of the icons diplomacy
-            SDL_Texture *relationIcons[4] {
+            SDL_Texture *relationIcons[5] {
+                vassalDiplomacyIconTexture,
                 defensiveAllianceDiplomacyIconTexture,
                 militaryAllianceDiplomacyIconTexture,
                 warDiplomacyIconTexture,
