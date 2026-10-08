@@ -10410,20 +10410,64 @@ void RenderRepairTooltip() {
         }
         return strength;
     }
-// Name of the different Treaties possible with 1 faction
-    struct TreatiesDiplomacyNames { const char *treatyName; const char* description;};
-    TreatiesDiplomacyNames treatiesDiplmacyNames[9] {
-        {"Payment", "Offer or demand payments. Offering payments makes the deal more attractive. If you offer payment and ask nothing in return there will be a diplomatic relations bonus."},
-        {"Arrange Marriage", "Diplomatic marriage can be used to strengthen ties between two factions. Offering or asking for a wife both improve relations, although factions might be reluctant to let one of their own go."},
-        {"Military access", "Military access removes the diplomatic penalty for trespassing on another faction's territory."},
-        {"Cancel vassal Kingdom status for", "Offer or demand the breaking of an existing treaty with a third party. Where the third party is disliked this option may make a deal more attractive."},
-        {"Military alliance", "Military allies are sworn to support each other if attacked or attacking another faction. This is the strongest form of treaty. When signed, it replaces a defensive pact."},
-        {"Create vassal kingdom", "Ask this faction to become your vassal kingdom. If you are strong enough and they accept your offer, they'll gain your protection but lose most of their diplomatic freedom, effectively becoming your puppets."},
-        {"Declare war", "Declaring war will end any agreements with this faction. This sometimes comes at the cost of deals with other factions, as they will pick sides."},
-        {"Declaration of friendship", "A declaration of friendship improves the relations betweem factions. It is an ideal first step in building good relations."},
-        {"Defensive pact", "Defensive allies are sworn to protect each other if war is declared. It is useful to be on friendly terms with a faction before requesting an alliance."}
+public:
+    //Diplomacy Treaties ~ area ~
+    enum class TreatyType {
+        Payment, Trade, ArrangeMarriage, MilitaryAccess, CancelVassal,
+        MilitaryAlliance, CreateVassal, DeclareWar, MakePeace,
+        DeclarationOfFriendship, DefensivePact, Count
     };
+    struct TreatyData {
+        TreatyType treatyType;
+        const char *name;
+        const char *description;
+        bool bCanChoose; // true if the player can ask of make a demand to the other faction
+    };
+// Name of the different Treaties possible with 1 faction
+    const TreatyData treatyDatabase[(int)TreatyType::Count] = {
+        {TreatyType::Payment, "Payment", "Offer or demand payments. Offering payments makes the deal more attractive. If you offer payment and ask nothing in return there will be a diplomatic relations bonus.", true},
+        {TreatyType::Trade, "Trade", "Make a trade with factions to increase your relations. It will open up your borders to allow trade if there is a direct route between your capital and theirs.", true},
+        {TreatyType::ArrangeMarriage, "Arrange Marriage", "Diplomatic marriage can be used to strengthen ties between two factions. Offering or asking for a wife both improve relations, although factions might be reluctant to let one of their own go.", true},
+        {TreatyType::MilitaryAccess, "Military access", "Military access removes the diplomatic penalty for trespassing on another faction's territory.",false},
+        {TreatyType::CancelVassal, "Cancel vassal Kingdom status for", "Offer or demand the breaking of an existing treaty with a third party. Where the third party is disliked this option may make a deal more attractive.", false},
+        {TreatyType::MilitaryAlliance, "Military alliance", "Military allies are sworn to support each other if attacked or attacking another faction. This is the strongest form of treaty. When signed, it replaces a defensive pact.", false},
+        {TreatyType::CreateVassal, "Create vassal kingdom", "Ask this faction to become your vassal kingdom. If you are strong enough and they accept your offer, they'll gain your protection but lose most of their diplomatic freedom, effectively becoming your puppets.", false},
+        {TreatyType::DeclareWar, "Declare war", "Declaring war will end any agreements with this faction. This sometimes comes at the cost of deals with other factions, as they will pick sides.", false},
+        {TreatyType::MakePeace, "Peace treaty", "Signing a peace treaty with a faction will end your current war with them.", false},
+        {TreatyType::DeclarationOfFriendship, "Declaration of friendship", "A declaration of friendship improves the relations betweem factions. It is an ideal first step in building good relations.", false},
+        {TreatyType::DefensivePact, "Defensive pact", "Defensive allies are sworn to protect each other if war is declared. It is useful to be on friendly terms with a faction before requesting an alliance.", false}
+    };
+    const TreatyData& GetTreatyData(TreatyType treatyType) { return treatyDatabase[(int)treatyType]; }
+    //To know when a treaty is available or not
+    struct DiplomacyState {
+        bool bAtWar = false;
+        bool bMilitaryAccess = false;
+        bool bDefensivePact = false;
+        bool bMilitaryAlliance = false;
+        bool bVassal = false;
+    };
+    std::unordered_map<int, DiplomacyState> diplomacyWithFaction;
+    bool bShowTreatyList = false; //for the add/demand offer button
+    std::vector<std::pair<SDL_FRect, TreatyType>> treatyListRects;
 
+
+    bool IsTreatyAvailable(TreatyType t, const DiplomacyState& s) {//if at war some treaties can't be signed.
+        switch (t) {
+            case TreatyType::Payment:
+            case TreatyType::Trade: return !s.bAtWar;
+            case TreatyType::ArrangeMarriage: return !s.bAtWar;
+            case TreatyType::DeclarationOfFriendship: return !s.bAtWar;
+            case TreatyType::MilitaryAccess: return !s.bAtWar && !s.bMilitaryAccess;
+            case TreatyType::DefensivePact: return !s.bAtWar && !s.bDefensivePact;
+            case TreatyType::MilitaryAlliance: return !s.bAtWar && !s.bMilitaryAlliance;
+            case TreatyType::CreateVassal: return !s.bAtWar && !s.bVassal;
+            case TreatyType::CancelVassal: return !s.bAtWar;
+            case TreatyType::DeclareWar: return !s.bAtWar;
+            case TreatyType::MakePeace: return s.bAtWar;
+            default: return false;
+        }
+    }
+private:
 
     void RenderDiplomacyInfoPopup() {
         if (!bDiplomacyInfoPopup) return;
@@ -10544,7 +10588,7 @@ void RenderRepairTooltip() {
             const float boxW = panel_rect.w - 20.f;
             //Attributes area
             {
-                SDL_FRect attributesRect = {boxX, boxY, boxW, 110.f};
+                SDL_FRect attributesRect = {boxX, boxY, boxW, 120.f};
                 SDL_FRect attributesContent = drawSection(attributesRect, "Attributes");
 
                 drawText(gameDiplomacySousTitleText, ("Strength Rank: " + std::to_string(getStrengthRank(faction))).c_str(),attributesContent.x + 6.f, attributesContent.y, grey);
@@ -10562,25 +10606,49 @@ void RenderRepairTooltip() {
             }
 
             //Relations
-            SDL_FRect relationRect = {boxX, boxY, boxW, 150.f};
-            SDL_FRect relationContent = drawSection(relationRect, "Relations");
-            //textures of the icons diplomacy
-            SDL_Texture *relationIcons[5] {
-                vassalDiplomacyIconTexture,
-                defensiveAllianceDiplomacyIconTexture,
-                militaryAllianceDiplomacyIconTexture,
-                warDiplomacyIconTexture,
-                tradeDiplomacyIconTexture
+            struct RelationBlock { SDL_Texture* icon; const char* title; };
+            RelationBlock relationBlocks[5] = {
+            {vassalDiplomacyIconTexture,  "Vassals"},
+            {militaryAllianceDiplomacyIconTexture, "Military Allies"},
+            {defensiveAllianceDiplomacyIconTexture, "Defensive Pacts"},
+            {warDiplomacyIconTexture, "Enemies"},
+            {tradeDiplomacyIconTexture, "Trade Treaties"}
             };
-            float rowY = relationContent.y;
-            for (SDL_Texture* icon : relationIcons) {
-                SDL_FRect iconRect = {relationContent.x +2.0f, rowY, 22.f, 22.f};
-                if (icon) SDL_RenderTexture(renderer, icon, nullptr, &iconRect);
+            const float blockTitleH = 20.f;
+            const float blockBoxH  = 26.f;
+            const float blockGap = 6.f;
+            const float blockH = blockTitleH + blockBoxH + blockGap;
+            const float relationH   = 36.f + 5 * blockH;
 
-                SDL_FRect relationBar = {relationContent.x + 30.f, rowY, relationContent.w - 34.f, 22.f};
+            SDL_FRect relationRect = {boxX, boxY, boxW, relationH};
+            SDL_FRect relationContent = drawSection(relationRect, "Relations");
+
+            float blockY = relationContent.y;
+            for (const RelationBlock& block : relationBlocks) {
+                //title centered with Icon + text
+                TTF_SetTextWrapWidth(gameDiplomacyDescText, 0);
+                TTF_SetTextString(gameDiplomacyDescText, block.title, 0);
+                int blockTitleW = 0, blockTitleTextH = 0;
+                TTF_GetTextSize(gameDiplomacyDescText, &blockTitleW, &blockTitleTextH);
+
+                const float blockIconSize = 18.f;
+                float rowW = blockIconSize + 4.f + blockTitleW;
+                float rowX = relationContent.x + (relationContent.w - rowW) / 2.f;
+
+                SDL_FRect blockIconRect = {rowX, blockY + (blockTitleH - blockIconSize) / 2.f, blockIconSize, blockIconSize};
+                if (block.icon) SDL_RenderTexture(renderer, block.icon, nullptr, &blockIconRect);
+
+                TTF_SetTextColor(gameDiplomacyDescText, 255, 255, 255, 255);
+                TTF_DrawRendererText(gameDiplomacyDescText, rowX + blockIconSize + 4.f, blockY + (blockTitleH - blockTitleTextH) / 2.f);
+
+                //box where the factions will be listed
+                SDL_FRect listBox = {relationContent.x + 2.f, blockY + blockTitleH, relationContent.w - 4.f, blockBoxH};
                 SDL_SetRenderDrawColor(renderer, 18, 30, 48, 255);
-                SDL_RenderFillRect(renderer, &relationBar);
-                rowY += 28.f;
+                SDL_RenderFillRect(renderer, &listBox);
+                SDL_SetRenderDrawColor(renderer, 90, 110, 140, 255);
+                SDL_RenderRect(renderer, &listBox);
+
+                blockY += blockH;
             }
             boxY += relationRect.h + gap;
 
@@ -10593,8 +10661,8 @@ void RenderRepairTooltip() {
         };
 
         //rects
-        SDL_FRect playerPanel = {0.f, 600.f, 350.f, 480.f};
-        SDL_FRect otherPanel = {1570.f, 600.f, 350.f, 480.f};
+        SDL_FRect playerPanel = {0.f, 440.f, 280.f, 640.f};
+        SDL_FRect otherPanel = {1640.f, 440.f, 280.f, 640.f};
         drawFactionPanel(playerPanel, player.faction, true);
         drawFactionPanel(otherPanel, otherFaction, false);
 
@@ -10812,6 +10880,54 @@ void RenderRepairTooltip() {
             SDL_FRect yourOffersContent = drawSection(yourOffersRect, "Your Offers");
             SDL_FRect yourDemandsContent = drawSection(yourDemandsRect, "Your Demands");
             SDL_FRect treatiesContent = drawSection(treatiesRect, "Treaties");
+
+            //list of available treaties when pressed the show treaty button
+            treatyListRects.clear();
+            if (bShowTreatyList) {
+                const DiplomacyState &diplomacyState = diplomacyWithFaction[(int)otherFaction];
+                //Only keep available treaties
+                std::vector<TreatyType> availableTreaties;
+                for (int i = 0; i < (int)TreatyType::Count; i++) {
+                    TreatyType treaty = (TreatyType)i;
+                    if (IsTreatyAvailable(treaty, diplomacyState)) availableTreaties.push_back(treaty);
+                }
+                const float treatyRowH = 30.f;
+                const float treatyRowGap = 4.f;
+                const float treatyListPad = 6.f;
+                float treatyListH = (float)availableTreaties.size() * (treatyRowH + treatyRowGap) - treatyRowGap + treatyListPad * 2.f;
+
+                //the background that scale based on the treaties amount
+                SDL_FRect treatyListBg = {DiplomacyAddOfferDemandButton.x,DiplomacyAddOfferDemandButton.y - treatyListH - 4.f,DiplomacyAddOfferDemandButton.w,treatyListH};
+                if (treatyListBg.y < 5.f) treatyListBg.y = 5.f;
+
+                SDL_SetRenderDrawColor(renderer, 12, 18, 28, 255);
+                SDL_RenderFillRect(renderer, &treatyListBg);
+                SDL_SetRenderDrawColor(renderer, 90, 110, 140, 255);
+                SDL_RenderRect(renderer, &treatyListBg);
+
+                float treatyRowY = treatyListBg.y + treatyListPad;
+                for (TreatyType treaty : availableTreaties) {
+                    SDL_FRect treatyRowRect = {treatyListBg.x + treatyListPad, treatyRowY, treatyListBg.w - treatyListPad * 2.f, treatyRowH};
+
+                    bool bHoveredTreaty = SDL_PointInRectFloat(&mouseAddOfferPt, &treatyRowRect);
+                    if (bHoveredTreaty) SDL_SetRenderDrawColor(renderer, 60, 75, 105, 255);
+                    else SDL_SetRenderDrawColor(renderer, 25, 32, 45, 255);
+                    SDL_RenderFillRect(renderer, &treatyRowRect);
+                    SDL_SetRenderDrawColor(renderer, 70, 85, 110, 255);
+                    SDL_RenderRect(renderer, &treatyRowRect);
+
+                    // text centered
+                    drawTextCentered(gameDiplomacyDescText, GetTreatyData(treaty).name, treatyRowRect, white);
+
+                    treatyListRects.push_back({treatyRowRect, treaty});
+                    treatyRowY += treatyRowH + treatyRowGap;
+                }
+
+
+            }
+
+
+
             //Counter offer Deal button
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
             float mouseXCounterDeal,mouseYCounterDeal;
@@ -13045,10 +13161,30 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
             // In diplomacy popup only Return button Works and nothing else from the background
             if (app.bDiplomacyInfoPopup) {
-                for (auto& [rect, faction] : app.diplomacyFactionRowRects) {
-                    if (SDL_PointInRectFloat(&MousePT, &rect)) {
-                        app.selectedDiplomacyFaction = faction;
+                //Add Offer/Demand + treaty list (only when negotiating)
+                if (app.bIsTradingWithSpecificFaction) {
+                    if (app.bShowTreatyList) {
+                        for (auto& [rect, treaty] : app.treatyListRects) {
+                            if (SDL_PointInRectFloat(&MousePT, &rect)) {
+                                SDL_Log("Treaty selected: %s", app.GetTreatyData(treaty).name);
+                                app.bShowTreatyList = false;
+                                return SDL_APP_CONTINUE;
+                            }
+                        }
+                    }
+                    if (SDL_PointInRectFloat(&MousePT, &app.DiplomacyAddOfferDemandButton)) {
+                        app.bShowTreatyList = !app.bShowTreatyList;
                         return SDL_APP_CONTINUE;
+                    }
+                }
+
+                // Les rangées de factions ne doivent marcher que hors négociation
+                if (!app.bIsTradingWithSpecificFaction) {
+                    for (auto& [rect, faction] : app.diplomacyFactionRowRects) {
+                        if (SDL_PointInRectFloat(&MousePT, &rect)) {
+                            app.selectedDiplomacyFaction = faction;
+                            return SDL_APP_CONTINUE;
+                        }
                     }
                 }
                 //Buttons before initiating Trade
@@ -13065,7 +13201,11 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 if (app.bIsTradingWithSpecificFaction && app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyQuitDealButton)) {
                     app.bIsTradingWithSpecificFaction = false;
                 }
-
+                //when closing negociations
+                if (app.bIsTradingWithSpecificFaction && app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyQuitDealButton)) {
+                    app.bIsTradingWithSpecificFaction = false;
+                    app.bShowTreatyList = false;
+                }
                 return SDL_APP_CONTINUE;
             }
             // Minimap click -> jump camera there
