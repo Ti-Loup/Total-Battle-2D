@@ -730,7 +730,8 @@ public:
     SDL_Texture *defensiveAllianceDiplomacyIconTexture = nullptr;
     SDL_Texture *militaryAllianceDiplomacyIconTexture = nullptr;
     SDL_Texture *warDiplomacyIconTexture = nullptr;
-
+    SDL_Texture *friendshipDiplomacyIconTexture = nullptr;
+    SDL_Texture *militaryAccessDiplomacyIconTexture = nullptr;
 
     //buttons Win condition +Missions
     //900.f, 185.f, 200, 40
@@ -2171,6 +2172,17 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture warDiplomacyIconTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(warDiplomacyIconTexture, SDL_SCALEMODE_NEAREST);
+        friendshipDiplomacyIconTexture = IMG_LoadTexture(renderer, "assets/FriendshipDiplomacyIcon.png");
+        if (friendshipDiplomacyIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture friendshipDiplomacyIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(friendshipDiplomacyIconTexture, SDL_SCALEMODE_NEAREST);
+
+        militaryAccessDiplomacyIconTexture = IMG_LoadTexture(renderer, "assets/MilitaryAccessDiplomacyIcon.png");
+        if (militaryAccessDiplomacyIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture militaryAccessDiplomacyIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(militaryAccessDiplomacyIconTexture, SDL_SCALEMODE_NEAREST);
         gameStartDiplomacyTexture = IMG_LoadTexture(renderer, "assets/StartDiplomacyIcon.png");
         if (gameStartDiplomacyTexture == nullptr) {
             SDL_LogWarn(0, "failed to load texture gameStartDiplomacyTexture", SDL_GetError());
@@ -4296,6 +4308,8 @@ private://constructor
         SDL_DestroyTexture(defensiveAllianceDiplomacyIconTexture);
         SDL_DestroyTexture(militaryAllianceDiplomacyIconTexture);
         SDL_DestroyTexture(warDiplomacyIconTexture);
+        SDL_DestroyTexture(friendshipDiplomacyIconTexture);
+        SDL_DestroyTexture(militaryAccessDiplomacyIconTexture);
         SDL_DestroyTexture(gameWinConditionConquestShortIconTexture);
         SDL_DestroyTexture(gameWinConditionConquestLongIconTexture);
         SDL_DestroyTexture(gameWinConditionConstructionShortIconTexture);
@@ -10445,20 +10459,57 @@ public:
         bool bDefensivePact = false;
         bool bMilitaryAlliance = false;
         bool bVassal = false;
+        bool bTrade = false;
+        bool bFriendship = false;
     };
     std::unordered_map<int, DiplomacyState> diplomacyWithFaction;
     bool bShowTreatyList = false; //for the add/demand offer button
     std::vector<std::pair<SDL_FRect, TreatyType>> treatyListRects;
+    std::vector<TreatyType> dealDemands;
+    float dealDemandsScrollOffset = 0.f; //for scroll offset for demands
+    float dealDemandsMaxScroll = 0.f;
+    SDL_FRect dealDemandsViewportRect = {0.f, 0.f, 0.f, 0.f};
+    std::vector<std::pair<SDL_FRect, int>> dealDemandRemoveRects;// for the buttons rect for the index in dealDemands
+    //Declare War confirmation panel ~~ replaces the deal UI
+    bool bShowDeclareWarPanel = false;
+    Circle DeclareWarConfirmButton = {930.f, 1042.f, 25};
+    Circle DeclareWarCancelButton  = {990.f, 1042.f, 25};
 
+    void ApplyTreaty(TreatyType t, DiplomacyState& s) {
+        switch (t) {
+            case TreatyType::Trade: s.bTrade = true;
+                break;
+            case TreatyType::MilitaryAccess: s.bMilitaryAccess = true;
+                break;
+            case TreatyType::DefensivePact: s.bDefensivePact = true;
+                if (!s.bMilitaryAlliance) s.bDefensivePact = true;
+                break;
+            case TreatyType::MilitaryAlliance:s.bMilitaryAlliance = true;s.bDefensivePact = false;// an alliance replaces a defensive pact
+                break;
+            case TreatyType::CreateVassal: s.bVassal = true;
+                break;
+            case TreatyType::CancelVassal: s.bVassal = false;
+                break;
+            case TreatyType::DeclareWar:
+                s = DiplomacyState(); // war cancels every other agreement
+                s.bAtWar = true;
+                break;
+            case TreatyType::MakePeace: s.bAtWar = false;
+                break;
+            case TreatyType::DeclarationOfFriendship: s.bFriendship = true;
+                break;
+            default: break; // Payment, Marriage, Friendship: nothing permanent to store
+        }
+    }
 
     bool IsTreatyAvailable(TreatyType t, const DiplomacyState& s) {//if at war some treaties can't be signed.
         switch (t) {
-            case TreatyType::Payment:
-            case TreatyType::Trade: return !s.bAtWar;
+            case TreatyType::Payment: return !s.bAtWar;
+            case TreatyType::Trade: return !s.bAtWar && !s.bTrade;
             case TreatyType::ArrangeMarriage: return !s.bAtWar;
-            case TreatyType::DeclarationOfFriendship: return !s.bAtWar;
+            case TreatyType::DeclarationOfFriendship: return !s.bAtWar && !s.bFriendship;
             case TreatyType::MilitaryAccess: return !s.bAtWar && !s.bMilitaryAccess;
-            case TreatyType::DefensivePact: return !s.bAtWar && !s.bDefensivePact;
+            case TreatyType::DefensivePact: return !s.bAtWar && !s.bDefensivePact && !s.bMilitaryAlliance;
             case TreatyType::MilitaryAlliance: return !s.bAtWar && !s.bMilitaryAlliance;
             case TreatyType::CreateVassal: return !s.bAtWar && !s.bVassal;
             case TreatyType::CancelVassal: return !s.bAtWar;
@@ -10606,13 +10657,13 @@ private:
             }
 
             //Relations
-            struct RelationBlock { SDL_Texture* icon; const char* title; };
+            struct RelationBlock { SDL_Texture* icon; const char* title; bool DiplomacyState::*factionFlag;};
             RelationBlock relationBlocks[5] = {
-            {vassalDiplomacyIconTexture,  "Vassals"},
-            {militaryAllianceDiplomacyIconTexture, "Military Allies"},
-            {defensiveAllianceDiplomacyIconTexture, "Defensive Pacts"},
-            {warDiplomacyIconTexture, "Enemies"},
-            {tradeDiplomacyIconTexture, "Trade Treaties"}
+            {vassalDiplomacyIconTexture,  "Vassals", &DiplomacyState::bVassal},
+            {militaryAllianceDiplomacyIconTexture, "Military Allies", &DiplomacyState::bMilitaryAlliance},
+            {defensiveAllianceDiplomacyIconTexture, "Defensive Pacts", &DiplomacyState::bDefensivePact},
+            {warDiplomacyIconTexture, "Enemies", &DiplomacyState::bAtWar},
+            {tradeDiplomacyIconTexture, "Trade Treaties", &DiplomacyState::bTrade}
             };
             const float blockTitleH = 20.f;
             const float blockBoxH  = 26.f;
@@ -10647,6 +10698,32 @@ private:
                 SDL_RenderFillRect(renderer, &listBox);
                 SDL_SetRenderDrawColor(renderer, 90, 110, 140, 255);
                 SDL_RenderRect(renderer, &listBox);
+
+                // banners of the factions that have this treaty
+                std::vector<FactionZone> relatedFactions;
+                if (bIsPlayer) {
+                    // player panel: every other faction we have this treaty with
+                    for (FactionZone f : otherFactions) {
+                        auto it = diplomacyWithFaction.find((int)f);
+                        if (it != diplomacyWithFaction.end() && it->second.*(block.factionFlag))
+                            relatedFactions.push_back(f);
+                    }
+                } else {
+                    // other faction panel: the player's banner if they have this treaty with us
+                    auto it = diplomacyWithFaction.find((int)faction);
+                    if (it != diplomacyWithFaction.end() && it->second.*(block.factionFlag))
+                        relatedFactions.push_back(player.faction);
+                }
+
+                const float relBannerSize = blockBoxH - 4.f;
+                float relBannerX = listBox.x + 3.f;
+                for (FactionZone relatedFaction : relatedFactions) {
+                    SDL_FRect relBannerRect = {relBannerX, listBox.y + 2.f, relBannerSize, relBannerSize};
+                    if (SDL_Texture* relTex = getBanner(relatedFaction))
+                        SDL_RenderTexture(renderer, relTex, nullptr, &relBannerRect);
+                    relBannerX += relBannerSize + 4.f;
+                }
+
 
                 blockY += blockH;
             }
@@ -10810,7 +10887,7 @@ private:
             SDL_SetTextureAlphaMod(gameQuitDealTexture, 255);
         }
         //Inside Specific trade with other faction
-        if (bIsTradingWithSpecificFaction) {
+        if (bIsTradingWithSpecificFaction && !bShowDeclareWarPanel) {
             SDL_FRect tradeTitleRect = {830.f, 730.f, 260.f, 30.f};
             SDL_SetRenderDrawColor(renderer, 70, 70, 70, 255);
             SDL_RenderFillRect(renderer, &tradeTitleRect);
@@ -10881,6 +10958,90 @@ private:
             SDL_FRect yourDemandsContent = drawSection(yourDemandsRect, "Your Demands");
             SDL_FRect treatiesContent = drawSection(treatiesRect, "Treaties");
 
+            // player demands inset rows + remove button + scroll
+            {
+                const SDL_FRect& viewport = yourDemandsContent;
+                dealDemandsViewportRect = viewport;
+                dealDemandRemoveRects.clear();
+
+                const float demandPad = 8.f;
+                const float demandRowH = 40.f;
+                const float demandRowGap = 8.f;
+                const float removeBtnSize = 22.f;
+                const float removeBtnGap = 8.f;
+                const float scrollbarW = 6.f;
+
+                int demandCount = (int)dealDemands.size();
+                float contentHeight = demandPad * 2.f + demandCount * demandRowH + std::max(0, demandCount - 1) * demandRowGap;
+                dealDemandsMaxScroll = std::max(0.f, contentHeight - viewport.h);
+                dealDemandsScrollOffset = std::clamp(dealDemandsScrollOffset, 0.f, dealDemandsMaxScroll);
+                bool bNeedsScroll = dealDemandsMaxScroll > 0.f;
+
+                // row width leaves room for the X button on the right (and the scrollbar if needed)
+                float rowW = viewport.w - demandPad * 2.f - removeBtnSize - removeBtnGap - (bNeedsScroll ? scrollbarW + 4.f : 0.f);
+
+                SDL_Rect clip = {(int)viewport.x, (int)viewport.y, (int)viewport.w, (int)viewport.h};
+                SDL_SetRenderClipRect(renderer, &clip);
+
+                float rowY = viewport.y + demandPad - dealDemandsScrollOffset;
+                for (int i = 0; i < demandCount; i++) {
+                    bool bDemandVisible = (rowY + demandRowH >= viewport.y) && (rowY <= viewport.y + viewport.h);
+                    if (bDemandVisible) {
+                        // framed row (inset from the panel edges)
+                        SDL_FRect demandRect = {viewport.x + demandPad, rowY, rowW, demandRowH};
+                        SDL_SetRenderDrawColor(renderer, 25, 32, 45, 255);
+                        SDL_RenderFillRect(renderer, &demandRect);
+                        SDL_SetRenderDrawColor(renderer, 120, 135, 160, 255);
+                        SDL_RenderRect(renderer, &demandRect);
+                        SDL_FRect innerRect = {demandRect.x + 3.f, demandRect.y + 3.f, demandRect.w - 6.f, demandRect.h - 6.f};
+                        SDL_SetRenderDrawColor(renderer, 60, 75, 100, 255);
+                        SDL_RenderRect(renderer, &innerRect);
+
+                        // treaty name warped inside those rects created
+                        TTF_SetTextWrapWidth(gameDiplomacyDescText, (int)(demandRect.w - 16.f));
+                        TTF_SetTextString(gameDiplomacyDescText, GetTreatyData(dealDemands[i]).name, 0);
+                        TTF_SetTextColor(gameDiplomacyDescText, 255, 255, 255, 255);
+                        int tw = 0, th = 0;
+                        TTF_GetTextSize(gameDiplomacyDescText, &tw, &th);
+                        TTF_DrawRendererText(gameDiplomacyDescText,demandRect.x + (demandRect.w - tw) / 2.f,demandRect.y + (demandRect.h - th) / 2.f);
+                        TTF_SetTextWrapWidth(gameDiplomacyDescText, 0);
+
+                        // round X button to the right of the demand Rect to cancel it
+                        float btnR = removeBtnSize / 2.f;
+                        float btnCX = demandRect.x + demandRect.w + removeBtnGap + btnR;
+                        float btnCY = demandRect.y + demandRect.h / 2.f;
+                        SDL_FRect removeRect = {btnCX - btnR, btnCY - btnR, removeBtnSize, removeBtnSize};
+                        bool bHoveredRemove = SDL_PointInRectFloat(&mouseAddOfferPt, &removeRect) &&
+                                  SDL_PointInRectFloat(&mouseAddOfferPt, &viewport);
+
+                        SDL_SetRenderDrawColor(renderer, 200, 210, 230, 255);
+                        RenderCircle(btnCX, btnCY, btnR);
+                        SDL_SetRenderDrawColor(renderer, bHoveredRemove ? 70 : 40, bHoveredRemove ? 100 : 70, bHoveredRemove ? 170 : 130, 255);
+                        RenderCircle(btnCX, btnCY, btnR - 1.5f);
+                        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                        const float xs = 4.f;
+                        SDL_RenderLine(renderer, btnCX - xs, btnCY - xs, btnCX + xs, btnCY + xs);
+                        SDL_RenderLine(renderer, btnCX - xs, btnCY + xs, btnCX + xs, btnCY - xs);
+
+                        dealDemandRemoveRects.push_back({removeRect, i});
+                    }
+                    rowY += demandRowH + demandRowGap;
+                }
+                SDL_SetRenderClipRect(renderer, nullptr);
+
+                // scrollbar
+                if (bNeedsScroll) {
+                    SDL_FRect track = {viewport.x + viewport.w - scrollbarW - 2.f, viewport.y + 2.f, scrollbarW, viewport.h - 4.f};
+                    SDL_SetRenderDrawColor(renderer, 20, 28, 42, 255);
+                    SDL_RenderFillRect(renderer, &track);
+                    float thumbH = std::max(20.f, track.h * (viewport.h / contentHeight));
+                    float thumbY = track.y + (track.h - thumbH) * (dealDemandsScrollOffset / dealDemandsMaxScroll);
+                    SDL_FRect thumb = {track.x, thumbY, scrollbarW, thumbH};
+                    SDL_SetRenderDrawColor(renderer, 90, 110, 140, 255);
+                    SDL_RenderFillRect(renderer, &thumb);
+                }
+            }
+
             //list of available treaties when pressed the show treaty button
             treatyListRects.clear();
             if (bShowTreatyList) {
@@ -10889,7 +11050,15 @@ private:
                 std::vector<TreatyType> availableTreaties;
                 for (int i = 0; i < (int)TreatyType::Count; i++) {
                     TreatyType treaty = (TreatyType)i;
-                    if (IsTreatyAvailable(treaty, diplomacyState)) availableTreaties.push_back(treaty);
+                    bool bAlreadyInDeal = std::find(dealDemands.begin(), dealDemands.end(), treaty) != dealDemands.end();
+
+                    // a military alliance in the deal makes a defensive pact pointless
+                    bool bConflictsWithDeal = (treaty == TreatyType::DefensivePact) &&
+                        std::find(dealDemands.begin(), dealDemands.end(), TreatyType::MilitaryAlliance) != dealDemands.end();
+
+                    if (IsTreatyAvailable(treaty, diplomacyState) && !bAlreadyInDeal && !bConflictsWithDeal) {
+                        availableTreaties.push_back(treaty);
+                    }
                 }
                 const float treatyRowH = 30.f;
                 const float treatyRowGap = 4.f;
@@ -10897,7 +11066,7 @@ private:
                 float treatyListH = (float)availableTreaties.size() * (treatyRowH + treatyRowGap) - treatyRowGap + treatyListPad * 2.f;
 
                 //the background that scale based on the treaties amount
-                SDL_FRect treatyListBg = {DiplomacyAddOfferDemandButton.x,DiplomacyAddOfferDemandButton.y - treatyListH - 4.f,DiplomacyAddOfferDemandButton.w,treatyListH};
+                SDL_FRect treatyListBg = {DiplomacyAddOfferDemandButton.x - 10.f,DiplomacyAddOfferDemandButton.y - treatyListH - 4.f,DiplomacyAddOfferDemandButton.w + 20.f,treatyListH};
                 if (treatyListBg.y < 5.f) treatyListBg.y = 5.f;
 
                 SDL_SetRenderDrawColor(renderer, 12, 18, 28, 255);
@@ -10922,10 +11091,32 @@ private:
                     treatyListRects.push_back({treatyRowRect, treaty});
                     treatyRowY += treatyRowH + treatyRowGap;
                 }
-
-
             }
+            // Icons of the current treaties with this faction (always visible, stacked vertically and centered)
+            {
+                const DiplomacyState& currentDiplomacy = diplomacyWithFaction[(int)otherFaction];
+                std::vector<SDL_Texture*> treatyIcons;
+                if (currentDiplomacy.bAtWar) treatyIcons.push_back(warDiplomacyIconTexture);
+                if (currentDiplomacy.bTrade) treatyIcons.push_back(tradeDiplomacyIconTexture);
+                if (currentDiplomacy.bVassal) treatyIcons.push_back(vassalDiplomacyIconTexture);
+                if (currentDiplomacy.bDefensivePact) treatyIcons.push_back(defensiveAllianceDiplomacyIconTexture);
+                if (currentDiplomacy.bMilitaryAlliance) treatyIcons.push_back(militaryAllianceDiplomacyIconTexture);
+                if (currentDiplomacy.bFriendship) treatyIcons.push_back(friendshipDiplomacyIconTexture);
+                if (currentDiplomacy.bMilitaryAccess) treatyIcons.push_back(militaryAccessDiplomacyIconTexture);
 
+                const float treatyIconSize = 32.f;
+                const float treatyIconGap  = 4.f;
+                float treatyIconX = treatiesContent.x + (treatiesContent.w - treatyIconSize) / 2.f; // horizontally centered
+
+                for (int i = 0; i < (int)treatyIcons.size(); i++) {
+                    SDL_FRect treatyIconRect = {
+                        treatyIconX,
+                        treatiesContent.y + i * (treatyIconSize + treatyIconGap), // one under the other
+                        treatyIconSize, treatyIconSize
+                    };
+                    if (treatyIcons[i]) SDL_RenderTexture(renderer, treatyIcons[i], nullptr, &treatyIconRect);
+                }
+            }
 
 
             //Counter offer Deal button
@@ -10962,6 +11153,103 @@ private:
             RenderBoutonCercle(DiplomacyQuitDealButton, nullptr, gameQuitDealTexture, 0, 0, 0);
             SDL_SetTextureAlphaMod(gameQuitDealTexture, 255);
         }
+
+        //Declare War panel
+        if (bIsTradingWithSpecificFaction && bShowDeclareWarPanel) {
+            const SDL_FRect& factionSelectbackground = factionSelectionBackgroundRect;
+
+            //Title
+            SDL_FRect warTitleRect = {830.f, 730.f, 260.f, 30.f};
+            SDL_SetRenderDrawColor(renderer, 70, 70, 70, 255);
+            SDL_RenderFillRect(renderer, &warTitleRect);
+            SDL_SetRenderDrawColor(renderer, 190, 190, 190, 255);
+            SDL_RenderRect(renderer, &warTitleRect);
+            drawTextCentered(gameDiplomacyTitleText, "Declare War", warTitleRect, white);
+
+            //"sous title position
+            std::string electedStr = std::string("You have elected to declare war on:  ") + getName(otherFaction);
+            SDL_FRect electedRect = {factionSelectbackground.x, factionSelectbackground.y + 14.f, factionSelectbackground.w, 30.f};
+            drawTextCentered(gameDiplomacySousTitleText, electedStr.c_str(), electedRect, white);
+
+            //Strength bar (same as the deal screen)
+            float warPlayerStrength = (float)strengthByFaction[player.faction];
+            float warOtherStrength = (float)strengthByFaction[otherFaction];
+            float warTotalStrength = warPlayerStrength + warOtherStrength;
+            float warPlayerShare = (warTotalStrength > 0.f) ? (warPlayerStrength / warTotalStrength) : 0.5f;
+            SDL_FRect warBarRect = {factionSelectbackground.x + factionSelectbackground.w - 120.f, factionSelectbackground.y + 25.f, 80.f, 8.f};
+            SDL_SetRenderDrawColor(renderer, 120, 20, 20, 255);
+            SDL_RenderFillRect(renderer, &warBarRect);
+            SDL_FRect warBarFill = {warBarRect.x, warBarRect.y, warBarRect.w * warPlayerShare, warBarRect.h};
+            SDL_SetRenderDrawColor(renderer, 230, 190, 20, 255);
+            SDL_RenderFillRect(renderer, &warBarFill);
+            SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
+            SDL_RenderRect(renderer, &warBarRect);
+
+            //Two columns to show the allies and ennemy allies
+            const float warPad = 24.f;
+            const float warGap = 21.f;
+            const float colW   = (factionSelectbackground.w - warPad * 2.f - warGap) / 2.f;
+            const float colTop = factionSelectbackground.y + 55.f;
+            const float colH   = 190.f;
+            SDL_FRect yourAlliesRect  = {factionSelectbackground.x + warPad, colTop, colW, colH};
+            SDL_FRect theirAlliesRect = {yourAlliesRect.x + colW + warGap, colTop, colW, colH};
+            SDL_FRect yourAlliesContent  = drawSection(yourAlliesRect, "Your Allies");
+            SDL_FRect theirAlliesContent = drawSection(theirAlliesRect, "Their Allies");
+
+            //Allies listsbanner + name + type of alliance
+            std::vector<std::pair<FactionZone, const char*>> yourAllies;
+            std::vector<std::pair<FactionZone, const char*>> theirAllies; // no AI-vs-AI relations stored yet, vector always empy
+            for (FactionZone f : allFactions) {
+                if (f == player.faction || f == otherFaction) continue;
+                auto it = diplomacyWithFaction.find((int)f);
+                if (it == diplomacyWithFaction.end()) continue;
+                if (it->second.bMilitaryAlliance) yourAllies.push_back({f, "Military alliance"});
+                else if (it->second.bDefensivePact) yourAllies.push_back({f, "Defensive pact"});
+            }
+
+            auto drawAllyRows = [&](const SDL_FRect& content, const std::vector<std::pair<FactionZone, const char*>>& allies) {
+                if (allies.empty()) {
+                drawTextCentered(gameDiplomacyDescText, "No allies", content, grey);
+                return;
+                }
+                float rowY = content.y + 4.f;
+                for (const auto& [allyFaction, relationLabel] : allies) {
+                    SDL_FRect allyBanner = {content.x + 8.f, rowY, 44.f, 44.f};
+                    if (SDL_Texture* allyTex = getBanner(allyFaction)) SDL_RenderTexture(renderer, allyTex, nullptr, &allyBanner);
+                    drawText(gameDiplomacySousTitleText, getName(allyFaction), content.x + 62.f, rowY, white);
+                    drawText(gameDiplomacyDescText, relationLabel, content.x + 62.f, rowY + 24.f, SDL_Color{230, 200, 120, 255});
+                    rowY += 52.f;
+                }
+            };
+
+            //Render ally ennemy row
+            drawAllyRows(yourAlliesContent, yourAllies);
+            drawAllyRows(theirAlliesContent, theirAllies);
+
+            //Warning text
+            SDL_FRect warningRect = {factionSelectbackground.x, colTop + colH + 2.f, factionSelectbackground.w, 24.f};
+            drawTextCentered(gameDiplomacyDescText, "Declaring war will end every agreement with this faction.", warningRect, SDL_Color{220, 90, 90, 255});
+
+            //Confirm / Cancel buttons
+            float mouseXWar, mouseYWar;
+            SDL_GetMouseState(&mouseXWar, &mouseYWar);
+            float lenghtXWar, lenghtYWar;
+            SDL_RenderCoordinatesFromWindow(renderer, mouseXWar, mouseYWar, &lenghtXWar, &lenghtYWar);
+
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+            bool bHoveredWarConfirm = ClickInsideCircle(lenghtXWar, lenghtYWar, DeclareWarConfirmButton);
+            SDL_SetTextureAlphaMod(gameMakeDealTexture, bHoveredWarConfirm ? 255 : 200);
+            RenderBoutonCercle(DeclareWarConfirmButton, nullptr, gameMakeDealTexture, 0, 0, 0);
+            SDL_SetTextureAlphaMod(gameMakeDealTexture, 255);
+
+            bool bHoveredWarCancel = ClickInsideCircle(lenghtXWar, lenghtYWar, DeclareWarCancelButton);
+            SDL_SetTextureAlphaMod(gameQuitDealTexture, bHoveredWarCancel ? 255 : 200);
+            RenderBoutonCercle(DeclareWarCancelButton, nullptr, gameQuitDealTexture, 0, 0, 0);
+            SDL_SetTextureAlphaMod(gameQuitDealTexture, 255);
+        }
+
+
+
     }
     void RenderFamilyHierarchyInfoPopup() {
         if (!bFamilyHierarchyInfoPopup) return;
@@ -13161,12 +13449,49 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
             // In diplomacy popup only Return button Works and nothing else from the background
             if (app.bDiplomacyInfoPopup) {
+                //Declare War panel: only its 2 buttons work, everything else is blocked
+                if (app.bShowDeclareWarPanel) {
+                    if (app.ClickInsideCircle(nouveauX, nouveauY, app.DeclareWarConfirmButton)) {
+                        GameApp::DiplomacyState& warState = app.diplomacyWithFaction[(int)app.selectedDiplomacyFaction];
+                        app.ApplyTreaty(GameApp::TreatyType::DeclareWar, warState); // resets every treaty + bAtWar = true
+                        app.dealDemands.clear();
+                        app.dealDemandsScrollOffset = 0.f;
+                        app.bShowDeclareWarPanel = false;
+                        app.bIsTradingWithSpecificFaction = false; // back to the Known Factions screen
+                    }
+                    else if (app.ClickInsideCircle(nouveauX, nouveauY, app.DeclareWarCancelButton)) {
+                        app.bShowDeclareWarPanel = false; // back to the deal screen, demands untouched
+                    }
+                    return SDL_APP_CONTINUE;
+                }
                 //Add Offer/Demand + treaty list (only when negotiating)
                 if (app.bIsTradingWithSpecificFaction) {
+                    // remove a demand with its X button
+                    if (SDL_PointInRectFloat(&MousePT, &app.dealDemandsViewportRect)) {
+                        for (auto& [rect, index] : app.dealDemandRemoveRects) {
+                            if (SDL_PointInRectFloat(&MousePT, &rect)) {
+                                if (index >= 0 && index < (int)app.dealDemands.size())
+                                    app.dealDemands.erase(app.dealDemands.begin() + index);
+                                return SDL_APP_CONTINUE;
+                            }
+                        }
+                    }
                     if (app.bShowTreatyList) {
                         for (auto& [rect, treaty] : app.treatyListRects) {
                             if (SDL_PointInRectFloat(&MousePT, &rect)) {
-                                SDL_Log("Treaty selected: %s", app.GetTreatyData(treaty).name);
+                                //War is not a demand open the Declare War panel instead
+                                if (treaty == GameApp::TreatyType::DeclareWar) {
+                                    app.bShowDeclareWarPanel = true;
+                                    app.bShowTreatyList = false;
+                                    return SDL_APP_CONTINUE;
+                                }
+                                // milirary alliance replace a defensive while pending demand.
+                                if (treaty == GameApp::TreatyType::MilitaryAlliance) {
+                                    app.dealDemands.erase(
+                                        std::remove(app.dealDemands.begin(), app.dealDemands.end(), GameApp::TreatyType::DefensivePact),
+                                        app.dealDemands.end());
+                                }
+                                app.dealDemands.push_back(treaty);
                                 app.bShowTreatyList = false;
                                 return SDL_APP_CONTINUE;
                             }
@@ -13196,15 +13521,16 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 }
                 //Buttons after initiating Trade
                 if (app.bIsTradingWithSpecificFaction && app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyMakeDealButton)) {
-                    //deal completed
+                    GameApp::DiplomacyState& state = app.diplomacyWithFaction[(int)app.selectedDiplomacyFaction];
+                    for (GameApp::TreatyType t : app.dealDemands) app.ApplyTreaty(t, state);
+                    app.dealDemands.clear();
+                    app.dealDemandsScrollOffset = 0.f;
                 }
-                if (app.bIsTradingWithSpecificFaction && app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyQuitDealButton)) {
-                    app.bIsTradingWithSpecificFaction = false;
-                }
-                //when closing negociations
                 if (app.bIsTradingWithSpecificFaction && app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyQuitDealButton)) {
                     app.bIsTradingWithSpecificFaction = false;
                     app.bShowTreatyList = false;
+                    app.dealDemands.clear();
+                    app.dealDemandsScrollOffset = 0.f;
                 }
                 return SDL_APP_CONTINUE;
             }
@@ -14064,7 +14390,13 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         float wheelLogicX, wheelLogicY;
         SDL_RenderCoordinatesFromWindow(app.renderer, wheelMouseX, wheelMouseY, &wheelLogicX, &wheelLogicY);
         SDL_FPoint wheelPt = {wheelLogicX, wheelLogicY};
-
+        // Diplomacy open scroll the demands list, never zoom the map behind it
+        if (app.bDiplomacyInfoPopup) {
+            if (app.bIsTradingWithSpecificFaction && SDL_PointInRectFloat(&wheelPt, &app.dealDemandsViewportRect)) {
+                app.dealDemandsScrollOffset = std::clamp(app.dealDemandsScrollOffset - event->wheel.y * 30.f, 0.f, app.dealDemandsMaxScroll);
+            }
+            return SDL_APP_CONTINUE;
+        }
         // Goods Production Manager: scroll Raw Goods / Modified Goods independently
         if (app.bGoodsProductionManagerPopup) {
             const float scrollStep = 40.f;
