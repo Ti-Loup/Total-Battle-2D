@@ -10885,6 +10885,56 @@ private:
             SDL_SetTextureAlphaMod(gameQuitDealTexture, returnAlpha);
             RenderBoutonCercle(DiplomacyButtonReturnGame, nullptr, gameQuitDealTexture, 0, 0, 0);
             SDL_SetTextureAlphaMod(gameQuitDealTexture, 255);
+
+
+            //Hovered mouse on top of start diplomacy (initiate Diplomacy)
+            if (bHoveredStartDiplomacyButton) {
+                const char *startDiplomacySpecificFactionLabel = "Initiate Diplomacy";
+                TTF_SetTextString(gameDiplomacyDescText, startDiplomacySpecificFactionLabel, 0);
+                int nameW = 0, nameH = 0;
+                TTF_GetTextSize(gameDiplomacyDescText, &nameW, &nameH);
+
+                float padX = 8.f, padY = 5.f;
+                float textW = nameW + padX * 2.f;
+                float textH = nameH + padY * 2.f;
+                float textX = lenghtXStartDiplomacy + 15.f; //offset on the cursor
+                float textY = lenghtYStartDiplomacy - textH / 2.f;//centered on cursor
+
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                SDL_SetRenderDrawColor(renderer, 12,10,8, 240);
+                SDL_FRect tooltipStartDipBackground = {textX, textY, textW, textH};
+                SDL_RenderFillRect(renderer, &tooltipStartDipBackground);
+                SDL_SetRenderDrawColor(renderer, 40, 90, 110, 255);
+                SDL_RenderRect(renderer, &tooltipStartDipBackground);
+
+                TTF_SetTextColor(gameDiplomacyDescText, 240, 240, 240, 255);
+                TTF_DrawRendererText(gameDiplomacyDescText, textX+ padX, textY + padY);
+            }
+            //hovered mouse on top of Quit diplomacy (`Cancel``)
+            if (bHoveredReturnButton) {
+                const char *quitDiplomacyLabel = "Cancel";
+                TTF_SetTextString(gameDiplomacyDescText, quitDiplomacyLabel, 0);
+                int nameW = 0, nameH = 0;
+                TTF_GetTextSize(gameDiplomacyDescText, &nameW, &nameH);
+
+                float padX = 8.f, padY = 5.f;
+                float textW = nameW + padX * 2.f;
+                float textH = nameH + padY * 2.f;
+                float textX = lenghtXReturn + 15.f;//offset on the cursor
+                float textY = lenghtYReturn - textH / 2.f;//centered on cursor
+
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                SDL_SetRenderDrawColor(renderer, 12,10,8,240);
+                SDL_FRect tooltipReturnDipBackground = {textX, textY, textW, textH};
+                SDL_RenderFillRect(renderer, &tooltipReturnDipBackground);
+                SDL_SetRenderDrawColor(renderer, 40,90,110,255);
+                SDL_RenderRect(renderer, &tooltipReturnDipBackground);
+
+                TTF_SetTextColor(gameDiplomacyDescText, 240, 240, 240, 255);
+                TTF_DrawRendererText(gameDiplomacyDescText, textX + padX, textY + padY);
+            }
+
+
         }
         //Inside Specific trade with other faction
         if (bIsTradingWithSpecificFaction && !bShowDeclareWarPanel) {
@@ -11130,6 +11180,7 @@ private:
             SDL_SetTextureAlphaMod(gameCounterDealTexture, counterDealAlpha);
             RenderBoutonCercle(DiplomacyCounterDealButton, nullptr, gameCounterDealTexture, 0, 0, 0);
             SDL_SetTextureAlphaMod(gameCounterDealTexture, 255);
+
             //Make Deal button
             SDL_SetRenderDrawColor(renderer, 0, 0, 0,0);
             float mouseXDeal, mouseYDeal;
@@ -11141,6 +11192,7 @@ private:
             SDL_SetTextureAlphaMod(gameMakeDealTexture, dealAlpha);//same texture just to text positions
             RenderBoutonCercle(DiplomacyMakeDealButton, nullptr, gameMakeDealTexture, 0, 0, 0);
             SDL_SetTextureAlphaMod(gameMakeDealTexture, 255);
+
             //Return To Faction Selection button
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
             float mouseXQuitDeal, mouseYQuitDeal;
@@ -11152,6 +11204,77 @@ private:
             SDL_SetTextureAlphaMod(gameQuitDealTexture, quitDealAlpha);
             RenderBoutonCercle(DiplomacyQuitDealButton, nullptr, gameQuitDealTexture, 0, 0, 0);
             SDL_SetTextureAlphaMod(gameQuitDealTexture, 255);
+
+            //Counter offer houvered mouse text (Counter-offer)
+            if (bHoveredCounterDealButton) {
+                const char *counterOfferFactionLabel = "Counter-offer";
+                TTF_SetTextString(gameDiplomacyDescText, counterOfferFactionLabel, 0);
+                int nameW = 0,nameH = 0;
+                TTF_GetTextSize(gameDiplomacyDescText, &nameW, &nameH);
+
+                float padX = 8.f, padY = 5.f;
+                float textW = nameW + padX * 2.f;
+                float textH = nameH + padY * 2.f;
+                float textX = lenghtXCounterDeal + 15.f;//offset on the cursor
+                float textY = lenghtYCounterDeal - textH / 2.f;//centered on cursor
+
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                SDL_SetRenderDrawColor(renderer, 12,10,8,240);
+                SDL_FRect tooltipCounterOfferBackground = {textX, textY, textW, textH};
+                SDL_RenderFillRect(renderer, &tooltipCounterOfferBackground);
+                SDL_SetRenderDrawColor(renderer, 40, 90, 110, 255);
+                SDL_RenderRect(renderer, &tooltipCounterOfferBackground);
+
+                TTF_SetTextColor(gameDiplomacyDescText, 240, 240, 240, 255);
+                TTF_DrawRendererText(gameDiplomacyDescText, textX + padX, textY + padY);
+            }
+            //hovered mouse text "Propose offer"
+            if (bHoveredDealButton) {
+                const char *makeDealOfferLabel = "Propose offer";
+                TTF_SetTextString(gameDiplomacyDescText, makeDealOfferLabel, 0);
+                int nameW = 0, nameH = 0;
+                TTF_GetTextSize(gameDiplomacyDescText, &nameW, &nameH);
+
+                float padX = 8.f, padY = 5.f;
+                float textW = nameW + padX * 2.f;
+                float textH = nameH + padY * 2.f;
+                float textX = lenghtXDeal + 15.f; //offset on the cursor
+                float textY = lenghtYDeal - textH / 2.f;//centered on cursor
+
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                SDL_SetRenderDrawColor(renderer, 12,10,8,240);
+                SDL_FRect tooltipMakeOfferBackground = {textX, textY, textW, textH};
+                SDL_RenderFillRect(renderer, &tooltipMakeOfferBackground);
+                SDL_SetRenderDrawColor(renderer, 40, 90, 110, 255);
+                SDL_RenderRect(renderer, &tooltipMakeOfferBackground);
+
+                TTF_SetTextColor(gameDiplomacyDescText, 240,240,240,255);
+                TTF_DrawRendererText(gameDiplomacyDescText, textX + padX, textY + padY);
+            }
+
+            //hovered mouseText "Cancel"
+            if (bHoveredQuitDealButton) {
+                const char* quitDealOfferLabel = "Cancel";
+                TTF_SetTextString(gameDiplomacyDescText, quitDealOfferLabel, 0);
+                int nameW=0, nameH=0;
+                TTF_GetTextSize(gameDiplomacyDescText, &nameW, &nameH);
+
+                float padX = 8.f, padY = 5.f;
+                float textW = nameW + padX * 2.f;
+                float textH = nameH + padY * 2.f;
+                float textX = lenghtXQuitDeal + 15.f;//offset on the cursor
+                float textY = lenghtYQuitDeal - textH / 2.f;//centered on cursor
+
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+                SDL_FRect tooltipQuitDealBackground = {textX, textY, textW, textH};
+                SDL_RenderFillRect(renderer, &tooltipQuitDealBackground);
+                SDL_SetRenderDrawColor(renderer, 40, 90, 110, 255);
+                SDL_RenderRect(renderer, &tooltipQuitDealBackground);
+
+                TTF_SetTextColor(gameDiplomacyDescText, 240,240,240,255);
+                TTF_DrawRendererText(gameDiplomacyDescText, textX + padX, textY + padY);
+            }
         }
 
         //Declare War panel
