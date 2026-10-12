@@ -11517,7 +11517,7 @@ private:
             drawDot(PaymentOfferGiftDot, bOfferGift, "Offer gift");
             drawDot(PaymentDemandDot, bDemandPayment, "Demand Payment");
 
-
+            //Clickable Textures rect
 
 
 
