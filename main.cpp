@@ -10579,15 +10579,22 @@ private:
             TTF_SetTextColor(text, color.r, color.g, color.b, color.a);
             TTF_DrawRendererText(text, x, y);
         };
-        //For Middle text inside rect with color (Soustitle)
-        auto drawTextCentered = [&](TTF_Text *text, const char *string, const SDL_FRect &rect, SDL_Color color) {
-            TTF_SetTextWrapWidth(text, 0);
+        //For Middle text inside rect with color &&If wrapPadding >= 0 the text wraps inside the rect
+        auto drawTextCentered = [&](TTF_Text *text, const char *string, const SDL_FRect &rect, SDL_Color color, float wrapPadding = -1.f) {
+            bool bWrap = wrapPadding >= 0.f;
+            TTF_SetTextWrapWidth(text, bWrap ? (int)(rect.w - wrapPadding * 2.f) : 0);
+            if (bWrap) TTF_SetFontWrapAlignment(TTF_GetTextFont(text), TTF_HORIZONTAL_ALIGN_CENTER);
             TTF_SetTextString(text, string, 0);
             TTF_SetTextColor(text, color.r, color.g, color.b, color.a);
             int w = 0;
             int h = 0;
             TTF_GetTextSize(text, &w, &h);
             TTF_DrawRendererText(text, rect.x + (rect.w - w) / 2.f, rect.y + (rect.h - h) / 2.f);
+            //reset because the font/text are shared
+            if (bWrap) {
+                TTF_SetFontWrapAlignment(TTF_GetTextFont(text), TTF_HORIZONTAL_ALIGN_LEFT);
+                TTF_SetTextWrapWidth(text, 0);
+            }
         };
         //Banner + Name of the faction ~~
         auto getBanner = [&](FactionZone faction_zone) -> SDL_Texture* {
@@ -11472,17 +11479,48 @@ private:
             drawText(gameDiplomacySousTitleText, std::to_string(player.currentGold).c_str(), dealGoldIconRect.x + 24.f, factionPaymentSelectBackground.y + 21.f, white);
 
             //sous title offer gift vs demand payment different text
-            SDL_FRect PaymentDescRect = {factionPaymentSelectBackground.x, factionPaymentSelectBackground.y + 14.f, factionPaymentSelectBackground.w, 30.f};
+            SDL_FRect PaymentDescRect = {factionPaymentSelectBackground.x + 24.f, factionPaymentSelectBackground.y + 50.f, factionPaymentSelectBackground.w - 48.f, 70.f};
             SDL_SetRenderDrawColor(renderer, 140, 140, 140, 255);
             SDL_RenderRect(renderer, &PaymentDescRect);
             if (bOfferGift) {
                 std::string paymentDescStr = std::string("Gifts can be given to increase standing with the target faction, provided no deal demands are made(Otherwise they will be treated as payments).");
-                drawTextCentered(gameDiplomacySousTitleText, paymentDescStr.c_str(), PaymentDescRect, white);
+                drawTextCentered(gameDiplomacyDescText, paymentDescStr.c_str(), PaymentDescRect, white, 20.f);
             }
             else if (bDemandPayment) {
                 std::string paymentDescStr = std::string("Payments can be used as deal components, either to extract money from another faction or to make your own offer more desirable.");
-                drawTextCentered(gameDiplomacySousTitleText, paymentDescStr.c_str(), PaymentDescRect, white);
+                drawTextCentered(gameDiplomacyDescText, paymentDescStr.c_str(), PaymentDescRect, white, 20.f);
             }
+
+            //Rect Offer gift / Demand Payment
+            SDL_FRect paymentModeRect = {factionPaymentSelectBackground.x + 24.f, PaymentDescRect.y + PaymentDescRect.h + 15.f, 240.f, 90.f};
+            SDL_SetRenderDrawColor(renderer, 12, 18, 28, 255);
+            SDL_RenderFillRect(renderer, &paymentModeRect);
+            SDL_SetRenderDrawColor(renderer, 90, 110, 140, 255);
+            SDL_RenderRect(renderer, &paymentModeRect);
+
+            PaymentOfferGiftDot.circleX = paymentModeRect.x + 30.f;
+            PaymentOfferGiftDot.circleY = paymentModeRect.y + 28.f;
+            PaymentDemandDot.circleX = paymentModeRect.x + 30.f;
+            PaymentDemandDot.circleY = paymentModeRect.y + 62.f;
+
+            auto drawDot = [&](const Circle &dot, bool selected, const char *label) {
+                SDL_SetRenderDrawColor(renderer, 150, 150, 150, 255);//outline
+                RenderCircle(dot.circleX, dot.circleY, 9.f);
+                SDL_SetRenderDrawColor(renderer, 15, 20, 30, 255);//inside
+                RenderCircle(dot.circleX, dot.circleY, 7.f);
+                if (selected) {
+                    SDL_SetRenderDrawColor(renderer, 70, 110, 190, 255); //active dot
+                    RenderCircle(dot.circleX, dot.circleY, 4.f);
+                }
+                drawText(gameDiplomacySousTitleText, label, dot.circleX + 24.f, dot.circleY - 11.f, white);
+            };
+            drawDot(PaymentOfferGiftDot, bOfferGift, "Offer gift");
+            drawDot(PaymentDemandDot, bDemandPayment, "Demand Payment");
+
+
+
+
+
         }
 
 
@@ -13700,6 +13738,19 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         app.bShowDeclareWarPanel = false; // back to the deal screen, demands untouched
                     }
                     return SDL_APP_CONTINUE;
+                }
+                //Dots of the Payments panel: only one active at a time
+                if (app.bShowPaymentPanel) {
+                    if (app.ClickInsideCircle(nouveauX, nouveauY, app.PaymentOfferGiftDot)) {
+                        app.bOfferGift = true;
+                        app.bDemandPayment = false;
+                        return SDL_APP_CONTINUE;
+                    }
+                    if (app.ClickInsideCircle(nouveauX, nouveauY, app.PaymentDemandDot)) {
+                        app.bOfferGift = false;
+                        app.bDemandPayment = true;
+                        return SDL_APP_CONTINUE;
+                    }
                 }
                 //Add Offer/Demand + treaty list (only when negotiating)
                 if (app.bIsTradingWithSpecificFaction) {
