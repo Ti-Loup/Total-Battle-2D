@@ -393,7 +393,7 @@ public:
     SDL_Texture *gameStartDiplomacyTexture = nullptr;
     bool bIsTradingWithSpecificFaction = false; // if true it changes ui to specific
     //Diplomatic Inside Negitiating with specific faction
-    Circle DiplomacyCounterDealButton = {893.f, 1042.f, 25};
+    Circle DiplomacyCounterDealButton = {904.f, 1042.f, 25};
     SDL_Texture *gameCounterDealTexture = nullptr;
     Circle DiplomacyMakeDealButton = {961.f, 1042.f, 25};
     SDL_Texture *gameMakeDealTexture = nullptr;
@@ -732,6 +732,10 @@ public:
     SDL_Texture *warDiplomacyIconTexture = nullptr;
     SDL_Texture *friendshipDiplomacyIconTexture = nullptr;
     SDL_Texture *militaryAccessDiplomacyIconTexture = nullptr;
+    //Offer Gift
+    SDL_Texture *smallGiftDiplomacyIconTexture = nullptr;
+    SDL_Texture *mediumGiftDiplomacyIconTexture = nullptr;
+    SDL_Texture *largeGiftDiplomacyIconTexture = nullptr;
 
     //buttons Win condition +Missions
     //900.f, 185.f, 200, 40
@@ -2188,6 +2192,22 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture gameStartDiplomacyTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameStartDiplomacyTexture, SDL_SCALEMODE_NEAREST);
+        //Offer gifts textures
+        smallGiftDiplomacyIconTexture = IMG_LoadTexture(renderer, "assets/SmallGiftIcon.png");
+        if (smallGiftDiplomacyIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture smallGiftDiplomacyIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(smallGiftDiplomacyIconTexture, SDL_SCALEMODE_NEAREST);
+        mediumGiftDiplomacyIconTexture = IMG_LoadTexture(renderer, "assets/MediumGiftIcon.png");
+        if (mediumGiftDiplomacyIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture mediumGiftDiplomacyIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(mediumGiftDiplomacyIconTexture, SDL_SCALEMODE_NEAREST);
+        largeGiftDiplomacyIconTexture = IMG_LoadTexture(renderer, "assets/LargeGiftIcon.png");
+        if (largeGiftDiplomacyIconTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture largeGiftDiplomacyIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(largeGiftDiplomacyIconTexture, SDL_SCALEMODE_NEAREST);
         gameCounterDealTexture = IMG_LoadTexture(renderer, "assets/CounterDealIcon.png");
         if (gameCounterDealTexture == nullptr) {
             SDL_LogWarn(0, "failed to load texture gameCounterDealTexture", SDL_GetError());
@@ -4310,6 +4330,9 @@ private://constructor
         SDL_DestroyTexture(warDiplomacyIconTexture);
         SDL_DestroyTexture(friendshipDiplomacyIconTexture);
         SDL_DestroyTexture(militaryAccessDiplomacyIconTexture);
+        SDL_DestroyTexture(smallGiftDiplomacyIconTexture);
+        SDL_DestroyTexture(mediumGiftDiplomacyIconTexture);
+        SDL_DestroyTexture(largeGiftDiplomacyIconTexture);
         SDL_DestroyTexture(gameWinConditionConquestShortIconTexture);
         SDL_DestroyTexture(gameWinConditionConquestLongIconTexture);
         SDL_DestroyTexture(gameWinConditionConstructionShortIconTexture);
@@ -10474,6 +10497,16 @@ public:
     bool bShowDeclareWarPanel = false;
     Circle DeclareWarConfirmButton = {930.f, 1042.f, 25};
     Circle DeclareWarCancelButton  = {990.f, 1042.f, 25};
+    //payment panel || Replace the current one
+    bool bShowPaymentPanel = false;
+    Circle PaymentConfirmButton = {930.f, 1042.f, 25};
+    Circle PaymentCancelButton  = {990.f, 1042.f, 25};
+    bool bOfferGift = true;
+    bool bDemandPayment = false;
+    //circleButton
+    Circle PaymentOfferGiftDot = {0.f, 0.f, 12.f};
+    Circle PaymentDemandDot    = {0.f, 0.f, 12.f};
+
 
     void ApplyTreaty(TreatyType t, DiplomacyState& s) {
         switch (t) {
@@ -10937,7 +10970,7 @@ private:
 
         }
         //Inside Specific trade with other faction
-        if (bIsTradingWithSpecificFaction && !bShowDeclareWarPanel) {
+        if (bIsTradingWithSpecificFaction && !bShowDeclareWarPanel && !bShowPaymentPanel) {
             SDL_FRect tradeTitleRect = {830.f, 730.f, 260.f, 30.f};
             SDL_SetRenderDrawColor(renderer, 70, 70, 70, 255);
             SDL_RenderFillRect(renderer, &tradeTitleRect);
@@ -11369,6 +11402,87 @@ private:
             SDL_SetTextureAlphaMod(gameQuitDealTexture, bHoveredWarCancel ? 255 : 200);
             RenderBoutonCercle(DeclareWarCancelButton, nullptr, gameQuitDealTexture, 0, 0, 0);
             SDL_SetTextureAlphaMod(gameQuitDealTexture, 255);
+
+            //hovered on each to accept / cancel text
+            if (bHoveredWarConfirm) {
+                const char *acceptDiplomacyWarLabel = "Accept";
+                TTF_SetTextString(gameDiplomacyDescText, acceptDiplomacyWarLabel, 0);
+                int nameW = 0, nameH = 0;
+                TTF_GetTextSize(gameDiplomacyDescText, &nameW, &nameH);
+
+                float padX = 8.f, padY = 5.f;
+                float textW = nameW + padX * 2.f;
+                float textH = nameH + padY * 2.f;
+                float textX = lenghtXWar + 15.f; //offset on the cursor
+                float textY = lenghtYWar - textH / 2.f;//centered on cursor
+
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                SDL_SetRenderDrawColor(renderer, 12,10,8,240);
+                SDL_FRect tooltipAcceptWarBackground = {textX, textY, textW, textH};
+                SDL_RenderFillRect(renderer, &tooltipAcceptWarBackground);
+                SDL_SetRenderDrawColor(renderer, 40, 90, 110, 255);
+                SDL_RenderRect(renderer, &tooltipAcceptWarBackground);
+
+                TTF_SetTextColor(gameDiplomacyDescText, 240, 240, 240, 255);
+                TTF_DrawRendererText(gameDiplomacyDescText, textX + padX, textY + padY);
+            }
+            if (bHoveredWarCancel) {
+                const char *cancelDiplomacyWarLabel = "Cancel";
+                TTF_SetTextString(gameDiplomacyDescText, cancelDiplomacyWarLabel, 0);
+                int nameW = 0, nameH = 0;
+                TTF_GetTextSize(gameDiplomacyDescText, &nameW, &nameH);
+
+                float padX = 8.f, padY = 5.f;
+                float textW = nameW + padX * 2.f;
+                float textH = nameH + padY * 2.f;
+                float textX = lenghtXWar + 15.f; //offset on the cursor
+                float textY = lenghtYWar - textH / 2.f;//centered on cursor
+
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                SDL_SetRenderDrawColor(renderer, 12,10,8,240);
+                SDL_FRect tooltipCancelWarBackground = {textX, textY, textW, textH};
+                SDL_RenderFillRect(renderer, &tooltipCancelWarBackground);
+                SDL_SetRenderDrawColor(renderer, 40, 90, 110, 255);
+                SDL_RenderRect(renderer, &tooltipCancelWarBackground);
+
+                TTF_SetTextColor(gameDiplomacyDescText, 240, 240, 240, 255);
+                TTF_DrawRendererText(gameDiplomacyDescText, textX + padX, textY + padY);
+            }
+        }
+
+        if (bIsTradingWithSpecificFaction && bShowPaymentPanel) {
+            const SDL_FRect &factionPaymentSelectBackground = factionSelectionBackgroundRect;//same rect
+
+            //title
+            SDL_FRect paymentTitleRect = {830.f, 730.f, 260.f, 30.f};
+            SDL_SetRenderDrawColor(renderer, 70, 70, 70, 255);
+            SDL_RenderFillRect(renderer, &paymentTitleRect);
+            SDL_SetRenderDrawColor(renderer, 190,190,190,255);
+            SDL_RenderRect(renderer, &paymentTitleRect);
+            drawTextCentered(gameDiplomacyTitleText, "Payments", paymentTitleRect, white);
+
+            //Show player current gold on left side
+            //Money of player currently
+            SDL_FRect dealGoldIconRect = {
+                factionPaymentSelectBackground.x + 24.f,
+                factionPaymentSelectBackground.y + 23.f,
+                18.f, 18.f
+            };
+            SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &dealGoldIconRect);
+            drawText(gameDiplomacySousTitleText, std::to_string(player.currentGold).c_str(), dealGoldIconRect.x + 24.f, factionPaymentSelectBackground.y + 21.f, white);
+
+            //sous title offer gift vs demand payment different text
+            SDL_FRect PaymentDescRect = {factionPaymentSelectBackground.x, factionPaymentSelectBackground.y + 14.f, factionPaymentSelectBackground.w, 30.f};
+            SDL_SetRenderDrawColor(renderer, 140, 140, 140, 255);
+            SDL_RenderRect(renderer, &PaymentDescRect);
+            if (bOfferGift) {
+                std::string paymentDescStr = std::string("Gifts can be given to increase standing with the target faction, provided no deal demands are made(Otherwise they will be treated as payments).");
+                drawTextCentered(gameDiplomacySousTitleText, paymentDescStr.c_str(), PaymentDescRect, white);
+            }
+            else if (bDemandPayment) {
+                std::string paymentDescStr = std::string("Payments can be used as deal components, either to extract money from another faction or to make your own offer more desirable.");
+                drawTextCentered(gameDiplomacySousTitleText, paymentDescStr.c_str(), PaymentDescRect, white);
+            }
         }
 
 
@@ -13607,6 +13721,11 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                                     app.bShowDeclareWarPanel = true;
                                     app.bShowTreatyList = false;
                                     return SDL_APP_CONTINUE;
+                                }
+                                //Payments own panel
+                                if (treaty == GameApp::TreatyType::Payment) {
+                                    app.bShowPaymentPanel = true;
+                                    app.bShowTreatyList = false;
                                 }
                                 // milirary alliance replace a defensive while pending demand.
                                 if (treaty == GameApp::TreatyType::MilitaryAlliance) {
