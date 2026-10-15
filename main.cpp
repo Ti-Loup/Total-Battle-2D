@@ -11563,18 +11563,74 @@ private:
                 if (bIsMediumGift) SDL_SetTextureColorMod(mediumGiftDiplomacyIconTexture, 255, 255, 250);
                 if (bIsLargeGift) SDL_SetTextureColorMod(largeGiftDiplomacyIconTexture, 255, 255, 255);
             }
+            //render buttons textures
+            float mouseXPayment, mouseYPayment;
+            SDL_GetMouseState(&mouseXPayment, &mouseYPayment);
+            float lenghtXPayment, lenghtYPayment;
+            SDL_RenderCoordinatesFromWindow(renderer, mouseXPayment, mouseYPayment, &lenghtXPayment, &lenghtYPayment);
 
+            SDL_SetRenderDrawColor(renderer, 0,0,0,0);//reset
+            bool bHoveredPaymentConfirm = ClickInsideCircle(lenghtXPayment, lenghtYPayment, PaymentConfirmButton);//for the confirm button
+            SDL_SetTextureAlphaMod(gameMakeDealTexture, bHoveredPaymentConfirm ? 255: 200);
+            RenderBoutonCercle(PaymentConfirmButton, nullptr, gameMakeDealTexture, 0, 0, 0);
+            SDL_SetTextureAlphaMod(gameMakeDealTexture, 0);
 
+            bool bHoveredPaymentCancel = ClickInsideCircle(lenghtXPayment, lenghtYPayment, PaymentCancelButton);
+            SDL_SetTextureAlphaMod(gameQuitDealTexture, bHoveredPaymentCancel ? 255:200);
+            RenderBoutonCercle(PaymentCancelButton, nullptr, gameQuitDealTexture, 0, 0, 0);
+            SDL_SetTextureAlphaMod(gameQuitDealTexture, 0);
+            //bHovered on mouse buttons ("Accept/Cancel")
+            if (bHoveredPaymentConfirm) {
+                const char *paymentDiplomacyAcceptLabel = "Accept";
+                TTF_SetTextString(gameDiplomacyDescText, paymentDiplomacyAcceptLabel, 0);
+                int nameW = 0, nameH = 0;
+                TTF_GetTextSize(gameDiplomacyDescText, &nameW, &nameH);
 
+                float padX = 8.f, padY = 5.f;
+                float textW = nameW + padX * 2.f;
+                float textH = nameH + padY * 2.f;
+                float textX = lenghtXPayment + 15.f; //offset on the cursor
+                float textY = lenghtXPayment - textH / 2.f;//centered on cursor
+
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                SDL_SetRenderDrawColor(renderer, 12,10,8, 240);
+                SDL_FRect tooltipAcceptPaymentBackground = {textX, textY, textW, textH};
+                SDL_RenderFillRect(renderer, &tooltipAcceptPaymentBackground);
+                SDL_SetRenderDrawColor(renderer, 40, 90, 110, 255);
+                SDL_RenderRect(renderer, &tooltipAcceptPaymentBackground);
+
+                TTF_SetTextColor(gameDiplomacyDescText, 240, 240, 240, 255);
+                TTF_DrawRendererText(gameDiplomacyDescText, textX+ padX, textY + padY);
+            }
+            if (bHoveredPaymentCancel) {
+                const char *paymentDiplomacyCancelLabel = "Cancel";
+                TTF_SetTextString(gameDiplomacyDescText, paymentDiplomacyCancelLabel, 0);
+                int nameW = 0, nameH = 0;
+                TTF_GetTextSize(gameDiplomacyDescText, &nameW, &nameH);
+
+                float padX = 8.f, padY = 5.f;
+                float textW = nameW + padX * 2.f;
+                float textH = nameH + padY * 2.f;
+                float textX = lenghtXPayment + 15.f; //offset on the cursor
+                float textY = lenghtXPayment - textH / 2.f;//centered on cursor
+
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                SDL_SetRenderDrawColor(renderer, 12,10,8, 240);
+                SDL_FRect tooltipCancelPaymentBackground = {textX, textY, textW, textH};
+                SDL_RenderFillRect(renderer, &tooltipCancelPaymentBackground);
+                SDL_SetRenderDrawColor(renderer, 40, 90, 110, 255);
+                SDL_RenderRect(renderer, &tooltipCancelPaymentBackground);
+
+                TTF_SetTextColor(gameDiplomacyDescText, 240, 240, 240, 255);
+                TTF_DrawRendererText(gameDiplomacyDescText, textX+ padX, textY + padY);            }
         }
-
-
 
     }
     void RenderFamilyHierarchyInfoPopup() {
         if (!bFamilyHierarchyInfoPopup) return;
     }
     //Reset button only reset the camera position. no need a fonction for that
+    //Done with INIT
 
 
 
@@ -13795,6 +13851,13 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         app.bOfferGift = false;
                         app.bDemandPayment = true;
                         return SDL_APP_CONTINUE;
+                    }
+                    if (app.ClickInsideCircle(nouveauX, nouveauY, app.PaymentConfirmButton)) {
+                        app.dealDemands.clear();
+                        app.dealDemandsScrollOffset = 0.f;
+                        app.bShowPaymentPanel = false;
+                        app.bIsTradingWithSpecificFaction = true;
+
                     }
                     for (int i = 0; i < (int)app.giftOptionRects.size(); i++) {
                         if (SDL_PointInRectFloat(&MousePT, &app.giftOptionRects[i])) {
