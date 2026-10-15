@@ -11590,7 +11590,7 @@ private:
                 float textW = nameW + padX * 2.f;
                 float textH = nameH + padY * 2.f;
                 float textX = lenghtXPayment + 15.f; //offset on the cursor
-                float textY = lenghtXPayment - textH / 2.f;//centered on cursor
+                float textY = lenghtYPayment - textH / 2.f;//centered on cursor
 
                 SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
                 SDL_SetRenderDrawColor(renderer, 12,10,8, 240);
@@ -11612,7 +11612,7 @@ private:
                 float textW = nameW + padX * 2.f;
                 float textH = nameH + padY * 2.f;
                 float textX = lenghtXPayment + 15.f; //offset on the cursor
-                float textY = lenghtXPayment - textH / 2.f;//centered on cursor
+                float textY = lenghtYPayment - textH / 2.f;//centered on cursor
 
                 SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
                 SDL_SetRenderDrawColor(renderer, 12,10,8, 240);
