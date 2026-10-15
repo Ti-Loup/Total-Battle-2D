@@ -10510,6 +10510,7 @@ public:
     bool bIsSmallGift = false;
     bool bIsMediumGift = false;
     bool bIsLargeGift = false;
+    std::vector<SDL_FRect> giftOptionRects; //small/medium/large.
 
     void ApplyTreaty(TreatyType t, DiplomacyState& s) {
         switch (t) {
@@ -11520,32 +11521,48 @@ private:
             drawDot(PaymentOfferGiftDot, bOfferGift, "Offer gift");
             drawDot(PaymentDemandDot, bDemandPayment, "Demand Payment");
 
-            //Clickable Textures rect change texture
+            //Clickable Textures rect change texture for bOfferGift
             //render 3 rect base grey
             //Position
-            float rectGiftX = paymentModeRect.x + paymentModeRect.w + 50.f;
-            float rectGiftY = (paymentModeRect.y + paymentModeRect.w) / 2.f;
+            giftOptionRects.clear();
+            if (bOfferGift) {
+                float rectGiftX = paymentModeRect.x + paymentModeRect.w + 50.f;
+                float rectGiftY = paymentModeRect.y ;
 
-            float gapX = 8.f;
-            //3 rect small/medium/large
-            for (int rect = 0; rect < 3; rect++) {
-                SDL_FRect giftOptionsRect= {rectGiftX, rectGiftY, 30, 30};
+                float gapX = 85.f;
+                //3 rect small/medium/large
+                SDL_Texture* giftTextures[3] = {
+                    smallGiftDiplomacyIconTexture,
+                    mediumGiftDiplomacyIconTexture,
+                    largeGiftDiplomacyIconTexture
+                };
+                bool giftSelected[3] = { bIsSmallGift, bIsMediumGift, bIsLargeGift };
 
-                if (rect == 1)SDL_RenderTexture(renderer, smallGiftDiplomacyIconTexture, nullptr, &giftOptionsRect);
-                if (rect == 2)SDL_RenderTexture(renderer, mediumGiftDiplomacyIconTexture, nullptr, &giftOptionsRect);
-                //if (rect == 3);
+                for (int i = 0; i < 3; i++) {
+                    SDL_FRect giftOptionsRect = {rectGiftX + i * (30.f + gapX), rectGiftY, 100.f, 100.f};
 
+
+                    SDL_SetTextureColorMod(giftTextures[i], 255, 255, 255);
+                    SDL_RenderTexture(renderer, giftTextures[i], nullptr, &giftOptionsRect);
+
+                    // not selected than hgrey/white
+                    if (!giftSelected[i]) {
+                        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                        SDL_SetRenderDrawColor(renderer, 80, 80, 80, 225);
+                        SDL_RenderFillRect(renderer, &giftOptionsRect);
+                    }
+                    giftOptionRects.push_back(giftOptionsRect);
+                }
+
+                SDL_SetTextureColorMod(smallGiftDiplomacyIconTexture, 140, 140, 140);
+                SDL_SetTextureColorMod(mediumGiftDiplomacyIconTexture, 140, 140, 140);
+                SDL_SetTextureColorMod(largeGiftDiplomacyIconTexture, 140, 140, 140);
+
+                //if pressed their color is max
+                if (bIsSmallGift) SDL_SetTextureColorMod(smallGiftDiplomacyIconTexture, 255, 255, 255);
+                if (bIsMediumGift) SDL_SetTextureColorMod(mediumGiftDiplomacyIconTexture, 255, 255, 250);
+                if (bIsLargeGift) SDL_SetTextureColorMod(largeGiftDiplomacyIconTexture, 255, 255, 255);
             }
-
-            SDL_SetTextureColorMod(smallGiftDiplomacyIconTexture, 140, 140, 140);
-            SDL_SetTextureColorMod(mediumGiftDiplomacyIconTexture, 140, 140, 140);
-            SDL_SetTextureColorMod(largeGiftDiplomacyIconTexture, 140, 140, 140);
-
-            //if pressed their color is max
-            if (bIsSmallGift) SDL_SetTextureColorMod(smallGiftDiplomacyIconTexture, 255, 255, 255);
-            if (bIsMediumGift) SDL_SetTextureColorMod(mediumGiftDiplomacyIconTexture, 255, 255, 250);
-            if (bIsLargeGift) SDL_SetTextureColorMod(largeGiftDiplomacyIconTexture, 255, 255, 255);
-
 
 
 
@@ -13778,6 +13795,14 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         app.bOfferGift = false;
                         app.bDemandPayment = true;
                         return SDL_APP_CONTINUE;
+                    }
+                    for (int i = 0; i < (int)app.giftOptionRects.size(); i++) {
+                        if (SDL_PointInRectFloat(&MousePT, &app.giftOptionRects[i])) {
+                            app.bIsSmallGift = (i == 0);
+                            app.bIsMediumGift = (i == 1);
+                            app.bIsLargeGift = (i == 2);
+                            return SDL_APP_CONTINUE;
+                        }
                     }
                 }
                 //Add Offer/Demand + treaty list (only when negotiating)
