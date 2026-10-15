@@ -10506,7 +10506,10 @@ public:
     //circleButton
     Circle PaymentOfferGiftDot = {0.f, 0.f, 12.f};
     Circle PaymentDemandDot    = {0.f, 0.f, 12.f};
-
+    //offer buttons bool to select
+    bool bIsSmallGift = false;
+    bool bIsMediumGift = false;
+    bool bIsLargeGift = false;
 
     void ApplyTreaty(TreatyType t, DiplomacyState& s) {
         switch (t) {
@@ -11517,7 +11520,32 @@ private:
             drawDot(PaymentOfferGiftDot, bOfferGift, "Offer gift");
             drawDot(PaymentDemandDot, bDemandPayment, "Demand Payment");
 
-            //Clickable Textures rect
+            //Clickable Textures rect change texture
+            //render 3 rect base grey
+            //Position
+            float rectGiftX = paymentModeRect.x + paymentModeRect.w + 50.f;
+            float rectGiftY = (paymentModeRect.y + paymentModeRect.w) / 2.f;
+
+            float gapX = 8.f;
+            //3 rect small/medium/large
+            for (int rect = 0; rect < 3; rect++) {
+                SDL_FRect giftOptionsRect= {rectGiftX, rectGiftY, 30, 30};
+
+                if (rect == 1)SDL_RenderTexture(renderer, smallGiftDiplomacyIconTexture, nullptr, &giftOptionsRect);
+                if (rect == 2)SDL_RenderTexture(renderer, mediumGiftDiplomacyIconTexture, nullptr, &giftOptionsRect);
+                //if (rect == 3);
+
+            }
+
+            SDL_SetTextureColorMod(smallGiftDiplomacyIconTexture, 140, 140, 140);
+            SDL_SetTextureColorMod(mediumGiftDiplomacyIconTexture, 140, 140, 140);
+            SDL_SetTextureColorMod(largeGiftDiplomacyIconTexture, 140, 140, 140);
+
+            //if pressed their color is max
+            if (bIsSmallGift) SDL_SetTextureColorMod(smallGiftDiplomacyIconTexture, 255, 255, 255);
+            if (bIsMediumGift) SDL_SetTextureColorMod(mediumGiftDiplomacyIconTexture, 255, 255, 250);
+            if (bIsLargeGift) SDL_SetTextureColorMod(largeGiftDiplomacyIconTexture, 255, 255, 255);
+
 
 
 
