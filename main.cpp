@@ -736,7 +736,7 @@ public:
     SDL_Texture *smallGiftDiplomacyIconTexture = nullptr;
     SDL_Texture *mediumGiftDiplomacyIconTexture = nullptr;
     SDL_Texture *largeGiftDiplomacyIconTexture = nullptr;
-
+    SDL_Texture *gameGiftSelectedCheckTexture = nullptr;
     //buttons Win condition +Missions
     //900.f, 185.f, 200, 40
     SDL_FRect WinConditionsButton = {800.f, 250.f, 200, 40};
@@ -2208,6 +2208,12 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture largeGiftDiplomacyIconTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(largeGiftDiplomacyIconTexture, SDL_SCALEMODE_NEAREST);
+        gameGiftSelectedCheckTexture = IMG_LoadTexture(renderer, "assets/GiftSelectedCheck.png");
+        if (gameGiftSelectedCheckTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameGiftSelectedCheckTexture", SDL_GetError());
+        } else {
+            SDL_SetTextureScaleMode(gameGiftSelectedCheckTexture, SDL_SCALEMODE_NEAREST);
+        }
         gameCounterDealTexture = IMG_LoadTexture(renderer, "assets/CounterDealIcon.png");
         if (gameCounterDealTexture == nullptr) {
             SDL_LogWarn(0, "failed to load texture gameCounterDealTexture", SDL_GetError());
@@ -4333,6 +4339,7 @@ private://constructor
         SDL_DestroyTexture(smallGiftDiplomacyIconTexture);
         SDL_DestroyTexture(mediumGiftDiplomacyIconTexture);
         SDL_DestroyTexture(largeGiftDiplomacyIconTexture);
+        SDL_DestroyTexture(gameGiftSelectedCheckTexture);
         SDL_DestroyTexture(gameWinConditionConquestShortIconTexture);
         SDL_DestroyTexture(gameWinConditionConquestLongIconTexture);
         SDL_DestroyTexture(gameWinConditionConstructionShortIconTexture);
@@ -10512,6 +10519,35 @@ public:
     bool bIsLargeGift = false;
     std::vector<SDL_FRect> giftOptionRects; //small/medium/large.
 
+    //Gift prices (small / medium / large)
+    static constexpr int giftCosts[3] = {100, 450, 1000};
+
+    int GetSelectedGiftIndex() const {
+        if (bIsSmallGift) return 0;
+        if (bIsMediumGift) return 1;
+        if (bIsLargeGift) return 2;
+        return -1;
+    }
+
+    //Offers the player makes in the current deal
+    enum class OfferType { GoldGift /*, Resource, Treaty */ };
+    struct DealOffer {
+        OfferType type;
+        int amount = 0;//for payment
+    };
+    std::vector<DealOffer> dealOffers;
+    std::vector<std::pair<SDL_FRect, int>> dealOfferRemoveRects; // rect of the x to remove a offer
+    SDL_FRect dealOffersViewportRect = {0.f, 0.f, 0.f, 0.f};
+    float dealOffersScrollOffset = 0.f;
+    float dealOffersMaxScroll = 0.f;
+
+    int GetTotalGoldOffered() const {
+        int total = 0;
+        for (const DealOffer& o : dealOffers)
+            if (o.type == OfferType::GoldGift) total += o.amount;
+        return total;
+    }
+
     void ApplyTreaty(TreatyType t, DiplomacyState& s) {
         switch (t) {
             case TreatyType::Trade: s.bTrade = true;
@@ -11051,7 +11087,107 @@ private:
             SDL_FRect yourOffersContent = drawSection(yourOffersRect, "Your Offers");
             SDL_FRect yourDemandsContent = drawSection(yourDemandsRect, "Your Demands");
             SDL_FRect treatiesContent = drawSection(treatiesRect, "Treaties");
+            //Player offer section
+            {
+                const SDL_FRect& offersViewport = yourOffersContent;
+                dealOffersViewportRect = offersViewport;
+                dealOfferRemoveRects.clear();
 
+                const float offerPad = 8.f;
+                const float offerRowH = 58.f;
+                const float offerRowGap = 8.f;
+                const float offerRemoveSize = 22.f;
+                const float offerRemoveGap = 8.f;
+                const float offerScrollbarW = 6.f;
+
+                int offerCount = (int)dealOffers.size();
+                float offersContentHeight = offerPad * 2.f + offerCount * offerRowH + std::max(0, offerCount - 1) * offerRowGap;
+                dealOffersMaxScroll = std::max(0.f, offersContentHeight - offersViewport.h);
+                dealOffersScrollOffset = std::clamp(dealOffersScrollOffset, 0.f, dealOffersMaxScroll);
+                bool bOffersNeedScroll = dealOffersMaxScroll > 0.f;
+
+                float offerRowW = offersViewport.w - offerPad * 2.f - offerRemoveSize - offerRemoveGap - (bOffersNeedScroll ? offerScrollbarW + 4.f : 0.f);
+
+                SDL_Rect offersClip = {(int)offersViewport.x, (int)offersViewport.y, (int)offersViewport.w, (int)offersViewport.h};
+                SDL_SetRenderClipRect(renderer, &offersClip);
+
+                float offerY = offersViewport.y + offerPad - dealOffersScrollOffset;
+                for (int i = 0; i < offerCount; i++) {
+                    const DealOffer& offer = dealOffers[i];
+                    bool bOfferVisible = (offerY + offerRowH >= offersViewport.y) && (offerY <= offersViewport.y + offersViewport.h);
+                    if (bOfferVisible) {
+                        SDL_FRect offerRect = {offersViewport.x + offerPad, offerY, offerRowW, offerRowH};
+                        SDL_SetRenderDrawColor(renderer, 25, 32, 45, 255);
+                        SDL_RenderFillRect(renderer, &offerRect);
+                        SDL_SetRenderDrawColor(renderer, 120, 135, 160, 255);
+                        SDL_RenderRect(renderer, &offerRect);
+                        SDL_FRect offerInner = {offerRect.x + 3.f, offerRect.y + 3.f, offerRect.w - 6.f, offerRect.h - 6.f};
+                        SDL_SetRenderDrawColor(renderer, 60, 75, 100, 255);
+                        SDL_RenderRect(renderer, &offerInner);
+
+                        float offerHalfH = offerRect.h / 2.f;
+                        SDL_FRect offerTitleRect = {offerRect.x, offerRect.y, offerRect.w, offerHalfH};
+
+                        switch (offer.type) {
+                            case OfferType::GoldGift: {
+                                drawTextCentered(gameDiplomacyDescText, "Payments (Gift)", offerTitleRect, white);
+
+                                SDL_SetRenderDrawColor(renderer, 60, 75, 100, 255);
+                                SDL_RenderLine(renderer, offerInner.x, offerRect.y + offerHalfH, offerInner.x + offerInner.w, offerRect.y + offerHalfH);
+
+                                std::string offerAmountStr = std::to_string(offer.amount);
+                                TTF_SetTextWrapWidth(gameDiplomacyDescText, 0);
+                                TTF_SetTextString(gameDiplomacyDescText, offerAmountStr.c_str(), 0);
+                                TTF_SetTextColor(gameDiplomacyDescText, 255, 255, 255, 255);
+                                int offerAmountW = 0, offerAmountH = 0;
+                                TTF_GetTextSize(gameDiplomacyDescText, &offerAmountW, &offerAmountH);
+                                const float offerCoinSize = 16.f;
+                                float offerAmountTotalW = offerCoinSize + 6.f + offerAmountW;
+                                float offerAmountX = offerRect.x + (offerRect.w - offerAmountTotalW) / 2.f;
+                                float offerAmountCenterY = offerRect.y + offerHalfH + offerHalfH / 2.f;
+                                SDL_FRect offerCoinRect = {offerAmountX, offerAmountCenterY - offerCoinSize / 2.f, offerCoinSize, offerCoinSize};
+                                SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &offerCoinRect);
+                                TTF_DrawRendererText(gameDiplomacyDescText, offerAmountX + offerCoinSize + 6.f, offerAmountCenterY - offerAmountH / 2.f);
+                                break;
+                            }
+                            // case OfferType::Resource: later
+                        }
+
+                        //Round X button to cancel this offer
+                        float offerBtnR = offerRemoveSize / 2.f;
+                        float offerBtnCX = offerRect.x + offerRect.w + offerRemoveGap + offerBtnR;
+                        float offerBtnCY = offerRect.y + offerRect.h / 2.f;
+                        SDL_FRect offerRemoveRect = {offerBtnCX - offerBtnR, offerBtnCY - offerBtnR, offerRemoveSize, offerRemoveSize};
+                        bool bHoveredOfferRemove = SDL_PointInRectFloat(&mouseAddOfferPt, &offerRemoveRect) &&
+                                                   SDL_PointInRectFloat(&mouseAddOfferPt, &offersViewport);
+
+                        SDL_SetRenderDrawColor(renderer, 200, 210, 230, 255);
+                        RenderCircle(offerBtnCX, offerBtnCY, offerBtnR);
+                        SDL_SetRenderDrawColor(renderer, bHoveredOfferRemove ? 70 : 40, bHoveredOfferRemove ? 100 : 70, bHoveredOfferRemove ? 170 : 130, 255);
+                        RenderCircle(offerBtnCX, offerBtnCY, offerBtnR - 1.5f);
+                        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                        const float offerXs = 4.f;
+                        SDL_RenderLine(renderer, offerBtnCX - offerXs, offerBtnCY - offerXs, offerBtnCX + offerXs, offerBtnCY + offerXs);
+                        SDL_RenderLine(renderer, offerBtnCX - offerXs, offerBtnCY + offerXs, offerBtnCX + offerXs, offerBtnCY - offerXs);
+
+                        dealOfferRemoveRects.push_back({offerRemoveRect, i});
+                    }
+                    offerY += offerRowH + offerRowGap;
+                }
+                SDL_SetRenderClipRect(renderer, nullptr);
+
+                // scrollbar
+                if (bOffersNeedScroll) {
+                    SDL_FRect offersTrack = {offersViewport.x + offersViewport.w - offerScrollbarW - 2.f, offersViewport.y + 2.f, offerScrollbarW, offersViewport.h - 4.f};
+                    SDL_SetRenderDrawColor(renderer, 20, 28, 42, 255);
+                    SDL_RenderFillRect(renderer, &offersTrack);
+                    float offersThumbH = std::max(20.f, offersTrack.h * (offersViewport.h / offersContentHeight));
+                    float offersThumbY = offersTrack.y + (offersTrack.h - offersThumbH) * (dealOffersScrollOffset / dealOffersMaxScroll);
+                    SDL_FRect offersThumb = {offersTrack.x, offersThumbY, offerScrollbarW, offersThumbH};
+                    SDL_SetRenderDrawColor(renderer, 90, 110, 140, 255);
+                    SDL_RenderFillRect(renderer, &offersThumb);
+                }
+            }
             // player demands inset rows + remove button + scroll
             {
                 const SDL_FRect& viewport = yourDemandsContent;
@@ -11521,47 +11657,122 @@ private:
             drawDot(PaymentOfferGiftDot, bOfferGift, "Offer gift");
             drawDot(PaymentDemandDot, bDemandPayment, "Demand Payment");
 
-            //Clickable Textures rect change texture for bOfferGift
-            //render 3 rect base grey
-            //Position
+             //a gift that became unaffordable can't stay selected
+            if (bIsSmallGift  && player.currentGold < giftCosts[0]) bIsSmallGift  = false;
+            if (bIsMediumGift && player.currentGold < giftCosts[1]) bIsMediumGift = false;
+            if (bIsLargeGift  && player.currentGold < giftCosts[2]) bIsLargeGift  = false;
+
             giftOptionRects.clear();
             if (bOfferGift) {
-                float rectGiftX = paymentModeRect.x + paymentModeRect.w + 50.f;
-                float rectGiftY = paymentModeRect.y ;
+                float giftMouseX, giftMouseY;
+                SDL_GetMouseState(&giftMouseX, &giftMouseY);
+                float giftLogicX, giftLogicY;
+                SDL_RenderCoordinatesFromWindow(renderer, giftMouseX, giftMouseY, &giftLogicX, &giftLogicY);
+                SDL_FPoint giftMousePt = {giftLogicX, giftLogicY};
+                //Frame that holds the 3 gifts + the text on the right
+                float giftFrameX = paymentModeRect.x + paymentModeRect.w + 20.f;
+                float giftFrameRight = factionPaymentSelectBackground.x + factionPaymentSelectBackground.w - 24.f;
+                SDL_FRect giftFrameRect = {giftFrameX, paymentModeRect.y, giftFrameRight - giftFrameX, paymentModeRect.h};
+                SDL_SetRenderDrawColor(renderer, 12, 18, 28, 255);
+                SDL_RenderFillRect(renderer, &giftFrameRect);
+                SDL_SetRenderDrawColor(renderer, 90, 110, 140, 255);
+                SDL_RenderRect(renderer, &giftFrameRect);
 
-                float gapX = 85.f;
-                //3 rect small/medium/large
+                //Layout text area next to the 3 textures gifts
+                const float giftPad = 12.f;
+                const float giftGap = 12.f;
+                const float giftTextAreaW = 110.f;
+                float giftAvailableW = giftFrameRect.w - giftPad - giftTextAreaW - 10.f;
+                float giftSize = std::min(giftFrameRect.h - 20.f, (giftAvailableW - giftGap * 2.f) / 3.f);
+                float giftY = giftFrameRect.y + (giftFrameRect.h - giftSize) / 2.f;
+
                 SDL_Texture* giftTextures[3] = {
                     smallGiftDiplomacyIconTexture,
                     mediumGiftDiplomacyIconTexture,
                     largeGiftDiplomacyIconTexture
                 };
-                bool giftSelected[3] = { bIsSmallGift, bIsMediumGift, bIsLargeGift };
+                const char* giftNames[3] = {"Small gift", "Medium gift", "Large gift"};
+                bool giftSelected[3] = {bIsSmallGift, bIsMediumGift, bIsLargeGift};
 
                 for (int i = 0; i < 3; i++) {
-                    SDL_FRect giftOptionsRect = {rectGiftX + i * (30.f + gapX), rectGiftY, 100.f, 100.f};
+                    SDL_FRect giftOptionsRect = {giftFrameRect.x + giftPad + i * (giftSize + giftGap), giftY, giftSize, giftSize};
+                    bool bCanAffordGift = player.currentGold >= giftCosts[i];
+                    bool bHoveredGift = SDL_PointInRectFloat(&giftMousePt, &giftOptionsRect);
 
+                    if (!bCanAffordGift)
+                        SDL_SetTextureColorMod(giftTextures[i], 80, 80, 80);
+                    else if (bHoveredGift || giftSelected[i])
+                        SDL_SetTextureColorMod(giftTextures[i], 255, 255, 255);
+                    else
+                        SDL_SetTextureColorMod(giftTextures[i], 170, 170, 170);
 
-                    SDL_SetTextureColorMod(giftTextures[i], 255, 255, 255);
                     SDL_RenderTexture(renderer, giftTextures[i], nullptr, &giftOptionsRect);
+                    SDL_SetTextureColorMod(giftTextures[i], 255, 255, 255);
 
-                    // not selected than hgrey/white
-                    if (!giftSelected[i]) {
-                        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-                        SDL_SetRenderDrawColor(renderer, 80, 80, 80, 225);
-                        SDL_RenderFillRect(renderer, &giftOptionsRect);
+                    //Check mark on the selected gift (bottom right of the icon)
+                    if (giftSelected[i]) {
+                        float checkSize = giftSize * 0.5f;
+                        SDL_FRect checkRect = {
+                            giftOptionsRect.x + giftOptionsRect.w - checkSize * 0.85f,
+                            giftOptionsRect.y + giftOptionsRect.h - checkSize * 0.85f,
+                            checkSize, checkSize
+                        };
+                        if (gameGiftSelectedCheckTexture) {
+                            SDL_RenderTexture(renderer, gameGiftSelectedCheckTexture, nullptr, &checkRect);
+                        } else {
+                            //thick green check drawn with lines
+                            SDL_FPoint p1 = {checkRect.x + checkRect.w * 0.10f, checkRect.y + checkRect.h * 0.55f};
+                            SDL_FPoint p2 = {checkRect.x + checkRect.w * 0.38f, checkRect.y + checkRect.h * 0.85f};
+                            SDL_FPoint p3 = {checkRect.x + checkRect.w * 0.92f, checkRect.y + checkRect.h * 0.15f};
+                            for (int pass = 0; pass < 2; pass++) {
+                                if (pass == 0) SDL_SetRenderDrawColor(renderer, 10, 40, 10, 255);
+                                else SDL_SetRenderDrawColor(renderer, 60, 210, 70, 255);
+                                int thickness = (pass == 0) ? 3 : 1;
+                                for (int o = -thickness; o <= thickness; o++) {
+                                    SDL_RenderLine(renderer, p1.x, p1.y + o, p2.x, p2.y + o);
+                                    SDL_RenderLine(renderer, p2.x, p2.y + o, p3.x, p3.y + o);
+                                }
+                            }
+                        }
                     }
-                    giftOptionRects.push_back(giftOptionsRect);
+
+                    giftOptionRects.push_back(giftOptionsRect); //always 3 -> index = gift index
                 }
 
-                SDL_SetTextureColorMod(smallGiftDiplomacyIconTexture, 140, 140, 140);
-                SDL_SetTextureColorMod(mediumGiftDiplomacyIconTexture, 140, 140, 140);
-                SDL_SetTextureColorMod(largeGiftDiplomacyIconTexture, 140, 140, 140);
+                //Text on the right, hovered gift, else selected gift, else the small one
+                int displayGift = GetSelectedGiftIndex();
+                if (displayGift < 0) displayGift = 0; // Small pdefault
+                bool bDisplayAffordable = player.currentGold >= giftCosts[displayGift];
 
-                //if pressed their color is max
-                if (bIsSmallGift) SDL_SetTextureColorMod(smallGiftDiplomacyIconTexture, 255, 255, 255);
-                if (bIsMediumGift) SDL_SetTextureColorMod(mediumGiftDiplomacyIconTexture, 255, 255, 250);
-                if (bIsLargeGift) SDL_SetTextureColorMod(largeGiftDiplomacyIconTexture, 255, 255, 255);
+                SDL_FRect giftTextArea = {
+                    giftFrameRect.x + giftFrameRect.w - giftTextAreaW - 8.f,
+                    giftFrameRect.y, giftTextAreaW, giftFrameRect.h
+                };
+
+                //name white if affordable, grey if not
+                SDL_Color giftNameColor = bDisplayAffordable ? SDL_Color{255, 255, 255, 255} : SDL_Color{130, 130, 130, 255};
+                SDL_FRect giftNameRect = {giftTextArea.x, giftTextArea.y, giftTextArea.w, giftTextArea.h / 2.f};
+                drawTextCentered(gameDiplomacySousTitleText, giftNames[displayGift], giftNameRect, giftNameColor);
+
+                //coin + price
+                std::string giftPriceStr = std::to_string(giftCosts[displayGift]);
+                TTF_SetTextWrapWidth(gameDiplomacyDescText, 0);
+                TTF_SetTextString(gameDiplomacyDescText, giftPriceStr.c_str(), 0);
+                int giftPriceW = 0, giftPriceH = 0;
+                TTF_GetTextSize(gameDiplomacyDescText, &giftPriceW, &giftPriceH);
+                const float giftCoinSize = 16.f;
+                float giftPriceTotalW = giftCoinSize + 6.f + giftPriceW;
+                float giftPriceX = giftTextArea.x + (giftTextArea.w - giftPriceTotalW) / 2.f;
+                float giftPriceCenterY = giftTextArea.y + giftTextArea.h / 2.f + 14.f;
+
+                SDL_FRect giftCoinRect = {giftPriceX, giftPriceCenterY - giftCoinSize / 2.f, giftCoinSize, giftCoinSize};
+                if (!bDisplayAffordable) SDL_SetTextureColorMod(gameCoinMoneyTexture, 110, 110, 110);
+                SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &giftCoinRect);
+                SDL_SetTextureColorMod(gameCoinMoneyTexture, 255, 255, 255);
+
+                if (bDisplayAffordable) TTF_SetTextColor(gameDiplomacyDescText, 235, 200, 70, 255);
+                else TTF_SetTextColor(gameDiplomacyDescText, 130, 130, 130, 255);
+                TTF_DrawRendererText(gameDiplomacyDescText, giftPriceX + giftCoinSize + 6.f, giftPriceCenterY - giftPriceH / 2.f);
             }
             //render buttons textures
             float mouseXPayment, mouseYPayment;
@@ -11570,15 +11781,20 @@ private:
             SDL_RenderCoordinatesFromWindow(renderer, mouseXPayment, mouseYPayment, &lenghtXPayment, &lenghtYPayment);
 
             SDL_SetRenderDrawColor(renderer, 0,0,0,0);//reset
-            bool bHoveredPaymentConfirm = ClickInsideCircle(lenghtXPayment, lenghtYPayment, PaymentConfirmButton);//for the confirm button
-            SDL_SetTextureAlphaMod(gameMakeDealTexture, bHoveredPaymentConfirm ? 255: 200);
+            int selectedGiftIndex = GetSelectedGiftIndex();
+            bool bCanConfirmPayment = bDemandPayment || (bOfferGift && selectedGiftIndex >= 0 && player.currentGold >= giftCosts[selectedGiftIndex]);
+
+            bool bHoveredPaymentConfirm = ClickInsideCircle(lenghtXPayment, lenghtYPayment, PaymentConfirmButton);
+            SDL_SetTextureAlphaMod(gameMakeDealTexture, (bHoveredPaymentConfirm && bCanConfirmPayment) ? 255 : 200);
+            if (!bCanConfirmPayment) SDL_SetTextureColorMod(gameMakeDealTexture, 110, 110, 110); //grisé
             RenderBoutonCercle(PaymentConfirmButton, nullptr, gameMakeDealTexture, 0, 0, 0);
-            SDL_SetTextureAlphaMod(gameMakeDealTexture, 0);
+            SDL_SetTextureColorMod(gameMakeDealTexture, 255, 255, 255);
+            SDL_SetTextureAlphaMod(gameMakeDealTexture, 255);
 
             bool bHoveredPaymentCancel = ClickInsideCircle(lenghtXPayment, lenghtYPayment, PaymentCancelButton);
-            SDL_SetTextureAlphaMod(gameQuitDealTexture, bHoveredPaymentCancel ? 255:200);
+            SDL_SetTextureAlphaMod(gameQuitDealTexture, bHoveredPaymentCancel ? 255 : 200);
             RenderBoutonCercle(PaymentCancelButton, nullptr, gameQuitDealTexture, 0, 0, 0);
-            SDL_SetTextureAlphaMod(gameQuitDealTexture, 0);
+            SDL_SetTextureAlphaMod(gameQuitDealTexture, 255);
             //bHovered on mouse buttons ("Accept/Cancel")
             if (bHoveredPaymentConfirm) {
                 const char *paymentDiplomacyAcceptLabel = "Accept";
@@ -13832,6 +14048,8 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         app.ApplyTreaty(GameApp::TreatyType::DeclareWar, warState); // resets every treaty + bAtWar = true
                         app.dealDemands.clear();
                         app.dealDemandsScrollOffset = 0.f;
+                        app.dealOffers.clear();
+                        app.dealOffersScrollOffset = 0.f;
                         app.bShowDeclareWarPanel = false;
                         app.bIsTradingWithSpecificFaction = false; // back to the Known Factions screen
                     }
@@ -13852,25 +14070,57 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         app.bDemandPayment = true;
                         return SDL_APP_CONTINUE;
                     }
-                    if (app.ClickInsideCircle(nouveauX, nouveauY, app.PaymentConfirmButton)) {
-                        app.dealDemands.clear();
-                        app.dealDemandsScrollOffset = 0.f;
-                        app.bShowPaymentPanel = false;
-                        app.bIsTradingWithSpecificFaction = true;
-
-                    }
+                    //Gifts are selectable only if the player has the gold
                     for (int i = 0; i < (int)app.giftOptionRects.size(); i++) {
                         if (SDL_PointInRectFloat(&MousePT, &app.giftOptionRects[i])) {
-                            app.bIsSmallGift = (i == 0);
-                            app.bIsMediumGift = (i == 1);
-                            app.bIsLargeGift = (i == 2);
+                            if (app.player.currentGold >= GameApp::giftCosts[i]) {
+                                app.bIsSmallGift = (i == 0);
+                                app.bIsMediumGift = (i == 1);
+                                app.bIsLargeGift = (i == 2);
+                            } else {
+                                SDL_Log("Not enough gold for this gift! Need: %d, have: %d", GameApp::giftCosts[i], app.player.currentGold);
+                            }
                             return SDL_APP_CONTINUE;
                         }
                     }
+                    //Accept -> the gift goes into "Your Offers"
+                    if (app.ClickInsideCircle(nouveauX, nouveauY, app.PaymentConfirmButton)) {
+                        if (app.bOfferGift) {
+                            int selectedGift = app.GetSelectedGiftIndex();
+                            if (selectedGift < 0 || app.player.currentGold < GameApp::giftCosts[selectedGift]) {
+                                return SDL_APP_CONTINUE; //nothing selected or can't afford
+                            }
+                            //a deal only holds one gold gift : replace the previous one
+                            app.dealOffers.erase(
+                                std::remove_if(app.dealOffers.begin(), app.dealOffers.end(),
+                                    [](const GameApp::DealOffer& o) { return o.type == GameApp::OfferType::GoldGift; }),
+                                app.dealOffers.end());
+                            app.dealOffers.push_back({GameApp::OfferType::GoldGift, GameApp::giftCosts[selectedGift]});
+                        }
+                        app.bShowPaymentPanel = false;
+                        app.bIsTradingWithSpecificFaction = true;
+                        return SDL_APP_CONTINUE;
+                    }
+                    //Cancel -> back to the deal screen
+                    if (app.ClickInsideCircle(nouveauX, nouveauY, app.PaymentCancelButton)) {
+                        app.bShowPaymentPanel = false;
+                        app.bIsSmallGift = app.bIsMediumGift = app.bIsLargeGift = false;
+                        return SDL_APP_CONTINUE;
+                    }
+                    return SDL_APP_CONTINUE; //block everything behind the panel
                 }
                 //Add Offer/Demand + treaty list (only when negotiating)
                 if (app.bIsTradingWithSpecificFaction) {
                     // remove a demand with its X button
+                    if (SDL_PointInRectFloat(&MousePT, &app.dealOffersViewportRect)) {
+                        for (auto& [rect, index] : app.dealOfferRemoveRects) {
+                            if (SDL_PointInRectFloat(&MousePT, &rect)) {
+                                if (index >= 0 && index < (int)app.dealOffers.size())
+                                    app.dealOffers.erase(app.dealOffers.begin() + index);
+                                return SDL_APP_CONTINUE;
+                            }
+                        }
+                    }
                     if (SDL_PointInRectFloat(&MousePT, &app.dealDemandsViewportRect)) {
                         for (auto& [rect, index] : app.dealDemandRemoveRects) {
                             if (SDL_PointInRectFloat(&MousePT, &rect)) {
@@ -13893,6 +14143,12 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                                 if (treaty == GameApp::TreatyType::Payment) {
                                     app.bShowPaymentPanel = true;
                                     app.bShowTreatyList = false;
+                                    app.bOfferGift = true;
+                                    app.bDemandPayment = false;
+                                    app.bIsSmallGift = (app.player.currentGold >= GameApp::giftCosts[0]);
+                                    app.bIsMediumGift = false;
+                                    app.bIsLargeGift = false;
+                                    return SDL_APP_CONTINUE;
                                 }
                                 // milirary alliance replace a defensive while pending demand.
                                 if (treaty == GameApp::TreatyType::MilitaryAlliance) {
@@ -13930,16 +14186,35 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 }
                 //Buttons after initiating Trade
                 if (app.bIsTradingWithSpecificFaction && app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyMakeDealButton)) {
+                    //the gold is only spent here, when the deal is proposed
+                    int totalGoldOffered = app.GetTotalGoldOffered();
+                    if (totalGoldOffered > 0 && !app.player.SpendGold(totalGoldOffered)) {
+                        SDL_Log("Not enough gold for this deal! Need: %d", totalGoldOffered);
+                        return SDL_APP_CONTINUE;
+                    }
+                    //Ai recieve the gold from the player.
+                    if (totalGoldOffered > 0) {
+                        if (AiFactionState* aiState = app.aiBehaviour.GetState(app.selectedDiplomacyFaction)) {
+                            aiState->currentGold += totalGoldOffered;
+                            SDL_Log("AI faction %d received a gift of %d gold (total: %d)",
+                                (int)app.selectedDiplomacyFaction, totalGoldOffered, aiState->currentGold);
+                        }
+                    }
+
                     GameApp::DiplomacyState& state = app.diplomacyWithFaction[(int)app.selectedDiplomacyFaction];
                     for (GameApp::TreatyType t : app.dealDemands) app.ApplyTreaty(t, state);
                     app.dealDemands.clear();
                     app.dealDemandsScrollOffset = 0.f;
+                    app.dealOffers.clear();
+                    app.dealOffersScrollOffset = 0.f;
                 }
                 if (app.bIsTradingWithSpecificFaction && app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyQuitDealButton)) {
                     app.bIsTradingWithSpecificFaction = false;
                     app.bShowTreatyList = false;
                     app.dealDemands.clear();
                     app.dealDemandsScrollOffset = 0.f;
+                    app.dealOffers.clear();
+                    app.dealOffersScrollOffset = 0.f;
                 }
                 return SDL_APP_CONTINUE;
             }
@@ -14803,6 +15078,9 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         if (app.bDiplomacyInfoPopup) {
             if (app.bIsTradingWithSpecificFaction && SDL_PointInRectFloat(&wheelPt, &app.dealDemandsViewportRect)) {
                 app.dealDemandsScrollOffset = std::clamp(app.dealDemandsScrollOffset - event->wheel.y * 30.f, 0.f, app.dealDemandsMaxScroll);
+            }
+            if (app.bIsTradingWithSpecificFaction && SDL_PointInRectFloat(&wheelPt, &app.dealOffersViewportRect)) {
+                app.dealOffersScrollOffset = std::clamp(app.dealOffersScrollOffset - event->wheel.y * 30.f, 0.f, app.dealOffersMaxScroll);
             }
             return SDL_APP_CONTINUE;
         }
