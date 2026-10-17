@@ -737,6 +737,9 @@ public:
     SDL_Texture *mediumGiftDiplomacyIconTexture = nullptr;
     SDL_Texture *largeGiftDiplomacyIconTexture = nullptr;
     SDL_Texture *gameGiftSelectedCheckTexture = nullptr;
+    //Demand gift
+    SDL_Texture *gameDemandMinusArrowTexture = nullptr;
+    SDL_Texture *gameDemandPlusArrowTexture = nullptr;
     //buttons Win condition +Missions
     //900.f, 185.f, 200, 40
     SDL_FRect WinConditionsButton = {800.f, 250.f, 200, 40};
@@ -2214,6 +2217,18 @@ private://constructor
         } else {
             SDL_SetTextureScaleMode(gameGiftSelectedCheckTexture, SDL_SCALEMODE_NEAREST);
         }
+        //Demand texture section
+        gameDemandMinusArrowTexture = IMG_LoadTexture(renderer, "assets/DemandMoneyMinusArrow.png");
+        if (gameDemandMinusArrowTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameDemandMinusArrowTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameDemandMinusArrowTexture, SDL_SCALEMODE_NEAREST);
+        gameDemandPlusArrowTexture = IMG_LoadTexture(renderer, "assets/DemandMoneyPlusArrow.png");
+        if (gameDemandPlusArrowTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture gameDemandPlusArrowTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameDemandPlusArrowTexture, SDL_SCALEMODE_NEAREST);
+
         gameCounterDealTexture = IMG_LoadTexture(renderer, "assets/CounterDealIcon.png");
         if (gameCounterDealTexture == nullptr) {
             SDL_LogWarn(0, "failed to load texture gameCounterDealTexture", SDL_GetError());
@@ -4340,6 +4355,8 @@ private://constructor
         SDL_DestroyTexture(mediumGiftDiplomacyIconTexture);
         SDL_DestroyTexture(largeGiftDiplomacyIconTexture);
         SDL_DestroyTexture(gameGiftSelectedCheckTexture);
+        SDL_DestroyTexture(gameDemandMinusArrowTexture);
+        SDL_DestroyTexture(gameDemandPlusArrowTexture);
         SDL_DestroyTexture(gameWinConditionConquestShortIconTexture);
         SDL_DestroyTexture(gameWinConditionConquestLongIconTexture);
         SDL_DestroyTexture(gameWinConditionConstructionShortIconTexture);
@@ -10518,6 +10535,8 @@ public:
     bool bIsMediumGift = false;
     bool bIsLargeGift = false;
     std::vector<SDL_FRect> giftOptionRects; //small/medium/large.
+    //demand income to demand
+    int demandIncomeAmount = 0;
 
     //Gift prices (small / medium / large)
     static constexpr int giftCosts[3] = {100, 450, 1000};
@@ -11632,16 +11651,16 @@ private:
             }
 
             //Rect Offer gift / Demand Payment
-            SDL_FRect paymentModeRect = {factionPaymentSelectBackground.x + 24.f, PaymentDescRect.y + PaymentDescRect.h + 15.f, 240.f, 90.f};
+            SDL_FRect paymentModeRect = {factionPaymentSelectBackground.x + 24.f, PaymentDescRect.y + PaymentDescRect.h + 15.f, 240.f, 120.f};
             SDL_SetRenderDrawColor(renderer, 12, 18, 28, 255);
             SDL_RenderFillRect(renderer, &paymentModeRect);
             SDL_SetRenderDrawColor(renderer, 90, 110, 140, 255);
             SDL_RenderRect(renderer, &paymentModeRect);
 
-            PaymentOfferGiftDot.circleX = paymentModeRect.x + 30.f;
-            PaymentOfferGiftDot.circleY = paymentModeRect.y + 28.f;
-            PaymentDemandDot.circleX = paymentModeRect.x + 30.f;
-            PaymentDemandDot.circleY = paymentModeRect.y + 62.f;
+            PaymentOfferGiftDot.circleX = paymentModeRect.x + 35.f;
+            PaymentOfferGiftDot.circleY = paymentModeRect.y + 40.f;
+            PaymentDemandDot.circleX = paymentModeRect.x + 35.f;
+            PaymentDemandDot.circleY = paymentModeRect.y + 80.f;
 
             auto drawDot = [&](const Circle &dot, bool selected, const char *label) {
                 SDL_SetRenderDrawColor(renderer, 150, 150, 150, 255);//outline
@@ -11652,7 +11671,7 @@ private:
                     SDL_SetRenderDrawColor(renderer, 70, 110, 190, 255); //active dot
                     RenderCircle(dot.circleX, dot.circleY, 4.f);
                 }
-                drawText(gameDiplomacySousTitleText, label, dot.circleX + 24.f, dot.circleY - 11.f, white);
+                drawText(gameDiplomacySousTitleText, label, dot.circleX + 28.f, dot.circleY - 11.f, white);
             };
             drawDot(PaymentOfferGiftDot, bOfferGift, "Offer gift");
             drawDot(PaymentDemandDot, bDemandPayment, "Demand Payment");
@@ -11774,6 +11793,53 @@ private:
                 else TTF_SetTextColor(gameDiplomacyDescText, 130, 130, 130, 255);
                 TTF_DrawRendererText(gameDiplomacyDescText, giftPriceX + giftCoinSize + 6.f, giftPriceCenterY - giftPriceH / 2.f);
             }
+            //demand money amount += 50 per amount added (max is other faction money income total ). Can also direcly type the amount. if higher go to maximum possible
+            if (bDemandPayment) {
+                //mouse for buttons
+                float demandMouseX, demandMouseY;
+                SDL_GetMouseState(&demandMouseX,&demandMouseY);
+                float demandLogicX, demandLogicY;
+                SDL_RenderCoordinatesFromWindow(renderer,demandMouseX, demandMouseY, &demandLogicX, &demandLogicY);
+
+                float demandFrameX = paymentModeRect.x + paymentModeRect.w + 20.f;
+                float demandFrameRight =  factionPaymentSelectBackground.x + factionPaymentSelectBackground.w - 24.f;
+                //rect next to payment mode (Same size)
+                SDL_FRect demandMoneyRect = {demandFrameX, paymentModeRect.y, demandFrameRight - demandFrameX, paymentModeRect.h};
+                SDL_SetRenderDrawColor(renderer, 12, 18, 28, 255);
+                SDL_RenderFillRect(renderer, &demandMoneyRect);
+                SDL_SetRenderDrawColor(renderer, 90, 110, 140, 255);
+                SDL_RenderRect(renderer, &demandMoneyRect);
+                //amount
+                float firstRowX = 100.f;
+                float firstRowY = 10.f;
+                TTF_SetTextString(gameDiplomacySousTitleText, "Amount: ", 0);
+                int amountTextSizeX = 0, amountTextSizeY = 0;
+                TTF_GetTextSize(gameDiplomacySousTitleText, &amountTextSizeX, &amountTextSizeY);
+                TTF_DrawRendererText(gameDiplomacySousTitleText, demandMoneyRect.x + firstRowX, demandMoneyRect.y +firstRowY);
+                //render -button +button and text inside rect.
+                //left button
+                float leftArrowX = amountTextSizeX + demandMoneyRect.x + firstRowX;
+                float leftArrowY = demandMoneyRect.y + firstRowY;
+                SDL_FRect arrowMinusRect = {leftArrowX, leftArrowY, 25, 25};
+                SDL_RenderTexture(renderer, gameDemandMinusArrowTexture, nullptr, &arrowMinusRect);
+                //inside rect [  0  ]
+                float demandMoneyIndicatorW = 75.f;
+                float demandMoneyIndicatorH = 20.f;
+                SDL_FRect demandMoneyIndicatorRect = {arrowMinusRect.w + leftArrowX, leftArrowY + 2.f, demandMoneyIndicatorW, demandMoneyIndicatorH};
+                SDL_SetRenderDrawColor(renderer, 50,50,50,255);
+                SDL_RenderFillRect(renderer, &demandMoneyIndicatorRect);
+                SDL_SetRenderDrawColor(renderer, 40,60,160,255);
+                SDL_RenderRect(renderer, &demandMoneyIndicatorRect);
+                //Text centered inside rect
+                std::string demandPriceAmountStr = std::to_string(demandIncomeAmount);
+                drawTextCentered(gameDiplomacyDescText, demandPriceAmountStr.c_str(), demandMoneyIndicatorRect, white);
+                //right arrow
+                float rightArrowX = demandMoneyIndicatorRect.x + demandMoneyIndicatorW;
+                float rightArrowY = leftArrowY;
+                SDL_FRect arrowPlusRect = {rightArrowX, rightArrowY, 25, 25};
+                SDL_RenderTexture(renderer, gameDemandPlusArrowTexture, nullptr, &arrowPlusRect);
+            }
+
             //render buttons textures
             float mouseXPayment, mouseYPayment;
             SDL_GetMouseState(&mouseXPayment, &mouseYPayment);
