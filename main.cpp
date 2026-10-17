@@ -11838,6 +11838,11 @@ private:
                 float rightArrowY = leftArrowY;
                 SDL_FRect arrowPlusRect = {rightArrowX, rightArrowY, 25, 25};
                 SDL_RenderTexture(renderer, gameDemandPlusArrowTexture, nullptr, &arrowPlusRect);
+
+                //Section 2 Min/Max 100/other faction income
+
+                //Section 3 Their Economic Power: Very weak, Weak, Strong, Very strong.
+
             }
 
             //render buttons textures
