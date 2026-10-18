@@ -10536,8 +10536,11 @@ public:
     bool bIsLargeGift = false;
     std::vector<SDL_FRect> giftOptionRects; //small/medium/large.
     //demand income to demand
-    int demandIncomeAmount = 0;
-
+    int demandIncomeAmount = 100;
+    int demandMinAmount = 0;
+    int demandMaxAmount = 0;
+    SDL_FRect arrowMinusRect = {0.f, 0.f, 0.f, 0.f};
+    SDL_FRect arrowPlusRect  = {0.f, 0.f, 0.f, 0.f};//to use them for the click
     //Gift prices (small / medium / large)
     static constexpr int giftCosts[3] = {100, 450, 1000};
 
@@ -11794,6 +11797,8 @@ private:
                 TTF_DrawRendererText(gameDiplomacyDescText, giftPriceX + giftCoinSize + 6.f, giftPriceCenterY - giftPriceH / 2.f);
             }
             //demand money amount += 50 per amount added (max is other faction money income total ). Can also direcly type the amount. if higher go to maximum possible
+            arrowMinusRect = {0.f, 0.f, 0.f, 0.f};//reset
+            arrowPlusRect  = {0.f, 0.f, 0.f, 0.f};
             if (bDemandPayment) {
                 //mouse for buttons
                 float demandMouseX, demandMouseY;
@@ -11820,9 +11825,9 @@ private:
                 //left button
                 float leftArrowX = amountTextSizeX + demandMoneyRect.x + firstRowX;
                 float leftArrowY = demandMoneyRect.y + firstRowY;
-                SDL_FRect arrowMinusRect = {leftArrowX, leftArrowY, 25, 25};
+                arrowMinusRect = {leftArrowX, leftArrowY, 25, 25};
                 SDL_RenderTexture(renderer, gameDemandMinusArrowTexture, nullptr, &arrowMinusRect);
-                //inside rect [  0  ]
+                //inside rect [  100  ]
                 float demandMoneyIndicatorW = 75.f;
                 float demandMoneyIndicatorH = 20.f;
                 SDL_FRect demandMoneyIndicatorRect = {arrowMinusRect.w + leftArrowX, leftArrowY + 2.f, demandMoneyIndicatorW, demandMoneyIndicatorH};
@@ -11836,7 +11841,7 @@ private:
                 //right arrow
                 float rightArrowX = demandMoneyIndicatorRect.x + demandMoneyIndicatorW;
                 float rightArrowY = leftArrowY;
-                SDL_FRect arrowPlusRect = {rightArrowX, rightArrowY, 25, 25};
+                arrowPlusRect  = {rightArrowX, rightArrowY, 25, 25};
                 SDL_RenderTexture(renderer, gameDemandPlusArrowTexture, nullptr, &arrowPlusRect);
 
                 //Section 2 Min/Max 100/other faction income
@@ -11844,9 +11849,9 @@ private:
                 if (AiFactionState *demandAiState = aiBehaviour.GetState(otherFaction)) {
                     otherFactionGold = demandAiState->currentGold;
                 }
-                const int minimumDemandAmount = 100;
-                int maxDemandAmount = std::max(0, otherFactionGold);//max is other faction money
-                int minDemandAmount = std::min(minimumDemandAmount, maxDemandAmount);
+                demandMaxAmount = std::max(0, otherFactionGold);
+                demandMinAmount = std::min(100, demandMaxAmount);
+                demandIncomeAmount = std::clamp(demandIncomeAmount, demandMinAmount, demandMaxAmount);
 
                 //row 2
                 float secondRowY = demandMoneyRect.y + firstRowY + 40.f;
@@ -11859,7 +11864,7 @@ private:
                 TTF_GetTextSize(gameDiplomacySousTitleText, &minMaxLabelW, &minMaxLabelH);
                 TTF_DrawRendererText(gameDiplomacySousTitleText, leftArrowX - minMaxLabelW ,secondRowY);
                 //values
-                std::string minMaxValueStr = std::to_string(minDemandAmount) + "/" + std::to_string(maxDemandAmount);
+                std::string minMaxValueStr = std::to_string(demandMinAmount) + "/" + std::to_string(demandMaxAmount);
                 TTF_SetTextString(gameDiplomacySousTitleText, minMaxValueStr.c_str(), 0);
                 TTF_DrawRendererText(gameDiplomacySousTitleText, demandMoneyIndicatorRect.x, secondRowY);
                 //Section 3 Their Economic Power: Very weak, Weak, Strong, Very strong. (based on each turn income (not the current gold))
@@ -11889,7 +11894,6 @@ private:
                 TTF_SetTextString(gameDiplomacySousTitleText, economicPowerStr, 0);
                 TTF_DrawRendererText(gameDiplomacySousTitleText, demandMoneyIndicatorRect.x, thirdRowY);
             }
-
             //render buttons textures
             float mouseXPayment, mouseYPayment;
             SDL_GetMouseState(&mouseXPayment, &mouseYPayment);
@@ -14222,6 +14226,17 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         app.bShowPaymentPanel = false;
                         app.bIsSmallGift = app.bIsMediumGift = app.bIsLargeGift = false;
                         return SDL_APP_CONTINUE;
+                    }
+                    //Demand money. left and right arrow
+                    if (app.bDemandPayment) {
+                        if (SDL_PointInRectFloat(&MousePT, &app.arrowMinusRect)) {
+                            app.demandIncomeAmount = std::max(app.demandIncomeAmount - 50, app.demandMinAmount);
+                            return SDL_APP_CONTINUE;
+                        }
+                        if (SDL_PointInRectFloat(&MousePT, &app.arrowPlusRect)) {
+                            app.demandIncomeAmount = std::min(app.demandIncomeAmount + 50, app.demandMaxAmount);
+                            return SDL_APP_CONTINUE;
+                        }
                     }
                     return SDL_APP_CONTINUE; //block everything behind the panel
                 }
