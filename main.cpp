@@ -11862,8 +11862,32 @@ private:
                 std::string minMaxValueStr = std::to_string(minDemandAmount) + "/" + std::to_string(maxDemandAmount);
                 TTF_SetTextString(gameDiplomacySousTitleText, minMaxValueStr.c_str(), 0);
                 TTF_DrawRendererText(gameDiplomacySousTitleText, demandMoneyIndicatorRect.x, secondRowY);
-                //Section 3 Their Economic Power: Very weak, Weak, Strong, Very strong.
+                //Section 3 Their Economic Power: Very weak, Weak, Strong, Very strong. (based on each turn income (not the current gold))
+                int otherFactionEconomicPower = CalculateFactionIncome(otherFaction);
+                //very weak default 0 - 100
+                const int weakIncome = 250;
+                const int strongIncome = 600;
+                const int veryStrongIncome = 1000;
 
+                const char *economicPowerStr = "Very weak";
+                if (otherFactionEconomicPower >= veryStrongIncome) economicPowerStr = "Very strong";
+                else if (otherFactionEconomicPower >= strongIncome) economicPowerStr = "Strong";
+                else if (otherFactionEconomicPower >= weakIncome) economicPowerStr = "Weak";
+                //else very weak default
+
+                //row 3
+                float thirdRowY = secondRowY + 40.f;
+                //text
+                TTF_SetTextWrapWidth(gameDiplomacySousTitleText, 0);
+                TTF_SetTextString(gameDiplomacySousTitleText, "Their Economic Power:", 0);
+                TTF_SetTextColor(gameDiplomacySousTitleText, 255, 255, 255, 255);
+                int economicLabelW = 0, economicLabelH = 0;
+                TTF_GetTextSize(gameDiplomacySousTitleText, &economicLabelW, &economicLabelH);
+                float economicLabelX = std::max(demandMoneyRect.x + 8.f, leftArrowX - economicLabelW - 5.f);
+                TTF_DrawRendererText(gameDiplomacySousTitleText, economicLabelX, thirdRowY);
+                //values
+                TTF_SetTextString(gameDiplomacySousTitleText, economicPowerStr, 0);
+                TTF_DrawRendererText(gameDiplomacySousTitleText, demandMoneyIndicatorRect.x, thirdRowY);
             }
 
             //render buttons textures
