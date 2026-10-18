@@ -11840,7 +11840,28 @@ private:
                 SDL_RenderTexture(renderer, gameDemandPlusArrowTexture, nullptr, &arrowPlusRect);
 
                 //Section 2 Min/Max 100/other faction income
+                int otherFactionGold = 0;//to show the other faction current income
+                if (AiFactionState *demandAiState = aiBehaviour.GetState(otherFaction)) {
+                    otherFactionGold = demandAiState->currentGold;
+                }
+                const int minimumDemandAmount = 100;
+                int maxDemandAmount = std::max(0, otherFactionGold);//max is other faction money
+                int minDemandAmount = std::min(minimumDemandAmount, maxDemandAmount);
 
+                //row 2
+                float secondRowY = demandMoneyRect.y + firstRowY + 40.f;
+                //text
+                const char *minMaxLabel = "Min/Max: ";
+                TTF_SetTextWrapWidth(gameDiplomacySousTitleText, 0);
+                TTF_SetTextString(gameDiplomacySousTitleText, minMaxLabel, 0);
+                TTF_SetTextColor(gameDiplomacySousTitleText, 255, 255, 255, 255);
+                int minMaxLabelW = 0, minMaxLabelH = 0;
+                TTF_GetTextSize(gameDiplomacySousTitleText, &minMaxLabelW, &minMaxLabelH);
+                TTF_DrawRendererText(gameDiplomacySousTitleText, leftArrowX - minMaxLabelW ,secondRowY);
+                //values
+                std::string minMaxValueStr = std::to_string(minDemandAmount) + "/" + std::to_string(maxDemandAmount);
+                TTF_SetTextString(gameDiplomacySousTitleText, minMaxValueStr.c_str(), 0);
+                TTF_DrawRendererText(gameDiplomacySousTitleText, demandMoneyIndicatorRect.x, secondRowY);
                 //Section 3 Their Economic Power: Very weak, Weak, Strong, Very strong.
 
             }
