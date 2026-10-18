@@ -11810,7 +11810,7 @@ private:
                 SDL_SetRenderDrawColor(renderer, 90, 110, 140, 255);
                 SDL_RenderRect(renderer, &demandMoneyRect);
                 //amount
-                float firstRowX = 100.f;
+                float firstRowX = 160.f;
                 float firstRowY = 10.f;
                 TTF_SetTextString(gameDiplomacySousTitleText, "Amount: ", 0);
                 int amountTextSizeX = 0, amountTextSizeY = 0;
