@@ -10562,6 +10562,7 @@ public:
     SDL_FRect dealOffersViewportRect = {0.f, 0.f, 0.f, 0.f};
     float dealOffersScrollOffset = 0.f;
     float dealOffersMaxScroll = 0.f;
+    int dealGoldDemandOffer = 0;
 
     int GetTotalGoldOffered() const {
         int total = 0;
@@ -11223,7 +11224,8 @@ private:
                 const float removeBtnGap = 8.f;
                 const float scrollbarW = 6.f;
 
-                int demandCount = (int)dealDemands.size();
+                int goldDemandRow = (dealGoldDemandOffer > 0) ?1:0 ;
+                int demandCount = goldDemandRow + (int)dealDemands.size();
                 float contentHeight = demandPad * 2.f + demandCount * demandRowH + std::max(0, demandCount - 1) * demandRowGap;
                 dealDemandsMaxScroll = std::max(0.f, contentHeight - viewport.h);
                 dealDemandsScrollOffset = std::clamp(dealDemandsScrollOffset, 0.f, dealDemandsMaxScroll);
@@ -11239,6 +11241,8 @@ private:
                 for (int i = 0; i < demandCount; i++) {
                     bool bDemandVisible = (rowY + demandRowH >= viewport.y) && (rowY <= viewport.y + viewport.h);
                     if (bDemandVisible) {
+                        bool bIsGoldRow = (goldDemandRow == 1 && i == 0);
+                        int treatyIndex = i - goldDemandRow;
                         // framed row (inset from the panel edges)
                         SDL_FRect demandRect = {viewport.x + demandPad, rowY, rowW, demandRowH};
                         SDL_SetRenderDrawColor(renderer, 25, 32, 45, 255);
@@ -11251,7 +11255,8 @@ private:
 
                         // treaty name warped inside those rects created
                         TTF_SetTextWrapWidth(gameDiplomacyDescText, (int)(demandRect.w - 16.f));
-                        TTF_SetTextString(gameDiplomacyDescText, GetTreatyData(dealDemands[i]).name, 0);
+                        std::string demandLabel = bIsGoldRow ? ("Payment: " + std::to_string(dealGoldDemandOffer)) : std::string(GetTreatyData(dealDemands[treatyIndex]).name);
+                        TTF_SetTextString(gameDiplomacyDescText, demandLabel.c_str(), 0);
                         TTF_SetTextColor(gameDiplomacyDescText, 255, 255, 255, 255);
                         int tw = 0, th = 0;
                         TTF_GetTextSize(gameDiplomacyDescText, &tw, &th);
@@ -11275,8 +11280,7 @@ private:
                         SDL_RenderLine(renderer, btnCX - xs, btnCY - xs, btnCX + xs, btnCY + xs);
                         SDL_RenderLine(renderer, btnCX - xs, btnCY + xs, btnCX + xs, btnCY - xs);
 
-                        dealDemandRemoveRects.push_back({removeRect, i});
-                    }
+                        dealDemandRemoveRects.push_back({removeRect, bIsGoldRow ? -1 : treatyIndex});                    }
                     rowY += demandRowH + demandRowGap;
                 }
                 SDL_SetRenderClipRect(renderer, nullptr);
@@ -11902,7 +11906,7 @@ private:
 
             SDL_SetRenderDrawColor(renderer, 0,0,0,0);//reset
             int selectedGiftIndex = GetSelectedGiftIndex();
-            bool bCanConfirmPayment = bDemandPayment || (bOfferGift && selectedGiftIndex >= 0 && player.currentGold >= giftCosts[selectedGiftIndex]);
+            bool bCanConfirmPayment = (bDemandPayment && demandMaxAmount > 0) || (bOfferGift && selectedGiftIndex >= 0 && player.currentGold >= giftCosts[selectedGiftIndex]);
 
             bool bHoveredPaymentConfirm = ClickInsideCircle(lenghtXPayment, lenghtYPayment, PaymentConfirmButton);
             SDL_SetTextureAlphaMod(gameMakeDealTexture, (bHoveredPaymentConfirm && bCanConfirmPayment) ? 255 : 200);
@@ -14170,6 +14174,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         app.dealDemandsScrollOffset = 0.f;
                         app.dealOffers.clear();
                         app.dealOffersScrollOffset = 0.f;
+                        app.dealGoldDemandOffer = 0.f;
                         app.bShowDeclareWarPanel = false;
                         app.bIsTradingWithSpecificFaction = false; // back to the Known Factions screen
                     }
@@ -14217,6 +14222,10 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                                 app.dealOffers.end());
                             app.dealOffers.push_back({GameApp::OfferType::GoldGift, GameApp::giftCosts[selectedGift]});
                         }
+                        else if (app.bDemandPayment) {
+                            if (app.demandMaxAmount <=0) return SDL_APP_CONTINUE;
+                            app.dealGoldDemandOffer = app.demandIncomeAmount;
+                        }
                         app.bShowPaymentPanel = false;
                         app.bIsTradingWithSpecificFaction = true;
                         return SDL_APP_CONTINUE;
@@ -14252,13 +14261,13 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                             }
                         }
                     }
-                    if (SDL_PointInRectFloat(&MousePT, &app.dealDemandsViewportRect)) {
-                        for (auto& [rect, index] : app.dealDemandRemoveRects) {
-                            if (SDL_PointInRectFloat(&MousePT, &rect)) {
-                                if (index >= 0 && index < (int)app.dealDemands.size())
-                                    app.dealDemands.erase(app.dealDemands.begin() + index);
-                                return SDL_APP_CONTINUE;
-                            }
+                    for (auto& [rect, index] : app.dealDemandRemoveRects) {
+                        if (SDL_PointInRectFloat(&MousePT, &rect)) {
+                            if (index == -1)
+                                app.dealGoldDemandOffer = 0;
+                            else if (index >= 0 && index < (int)app.dealDemands.size())
+                                app.dealDemands.erase(app.dealDemands.begin() + index);
+                            return SDL_APP_CONTINUE;
                         }
                     }
                     if (app.bShowTreatyList) {
@@ -14317,6 +14326,13 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 }
                 //Buttons after initiating Trade
                 if (app.bIsTradingWithSpecificFaction && app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyMakeDealButton)) {
+                    AiFactionState* dealAiState = app.aiBehaviour.GetState(app.selectedDiplomacyFaction);
+
+                    // ai can pay what you ask for
+                    if (app.dealGoldDemandOffer > 0 && (!dealAiState || dealAiState->currentGold < app.dealGoldDemandOffer)) {
+                        SDL_Log("The other faction can't pay %d gold", app.dealGoldDemandOffer);
+                        return SDL_APP_CONTINUE;
+                    }
                     //the gold is only spent here, when the deal is proposed
                     int totalGoldOffered = app.GetTotalGoldOffered();
                     if (totalGoldOffered > 0 && !app.player.SpendGold(totalGoldOffered)) {
@@ -14330,6 +14346,11 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                             SDL_Log("AI faction %d received a gift of %d gold (total: %d)",
                                 (int)app.selectedDiplomacyFaction, totalGoldOffered, aiState->currentGold);
                         }
+                    }//The AI pays what the player demanded
+                    if (app.dealGoldDemandOffer > 0 && dealAiState) {
+                        dealAiState->currentGold -= app.dealGoldDemandOffer;
+                        app.player.AddGold(app.dealGoldDemandOffer);
+                        SDL_Log("Received %d gold from faction %d", app.dealGoldDemandOffer, (int)app.selectedDiplomacyFaction);
                     }
 
                     GameApp::DiplomacyState& state = app.diplomacyWithFaction[(int)app.selectedDiplomacyFaction];
@@ -14338,6 +14359,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     app.dealDemandsScrollOffset = 0.f;
                     app.dealOffers.clear();
                     app.dealOffersScrollOffset = 0.f;
+                    app.dealGoldDemandOffer = 0;
                 }
                 if (app.bIsTradingWithSpecificFaction && app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyQuitDealButton)) {
                     app.bIsTradingWithSpecificFaction = false;
@@ -14346,6 +14368,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     app.dealDemandsScrollOffset = 0.f;
                     app.dealOffers.clear();
                     app.dealOffersScrollOffset = 0.f;
+                    app.dealGoldDemandOffer = 0;
                 }
                 return SDL_APP_CONTINUE;
             }
