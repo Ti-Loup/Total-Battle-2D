@@ -10778,7 +10778,51 @@ private:
             SDL_FRect relationContent = drawSection(relationRect, "Relations");
 
             float blockY = relationContent.y;
-            for (const RelationBlock& block : relationBlocks) {
+            for (const RelationBlock &block: relationBlocks) {
+                const bool bIsVassalBlock = (block.factionFlag == &DiplomacyState::bVassal);
+
+                // Other faction vassal panel if is vassal
+                bool bIsVassalOfPlayer = false;
+                if (bIsVassalBlock && !bIsPlayer) {
+                    auto itVassal = diplomacyWithFaction.find((int) faction);
+                    bIsVassalOfPlayer = (itVassal != diplomacyWithFaction.end() && itVassal->second.bVassal);
+                }
+
+                // Vassal kingdom of: [Player]
+                if (bIsVassalOfPlayer) {
+                    const float vassalBannerSize = 34.f;
+                    const float vassalIconSize = 18.f;
+
+                    TTF_SetTextWrapWidth(gameDiplomacyDescText, 0);
+                    TTF_SetTextString(gameDiplomacyDescText, "Vassal kingdom of:", 0);
+                    int vassalTextW = 0, vassalTextH = 0;
+                    TTF_GetTextSize(gameDiplomacyDescText, &vassalTextW, &vassalTextH);
+
+                    float totalH = blockTitleH + blockBoxH;
+                    float rowW = vassalIconSize + 4.f + vassalTextW + 8.f + vassalBannerSize;
+                    float rowX = relationContent.x + (relationContent.w - rowW) / 2.f;
+                    float centerY = blockY + totalH / 2.f;
+
+                    SDL_FRect vassalIconRect = {rowX, centerY - vassalIconSize / 2.f, vassalIconSize, vassalIconSize};
+                    if (vassalDiplomacyIconTexture) SDL_RenderTexture(renderer, vassalDiplomacyIconTexture, nullptr,
+                                                                      &vassalIconRect);
+
+                    TTF_SetTextColor(gameDiplomacyDescText, 255, 255, 255, 255);
+                    TTF_DrawRendererText(gameDiplomacyDescText, rowX + vassalIconSize + 4.f,
+                                         centerY - vassalTextH / 2.f);
+
+                    // Player flag
+                    SDL_FRect masterBannerRect = {
+                        rowX + vassalIconSize + 4.f + vassalTextW + 8.f, centerY - vassalBannerSize / 2.f,
+                        vassalBannerSize, vassalBannerSize
+                    };
+                    if (SDL_Texture *masterTex = getBanner(player.faction))
+                        SDL_RenderTexture(renderer, masterTex, nullptr, &masterBannerRect);
+
+                    blockY += blockH;
+                    continue;
+                }
+
                 //title centered with Icon + text
                 TTF_SetTextWrapWidth(gameDiplomacyDescText, 0);
                 TTF_SetTextString(gameDiplomacyDescText, block.title, 0);
@@ -10789,11 +10833,14 @@ private:
                 float rowW = blockIconSize + 4.f + blockTitleW;
                 float rowX = relationContent.x + (relationContent.w - rowW) / 2.f;
 
-                SDL_FRect blockIconRect = {rowX, blockY + (blockTitleH - blockIconSize) / 2.f, blockIconSize, blockIconSize};
+                SDL_FRect blockIconRect = {
+                    rowX, blockY + (blockTitleH - blockIconSize) / 2.f, blockIconSize, blockIconSize
+                };
                 if (block.icon) SDL_RenderTexture(renderer, block.icon, nullptr, &blockIconRect);
 
                 TTF_SetTextColor(gameDiplomacyDescText, 255, 255, 255, 255);
-                TTF_DrawRendererText(gameDiplomacyDescText, rowX + blockIconSize + 4.f, blockY + (blockTitleH - blockTitleTextH) / 2.f);
+                TTF_DrawRendererText(gameDiplomacyDescText, rowX + blockIconSize + 4.f,
+                                     blockY + (blockTitleH - blockTitleTextH) / 2.f);
 
                 //box where the factions will be listed
                 SDL_FRect listBox = {relationContent.x + 2.f, blockY + blockTitleH, relationContent.w - 4.f, blockBoxH};
@@ -10806,27 +10853,27 @@ private:
                 std::vector<FactionZone> relatedFactions;
                 if (bIsPlayer) {
                     // player panel: every other faction we have this treaty with
-                    for (FactionZone f : otherFactions) {
-                        auto it = diplomacyWithFaction.find((int)f);
+                    for (FactionZone f: otherFactions) {
+                        auto it = diplomacyWithFaction.find((int) f);
                         if (it != diplomacyWithFaction.end() && it->second.*(block.factionFlag))
                             relatedFactions.push_back(f);
                     }
-                } else {
+                } else if (!bIsVassalBlock) {
                     // other faction panel: the player's banner if they have this treaty with us
-                    auto it = diplomacyWithFaction.find((int)faction);
+                    // (jamais pour Vassals : le joueur n'est pas le vassal de l'autre faction)
+                    auto it = diplomacyWithFaction.find((int) faction);
                     if (it != diplomacyWithFaction.end() && it->second.*(block.factionFlag))
                         relatedFactions.push_back(player.faction);
                 }
 
                 const float relBannerSize = blockBoxH - 4.f;
                 float relBannerX = listBox.x + 3.f;
-                for (FactionZone relatedFaction : relatedFactions) {
+                for (FactionZone relatedFaction: relatedFactions) {
                     SDL_FRect relBannerRect = {relBannerX, listBox.y + 2.f, relBannerSize, relBannerSize};
-                    if (SDL_Texture* relTex = getBanner(relatedFaction))
+                    if (SDL_Texture *relTex = getBanner(relatedFaction))
                         SDL_RenderTexture(renderer, relTex, nullptr, &relBannerRect);
                     relBannerX += relBannerSize + 4.f;
                 }
-
 
                 blockY += blockH;
             }
