@@ -406,6 +406,8 @@ public:
     bool bGoodsProductionManagerPopup = false;
     //Circle for goods Production manager Close
     Circle GoodsProductionManagerReturnGame = {1010.f, 950.f, 25};
+    //diplomacy textures export import indicator.
+    
 
     //Goods Production Manager Scroll state for the Raw / Modified sections
     float goodsManagerRawScrollOffset = 0.f;
@@ -10883,6 +10885,8 @@ private:
             {
                 SDL_FRect tradeRect = {boxX, boxY, boxW, 100.f};
                 drawSection(tradeRect, "Trade goods");
+                //11 differents resources
+                //rect of 1 resource size + send/receive icon
             }
 
         };
