@@ -10559,9 +10559,6 @@ public:
     SDL_FRect arrowPlusRect  = {0.f, 0.f, 0.f, 0.f};//to use them for the click
     //Gift prices (small / medium / large)
     static constexpr int giftCosts[3] = {100, 450, 1000};
-    //split goods into raw and transform
-    std::vector<std::pair<ResourceType, int>> tradeRawGoods;
-    std::vector<std::pair<ResourceType, int>> tradeTransformedGoods;
 
     int GetSelectedGiftIndex() const {
         if (bIsSmallGift) return 0;
@@ -10901,16 +10898,163 @@ private:
             //Trade Goods
             {
                 SDL_FRect tradeRect = {boxX, boxY, boxW, 100.f};
-                drawSection(tradeRect, "Trade goods");
-                //11 differents resources
-                //rect of 1 resource size + send/receive icon
-                float gap = 5.f;
-                ResourceType tradeResourceType;
-                SDL_Texture* goodsIcon = GetResourceTypeIcon(tradeResourceType);
-                if (goodsIcon) {
-                   SDL_FRect goodsIconRect = {tradeRect.x + gap, tradeRect.y + gap, 25.f , 25.f};
-                }
+                SDL_FRect tradeContent = drawSection(tradeRect, "Trade goods");
 
+                if (bIsTradingWithSpecificFaction) {
+                    // Initiate Diplomacy: every RAW good, with the amount + green if need / or red to mucvh
+                    const int needBelow = 10; // fewer than this need green
+                    const int abundantFrom = 50; // this much or more  red
+
+                    // stock of this faction player or AI
+                    const std::unordered_map<ResourceType, int> *storedPtr = nullptr;
+                    if (bIsPlayer) storedPtr = &goodsStoredByType;
+                    else if (AiFactionState *aiState = aiBehaviour.GetState(faction))
+                        storedPtr = &aiState->goodsStoredByType;
+
+                    // all raw goods that exist
+                    std::vector<ResourceType> rawTypes;
+                    for (const auto &[type, data]: GetResourceDatabase()) {
+                        if (data.goodsCategory != ResourceCategory::Transformed) rawTypes.push_back(type);
+                    }
+                    std::sort(rawTypes.begin(), rawTypes.end());
+
+                    const int cols = 4;
+                    const float cellGap = 3.f;
+                    const float cellW = (tradeContent.w - cellGap * (cols - 1)) / cols;
+                    const float cellH = 20.f;
+                    const float tradeCellIconSize = 16.f;
+                    const float arrowSize = 12.f;
+
+                    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+                    for (int i = 0; i < (int) rawTypes.size(); i++) {
+                        ResourceType type = rawTypes[i];
+                        int amount = 0;
+                        if (storedPtr) {
+                            auto it = storedPtr->find(type);
+                            if (it != storedPtr->end()) amount = it->second;
+                        }
+
+                        int col = i % cols;
+                        int row = i / cols;
+                        SDL_FRect cell = {
+                            tradeContent.x + col * (cellW + cellGap),
+                            tradeContent.y + row * (cellH + 2.f),
+                            cellW, cellH
+                        };
+
+                        bool bNeed = (amount < needBelow);
+                        bool bAbundant = (amount >= abundantFrom);
+
+                        // frame that is green ,red or gray
+                        if (bNeed) {
+                            SDL_SetRenderDrawColor(renderer, 60, 200, 80, 50);
+                            SDL_RenderFillRect(renderer, &cell);
+                            SDL_SetRenderDrawColor(renderer, 60, 200, 80, 255);
+                        } else if (bAbundant) {
+                            SDL_SetRenderDrawColor(renderer, 220, 60, 60, 50);
+                            SDL_RenderFillRect(renderer, &cell);
+                            SDL_SetRenderDrawColor(renderer, 220, 60, 60, 255);
+                        } else {
+                            SDL_SetRenderDrawColor(renderer, 70, 80, 95, 255);
+                        }
+                        SDL_RenderRect(renderer, &cell);
+                        SDL_FRect cellInner = {cell.x + 1.f, cell.y + 1.f, cell.w - 2.f, cell.h - 2.f};
+                        SDL_RenderRect(renderer, &cellInner); // 2px frame
+
+                        // icon
+                        SDL_Texture *goodsIcon = GetResourceTypeIcon(type);
+                        SDL_FRect goodsIconRect = {
+                            cell.x + 3.f, cell.y + (cell.h - tradeCellIconSize) / 2.f, tradeCellIconSize,
+                            tradeCellIconSize
+                        };
+                        if (goodsIcon) SDL_RenderTexture(renderer, goodsIcon, nullptr, &goodsIconRect);
+
+                        // amount
+                        std::string amountStr = std::to_string(amount);
+                        TTF_SetTextWrapWidth(gameDiplomacyDescText, 0);
+                        TTF_SetTextString(gameDiplomacyDescText, amountStr.c_str(), 0);
+                        TTF_SetTextColor(gameDiplomacyDescText, 255, 255, 255, 255);
+                        int amountW = 0, amountH = 0;
+                        TTF_GetTextSize(gameDiplomacyDescText, &amountW, &amountH);
+                        TTF_DrawRendererText(gameDiplomacyDescText, goodsIconRect.x + tradeCellIconSize + 4.f,
+                                             cell.y + (cell.h - amountH) / 2.f);
+
+                        // import / export arrow on the right of the cell
+                        SDL_Texture *arrowTexture = nullptr;
+                        if (bNeed) arrowTexture = diplomacyGoodsImportArrowIndicatorTexture;
+                        else if (bAbundant) arrowTexture = diplomacyGoodsExportArrowIndicatorTexture;
+                        if (arrowTexture) {
+                            SDL_FRect arrowRect = {
+                                cell.x + cell.w - arrowSize - 3.f,
+                                cell.y + (cell.h - arrowSize) / 2.f,
+                                arrowSize, arrowSize
+                            };
+                            SDL_RenderTexture(renderer, arrowTexture, nullptr, &arrowRect);
+                        }
+                    }
+                } else {
+                    // Known Factions screen: only what the faction really produces
+                    auto factionProduces = [&](ResourceType type) -> bool {
+                        for (int i = 0; i < (int) settlements.size(); i++) {
+                            const Settlement &st = settlements[i];
+                            if (provinces[st.settlementData.provinceID].owner != faction) continue;
+                            for (int slot = 0; slot < (int) st.settlementData.buildings.size(); slot++) {
+                                BuildingType bt = st.settlementData.buildings[slot];
+                                if (bt == BuildingType::None) continue;
+                                if (IsBuildingSlotDamaged(i, slot)) continue;
+                                const BuildingData *bd = GetBuildingData(bt);
+                                if (!bd) continue;
+                                for (const auto &produced: bd->resourcesProduced) {
+                                    if (produced.type == type) return true;
+                                }
+                            }
+                        }
+                        return false;
+                    };
+
+                    std::vector<ResourceType> rawTradeTypes;
+                    std::vector<ResourceType> transformedTradeTypes;
+                    for (const auto &[type, data]: GetResourceDatabase()) {
+                        if (!factionProduces(type)) continue;
+                        (data.goodsCategory == ResourceCategory::Transformed ? transformedTradeTypes : rawTradeTypes).
+                                push_back(type);
+                    }
+                    std::sort(rawTradeTypes.begin(), rawTradeTypes.end());
+                    std::sort(transformedTradeTypes.begin(), transformedTradeTypes.end());
+
+                    const float tradeIconSize = 20.f;
+                    const float tradeIconGap = 3.f;
+                    int iconsPerRow = std::max(
+                        1, (int) ((tradeContent.w + tradeIconGap) / (tradeIconSize + tradeIconGap)));
+
+                    float tradeRowY = tradeContent.y;
+
+                    auto drawTradeIconGroup = [&](const std::vector<ResourceType> &types) {
+                        int iconIndex = 0;
+                        for (ResourceType type: types) {
+                            SDL_Texture *goodsIcon = GetResourceTypeIcon(type);
+                            if (!goodsIcon) continue;
+
+                            int col = iconIndex % iconsPerRow;
+                            int row = iconIndex / iconsPerRow;
+                            SDL_FRect goodsIconRect = {
+                                tradeContent.x + 1.f + col * (tradeIconSize + tradeIconGap),
+                                tradeRowY + row * (tradeIconSize + tradeIconGap),
+                                tradeIconSize, tradeIconSize
+                            };
+                            SDL_RenderTexture(renderer, goodsIcon, nullptr, &goodsIconRect);
+                            iconIndex++;
+                        }
+                        if (iconIndex > 0) {
+                            int rowsUsed = (iconIndex + iconsPerRow - 1) / iconsPerRow;
+                            tradeRowY += rowsUsed * (tradeIconSize + tradeIconGap);
+                        }
+                    };
+
+                    drawTradeIconGroup(rawTradeTypes);
+                    drawTradeIconGroup(transformedTradeTypes);
+                }
             }
 
         };
