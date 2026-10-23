@@ -39,12 +39,13 @@
  * Done | Treasury posibility to increase of reduce taxes. that increase the public order or reduce it
  * Done | UI remove when diplomacy button precess To show Different UI
  * Done | improve the Diplomacy Ui elements
- * ToDo | New Buttons textures
- * ToDo | Different treaties possible to do.
+ * Done | New Buttons textures
+ * Done | Different treaties possible to do.
  * ToDo | Factions attitude to everyone. Possibility to trade goods make peace, war, alliances.
- * ToDo | Possibility to give money to improve relations
+ * Done | Possibility to give money to improve relations
  * ToDo | Trade raw goods only with others. but transformed goods with a distant buyer
  * tOdO | Can trade goods periodicly instead (Like troy)
+ * ToDo | make some goods more desirable for some oher faction
  *
  * Bugs:
  * Fixed | The UI overlaps
@@ -407,7 +408,8 @@ public:
     //Circle for goods Production manager Close
     Circle GoodsProductionManagerReturnGame = {1010.f, 950.f, 25};
     //diplomacy textures export import indicator.
-    
+    SDL_Texture *diplomacyGoodsExportArrowIndicatorTexture = nullptr;
+    SDL_Texture *diplomacyGoodsImportArrowIndicatorTexture = nullptr;
 
     //Goods Production Manager Scroll state for the Raw / Modified sections
     float goodsManagerRawScrollOffset = 0.f;
@@ -3807,6 +3809,16 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture goodsProductionManagerButtonTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(goodsProductionManagerButtonTexture, SDL_SCALEMODE_NEAREST);
+        diplomacyGoodsExportArrowIndicatorTexture = IMG_LoadTexture(renderer, "assets/ExportArrowIndicator.png");
+        if (diplomacyGoodsExportArrowIndicatorTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture diplomacyGoodsExportArrowIndicatorTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(diplomacyGoodsExportArrowIndicatorTexture, SDL_SCALEMODE_NEAREST);
+        diplomacyGoodsImportArrowIndicatorTexture = IMG_LoadTexture(renderer, "assets/ImportArrowIndicator.png");
+        if (diplomacyGoodsImportArrowIndicatorTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture diplomacyGoodsExportArrowIndicatorTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(diplomacyGoodsImportArrowIndicatorTexture, SDL_SCALEMODE_NEAREST);
         //Goods Value Icon
         gameGoodsTradeValueTexture = IMG_LoadTexture(renderer, "assets/TradeValue.png");
         if (gameGoodsTradeValueTexture == nullptr) {
@@ -4329,6 +4341,8 @@ private://constructor
         SDL_DestroyTexture(gameResourceGoldJewleryIconTexture);
         SDL_DestroyTexture(gameGoodsTradeValueTexture);
         SDL_DestroyTexture(goodsProductionManagerButtonTexture);
+        SDL_DestroyTexture(diplomacyGoodsExportArrowIndicatorTexture);
+        SDL_DestroyTexture(diplomacyGoodsImportArrowIndicatorTexture);
         SDL_DestroyTexture(gameDestroyBuildingButtonIconUi);
         SDL_DestroyTexture(gameRepairBuildingButtonIconUi);
         SDL_DestroyTexture(gameBuildingDamagedIconUi);
@@ -10545,6 +10559,9 @@ public:
     SDL_FRect arrowPlusRect  = {0.f, 0.f, 0.f, 0.f};//to use them for the click
     //Gift prices (small / medium / large)
     static constexpr int giftCosts[3] = {100, 450, 1000};
+    //split goods into raw and transform
+    std::vector<std::pair<ResourceType, int>> tradeRawGoods;
+    std::vector<std::pair<ResourceType, int>> tradeTransformedGoods;
 
     int GetSelectedGiftIndex() const {
         if (bIsSmallGift) return 0;
@@ -10887,6 +10904,13 @@ private:
                 drawSection(tradeRect, "Trade goods");
                 //11 differents resources
                 //rect of 1 resource size + send/receive icon
+                float gap = 5.f;
+                ResourceType tradeResourceType;
+                SDL_Texture* goodsIcon = GetResourceTypeIcon(tradeResourceType);
+                if (goodsIcon) {
+                   SDL_FRect goodsIconRect = {tradeRect.x + gap, tradeRect.y + gap, 25.f , 25.f};
+                }
+
             }
 
         };
