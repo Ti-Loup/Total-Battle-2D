@@ -10543,6 +10543,10 @@ public:
     Circle PaymentCancelButton  = {990.f, 1042.f, 25};
     bool bOfferGift = true;
     bool bDemandPayment = false;
+    //Trade panel
+    bool bShowTradePanel = false;
+    Circle TradeConfirmButoon = {930.f, 1042.f, 25};
+    Circle TradeCancelButton = {990.f, 1042.f, 25};
     //circleButton
     Circle PaymentOfferGiftDot = {0.f, 0.f, 12.f};
     Circle PaymentDemandDot    = {0.f, 0.f, 12.f};
@@ -11259,7 +11263,7 @@ private:
 
         }
         //Inside Specific trade with other faction
-        if (bIsTradingWithSpecificFaction && !bShowDeclareWarPanel && !bShowPaymentPanel) {
+        if (bIsTradingWithSpecificFaction && !bShowDeclareWarPanel && !bShowPaymentPanel && !bShowTradePanel) {
             SDL_FRect tradeTitleRect = {830.f, 730.f, 260.f, 30.f};
             SDL_SetRenderDrawColor(renderer, 70, 70, 70, 255);
             SDL_RenderFillRect(renderer, &tradeTitleRect);
@@ -12183,6 +12187,27 @@ private:
                 TTF_SetTextColor(gameDiplomacyDescText, 240, 240, 240, 255);
                 TTF_DrawRendererText(gameDiplomacyDescText, textX+ padX, textY + padY);            }
         }
+        //trade panel when tradign with specific faction
+        //can decide to trade speficif goods. and can be recurant up to 10 turns
+        if (bIsTradingWithSpecificFaction && bShowTradePanel) {
+            const SDL_FRect &factionTradeBackground = factionSelectionBackgroundRect;
+
+            //Title
+            SDL_FRect tradeTitleRect = {830.f, 730.f, 260.f, 30.f};
+            SDL_SetRenderDrawColor(renderer, 70, 70, 70, 255);
+            SDL_RenderFillRect(renderer, &tradeTitleRect);
+            SDL_SetRenderDrawColor(renderer, 190, 190, 190, 255);
+            SDL_RenderRect(renderer, &tradeTitleRect);
+            drawTextCentered(gameDiplomacyTitleText, "Trade", tradeTitleRect, white);
+
+            //sous title
+            SDL_FRect TradeDescRect = {factionTradeBackground.x + 24.f, factionTradeBackground.y + 50.f, factionTradeBackground.w - 48.f, 70.f};
+            SDL_SetRenderDrawColor(renderer, 140, 140, 140, 255);
+            SDL_RenderRect(renderer, &TradeDescRect);
+            std::string tradeDescStr = std::string("Barters are exchange of resources. Other factions will place greater value on goods they don't have and vice-versa. Use the slider below to adjust the number of turns, during which the barter agreement will be in effect.");
+            drawTextCentered(gameDiplomacyDescText, tradeDescStr.c_str(), TradeDescRect, white, 20.f);
+        }
+
 
     }
     void RenderFamilyHierarchyInfoPopup() {
@@ -14509,6 +14534,13 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                                     app.bIsLargeGift = false;
                                     return SDL_APP_CONTINUE;
                                 }
+                                //Trade
+                                if (treaty == GameApp::TreatyType::Trade) {
+                                    app.bShowTradePanel = true;
+                                    app.bShowTreatyList = false;
+                                    return SDL_APP_CONTINUE;
+
+                                }
                                 // milirary alliance replace a defensive while pending demand.
                                 if (treaty == GameApp::TreatyType::MilitaryAlliance) {
                                     app.dealDemands.erase(
@@ -14590,6 +14622,14 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     app.dealGoldDemandOffer = 0;
                 }
                 return SDL_APP_CONTINUE;
+            }
+            //trade panel only 2 buttons work
+            if (app.bShowTradePanel) {
+                if (app.ClickInsideCircle(nouveauX, nouveauY, app.TradeConfirmButoon)) {
+                    GameApp::DiplomacyState &tradeState = app.diplomacyWithFaction[(int)app.selectedDiplomacyFaction];
+
+                    app.bShowTradePanel = false;
+                }
             }
             // Minimap click -> jump camera there
             SDL_FPoint miniMapPt = {nouveauX, nouveauY};
