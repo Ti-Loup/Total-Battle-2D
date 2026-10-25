@@ -10927,7 +10927,6 @@ private:
                     const float cellW = (tradeContent.w - cellGap * (cols - 1)) / cols;
                     const float cellH = 20.f;
                     const float tradeCellIconSize = 16.f;
-                    const float arrowSize = 12.f;
 
                     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
@@ -10981,21 +10980,7 @@ private:
                         TTF_SetTextColor(gameDiplomacyDescText, 255, 255, 255, 255);
                         int amountW = 0, amountH = 0;
                         TTF_GetTextSize(gameDiplomacyDescText, &amountW, &amountH);
-                        TTF_DrawRendererText(gameDiplomacyDescText, goodsIconRect.x + tradeCellIconSize + 4.f,
-                                             cell.y + (cell.h - amountH) / 2.f);
-
-                        // import / export arrow on the right of the cell
-                        SDL_Texture *arrowTexture = nullptr;
-                        if (bNeed) arrowTexture = diplomacyGoodsImportArrowIndicatorTexture;
-                        else if (bAbundant) arrowTexture = diplomacyGoodsExportArrowIndicatorTexture;
-                        if (arrowTexture) {
-                            SDL_FRect arrowRect = {
-                                cell.x + cell.w - arrowSize - 3.f,
-                                cell.y + (cell.h - arrowSize) / 2.f,
-                                arrowSize, arrowSize
-                            };
-                            SDL_RenderTexture(renderer, arrowTexture, nullptr, &arrowRect);
-                        }
+                        TTF_DrawRendererText(gameDiplomacyDescText, goodsIconRect.x + tradeCellIconSize + 4.f,cell.y + (cell.h - amountH) / 2.f);
                     }
                 } else {
                     // Known Factions screen: only what the faction really produces
@@ -11048,6 +11033,22 @@ private:
                                 tradeIconSize, tradeIconSize
                             };
                             SDL_RenderTexture(renderer, goodsIcon, nullptr, &goodsIconRect);
+
+                            // PLACEHOLDER import / export indicator
+                            bool bIsExportedToSomeone = false; // TODO: real trade-route check (player -> faction)
+                            bool bIsImportedFromFaction = false; // TODO: real trade-route check (that faction -> player)
+                            SDL_Texture *arrowTexture = nullptr;
+                            if (bIsPlayer && bIsExportedToSomeone) arrowTexture = diplomacyGoodsExportArrowIndicatorTexture;
+                            else if (!bIsPlayer && bIsImportedFromFaction) arrowTexture = diplomacyGoodsImportArrowIndicatorTexture;
+                            if (arrowTexture) {
+                                const float tradeArrowSize = 10.f;
+                                SDL_FRect arrowRect = {
+                                    goodsIconRect.x + goodsIconRect.w - tradeArrowSize * 0.6f,
+                                    goodsIconRect.y + goodsIconRect.h - tradeArrowSize * 0.6f,
+                                    tradeArrowSize, tradeArrowSize
+                                };
+                                SDL_RenderTexture(renderer, arrowTexture, nullptr, &arrowRect);
+                            }
                             iconIndex++;
                         }
                         if (iconIndex > 0) {
