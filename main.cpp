@@ -10545,7 +10545,7 @@ public:
     bool bDemandPayment = false;
     //Trade panel
     bool bShowTradePanel = false;
-    Circle TradeConfirmButoon = {930.f, 1042.f, 25};
+    Circle TradeConfirmButton = {930.f, 1042.f, 25};
     Circle TradeCancelButton = {990.f, 1042.f, 25};
     //circleButton
     Circle PaymentOfferGiftDot = {0.f, 0.f, 12.f};
@@ -12201,13 +12201,111 @@ private:
             drawTextCentered(gameDiplomacyTitleText, "Trade", tradeTitleRect, white);
 
             //sous title
-            SDL_FRect TradeDescRect = {factionTradeBackground.x + 24.f, factionTradeBackground.y + 50.f, factionTradeBackground.w - 48.f, 70.f};
+            SDL_FRect TradeDescRect = {factionTradeBackground.x + 24.f, factionTradeBackground.y + 30.f, factionTradeBackground.w - 48.f, 70.f};
             SDL_SetRenderDrawColor(renderer, 140, 140, 140, 255);
             SDL_RenderRect(renderer, &TradeDescRect);
             std::string tradeDescStr = std::string("Barters are exchange of resources. Other factions will place greater value on goods they don't have and vice-versa. Use the slider below to adjust the number of turns, during which the barter agreement will be in effect.");
             drawTextCentered(gameDiplomacyDescText, tradeDescStr.c_str(), TradeDescRect, white, 20.f);
-        }
 
+            //slider area (amount of turns for this offer demand)
+            SDL_FRect sliderBackgroundTurnRect = {TradeDescRect.x + TradeDescRect.w / 4 + 40, TradeDescRect.y + TradeDescRect.h + 10.f, 250, 20};
+            SDL_SetRenderDrawColor(renderer, 140, 140, 140, 255);
+            SDL_RenderFillRect (renderer, &sliderBackgroundTurnRect);
+            //turn amount + texture
+
+            //2 Your offer / Your demands
+            //Titles
+            float tradeGap = 3.f;
+            float tradeTitleH = 30.f;
+            SDL_FRect YourOfferTitleRect ={factionTradeBackground.x + tradeGap, sliderBackgroundTurnRect.y + sliderBackgroundTurnRect.h + 10.f, factionTradeBackground.w/2 - tradeGap, tradeTitleH};
+            SDL_FRect YourDemandTitleRect ={YourOfferTitleRect.x + YourOfferTitleRect.w, sliderBackgroundTurnRect.y + sliderBackgroundTurnRect.h + 10.f, YourOfferTitleRect.w, tradeTitleH};
+            SDL_SetRenderDrawColor(renderer, 120,120,40,255);
+            SDL_RenderFillRect(renderer, &YourOfferTitleRect);
+            SDL_RenderFillRect(renderer, &YourDemandTitleRect);
+            SDL_SetRenderDrawColor(renderer, 120, 160, 60, 255);
+            SDL_RenderRect(renderer, &YourOfferTitleRect);
+            SDL_RenderRect(renderer, &YourDemandTitleRect);
+            //text
+            drawTextCentered(gameDiplomacySousTitleText, "Your Offer", YourOfferTitleRect, white);
+            drawTextCentered(gameDiplomacySousTitleText, "Your Demands", YourDemandTitleRect, white);
+            //Rect for each
+            SDL_FRect YourOfferContentRect ={YourOfferTitleRect.x, YourOfferTitleRect.y + YourOfferTitleRect.h, YourOfferTitleRect.w, 100.f};
+            SDL_SetRenderDrawColor(renderer, 120,160,60,255);
+            SDL_RenderRect(renderer, &YourOfferContentRect);
+            SDL_FRect YourDemandContentRect ={YourDemandTitleRect.x, YourDemandTitleRect.y + YourDemandTitleRect.h, YourDemandTitleRect.w, 100.f};
+            SDL_SetRenderDrawColor(renderer, 120,160,60,255);
+            SDL_RenderRect(renderer, &YourDemandContentRect);
+            //int offerCount = (int)dealOffers.size();
+
+
+            //buttons conclude , cancel
+            //make deal button
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+            float mouseXDeal, mouseYDeal;
+            SDL_GetMouseState(&mouseXDeal, &mouseYDeal);
+            float lenghtXDeal, lenghtYDeal;
+            SDL_RenderCoordinatesFromWindow(renderer, mouseXDeal, mouseYDeal, &lenghtXDeal, &lenghtYDeal);
+            bool bHoveredTradeDealButton = ClickInsideCircle(lenghtXDeal, lenghtYDeal, TradeConfirmButton);
+            Uint8 tradeDealAlpha = bHoveredTradeDealButton ? 255:200;
+            SDL_SetTextureAlphaMod(gameMakeDealTexture, tradeDealAlpha);
+            RenderBoutonCercle(TradeConfirmButton, nullptr, gameMakeDealTexture, 0, 0, 0);
+            SDL_SetTextureAlphaMod(gameMakeDealTexture, 255);
+            //return to faction selection
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0,0);
+            float mouseXCancel, mouseYCancel;
+            SDL_GetMouseState(&mouseXCancel, &mouseYCancel);
+            float lenghtXCancel, lenghtYCancel;
+            SDL_RenderCoordinatesFromWindow(renderer, mouseXCancel, mouseYCancel, &lenghtXCancel, &lenghtYCancel);
+            bool bHoveredTradeCancelButton = ClickInsideCircle(lenghtXDeal, lenghtYDeal, TradeCancelButton);
+            Uint8 tradeCancelAlpha = bHoveredTradeCancelButton ? 255:200;
+            SDL_SetTextureAlphaMod(gameQuitDealTexture, tradeCancelAlpha);
+            RenderBoutonCercle(TradeCancelButton, nullptr, gameQuitDealTexture, 0,0,0);
+            SDL_SetTextureAlphaMod(gameQuitDealTexture, 255);
+
+            //hovered buttons
+            if (bHoveredTradeDealButton) {
+                const char *tradeDealFactionLabel = "Make Offer";
+                TTF_SetTextString(gameDiplomacyDescText, tradeDealFactionLabel, 0);
+                int nameW = 0, nameH = 0;
+                TTF_GetTextSize(gameDiplomacyDescText, &nameW, &nameH);
+                float padX = 8.f, padY = 5.f;
+                float textW = nameW + padX * 2.f;
+                float textH = nameH + padY * 2.f;
+                float textX = lenghtXDeal + 15.f;//offset on the cursor
+                float textY = lenghtYDeal - textH / 2.f;//centered on cursor
+
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+                SDL_FRect tooltipTradeDealBackground = {textX, textY, textW, textH};
+                SDL_RenderFillRect(renderer, &tooltipTradeDealBackground);
+                SDL_SetRenderDrawColor(renderer, 40, 90, 110, 255);
+                SDL_RenderRect(renderer, &tooltipTradeDealBackground);
+
+                TTF_SetTextColor(gameDiplomacyDescText, 240, 240, 240, 255);
+                TTF_DrawRendererText(gameDiplomacyDescText, textX + padX, textY + padY);
+            }
+            if (bHoveredTradeCancelButton) {
+                const char *tradeCancelDealFactionLabel = "Cancel";
+                TTF_SetTextString(gameDiplomacyDescText, tradeCancelDealFactionLabel, 0);
+                int nameW = 0, nameH = 0;
+                TTF_GetTextSize(gameDiplomacyDescText, &nameW, &nameH);
+                float padX = 8.f, padY = 5.f;
+                float textW = nameW + padX * 2.f;
+                float textH = nameH + padY * 2.f;
+                float textX = lenghtXCancel + 15.f;//offset on the cursor
+                float textY = lenghtYCancel - textH / 2.f;//centered on cursor
+
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+                SDL_FRect tooltipCancelTradeDealBackground = {textX, textY, textW, textH};
+                SDL_RenderFillRect(renderer, &tooltipCancelTradeDealBackground);
+                SDL_SetRenderDrawColor(renderer, 40, 90, 110, 255);
+                SDL_RenderRect(renderer, &tooltipCancelTradeDealBackground);
+
+                TTF_SetTextColor(gameDiplomacyDescText, 240, 240, 240, 255);
+                TTF_DrawRendererText(gameDiplomacyDescText, textX + padX, textY + padY);
+            }
+        }
 
     }
     void RenderFamilyHierarchyInfoPopup() {
@@ -14493,6 +14591,17 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     }
                     return SDL_APP_CONTINUE; //block everything behind the panel
                 }
+                //Trade panel only its 2 buttons work, everything else is blocked
+                if (app.bShowTradePanel) {
+                    if (app.ClickInsideCircle(nouveauX, nouveauY, app.TradeConfirmButton)) {
+                        app.bShowTradePanel = false;
+                        app.bIsTradingWithSpecificFaction = true;
+                    }
+                    else if (app.ClickInsideCircle(nouveauX, nouveauY, app.TradeCancelButton)) {
+                        app.bShowTradePanel = false;
+                    }
+                    return SDL_APP_CONTINUE;
+                }
                 //Add Offer/Demand + treaty list (only when negotiating)
                 if (app.bIsTradingWithSpecificFaction) {
                     // remove a demand with its X button
@@ -14623,14 +14732,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 }
                 return SDL_APP_CONTINUE;
             }
-            //trade panel only 2 buttons work
-            if (app.bShowTradePanel) {
-                if (app.ClickInsideCircle(nouveauX, nouveauY, app.TradeConfirmButoon)) {
-                    GameApp::DiplomacyState &tradeState = app.diplomacyWithFaction[(int)app.selectedDiplomacyFaction];
 
-                    app.bShowTradePanel = false;
-                }
-            }
             // Minimap click -> jump camera there
             SDL_FPoint miniMapPt = {nouveauX, nouveauY};
             if (app.miniMapWorldScale > 0.f && SDL_PointInRectFloat(&miniMapPt, &app.miniMapBoxRect)) {
