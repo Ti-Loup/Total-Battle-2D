@@ -10561,6 +10561,16 @@ public:
     int demandMaxAmount = 0;
     SDL_FRect arrowMinusRect = {0.f, 0.f, 0.f, 0.f};
     SDL_FRect arrowPlusRect  = {0.f, 0.f, 0.f, 0.f};//to use them for the click
+
+    //Trade panel -> amounts chosen per resource
+    std::unordered_map<ResourceType, int> tradeOfferAmounts;
+    std::unordered_map<ResourceType, int> tradeDemandAmounts;
+    //Click rects rebuilt each frame
+    std::vector<std::pair<SDL_FRect, ResourceType>> tradeOfferMinusRects;
+    std::vector<std::pair<SDL_FRect, ResourceType>> tradeOfferPlusRects;
+    std::vector<std::pair<SDL_FRect, ResourceType>> tradeDemandMinusRects;
+    std::vector<std::pair<SDL_FRect, ResourceType>> tradeDemandPlusRects;
+
     //Gift prices (small / medium / large)
     static constexpr int giftCosts[3] = {100, 450, 1000};
 
@@ -12229,15 +12239,114 @@ private:
             //text
             drawTextCentered(gameDiplomacySousTitleText, "Your Offer", YourOfferTitleRect, white);
             drawTextCentered(gameDiplomacySousTitleText, "Your Demands", YourDemandTitleRect, white);
-            //Rect for each
+            //Rect for offer demand
             SDL_FRect YourOfferContentRect ={YourOfferTitleRect.x, YourOfferTitleRect.y + YourOfferTitleRect.h, YourOfferTitleRect.w, 100.f};
             SDL_SetRenderDrawColor(renderer, 120,160,60,255);
             SDL_RenderRect(renderer, &YourOfferContentRect);
             SDL_FRect YourDemandContentRect ={YourDemandTitleRect.x, YourDemandTitleRect.y + YourDemandTitleRect.h, YourDemandTitleRect.w, 100.f};
             SDL_SetRenderDrawColor(renderer, 120,160,60,255);
             SDL_RenderRect(renderer, &YourDemandContentRect);
-            //int offerCount = (int)dealOffers.size();
 
+            //all raw goods
+            std::vector<ResourceType> rawGoodsTypes;
+            for (const auto &[type,data]: GetResourceDatabase()) {
+                if (data.goodsCategory != ResourceCategory::Transformed) rawGoodsTypes.push_back(type);
+            }
+            std::sort(rawGoodsTypes.begin(), rawGoodsTypes.end());
+
+            // stock of each side left player / right other faction /max for each side
+            const std::unordered_map<ResourceType, int> *tradePlayerStock = &goodsStoredByType;
+            const std::unordered_map<ResourceType, int> *tradeOtherStock = nullptr;
+            if (AiFactionState *tradeAiState = aiBehaviour.GetState(otherFaction))
+                tradeOtherStock = &tradeAiState->goodsStoredByType;
+
+            //vectors of buttons reset
+            tradeOfferMinusRects.clear();
+            tradeOfferPlusRects.clear();
+            tradeDemandMinusRects.clear();
+            tradeDemandPlusRects.clear();
+
+            //Draws the grid of all the raw goods inside one content rect
+            auto drawTradeGoodsGrid = [&](const SDL_FRect &area,
+                const std::unordered_map<ResourceType, int> *stock,
+                std::unordered_map<ResourceType, int> &amounts,
+                std::vector<std::pair<SDL_FRect, ResourceType>> &minusRects,
+                std::vector<std::pair<SDL_FRect, ResourceType>> &plusRects) {
+
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+                const int cols = 3;
+                const float pad = 2.f;
+                const int count = (int)rawGoodsTypes.size();
+                const int rows = std::max(1, (count + cols - 1) / cols);
+                const float cellW = (area.w - pad * 2.f) / cols;
+                const float cellH = (area.h - pad * 2.f) / rows;
+                const float tradeGoodsIconSize = 16.f;
+                const float arrowSize = 14.f;
+                const float amountBoxW = 40.f;
+
+                for (int i = 0; i < count; i++) {
+                    ResourceType type = rawGoodsTypes[i];
+
+                    //max = what this side really has
+                    int maxAmount = 0;
+                    if (stock) {
+                        auto it = stock->find(type);
+                        if (it != stock->end()) maxAmount = it->second;
+                    }
+                    bool bHasResource = maxAmount > 0;
+                    int &amount = amounts[type];// 0 by default
+                    amount = std::clamp(amount, 0, maxAmount);
+
+                    Uint8 alpha = bHasResource ? 255 : 90;// more transparent if dont have resource
+
+                    SDL_FRect cell = {
+                        area.x + pad + (i % cols) * cellW,
+                        area.y + pad + (i / cols) * cellH,
+                        cellW - 2.f, cellH - 1.f
+                    };
+                    SDL_SetRenderDrawColor(renderer, 18, 30, 48, bHasResource ? 255 : 110);
+                    SDL_RenderFillRect(renderer, &cell);
+                    SDL_SetRenderDrawColor(renderer, 70, 85, 110, bHasResource ? 255 : 80);
+                    SDL_RenderRect(renderer, &cell);
+
+                    float centerY = cell.y + cell.h / 2.f;
+
+                    //icon of the resource
+                    SDL_FRect goodsIconRect = {cell.x + 3.f, centerY - tradeGoodsIconSize / 2.f, tradeGoodsIconSize, tradeGoodsIconSize};
+                    if (SDL_Texture *goodsIcon = GetResourceTypeIcon(type)) {
+                        SDL_SetTextureAlphaMod(goodsIcon, alpha);
+                        SDL_RenderTexture(renderer, goodsIcon, nullptr, &goodsIconRect);
+                        SDL_SetTextureAlphaMod(goodsIcon, 255);
+                    }
+
+                    //left arrow (decrease) NEED TO CHANGE TEXTURES
+                    SDL_FRect leftArrow = {goodsIconRect.x + tradeGoodsIconSize + 4.f, centerY - arrowSize / 2.f, arrowSize, arrowSize};
+                    SDL_SetTextureAlphaMod(gameGoodsManagerMinusTexture, alpha);
+                    SDL_RenderTexture(renderer, gameGoodsManagerMinusTexture, nullptr, &leftArrow);
+                    SDL_SetTextureAlphaMod(gameGoodsManagerMinusTexture, 255);
+
+                    //amount
+                    SDL_FRect amountRect = {leftArrow.x + arrowSize, cell.y, amountBoxW, cell.h};
+                    drawTextCentered(gameDiplomacyDescText, std::to_string(amount).c_str(), amountRect,
+                                     SDL_Color{255, 255, 255, alpha});
+
+                    //right arrow (increase)
+                    SDL_FRect rightArrow = {amountRect.x + amountBoxW, centerY - arrowSize / 2.f, arrowSize, arrowSize};
+                    SDL_SetTextureAlphaMod(gameGoodsManagerPlusTexture, alpha);
+                    SDL_RenderTexture(renderer, gameGoodsManagerPlusTexture, nullptr, &rightArrow);
+                    SDL_SetTextureAlphaMod(gameGoodsManagerPlusTexture, 255);
+
+                    //Clickable only if the resource is available
+                    if (bHasResource) {
+                        minusRects.push_back({leftArrow, type});
+                        plusRects.push_back({rightArrow, type});
+                    }
+                }
+            };
+
+            drawTradeGoodsGrid(YourOfferContentRect, tradePlayerStock, tradeOfferAmounts, tradeOfferMinusRects, tradeOfferPlusRects);
+            drawTradeGoodsGrid(YourDemandContentRect, tradeOtherStock, tradeDemandAmounts, tradeDemandMinusRects, tradeDemandPlusRects);
 
             //buttons conclude , cancel
             //make deal button
