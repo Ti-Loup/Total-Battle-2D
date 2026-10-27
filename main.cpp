@@ -10571,6 +10571,8 @@ public:
     std::vector<std::pair<SDL_FRect, ResourceType>> tradeDemandMinusRects;
     std::vector<std::pair<SDL_FRect, ResourceType>> tradeDemandPlusRects;
 
+    //Slider Turn amount
+    int sliderAmount = 1; //1 base
     //Gift prices (small / medium / large)
     static constexpr int giftCosts[3] = {100, 450, 1000};
 
@@ -10643,6 +10645,20 @@ public:
             case TreatyType::MakePeace: return s.bAtWar;
             default: return false;
         }
+    }
+
+    //stock max of a ressource offer(player) and faction(demand)
+    int GetTradeStock(bool bOfferSide, ResourceType type) {
+        const std::unordered_map<ResourceType, int> *stock = nullptr;
+        if (bOfferSide) {
+            stock = &goodsStoredByType;
+        }
+        else if (AiFactionState *ai = aiBehaviour.GetState(selectedDiplomacyFaction)) {
+            stock = &ai->goodsStoredByType;
+        }
+        if (!stock) return 0;//0 is the base
+        auto it = stock->find(type);
+        return (it != stock->end()) ? it->second : 0;
     }
 private:
 
@@ -12222,7 +12238,11 @@ private:
             SDL_FRect sliderBackgroundTurnRect = {TradeDescRect.x + TradeDescRect.w / 4 + 40, TradeDescRect.y + TradeDescRect.h + 10.f, 250, 20};
             SDL_SetRenderDrawColor(renderer, 140, 140, 140, 255);
             SDL_RenderFillRect (renderer, &sliderBackgroundTurnRect);
-            //turn amount + texture
+            //turn amount + texture next to rect
+            //text
+            //texture
+            SDL_FRect sliderTurnAmountTextureRect = {sliderBackgroundTurnRect.x + sliderBackgroundTurnRect.w + 10.f, sliderBackgroundTurnRect.y, 25,25};
+            SDL_RenderTexture(renderer, gameTurnAmountTexture, nullptr, &sliderTurnAmountTextureRect);
 
             //2 Your offer / Your demands
             //Titles
@@ -14699,15 +14719,40 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                             return SDL_APP_CONTINUE;
                         }
                     }
+
                     return SDL_APP_CONTINUE; //block everything behind the panel
                 }
-                //Trade panel only its 2 buttons work, everything else is blocked
+                //Trade panel +/- buttons for each resource + Confirm/Cancel
                 if (app.bShowTradePanel) {
+                    //Hold Shift to change by 5 instead of 1
+                    const bool* tradeKeys = SDL_GetKeyboardState(nullptr);
+                    const int tradeStep = tradeKeys[SDL_SCANCODE_LSHIFT] ? 5 : 1;
+                    //sign = -1 for minus, +1 for plus
+                    auto handleTradeArrows = [&](const std::vector<std::pair<SDL_FRect, ResourceType>>& rects, std::unordered_map<ResourceType, int>& amounts, bool bOfferSide, int sign) -> bool {
+                        for (const auto& [rect, type] : rects) {
+                            if (SDL_PointInRectFloat(&MousePT, &rect)) {
+                                int maxAmount = app.GetTradeStock(bOfferSide, type);
+                                int& amount = amounts[type];
+                                amount = std::clamp(amount + sign * tradeStep, 0, maxAmount);
+                                return true;
+                            }
+                        }
+                        return false;
+                    };
+
+                    if (handleTradeArrows(app.tradeOfferMinusRects, app.tradeOfferAmounts, true, -1)) return SDL_APP_CONTINUE;
+                    if (handleTradeArrows(app.tradeOfferPlusRects,app.tradeOfferAmounts, true, +1)) return SDL_APP_CONTINUE;
+                    if (handleTradeArrows(app.tradeDemandMinusRects, app.tradeDemandAmounts, false, -1)) return SDL_APP_CONTINUE;
+                    if (handleTradeArrows(app.tradeDemandPlusRects, app.tradeDemandAmounts, false, +1)) return SDL_APP_CONTINUE;
+
                     if (app.ClickInsideCircle(nouveauX, nouveauY, app.TradeConfirmButton)) {
+                    //TODO: turn tradeOfferAmounts / tradeDemandAmounts into real deal in offer demand general
                         app.bShowTradePanel = false;
                         app.bIsTradingWithSpecificFaction = true;
                     }
                     else if (app.ClickInsideCircle(nouveauX, nouveauY, app.TradeCancelButton)) {
+                        app.tradeOfferAmounts.clear();
+                        app.tradeDemandAmounts.clear();
                         app.bShowTradePanel = false;
                     }
                     return SDL_APP_CONTINUE;
@@ -14757,6 +14802,8 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                                 if (treaty == GameApp::TreatyType::Trade) {
                                     app.bShowTradePanel = true;
                                     app.bShowTreatyList = false;
+                                    app.tradeOfferAmounts.clear();
+                                    app.tradeDemandAmounts.clear();
                                     return SDL_APP_CONTINUE;
 
                                 }
