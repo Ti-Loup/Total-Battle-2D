@@ -10524,6 +10524,10 @@ public:
         bool bVassal = false;
         bool bTrade = false;
         bool bFriendship = false;
+        //periodic trade agreement
+        int tradeTurnsRemaining = 0;
+        std::vector<std::pair<ResourceType,int>> tradeGive;// what the player give each turn
+        std::vector<std::pair<ResourceType,int>> tradeReceive;//what other faction give each turn
     };
     std::unordered_map<int, DiplomacyState> diplomacyWithFaction;
     bool bShowTreatyList = false; //for the add/demand offer button
@@ -10573,6 +10577,9 @@ public:
 
     //Slider Turn amount
     int sliderAmount = 1; //1 base
+    int dealTradeTurns = 1;// turns chosen with the slider, stored in the deal
+    SDL_FRect tradeSliderRect = {0.f, 0.f, 0.f, 0.f};
+    bool bIsDraggingTradeSlider = false;
     //Gift prices (small / medium / large)
     static constexpr int giftCosts[3] = {100, 450, 1000};
 
@@ -10584,12 +10591,15 @@ public:
     }
 
     //Offers the player makes in the current deal
-    enum class OfferType { GoldGift /*, Resource, Treaty */ };
+    enum class OfferType { GoldGift , Resource};
     struct DealOffer {
         OfferType type;
         int amount = 0;//for payment
+        ResourceType resourceType = ResourceType::Fish;
     };
     std::vector<DealOffer> dealOffers;
+    struct DealResourceDemand { ResourceType type; int amount; };
+    std::vector<DealResourceDemand> dealResourceDemands;
     std::vector<std::pair<SDL_FRect, int>> dealOfferRemoveRects; // rect of the x to remove a offer
     SDL_FRect dealOffersViewportRect = {0.f, 0.f, 0.f, 0.f};
     float dealOffersScrollOffset = 0.f;
@@ -10601,6 +10611,160 @@ public:
         for (const DealOffer& o : dealOffers)
             if (o.type == OfferType::GoldGift) total += o.amount;
         return total;
+    }
+    void CommitTradePanelToDeal() {
+        dealTradeTurns = std::clamp(sliderAmount, 1, 10);
+        // OFFER What player gives
+        std::vector<std::pair<ResourceType,int>> offers;
+        for (auto& [type, amount] : tradeOfferAmounts)
+            if (amount > 0) offers.push_back({type, amount});
+        std::sort(offers.begin(), offers.end(), [](auto& a, auto& b){ return (int)a.first < (int)b.first; });
+
+        for (auto& [type, amount] : offers) {
+            // one line per ressource.
+            dealOffers.erase(std::remove_if(dealOffers.begin(), dealOffers.end(),
+                [&](const DealOffer& o){ return o.type == OfferType::Resource && o.resourceType == type; }),
+                dealOffers.end());
+            dealOffers.push_back({OfferType::Resource, amount, type});
+        }
+
+        // DEMANDS what goods are ask from other player
+        std::vector<std::pair<ResourceType,int>> demands;
+        for (auto& [type, amount] : tradeDemandAmounts)
+            if (amount > 0) demands.push_back({type, amount});
+        std::sort(demands.begin(), demands.end(), [](auto& a, auto& b){ return (int)a.first < (int)b.first; });
+
+        for (auto& [type, amount] : demands) {
+            dealResourceDemands.erase(std::remove_if(dealResourceDemands.begin(), dealResourceDemands.end(),
+                [&](const DealResourceDemand& d){ return d.type == type; }),
+                dealResourceDemands.end());
+            dealResourceDemands.push_back({type, amount});
+        }
+
+        tradeOfferAmounts.clear();
+        tradeDemandAmounts.clear();
+    }
+    //capacity of storage if enough available
+    std::unordered_map<int, int> GetFactionGoodsCapacityByProvince(FactionZone faction) {
+        std::unordered_map<int, int> cap;
+        for (const auto& s : settlements) {
+            int provID = s.settlementData.provinceID;
+            if (provinces[provID].owner != faction) continue;
+            for (BuildingType bt : s.settlementData.buildings) {
+                if (bt == BuildingType::None) continue;
+                const BuildingData* buildingData = GetBuildingData(bt);
+                if (buildingData) cap[provID] += buildingData->resourcesStorage;
+            }
+        }
+        return cap;
+    }
+
+    //total free space
+    int GetFreeGoodsSpace(const std::unordered_map<int, int>& cap, const std::unordered_map<int, std::unordered_map<ResourceType, int>>& stored) {
+        int freeSpace = 0;
+        for (const auto& [provID, c] : cap) {
+            int used = 0;
+            auto it = stored.find(provID);
+            if (it != stored.end()) for (const auto& [t, a] : it->second) used += a;
+            freeSpace += std::max(0, c - used);
+        }
+        return freeSpace;
+    }
+
+    bool RemoveGoodsFromStock(std::unordered_map<int, std::unordered_map<ResourceType, int>>& byProvince, std::unordered_map<ResourceType, int>& byType, int& currentGoods, ResourceType type, int amount) {
+        int total = 0;
+        for (auto& [provID, typeMap] : byProvince) {
+            auto it = typeMap.find(type);
+            if (it != typeMap.end()) total += it->second;
+        }
+        if (total < amount) return false;
+
+        int remaining = amount;
+        for (auto& [provID, typeMap] : byProvince) {
+            if (remaining <= 0) break;
+            auto it = typeMap.find(type);
+            if (it == typeMap.end()) continue;
+            int take = std::min(it->second, remaining);
+            it->second -= take;
+            remaining -= take;
+        }
+        byType[type] = std::max(0, byType[type] - amount);
+        currentGoods = std::max(0, currentGoods - amount);
+        return true;
+    }
+
+    //add goods to available stock in region
+    int AddGoodsToStock(const std::unordered_map<int, int>& cap, std::unordered_map<int, std::unordered_map<ResourceType, int>>& byProvince, std::unordered_map<ResourceType, int>& byType, int& currentGoods, ResourceType type, int amount) {
+        int remaining = amount;
+        for (const auto& [provID, c] : cap) {
+            if (remaining <= 0) break;
+            auto& provinceStock = byProvince[provID];
+            int used = 0;
+            for (const auto& [t, a] : provinceStock) used += a;
+            int space = c - used;
+            if (space <= 0) continue;
+            int put = std::min(space, remaining);
+            provinceStock[type] += put;
+            remaining -= put;
+        }
+        int added = amount - remaining;
+        byType[type] += added;
+        currentGoods += added;
+        return added;
+    }
+    //Executes ONE turn of a trade agreement. Returns false if it had to be skipped
+    bool ExecuteTradeExchange(FactionZone otherFaction, const DiplomacyState& agreement) {
+        AiFactionState* ai = aiBehaviour.GetState(otherFaction);
+        if (!ai) return false;
+
+        int totalGive = 0, totalReceive = 0;
+        for (const auto& [type, amount] : agreement.tradeGive) {
+            auto it = goodsStoredByType.find(type);
+            if ((it == goodsStoredByType.end() ? 0 : it->second) < amount) return false;
+            totalGive += amount;
+        }
+        for (const auto& [type, amount] : agreement.tradeReceive) {
+            auto it = ai->goodsStoredByType.find(type);
+            if ((it == ai->goodsStoredByType.end() ? 0 : it->second) < amount) return false;
+            totalReceive += amount;
+        }
+
+        auto playerCap = GetFactionGoodsCapacityByProvince(player.faction);
+        auto aiCap = GetFactionGoodsCapacityByProvince(otherFaction);
+        if (GetFreeGoodsSpace(playerCap, goodsStoredByProvinceAndType) + totalGive < totalReceive) return false;
+        if (GetFreeGoodsSpace(aiCap, ai->goodsStoredByProvinceAndType) + totalReceive < totalGive) return false;
+
+        //all removals first, then all additions
+        for (const auto& [type, amount] : agreement.tradeGive)
+            RemoveGoodsFromStock(goodsStoredByProvinceAndType, goodsStoredByType, player.currentGoods, type, amount);
+        for (const auto& [type, amount] : agreement.tradeReceive)
+            RemoveGoodsFromStock(ai->goodsStoredByProvinceAndType, ai->goodsStoredByType, ai->currentGoods, type, amount);
+        for (const auto& [type, amount] : agreement.tradeGive)
+            AddGoodsToStock(aiCap, ai->goodsStoredByProvinceAndType, ai->goodsStoredByType, ai->currentGoods, type, amount);
+        for (const auto& [type, amount] : agreement.tradeReceive)
+            AddGoodsToStock(playerCap, goodsStoredByProvinceAndType, goodsStoredByType, player.currentGoods, type, amount);
+        return true;
+    }
+
+    //Called once per EndTurn
+    void ProcessTradeAgreementsForTurn() {
+        for (auto& [factionKey, state] : diplomacyWithFaction) {
+            if (state.tradeTurnsRemaining <= 0) continue;
+            FactionZone other = (FactionZone)factionKey;
+
+            if (ExecuteTradeExchange(other, state))
+                SDL_Log("Trade with faction %d executed (%d turn(s) left after this one)", factionKey, state.tradeTurnsRemaining - 1);
+            else
+                SDL_Log("Trade with faction %d skipped this turn (missing goods or storage space)", factionKey);
+
+            state.tradeTurnsRemaining--;
+            if (state.tradeTurnsRemaining <= 0) {
+                state.bTrade = false;
+                state.tradeGive.clear();
+                state.tradeReceive.clear();
+                SDL_Log("Trade agreement with faction %d ended", factionKey);
+            }
+        }
     }
 
     void ApplyTreaty(TreatyType t, DiplomacyState& s) {
@@ -10633,7 +10797,7 @@ public:
     bool IsTreatyAvailable(TreatyType t, const DiplomacyState& s) {//if at war some treaties can't be signed.
         switch (t) {
             case TreatyType::Payment: return !s.bAtWar;
-            case TreatyType::Trade: return !s.bAtWar && !s.bTrade;
+            case TreatyType::Trade: return !s.bAtWar;
             case TreatyType::ArrangeMarriage: return !s.bAtWar;
             case TreatyType::DeclarationOfFriendship: return !s.bAtWar && !s.bFriendship;
             case TreatyType::MilitaryAccess: return !s.bAtWar && !s.bMilitaryAccess;
@@ -11423,7 +11587,30 @@ private:
                                 TTF_DrawRendererText(gameDiplomacyDescText, offerAmountX + offerCoinSize + 6.f, offerAmountCenterY - offerAmountH / 2.f);
                                 break;
                             }
-                            // case OfferType::Resource: later
+                            case OfferType::Resource: {
+                                drawTextCentered(gameDiplomacyDescText, "Trade (Goods)", offerTitleRect, white);
+
+                                SDL_SetRenderDrawColor(renderer, 60, 75, 100, 255);
+                                SDL_RenderLine(renderer, offerInner.x, offerRect.y + offerHalfH, offerInner.x + offerInner.w, offerRect.y + offerHalfH);
+
+                                std::string resStr = std::string(GetResourceTypeName(offer.resourceType)) + " x" + std::to_string(offer.amount);
+                                TTF_SetTextWrapWidth(gameDiplomacyDescText, 0);
+                                TTF_SetTextString(gameDiplomacyDescText, resStr.c_str(), 0);
+                                TTF_SetTextColor(gameDiplomacyDescText, 255, 255, 255, 255);
+                                int resW = 0, resH = 0;
+                                TTF_GetTextSize(gameDiplomacyDescText, &resW, &resH);
+
+                                const float resIconSize = 16.f;
+                                float resTotalW = resIconSize + 6.f + resW;
+                                float resX = offerRect.x + (offerRect.w - resTotalW) / 2.f;
+                                float resCenterY = offerRect.y + offerHalfH + offerHalfH / 2.f;
+
+                                SDL_FRect resIconRect = {resX, resCenterY - resIconSize / 2.f, resIconSize, resIconSize};
+                                if (SDL_Texture* icon = GetResourceTypeIcon(offer.resourceType))
+                                    SDL_RenderTexture(renderer, icon, nullptr, &resIconRect);
+                                TTF_DrawRendererText(gameDiplomacyDescText, resX + resIconSize + 6.f, resCenterY - resH / 2.f);
+                                break;
+                            }
                         }
 
                         //Round X button to cancel this offer
@@ -11468,14 +11655,15 @@ private:
                 dealDemandRemoveRects.clear();
 
                 const float demandPad = 8.f;
-                const float demandRowH = 40.f;
+                const float demandRowH = 58.f;
                 const float demandRowGap = 8.f;
                 const float removeBtnSize = 22.f;
                 const float removeBtnGap = 8.f;
                 const float scrollbarW = 6.f;
 
-                int goldDemandRow = (dealGoldDemandOffer > 0) ?1:0 ;
-                int demandCount = goldDemandRow + (int)dealDemands.size();
+                int goldDemandRow = (dealGoldDemandOffer > 0) ? 1 : 0;
+                int resourceDemandCount = (int)dealResourceDemands.size();
+                int demandCount = goldDemandRow + resourceDemandCount + (int)dealDemands.size();
                 float contentHeight = demandPad * 2.f + demandCount * demandRowH + std::max(0, demandCount - 1) * demandRowGap;
                 dealDemandsMaxScroll = std::max(0.f, contentHeight - viewport.h);
                 dealDemandsScrollOffset = std::clamp(dealDemandsScrollOffset, 0.f, dealDemandsMaxScroll);
@@ -11492,7 +11680,10 @@ private:
                     bool bDemandVisible = (rowY + demandRowH >= viewport.y) && (rowY <= viewport.y + viewport.h);
                     if (bDemandVisible) {
                         bool bIsGoldRow = (goldDemandRow == 1 && i == 0);
-                        int treatyIndex = i - goldDemandRow;
+                        int afterGold = i - goldDemandRow;
+                        bool bIsResourceRow = !bIsGoldRow && afterGold < resourceDemandCount;
+                        int resourceIndex = afterGold;
+                        int treatyIndex = afterGold - resourceDemandCount;
                         // framed row (inset from the panel edges)
                         SDL_FRect demandRect = {viewport.x + demandPad, rowY, rowW, demandRowH};
                         SDL_SetRenderDrawColor(renderer, 25, 32, 45, 255);
@@ -11504,15 +11695,49 @@ private:
                         SDL_RenderRect(renderer, &innerRect);
 
                         // treaty name warped inside those rects created
-                        TTF_SetTextWrapWidth(gameDiplomacyDescText, (int)(demandRect.w - 16.f));
-                        std::string demandLabel = bIsGoldRow ? ("Payment: " + std::to_string(dealGoldDemandOffer)) : std::string(GetTreatyData(dealDemands[treatyIndex]).name);
-                        TTF_SetTextString(gameDiplomacyDescText, demandLabel.c_str(), 0);
-                        TTF_SetTextColor(gameDiplomacyDescText, 255, 255, 255, 255);
-                        int tw = 0, th = 0;
-                        TTF_GetTextSize(gameDiplomacyDescText, &tw, &th);
-                        TTF_DrawRendererText(gameDiplomacyDescText,demandRect.x + (demandRect.w - tw) / 2.f,demandRect.y + (demandRect.h - th) / 2.f);
-                        TTF_SetTextWrapWidth(gameDiplomacyDescText, 0);
+                        if (bIsResourceRow) {
+                            // same 2-line layout
+                            const DealResourceDemand& rd = dealResourceDemands[resourceIndex];
+                            float demandHalfH = demandRect.h / 2.f;
+                            SDL_FRect demandTitleRect = {demandRect.x, demandRect.y, demandRect.w, demandHalfH};
+                            drawTextCentered(gameDiplomacyDescText, "Trade (Goods)", demandTitleRect, white);
 
+                            SDL_SetRenderDrawColor(renderer, 60, 75, 100, 255);
+                            SDL_RenderLine(renderer, innerRect.x, demandRect.y + demandHalfH, innerRect.x + innerRect.w, demandRect.y + demandHalfH);
+
+                            std::string demandResStr = std::string(GetResourceTypeName(rd.type)) + " x" + std::to_string(rd.amount);
+                            TTF_SetTextWrapWidth(gameDiplomacyDescText, 0);
+                            TTF_SetTextString(gameDiplomacyDescText, demandResStr.c_str(), 0);
+                            TTF_SetTextColor(gameDiplomacyDescText, 255, 255, 255, 255);
+                            int demandResW = 0, demandResH = 0;
+                            TTF_GetTextSize(gameDiplomacyDescText, &demandResW, &demandResH);
+
+                            const float demandResIconSize = 16.f;
+                            float demandResTotalW = demandResIconSize + 6.f + demandResW;
+                            float demandResX = demandRect.x + (demandRect.w - demandResTotalW) / 2.f;
+                            float demandResCenterY = demandRect.y + demandHalfH + demandHalfH / 2.f;
+
+                            SDL_FRect demandResIconRect = {demandResX, demandResCenterY - demandResIconSize / 2.f, demandResIconSize, demandResIconSize};
+                            if (SDL_Texture* icon = GetResourceTypeIcon(rd.type))
+                                SDL_RenderTexture(renderer, icon, nullptr, &demandResIconRect);
+                            TTF_DrawRendererText(gameDiplomacyDescText, demandResX + demandResIconSize + 6.f, demandResCenterY - demandResH / 2.f);
+                        }
+                        else {
+                            // gold demand or treaty: single centered label
+                            std::string demandLabel;
+                            if (bIsGoldRow) demandLabel = "Payment: " + std::to_string(dealGoldDemandOffer);
+                            else demandLabel = GetTreatyData(dealDemands[treatyIndex]).name;
+
+                            TTF_SetTextWrapWidth(gameDiplomacyDescText, (int)(demandRect.w - 16.f));
+                            TTF_SetTextString(gameDiplomacyDescText, demandLabel.c_str(), 0);
+                            TTF_SetTextColor(gameDiplomacyDescText, 255, 255, 255, 255);
+                            int tw = 0, th = 0;
+                            TTF_GetTextSize(gameDiplomacyDescText, &tw, &th);
+                            TTF_DrawRendererText(gameDiplomacyDescText,
+                                demandRect.x + (demandRect.w - tw) / 2.f,
+                                demandRect.y + (demandRect.h - th) / 2.f);
+                            TTF_SetTextWrapWidth(gameDiplomacyDescText, 0);
+                        }
                         // round X button to the right of the demand Rect to cancel it
                         float btnR = removeBtnSize / 2.f;
                         float btnCX = demandRect.x + demandRect.w + removeBtnGap + btnR;
@@ -11530,7 +11755,8 @@ private:
                         SDL_RenderLine(renderer, btnCX - xs, btnCY - xs, btnCX + xs, btnCY + xs);
                         SDL_RenderLine(renderer, btnCX - xs, btnCY + xs, btnCX + xs, btnCY - xs);
 
-                        dealDemandRemoveRects.push_back({removeRect, bIsGoldRow ? -1 : treatyIndex});                    }
+                        int removeIndex = bIsGoldRow ? -1 : (bIsResourceRow ? (-2 - resourceIndex) : treatyIndex);
+                        dealDemandRemoveRects.push_back({removeRect, removeIndex});                 }
                     rowY += demandRowH + demandRowGap;
                 }
                 SDL_SetRenderClipRect(renderer, nullptr);
@@ -11601,26 +11827,45 @@ private:
             // Icons of the current treaties with this faction (always visible, stacked vertically and centered)
             {
                 const DiplomacyState& currentDiplomacy = diplomacyWithFaction[(int)otherFaction];
-                std::vector<SDL_Texture*> treatyIcons;
-                if (currentDiplomacy.bAtWar) treatyIcons.push_back(warDiplomacyIconTexture);
-                if (currentDiplomacy.bTrade) treatyIcons.push_back(tradeDiplomacyIconTexture);
-                if (currentDiplomacy.bVassal) treatyIcons.push_back(vassalDiplomacyIconTexture);
-                if (currentDiplomacy.bDefensivePact) treatyIcons.push_back(defensiveAllianceDiplomacyIconTexture);
-                if (currentDiplomacy.bMilitaryAlliance) treatyIcons.push_back(militaryAllianceDiplomacyIconTexture);
-                if (currentDiplomacy.bFriendship) treatyIcons.push_back(friendshipDiplomacyIconTexture);
-                if (currentDiplomacy.bMilitaryAccess) treatyIcons.push_back(militaryAccessDiplomacyIconTexture);
+                struct TreatyIconEntry { SDL_Texture* icon; int turnsRemaining; };
+                std::vector<TreatyIconEntry> treatyIcons;
+                if (currentDiplomacy.bAtWar) treatyIcons.push_back({warDiplomacyIconTexture, 0});
+                if (currentDiplomacy.bTrade) treatyIcons.push_back({tradeDiplomacyIconTexture, currentDiplomacy.tradeTurnsRemaining});
+                if (currentDiplomacy.bVassal) treatyIcons.push_back({vassalDiplomacyIconTexture, 0});
+                if (currentDiplomacy.bDefensivePact) treatyIcons.push_back({defensiveAllianceDiplomacyIconTexture, 0});
+                if (currentDiplomacy.bMilitaryAlliance) treatyIcons.push_back({militaryAllianceDiplomacyIconTexture, 0});
+                if (currentDiplomacy.bFriendship) treatyIcons.push_back({friendshipDiplomacyIconTexture, 0});
+                if (currentDiplomacy.bMilitaryAccess) treatyIcons.push_back({militaryAccessDiplomacyIconTexture, 0});
 
                 const float treatyIconSize = 32.f;
                 const float treatyIconGap  = 4.f;
-                float treatyIconX = treatiesContent.x + (treatiesContent.w - treatyIconSize) / 2.f; // horizontally centered
+                const float treatyTurnIconSize = 14.f;
+                float treatyIconX = treatiesContent.x + 10.f;
 
                 for (int i = 0; i < (int)treatyIcons.size(); i++) {
                     SDL_FRect treatyIconRect = {
                         treatyIconX,
-                        treatiesContent.y + i * (treatyIconSize + treatyIconGap), // one under the other
+                        treatiesContent.y + i * (treatyIconSize + treatyIconGap),
                         treatyIconSize, treatyIconSize
                     };
-                    if (treatyIcons[i]) SDL_RenderTexture(renderer, treatyIcons[i], nullptr, &treatyIconRect);
+                    if (treatyIcons[i].icon) SDL_RenderTexture(renderer, treatyIcons[i].icon, nullptr, &treatyIconRect);
+
+                    if (treatyIcons[i].turnsRemaining > 0) {
+                        SDL_FRect treatyTurnIconRect = {
+                            treatyIconRect.x + treatyIconSize + 6.f,
+                            treatyIconRect.y + (treatyIconSize - treatyTurnIconSize) / 2.f,
+                            treatyTurnIconSize, treatyTurnIconSize
+                        };
+                        SDL_RenderTexture(renderer, gameTurnAmountTexture, nullptr, &treatyTurnIconRect);
+
+                        std::string treatyTurnsStr = std::to_string(treatyIcons[i].turnsRemaining);
+                        TTF_SetTextWrapWidth(gameDiplomacyDescText, 0);
+                        TTF_SetTextString(gameDiplomacyDescText, treatyTurnsStr.c_str(), 0);
+                        TTF_SetTextColor(gameDiplomacyDescText, 255, 255, 255, 255);
+                        int ttw = 0, tth = 0;
+                        TTF_GetTextSize(gameDiplomacyDescText, &ttw, &tth);
+                        TTF_DrawRendererText(gameDiplomacyDescText, treatyTurnIconRect.x + treatyTurnIconSize + 3.f, treatyIconRect.y + (treatyIconSize - tth) / 2.f);
+                    }
                 }
             }
 
@@ -12236,14 +12481,33 @@ private:
 
             //slider area (amount of turns for this offer demand)
             SDL_FRect sliderBackgroundTurnRect = {TradeDescRect.x + TradeDescRect.w / 4 + 40, TradeDescRect.y + TradeDescRect.h + 10.f, 250, 20};
-            SDL_SetRenderDrawColor(renderer, 140, 140, 140, 255);
-            SDL_RenderFillRect (renderer, &sliderBackgroundTurnRect);
-            //turn amount + texture next to rect
-            //text
-            //texture
-            SDL_FRect sliderTurnAmountTextureRect = {sliderBackgroundTurnRect.x + sliderBackgroundTurnRect.w + 10.f, sliderBackgroundTurnRect.y, 25,25};
-            SDL_RenderTexture(renderer, gameTurnAmountTexture, nullptr, &sliderTurnAmountTextureRect);
+            tradeSliderRect = sliderBackgroundTurnRect;
+            sliderAmount = std::clamp(sliderAmount, 1, 10);
+            float sliderT = (float)(sliderAmount - 1) / 9.f;
 
+            SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
+            SDL_RenderFillRect(renderer, &sliderBackgroundTurnRect);
+            SDL_FRect sliderFillRect = {sliderBackgroundTurnRect.x, sliderBackgroundTurnRect.y, sliderBackgroundTurnRect.w * sliderT, sliderBackgroundTurnRect.h};
+            SDL_SetRenderDrawColor(renderer, 120, 160, 60, 255);
+            SDL_RenderFillRect(renderer, &sliderFillRect);
+            SDL_SetRenderDrawColor(renderer, 140, 140, 140, 255);
+            SDL_RenderRect(renderer, &sliderBackgroundTurnRect);
+            SDL_FRect sliderHandleRect = {sliderBackgroundTurnRect.x + sliderBackgroundTurnRect.w * sliderT - 5.f, sliderBackgroundTurnRect.y - 4.f, 10.f, sliderBackgroundTurnRect.h + 8.f};
+            SDL_SetRenderDrawColor(renderer, 220, 220, 220, 255);
+            SDL_RenderFillRect(renderer, &sliderHandleRect);
+
+            //texture + number of turns next to the slider
+            SDL_FRect sliderTurnAmountTextureRect = {sliderBackgroundTurnRect.x + sliderBackgroundTurnRect.w + 14.f, sliderBackgroundTurnRect.y, 25,25};
+            SDL_RenderTexture(renderer, gameTurnAmountTexture, nullptr, &sliderTurnAmountTextureRect);
+            {
+                std::string sliderTurnsStr = std::to_string(sliderAmount);
+                TTF_SetTextWrapWidth(gameDiplomacySousTitleText, 0);
+                TTF_SetTextString(gameDiplomacySousTitleText, sliderTurnsStr.c_str(), 0);
+                TTF_SetTextColor(gameDiplomacySousTitleText, 255, 255, 255, 255);
+                int stw = 0, sth = 0;
+                TTF_GetTextSize(gameDiplomacySousTitleText, &stw, &sth);
+                TTF_DrawRendererText(gameDiplomacySousTitleText, sliderTurnAmountTextureRect.x + sliderTurnAmountTextureRect.w + 8.f, sliderTurnAmountTextureRect.y + (sliderTurnAmountTextureRect.h - sth) / 2.f);
+            }
             //2 Your offer / Your demands
             //Titles
             float tradeGap = 3.f;
@@ -14349,6 +14613,8 @@ public:
             }
         }
 
+        ProcessTradeAgreementsForTurn();
+
         //POPULATION
         //population increase each turn based on base random bonus + building bonus
         int buildingPeasantryBonus = 0;
@@ -14645,6 +14911,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         app.dealDemands.clear();
                         app.dealDemandsScrollOffset = 0.f;
                         app.dealOffers.clear();
+                        app.dealResourceDemands.clear();
                         app.dealOffersScrollOffset = 0.f;
                         app.dealGoldDemandOffer = 0.f;
                         app.bShowDeclareWarPanel = false;
@@ -14724,6 +14991,14 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 }
                 //Trade panel +/- buttons for each resource + Confirm/Cancel
                 if (app.bShowTradePanel) {
+                    SDL_FRect sliderHit = {app.tradeSliderRect.x - 8.f, app.tradeSliderRect.y - 6.f, app.tradeSliderRect.w + 16.f, app.tradeSliderRect.h + 12.f};
+                    if (SDL_PointInRectFloat(&MousePT, &sliderHit)) {
+                        app.bIsDraggingTradeSlider = true;
+                        float t = std::clamp((nouveauX - app.tradeSliderRect.x) / app.tradeSliderRect.w, 0.f, 1.f);
+                        app.sliderAmount = 1 + (int)std::round(t * 9.f);
+                        return SDL_APP_CONTINUE;
+                    }
+
                     //Hold Shift to change by 5 instead of 1
                     const bool* tradeKeys = SDL_GetKeyboardState(nullptr);
                     const int tradeStep = tradeKeys[SDL_SCANCODE_LSHIFT] ? 5 : 1;
@@ -14746,7 +15021,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     if (handleTradeArrows(app.tradeDemandPlusRects, app.tradeDemandAmounts, false, +1)) return SDL_APP_CONTINUE;
 
                     if (app.ClickInsideCircle(nouveauX, nouveauY, app.TradeConfirmButton)) {
-                    //TODO: turn tradeOfferAmounts / tradeDemandAmounts into real deal in offer demand general
+                        app.CommitTradePanelToDeal();
                         app.bShowTradePanel = false;
                         app.bIsTradingWithSpecificFaction = true;
                     }
@@ -14771,10 +15046,15 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     }
                     for (auto& [rect, index] : app.dealDemandRemoveRects) {
                         if (SDL_PointInRectFloat(&MousePT, &rect)) {
-                            if (index == -1)
+                            if (index == -1) {
                                 app.dealGoldDemandOffer = 0;
-                            else if (index >= 0 && index < (int)app.dealDemands.size())
+                            } else if (index <= -2) {
+                                int resIdx = -2 - index;
+                                if (resIdx >= 0 && resIdx < (int)app.dealResourceDemands.size())
+                                    app.dealResourceDemands.erase(app.dealResourceDemands.begin() + resIdx);
+                            } else if (index < (int)app.dealDemands.size()) {
                                 app.dealDemands.erase(app.dealDemands.begin() + index);
+                            }
                             return SDL_APP_CONTINUE;
                         }
                     }
@@ -14842,54 +15122,113 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     app.bIsTradingWithSpecificFaction = true;
                 }
                 //Buttons after initiating Trade
+                //Buttons after initiating Trade
                 if (app.bIsTradingWithSpecificFaction && app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyMakeDealButton)) {
-                    AiFactionState* dealAiState = app.aiBehaviour.GetState(app.selectedDiplomacyFaction);
+                    AiFactionState *dealAiState = app.aiBehaviour.GetState(app.selectedDiplomacyFaction);
 
                     // ai can pay what you ask for
-                    if (app.dealGoldDemandOffer > 0 && (!dealAiState || dealAiState->currentGold < app.dealGoldDemandOffer)) {
+                    if (app.dealGoldDemandOffer > 0 && (
+                            !dealAiState || dealAiState->currentGold < app.dealGoldDemandOffer)) {
                         SDL_Log("The other faction can't pay %d gold", app.dealGoldDemandOffer);
                         return SDL_APP_CONTINUE;
                     }
-                    //the gold is only spent here, when the deal is proposed
+
+                    bool bHasGoodsInDeal = !app.dealResourceDemands.empty();
+                    for (const auto &o: app.dealOffers)
+                        if (o.type == GameApp::OfferType::Resource) bHasGoodsInDeal = true;
+
+                    if (bHasGoodsInDeal) {
+                        if (!dealAiState) return SDL_APP_CONTINUE;
+
+                        int totalOffered = 0, totalDemanded = 0;
+                        for (const auto &o: app.dealOffers) {
+                            if (o.type != GameApp::OfferType::Resource) continue;
+                            if (app.GetTradeStock(true, o.resourceType) < o.amount) {
+                                SDL_Log("You don't have enough of resource %d", (int) o.resourceType);
+                                return SDL_APP_CONTINUE;
+                            }
+                            totalOffered += o.amount;
+                        }
+                        for (const auto &d: app.dealResourceDemands) {
+                            if (app.GetTradeStock(false, d.type) < d.amount) {
+                                SDL_Log("The other faction doesn't have enough of resource %d", (int) d.type);
+                                return SDL_APP_CONTINUE;
+                            }
+                            totalDemanded += d.amount;
+                        }
+
+                        auto playerGoodsCap = app.GetFactionGoodsCapacityByProvince(app.player.faction);
+                        auto aiGoodsCap = app.GetFactionGoodsCapacityByProvince(app.selectedDiplomacyFaction);
+                        if (app.GetFreeGoodsSpace(playerGoodsCap, app.goodsStoredByProvinceAndType) + totalOffered <
+                            totalDemanded) {
+                            SDL_Log("Not enough goods storage space for the goods you would receive");
+                            return SDL_APP_CONTINUE;
+                        }
+                        if (app.GetFreeGoodsSpace(aiGoodsCap, dealAiState->goodsStoredByProvinceAndType) + totalDemanded
+                            < totalOffered) {
+                            SDL_Log("The other faction doesn't have enough storage space");
+                            return SDL_APP_CONTINUE;
+                        }
+                    }
+
+                    // gold is only spent here, when the deal is proposed
                     int totalGoldOffered = app.GetTotalGoldOffered();
                     if (totalGoldOffered > 0 && !app.player.SpendGold(totalGoldOffered)) {
                         SDL_Log("Not enough gold for this deal! Need: %d", totalGoldOffered);
                         return SDL_APP_CONTINUE;
                     }
-                    //Ai recieve the gold from the player.
-                    if (totalGoldOffered > 0) {
-                        if (AiFactionState* aiState = app.aiBehaviour.GetState(app.selectedDiplomacyFaction)) {
-                            aiState->currentGold += totalGoldOffered;
-                            SDL_Log("AI faction %d received a gift of %d gold (total: %d)",
-                                (int)app.selectedDiplomacyFaction, totalGoldOffered, aiState->currentGold);
-                        }
-                    }//The AI pays what the player demanded
+                    if (totalGoldOffered > 0 && dealAiState) {
+                        dealAiState->currentGold += totalGoldOffered;
+                    }
                     if (app.dealGoldDemandOffer > 0 && dealAiState) {
                         dealAiState->currentGold -= app.dealGoldDemandOffer;
                         app.player.AddGold(app.dealGoldDemandOffer);
-                        SDL_Log("Received %d gold from faction %d", app.dealGoldDemandOffer, (int)app.selectedDiplomacyFaction);
                     }
 
-                    GameApp::DiplomacyState& state = app.diplomacyWithFaction[(int)app.selectedDiplomacyFaction];
-                    for (GameApp::TreatyType t : app.dealDemands) app.ApplyTreaty(t, state);
+                    // treaties apply whether or not goods are involved
+                    GameApp::DiplomacyState &state = app.diplomacyWithFaction[(int) app.selectedDiplomacyFaction];
+                    for (GameApp::TreatyType t: app.dealDemands) app.ApplyTreaty(t, state);
+
+                    if (bHasGoodsInDeal && dealAiState) {
+                        state.tradeGive.clear();
+                        state.tradeReceive.clear();
+                        for (const auto &o: app.dealOffers)
+                            if (o.type == GameApp::OfferType::Resource) state.tradeGive.push_back({
+                                o.resourceType, o.amount
+                            });
+                        for (const auto &d: app.dealResourceDemands)
+                            state.tradeReceive.push_back({d.type, d.amount});
+                        state.tradeTurnsRemaining = std::max(1, app.dealTradeTurns);
+                        app.ApplyTreaty(GameApp::TreatyType::Trade, state);
+                    }
+
+                    app.dealTradeTurns = 1;
+                    app.sliderAmount = 1;
                     app.dealDemands.clear();
                     app.dealDemandsScrollOffset = 0.f;
                     app.dealOffers.clear();
+                    app.dealResourceDemands.clear();
                     app.dealOffersScrollOffset = 0.f;
                     app.dealGoldDemandOffer = 0;
+                    return SDL_APP_CONTINUE;
                 }
-                if (app.bIsTradingWithSpecificFaction && app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyQuitDealButton)) {
+
+                // Cancel
+                if (app.bIsTradingWithSpecificFaction && app.ClickInsideCircle(
+                        nouveauX, nouveauY, app.DiplomacyQuitDealButton)) {
                     app.bIsTradingWithSpecificFaction = false;
                     app.bShowTreatyList = false;
                     app.dealDemands.clear();
                     app.dealDemandsScrollOffset = 0.f;
                     app.dealOffers.clear();
+                    app.dealResourceDemands.clear();
                     app.dealOffersScrollOffset = 0.f;
                     app.dealGoldDemandOffer = 0;
+                    return SDL_APP_CONTINUE;
                 }
+
                 return SDL_APP_CONTINUE;
             }
-
             // Minimap click -> jump camera there
             SDL_FPoint miniMapPt = {nouveauX, nouveauY};
             if (app.miniMapWorldScale > 0.f && SDL_PointInRectFloat(&miniMapPt, &app.miniMapBoxRect)) {
@@ -14900,11 +15239,11 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 return SDL_APP_CONTINUE;
             }
 
-    float worldX = (nouveauX + app.camera.startX * app.camera.zoom) / app.camera.zoom;
-    float worldY = (nouveauY + app.camera.startY * app.camera.zoom) / app.camera.zoom;
-    int tileC = (int)(worldX / app.tileMap->tileSize);
-    int tileR = (int)(worldY / app.tileMap->tileSize);
-    SDL_Log("Tile: col=%d, row=%d", tileC, tileR);
+            float worldX = (nouveauX + app.camera.startX * app.camera.zoom) / app.camera.zoom;
+            float worldY = (nouveauY + app.camera.startY * app.camera.zoom) / app.camera.zoom;
+            int tileC = (int) (worldX / app.tileMap->tileSize);
+            int tileR = (int) (worldY / app.tileMap->tileSize);
+            SDL_Log("Tile: col=%d, row=%d", tileC, tileR);
 
 
             if (app.ClickInsideCircle(nouveauX, nouveauY, app.BoutonReturn)) {
@@ -14915,19 +15254,19 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 return SDL_APP_CONTINUE;
             }
 
-    if (app.bHasClickedOnASettlement) {
-        SDL_FPoint pt = {nouveauX, nouveauY};
-        if (SDL_PointInRectFloat(&pt, &app.provinceButtonUIBuilding)) {
-            app.bButtonUIBuildingIsPressed = true;
-            app.bButtonUIGarrisonIsPressed = false;
-            return SDL_APP_CONTINUE;
-        }
-        if (SDL_PointInRectFloat(&pt, &app.provinceButtonUIGarrison)) {
-            app.bButtonUIGarrisonIsPressed = true;
-            app.bButtonUIBuildingIsPressed = false;
-            return SDL_APP_CONTINUE;
-        }
-    }
+            if (app.bHasClickedOnASettlement) {
+                SDL_FPoint pt = {nouveauX, nouveauY};
+                if (SDL_PointInRectFloat(&pt, &app.provinceButtonUIBuilding)) {
+                    app.bButtonUIBuildingIsPressed = true;
+                    app.bButtonUIGarrisonIsPressed = false;
+                    return SDL_APP_CONTINUE;
+                }
+                if (SDL_PointInRectFloat(&pt, &app.provinceButtonUIGarrison)) {
+                    app.bButtonUIGarrisonIsPressed = true;
+                    app.bButtonUIBuildingIsPressed = false;
+                    return SDL_APP_CONTINUE;
+                }
+            }
 
             // Clic on a popup of the main menu
             if (app.bHasClickedOnASettlement &&
@@ -15607,6 +15946,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         app.volumeMusicSlider.bCursorIsSliding = false;
         app.bIsDraggingGoodsManagerScroll = false;
         app.draggingGoodsManagerViewport = -1;
+        app.bIsDraggingTradeSlider = false;
     }
     //for the slider
     if (event->type == SDL_EVENT_MOUSE_MOTION && app.volumeMusicSlider.bCursorIsSliding) {
@@ -15614,6 +15954,13 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         SDL_RenderCoordinatesFromWindow(app.renderer, event->motion.x, event->motion.y, &mouseX, &mouseY);
         app.volumeMusicSlider.value = std::clamp((mouseX - app.volumeMusicSlider.x) / app.volumeMusicSlider.width, 0.0f, 1.0f);
         MIX_SetTrackGain(app.trackMusique, app.volumeMusicSlider.value);
+    }
+    //Trade slider
+    if (event->type == SDL_EVENT_MOUSE_MOTION && app.bIsDraggingTradeSlider) {
+        float mx, my;
+        SDL_RenderCoordinatesFromWindow(app.renderer, event->motion.x, event->motion.y, &mx, &my);
+        float t = std::clamp((mx - app.tradeSliderRect.x) / app.tradeSliderRect.w, 0.f, 1.f);
+        app.sliderAmount = 1 + (int)std::round(t * 9.f);
     }
     //Goods Manager scrollbar drag-scroll
     if (event->type == SDL_EVENT_MOUSE_MOTION && app.bIsDraggingGoodsManagerScroll) {
