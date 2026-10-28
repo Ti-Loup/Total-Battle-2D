@@ -43,14 +43,16 @@
  * Done | Different treaties possible to do.
  * ToDo | Factions attitude to everyone. Possibility to trade goods make peace, war, alliances.
  * Done | Possibility to give money to improve relations
- * ToDo | Trade raw goods only with others. but transformed goods with a distant buyer
- * tOdO | Can trade goods periodicly instead (Like troy)
+ * Done (raw Goods)| Trade raw goods only with others. but transformed goods with a distant buyer
+ * Done| Can trade goods periodicly instead (Like troy)
  * ToDo | make some goods more desirable for some oher faction
+ * ToDo | Add Visual to character portrait.
+ *
  *
  * Bugs:
  * Fixed | The UI overlaps
  * Fixed | taxe rate ui of the settlements modifies with the current tax rate
- *
+ * Fixed | The import export arrow wrongly showing
  * --------------------------------------------
  * 0.4.0
  * Kingdom -> different houses from 1 kingdom. Logo next to castle name
