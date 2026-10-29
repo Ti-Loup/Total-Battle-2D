@@ -10985,7 +10985,7 @@ private:
                 TTF_SetTextWrapWidth(text, 0);
             }
         };
-        //Banner + Name of the faction ~~
+        //Banner + Name of the faction ~~ + texture king
         auto getBanner = [&](FactionZone faction_zone) -> SDL_Texture* {
             switch (faction_zone) {
                 case FactionZone::Knight: return settlementKnightBannerTexture;
@@ -11000,6 +11000,14 @@ private:
                 case FactionZone::Viking: return "Viking";
                 case FactionZone::Samurai: return "Samurai";
                 default: return "?";
+            }
+        };
+        auto getLeaderPortrait = [&](FactionZone faction_zone) ->SDL_Texture* {//placeholder
+            switch (faction_zone) {
+                case FactionZone::Knight: return maleVariant1CharacterPortraitTexture;
+                case FactionZone::Viking: return maleVariant2CharacterPortraitTexture;
+                case FactionZone::Samurai: return maleVariant3CharacterPortraitTexture;
+                    default: return nullptr;
             }
         };
         //based Rect for each
@@ -11056,11 +11064,12 @@ private:
             SDL_SetRenderDrawColor(renderer, 180, 180, 180, 255);
             SDL_RenderRect(renderer, &panel_rect);
 
-            //banner + name // Call GetName + drawTextCentered
+            //banner + name // Call GetName + drawTextCentered + texture portrait
             SDL_FRect factionBanner = {panel_rect.x + 10.f, panel_rect.y + 15.f, 60.f, 60.f};
             if (SDL_Texture *texture = getBanner(faction)) SDL_RenderTexture(renderer, texture, nullptr, &factionBanner);
             SDL_FRect nameRect = {factionBanner.x + factionBanner.w + 10.f, factionBanner.y, panel_rect.w - 90.f, factionBanner.h};
             drawTextCentered(gameDiplomacySousTitleText, getName(faction), nameRect, white);
+            SDL_FRect factionLeaderPortrait = {panel_rect.x + 10.f, panel_rect.y + 15.f, 60.f, 60.f};
 
             float boxY = factionBanner.y + factionBanner.h + 15.f;
             const float gap = 10.f;
