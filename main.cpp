@@ -730,6 +730,27 @@ public:
     SDL_Texture *gameDecree2SamuraiTexture = nullptr;
     SDL_Texture *gameDecree3SamuraiTexture = nullptr;
 
+    //textures Character portraits
+    SDL_Texture *babyCharacterPortraitTexture = nullptr;
+    //young (ages 6 - 18)
+    SDL_Texture *youngMaleCharacterPortraitTexture = nullptr;
+    SDL_Texture *youngFemaleCharacterPortraitTexture = nullptr;
+    //Character variants
+    SDL_Texture *maleVariant1CharacterPortraitTexture = nullptr;
+    SDL_Texture *maleOldVariant1CharacterPortraitTexture = nullptr;
+    SDL_Texture *maleVariant2CharacterPortraitTexture = nullptr;
+    SDL_Texture *maleOldVariant2CharacterPortraitTexture = nullptr;
+    SDL_Texture *maleVariant3CharacterPortraitTexture = nullptr;
+    SDL_Texture *maleOldVariant3CharacterPortraitTexture = nullptr;
+    SDL_Texture *femaleVariant1CharacterPortraitTexture = nullptr;
+    SDL_Texture *femaleOldVariant1CharacterPortraitTexture = nullptr;
+    SDL_Texture *femaleVariant2CharacterPortraitTexture = nullptr;
+    SDL_Texture *femaleOldVariant2CharacterPortraitTexture = nullptr;
+    SDL_Texture *femaleVariant3CharacterPortraitTexture = nullptr;
+    SDL_Texture *femaleOldVariant3CharacterPortraitTexture = nullptr;
+    //Special Characters (Kings, queens, jarl... )
+
+
     //Trade and diplomacy Icons
     SDL_Texture *tradeDiplomacyIconTexture = nullptr;//current trade parters
     SDL_Texture *vassalDiplomacyIconTexture = nullptr;
@@ -2257,6 +2278,90 @@ private://constructor
             SDL_LogWarn(0, "failed to load texture gameTreasuryTaxRateIndicatorTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(gameTreasuryTaxRateIndicatorTexture, SDL_SCALEMODE_NEAREST);
+
+        // |~ Character portraits ~|
+        //baby
+        babyCharacterPortraitTexture = IMG_LoadTexture (renderer, "assets/Characters/BabyPortrait.png");
+        if (babyCharacterPortraitTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture babyCharacterPortraitTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(babyCharacterPortraitTexture, SDL_SCALEMODE_NEAREST);
+        //young
+        youngMaleCharacterPortraitTexture = IMG_LoadTexture(renderer, "assets/Characters/YoungMalePortrait.png");
+        if (youngMaleCharacterPortraitTexture == nullptr) {
+            SDL_LogWarn(0,"failed to load texture youngMaleCharacterPortraitTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(youngMaleCharacterPortraitTexture, SDL_SCALEMODE_NEAREST);
+        youngFemaleCharacterPortraitTexture = IMG_LoadTexture(renderer, "assets/Characters/YoungFemalePortrait.png");
+        if (youngFemaleCharacterPortraitTexture == nullptr) {
+            SDL_LogWarn(0,"failed to load texture youngFemaleCharacterPortraitTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(youngFemaleCharacterPortraitTexture, SDL_SCALEMODE_NEAREST);
+        //variants
+        //male
+        maleVariant1CharacterPortraitTexture = IMG_LoadTexture(renderer, "assets/Characters/MaleVariant1Portrait.png");
+        if (maleVariant1CharacterPortraitTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture maleVariant1CharacterPortraitTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(maleVariant1CharacterPortraitTexture, SDL_SCALEMODE_NEAREST);
+        maleOldVariant1CharacterPortraitTexture = IMG_LoadTexture(renderer, "assets/Characters/MaleOldVariant1Portrait.png");
+        if (maleOldVariant1CharacterPortraitTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture maleOldVariant1CharacterPortraitTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(maleOldVariant1CharacterPortraitTexture, SDL_SCALEMODE_NEAREST);
+        maleVariant2CharacterPortraitTexture = IMG_LoadTexture(renderer, "assets/Characters/MaleVariant2Portrait.png");
+        if (maleVariant2CharacterPortraitTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture maleVariant2CharacterPortraitTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(maleVariant2CharacterPortraitTexture, SDL_SCALEMODE_NEAREST);
+        maleOldVariant2CharacterPortraitTexture = IMG_LoadTexture(renderer, "assets/Characters/MaleOldVariant2Portrait.png");
+        if (maleOldVariant2CharacterPortraitTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture maleOldVariant2CharacterPortraitTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(maleOldVariant2CharacterPortraitTexture, SDL_SCALEMODE_NEAREST);
+        maleVariant3CharacterPortraitTexture = IMG_LoadTexture(renderer, "assets/Characters/MaleVariant3Portrait.png");
+        if (maleVariant3CharacterPortraitTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture maleVariant3CharacterPortraitTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(maleVariant3CharacterPortraitTexture, SDL_SCALEMODE_NEAREST);
+        maleOldVariant3CharacterPortraitTexture = IMG_LoadTexture(renderer, "assets/Characters/MaleOldVariant3Portrait.png");
+        if (maleOldVariant3CharacterPortraitTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture maleOldVariant3CharacterPortraitTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(maleOldVariant1CharacterPortraitTexture, SDL_SCALEMODE_NEAREST);
+        //female
+        femaleVariant1CharacterPortraitTexture = IMG_LoadTexture(renderer, "assets/Characters/FemaleVariant1Portrait.png");
+        if (femaleVariant1CharacterPortraitTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture femaleVariant1CharacterPortraitTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(femaleVariant1CharacterPortraitTexture, SDL_SCALEMODE_NEAREST);
+        femaleOldVariant1CharacterPortraitTexture = IMG_LoadTexture(renderer, "assets/Characters/FemaleOldVariant1Portrait.png");
+        if (femaleOldVariant1CharacterPortraitTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture femaleOldVariant1CharacterPortraitTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(femaleOldVariant1CharacterPortraitTexture, SDL_SCALEMODE_NEAREST);
+        femaleVariant2CharacterPortraitTexture = IMG_LoadTexture(renderer, "assets/Characters/FemaleVariant2Portrait.png");
+        if (femaleVariant2CharacterPortraitTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture femaleVariant2CharacterPortraitTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(femaleVariant2CharacterPortraitTexture, SDL_SCALEMODE_NEAREST);
+        femaleOldVariant2CharacterPortraitTexture = IMG_LoadTexture(renderer, "assets/Characters/FemaleOldVariant2Portrait.png");
+        if (femaleOldVariant2CharacterPortraitTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture femaleOldVariant2CharacterPortraitTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(femaleOldVariant2CharacterPortraitTexture, SDL_SCALEMODE_NEAREST);
+        femaleVariant3CharacterPortraitTexture = IMG_LoadTexture(renderer, "assets/Characters/FemaleVariant3Portrait.png");
+        if (femaleVariant3CharacterPortraitTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture femaleVariant3CharacterPortraitTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(femaleVariant3CharacterPortraitTexture, SDL_SCALEMODE_NEAREST);
+        femaleOldVariant3CharacterPortraitTexture = IMG_LoadTexture(renderer, "assets/Characters/FemaleOldVariant3Portrait.png");
+        if (femaleOldVariant3CharacterPortraitTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture femaleOldVariant3CharacterPortraitTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(femaleOldVariant3CharacterPortraitTexture, SDL_SCALEMODE_NEAREST);
+
+        //TODO: Unique Characters portraits
 
         // BUILDING UIS
         //                  ! KNIGHT !
@@ -4362,6 +4467,15 @@ private://constructor
         SDL_DestroyTexture(gameDecree1SamuraiTexture);
         SDL_DestroyTexture(gameDecree2SamuraiTexture);
         SDL_DestroyTexture(gameDecree3SamuraiTexture);
+        SDL_DestroyTexture(babyCharacterPortraitTexture);
+        SDL_DestroyTexture(youngMaleCharacterPortraitTexture);
+        SDL_DestroyTexture(youngFemaleCharacterPortraitTexture);
+        SDL_DestroyTexture(maleVariant1CharacterPortraitTexture);
+        SDL_DestroyTexture(maleVariant2CharacterPortraitTexture);
+        SDL_DestroyTexture(maleVariant3CharacterPortraitTexture);
+        SDL_DestroyTexture(maleOldVariant1CharacterPortraitTexture);
+        SDL_DestroyTexture(maleOldVariant2CharacterPortraitTexture);
+        SDL_DestroyTexture(maleOldVariant3CharacterPortraitTexture);
         SDL_DestroyTexture(tradeDiplomacyIconTexture);
         SDL_DestroyTexture(vassalDiplomacyIconTexture);
         SDL_DestroyTexture(defensiveAllianceDiplomacyIconTexture);
