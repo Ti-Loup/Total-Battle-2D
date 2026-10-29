@@ -11809,11 +11809,12 @@ private:
                 SDL_RenderRect(renderer, &treatyListBg);
 
                 float treatyRowY = treatyListBg.y + treatyListPad;
+                const char *hoveredTreatyDescription = nullptr;
                 for (TreatyType treaty : availableTreaties) {
                     SDL_FRect treatyRowRect = {treatyListBg.x + treatyListPad, treatyRowY, treatyListBg.w - treatyListPad * 2.f, treatyRowH};
 
                     bool bHoveredTreaty = SDL_PointInRectFloat(&mouseAddOfferPt, &treatyRowRect);
-                    if (bHoveredTreaty) SDL_SetRenderDrawColor(renderer, 60, 75, 105, 255);
+                    if (bHoveredTreaty) hoveredTreatyDescription = treatyDatabase[(int)treaty].description;
                     else SDL_SetRenderDrawColor(renderer, 25, 32, 45, 255);
                     SDL_RenderFillRect(renderer, &treatyRowRect);
                     SDL_SetRenderDrawColor(renderer, 70, 85, 110, 255);
@@ -11824,7 +11825,32 @@ private:
 
                     treatyListRects.push_back({treatyRowRect, treaty});
                     treatyRowY += treatyRowH + treatyRowGap;
+                    }
+                //show mouse hovered to show description of the treaties
+                if (hoveredTreatyDescription) {
+                    const char *descriptionTradeLabel = hoveredTreatyDescription;
+                    TTF_SetTextWrapWidth(gameDiplomacyDescText, 300);
+                    TTF_SetTextString(gameDiplomacyDescText, descriptionTradeLabel,0);
+                    int nameW = 0, nameH = 0;
+                    TTF_GetTextSize(gameDiplomacyDescText, &nameW, &nameH);
+
+                    float padX = 8.f, padY = 5.f;
+                    float textW = nameW + padX * 2.f;
+                    float textH = nameH + padY * 2.f;
+                    float textX = lenghtXAddOffer + 15.f; //offset on the cursor
+                    float textY = lenghtYAddOffer - textH / 2.f;//centered on cursor
+
+                    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                    SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+                    SDL_FRect tooltipTradeDescriptionBackground = {textX, textY, textW, textH};
+                    SDL_RenderFillRect(renderer, &tooltipTradeDescriptionBackground);
+                    SDL_SetRenderDrawColor(renderer, 40, 90, 110, 255);
+                    SDL_RenderRect(renderer, &tooltipTradeDescriptionBackground);
+
+                    drawTextCentered(gameDiplomacyDescText, descriptionTradeLabel, tooltipTradeDescriptionBackground, white, padX);
                 }
+
+
             }
             // Icons of the current treaties with this faction (always visible, stacked vertically and centered)
             {
