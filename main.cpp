@@ -11010,6 +11010,14 @@ private:
                     default: return nullptr;
             }
         };
+        auto getLeaderTitle = [&](FactionZone faction_zone) -> const char* {
+            switch (faction_zone) {
+                case FactionZone::Knight: return "King";
+                case FactionZone::Viking: return "Jarl";
+                case FactionZone::Samurai: return "Shogun";
+                default: return "Leader";
+            }
+        };
         //based Rect for each
         auto drawSection = [&](const SDL_FRect &background_rect, const char* title) -> SDL_FRect {
             const float headerH = 26.f;
@@ -11058,20 +11066,41 @@ private:
 
         //Faction panel 1 left and 1 right (this script just to show one) || bool different from palyer vs other faction
         auto drawFactionPanel = [&](const SDL_FRect &panel_rect, FactionZone faction, bool bIsPlayer) {
-            //back panel
-            SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
-            SDL_RenderFillRect(renderer, &panel_rect);
-            SDL_SetRenderDrawColor(renderer, 180, 180, 180, 255);
-            SDL_RenderRect(renderer, &panel_rect);
-
-            //banner + name // Call GetName + drawTextCentered + texture portrait
-            SDL_FRect factionBanner = {panel_rect.x + 10.f, panel_rect.y + 15.f, 60.f, 60.f};
+            //banner
+            const float bannerSize = 50.f;
+            SDL_FRect factionBanner = {
+                panel_rect.x + (panel_rect.w - bannerSize) / 2.f,
+                panel_rect.y,
+                bannerSize, bannerSize
+            };
             if (SDL_Texture *texture = getBanner(faction)) SDL_RenderTexture(renderer, texture, nullptr, &factionBanner);
-            SDL_FRect nameRect = {factionBanner.x + factionBanner.w + 10.f, factionBanner.y, panel_rect.w - 90.f, factionBanner.h};
-            drawTextCentered(gameDiplomacySousTitleText, getName(faction), nameRect, white);
-            SDL_FRect factionLeaderPortrait = {panel_rect.x + 10.f, panel_rect.y + 15.f, 60.f, 60.f};
 
-            float boxY = factionBanner.y + factionBanner.h + 15.f;
+            SDL_FRect bodyRect = {panel_rect.x,panel_rect.y + bannerSize,panel_rect.w,panel_rect.h - bannerSize};
+            SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
+            SDL_RenderFillRect(renderer, &bodyRect);
+            SDL_SetRenderDrawColor(renderer, 180, 180, 180, 255);
+            SDL_RenderRect(renderer, &bodyRect);
+
+            // faction name
+            SDL_FRect nameRect = {bodyRect.x, bodyRect.y + 6.f, bodyRect.w, 24.f};
+            drawTextCentered(gameDiplomacySousTitleText, getName(faction), nameRect, white);
+
+            //leader name
+            SDL_FRect titleRow = {bodyRect.x, nameRect.y + nameRect.h, bodyRect.w, 22.f};
+            drawTextCentered(gameDiplomacyDescText, getLeaderTitle(faction), titleRow, SDL_Color{230, 200, 120, 255});
+            SDL_SetRenderDrawColor(renderer, 110, 90, 40, 255);
+            SDL_RenderLine(renderer, bodyRect.x + 10.f, titleRow.y + titleRow.h + 2.f, bodyRect.x + bodyRect.w - 10.f, titleRow.y + titleRow.h + 2.f);
+
+            //portrait
+            const float portraitSize = 120.f;
+            SDL_FRect factionLeaderPortrait = {bodyRect.x , titleRow.y + titleRow.h + 8.f, portraitSize, portraitSize};
+            if (SDL_Texture *portraitTexture = getLeaderPortrait(faction))
+                SDL_RenderTexture(renderer, portraitTexture, nullptr, &factionLeaderPortrait);
+
+            //TODOOOOOO
+            //ADD AGE AND INFLUENCE NEXT TO PORTRAIT IN FUTURE
+
+            float boxY = factionLeaderPortrait.y + factionLeaderPortrait.h + 10.f;
             const float gap = 10.f;
             const float boxX = panel_rect.x + 10.f;
             const float boxW = panel_rect.w - 20.f;
@@ -11380,8 +11409,8 @@ private:
         };
 
         //rects
-        SDL_FRect playerPanel = {0.f, 440.f, 280.f, 640.f};
-        SDL_FRect otherPanel = {1640.f, 440.f, 280.f, 640.f};
+        SDL_FRect playerPanel = {0.f,    310.f, 280.f, 770.f};
+        SDL_FRect otherPanel  = {1640.f, 310.f, 280.f, 770.f};
         drawFactionPanel(playerPanel, player.faction, true);
         drawFactionPanel(otherPanel, otherFaction, false);
 
