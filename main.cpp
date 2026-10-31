@@ -10640,12 +10640,15 @@ public:
         bool bVassal = false;
         bool bTrade = false;
         bool bFriendship = false;
+        bool bMarriage = false;
         //periodic trade agreement
         int tradeTurnsRemaining = 0;
         std::vector<std::pair<ResourceType,int>> tradeGive;// what the player give each turn
         std::vector<std::pair<ResourceType,int>> tradeReceive;//what other faction give each turn
     };
     std::unordered_map<int, DiplomacyState> diplomacyWithFaction;
+    std::unordered_map<int, std::vector<AttitudeModifier>> dynamicAttitudeModifiers; //(int)FactionZone
+
     bool bShowTreatyList = false; //for the add/demand offer button
     std::vector<std::pair<SDL_FRect, TreatyType>> treatyListRects;
     std::vector<TreatyType> dealDemands;
@@ -10887,6 +10890,8 @@ public:
         switch (t) {
             case TreatyType::Trade: s.bTrade = true;
                 break;
+            case TreatyType::ArrangeMarriage: s.bMarriage = true;
+                break;
             case TreatyType::MilitaryAccess: s.bMilitaryAccess = true;
                 break;
             case TreatyType::DefensivePact: s.bDefensivePact = true;
@@ -10940,6 +10945,45 @@ public:
         auto it = stock->find(type);
         return (it != stock->end()) ? it->second : 0;
     }
+
+//treaties attitude between factions from FactionsAttributes script
+    struct TreatyAttitudeEntry {
+        bool DiplomacyState::*flag;
+        const char* name;
+        int value;
+    };
+
+    std::vector<AttitudeModifier> BuildAttitudeModifiers(FactionZone other) {
+        static const TreatyAttitudeEntry treatyAttitudeTable[] = {
+            {&DiplomacyState::bAtWar, "At war", AttitudeValues::AtWar},
+            {&DiplomacyState::bFriendship, "Declaration of friendship", AttitudeValues::Friendship},
+            {&DiplomacyState::bMilitaryAccess, "Military access", AttitudeValues::MilitaryAccess},
+            {&DiplomacyState::bTrade, "Trade agreement", AttitudeValues::Trade},
+            {&DiplomacyState::bMarriage, "Royal marriage", AttitudeValues::Marriage},
+            {&DiplomacyState::bDefensivePact, "Defensive pact", AttitudeValues::DefensivePact},
+            {&DiplomacyState::bMilitaryAlliance, "Military alliance", AttitudeValues::MilitaryAlliance},
+        };
+
+        std::vector<AttitudeModifier> mods = GetBaseAttitudeModifiers(other, player.faction);
+
+        auto diplomacyIt = diplomacyWithFaction.find((int)other);
+        if (diplomacyIt != diplomacyWithFaction.end()) {
+            const DiplomacyState& d = diplomacyIt->second;
+            for (const TreatyAttitudeEntry& entry : treatyAttitudeTable) {
+                if (!(d.*(entry.flag))) continue;
+                //friendship is replaced with defensive or military alliance
+                if (entry.flag == &DiplomacyState::bFriendship && (d.bDefensivePact || d.bMilitaryAlliance)) continue;
+                mods.push_back({ entry.name, entry.value, -1 });
+            }
+        }
+
+        auto dynamicIt = dynamicAttitudeModifiers.find((int)other);
+        if (dynamicIt != dynamicAttitudeModifiers.end())
+            mods.insert(mods.end(), dynamicIt->second.begin(), dynamicIt->second.end());
+
+        return mods;
+    }
+
 private:
 
     void RenderDiplomacyInfoPopup() {
@@ -11111,13 +11155,11 @@ private:
 
                 drawText(gameDiplomacySousTitleText, ("Strength Rank: " + std::to_string(getStrengthRank(faction))).c_str(),attributesContent.x + 6.f, attributesContent.y, grey);
                 float attributeY = attributesContent.y + 22.f;
-                if (!bIsPlayer) {
-                    if (const FactionAttributesData* attributeData = GetFactionAttributes(faction)) {
-                        for (const std::string& attribute : attributeData->attributes) {
-                            drawText(gameDiplomacyDescText, attribute.c_str(),
-                                     attributesContent.x + 6.f, attributeY, grey);
-                            attributeY += 18.f;
-                        }
+                if (const FactionAttributesData* attributeData = GetFactionAttributes(faction)) {
+                    for (const std::string& attribute : attributeData->attributes) {
+                        drawText(gameDiplomacyDescText, attribute.c_str(),
+                                 attributesContent.x + 6.f, attributeY, grey);
+                        attributeY += 18.f;
                     }
                 }
                 boxY += attributesRect.h + gap;
@@ -11526,9 +11568,11 @@ private:
 
                 //Treaties
                 //nothing for now
-
-                //Attitude place holder for now. Need real system with aversion and religion differences.
-                drawText(gameDiplomacySousTitleText, "Neutral", colAttitudeX, textY, white);
+                //attitude
+                std::vector<AttitudeModifier> attitudeMods = BuildAttitudeModifiers(faction_zone);
+                int attitudeTotal = GetTotalAttitude(attitudeMods);
+                AttitudeColor attitudeCol = GetAttitudeColor(attitudeTotal);
+                drawText(gameDiplomacySousTitleText, GetAttitudeLabel(attitudeTotal), colAttitudeX, textY, SDL_Color{attitudeCol.r, attitudeCol.g, attitudeCol.b, 255});
                 //Clickable of the vector
                 diplomacyFactionRowRects.push_back({rowRect, faction_zone});
                 rowY += rowH + rowGap; //to spawn the other rects after this one
@@ -14794,7 +14838,12 @@ public:
         }
 
         ProcessTradeAgreementsForTurn();
-
+        //for attitude modifier .
+        for (auto& [factionKey, mods] : dynamicAttitudeModifiers) {
+            for (auto& m : mods) if (m.turnsRemaining > 0) m.turnsRemaining--;
+            mods.erase(std::remove_if(mods.begin(), mods.end(),
+                [](const AttitudeModifier& m){ return m.turnsRemaining == 0; }), mods.end());
+        }
         //POPULATION
         //population increase each turn based on base random bonus + building bonus
         int buildingPeasantryBonus = 0;
