@@ -136,10 +136,12 @@ assets/               # Textures, fonts, audio, tilemaps, Resources<br>
 | **v0.2.5** | World Events + Climate (affect food production) + MiniMap | Released | August | 2026 |
 | **v0.3.0** | Special ressources(Mines) + Fishing/Military Ports + Industrial building item production | Released | September | 2026 |
 | **v0.3.2** | AI Focus: Patch 1 | Released | September | 2026 |
-| **v0.3.5** | diplomacy & exchange | In progress | October | 2026 |
-| **v0.3.6** | Player Feedback + Code Refactor | Planned | October | 2026 |
-| **v0.3.75** | Ai Focus: Patch 2 | Planned | November | 2026 |
-| **v0.4.0** | Creation of Armies + Family Tree | Planned | December | 2026 |
+| **v0.3.5** | diplomacy & exchange | Released | October | 2026 |
+| **v0.3.6** | Player Feedback + Code Refactor + Ai Focus | In progress | November | 2026 |
+| **v0.3.75** | Family Tree, assassination, influence | Planned | December | 2026 |
+| **v0.4.0** | Creation of Armies + Unit cards | Planned | December | 2026 |
+| **v0.4.5** | Technology tree | Planned | Q1 | 2027 |
+| **v0.5.0** | Start battles features | Planned | Q2 | 2027 |
 | **Future** | Roads, playable technology tree, faction Unique mechanic, cinematic intro | Vision | 2026 | 2027 |
 
 ---
