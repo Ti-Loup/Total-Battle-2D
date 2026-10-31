@@ -10871,8 +10871,12 @@ public:
             if (state.tradeTurnsRemaining <= 0) continue;
             FactionZone other = (FactionZone)factionKey;
 
-            if (ExecuteTradeExchange(other, state))
+            if (ExecuteTradeExchange(other, state)) {
                 SDL_Log("Trade with faction %d executed (%d turn(s) left after this one)", factionKey, state.tradeTurnsRemaining - 1);
+                //cumulative relation bonus, +3 per real exchange, floor also grows
+                AddDecayingAttitude(other, "Trade history", AttitudeValues::TradeHistoryPerTurn, AttitudeValues::TradeHistoryMax,
+                    AttitudeValues::TradeHistoryFloorGain, AttitudeValues::TradeHistoryFloorMax, AttitudeValues::TradeHistoryDecay);
+            }
             else
                 SDL_Log("Trade with faction %d skipped this turn (missing goods or storage space)", factionKey);
 
@@ -10984,6 +10988,41 @@ public:
         return mods;
     }
 
+    //Adds or stack,modifier that decays over time toward a floor but never reaches 0
+    void AddDecayingAttitude(FactionZone faction, const std::string& name, int amount, int maxAbsValue, int floorGain, int maxAbsFloor, int decayPerTurn) {
+        std::vector<AttitudeModifier>& mods = dynamicAttitudeModifiers[(int)faction];
+        AttitudeModifier* existing = nullptr;
+        for (AttitudeModifier& m : mods) {
+            if (m.name == name) { existing = &m; break; }
+        }
+        if (!existing) {
+            AttitudeModifier fresh;
+            fresh.name = name;
+            mods.push_back(fresh);
+            existing = &mods.back();
+        }
+        existing->value = std::clamp(existing->value + amount, -maxAbsValue, maxAbsValue);
+        existing->minValue = std::clamp(existing->minValue + floorGain, -maxAbsFloor, maxAbsFloor);
+        existing->decayPerTurn = std::max(existing->decayPerTurn, decayPerTurn);
+        existing->turnsRemaining = -1; // never removed, it only decays to its floor
+    }
+
+    //small / medium / large gift based on the gold given
+    void AddGiftAttitude(FactionZone faction, int goldGiven) {
+        int value = AttitudeValues::SmallGiftValue;
+        int floorGain = AttitudeValues::SmallGiftFloor;
+        int decay = AttitudeValues::SmallGiftDecay;
+        if (goldGiven >= giftCosts[2]) {
+            value = AttitudeValues::LargeGiftValue;
+            floorGain = AttitudeValues::LargeGiftFloor;
+            decay = AttitudeValues::LargeGiftDecay;
+        } else if (goldGiven >= giftCosts[1]) {
+            value = AttitudeValues::MediumGiftValue;
+            floorGain = AttitudeValues::MediumGiftFloor;
+            decay = AttitudeValues::MediumGiftDecay;
+        }
+        AddDecayingAttitude(faction, "Gifts received", value, AttitudeValues::GiftMaxValue, floorGain, AttitudeValues::GiftMaxFloor, decay);
+    }
 private:
 
     void RenderDiplomacyInfoPopup() {
@@ -11451,8 +11490,8 @@ private:
         };
 
         //rects
-        SDL_FRect playerPanel = {0.f,    310.f, 280.f, 770.f};
-        SDL_FRect otherPanel  = {1640.f, 310.f, 280.f, 770.f};
+        SDL_FRect playerPanel = {0.f, 300.f, 280.f, 780.f};
+        SDL_FRect otherPanel  = {1640.f, 300.f, 280.f, 780.f};
         drawFactionPanel(playerPanel, player.faction, true);
         drawFactionPanel(otherPanel, otherFaction, false);
 
@@ -11513,6 +11552,9 @@ private:
             const float rowH = 60.f;
             const float rowGap = 6.0f;
             float rowY = factionSelectionCategoriesRect.y + factionSelectionCategoriesRect.h + 8.f;
+            bool bHoveredAttitudeIcon = false;
+            FactionZone hoveredAttitudeFaction = FactionZone::Knight;
+            SDL_FRect hoveredAttitudeIconRect = {0.f, 0.f, 0.f, 0.f};
 
             //for|| to create the rect for each factions other than the player decided earlier
             for (FactionZone faction_zone: otherFactions) {
@@ -11568,11 +11610,42 @@ private:
 
                 //Treaties
                 //nothing for now
-                //attitude
+                //attitude + info icon
                 std::vector<AttitudeModifier> attitudeMods = BuildAttitudeModifiers(faction_zone);
                 int attitudeTotal = GetTotalAttitude(attitudeMods);
                 AttitudeColor attitudeCol = GetAttitudeColor(attitudeTotal);
-                drawText(gameDiplomacySousTitleText, GetAttitudeLabel(attitudeTotal), colAttitudeX, textY, SDL_Color{attitudeCol.r, attitudeCol.g, attitudeCol.b, 255});
+                drawText(gameDiplomacySousTitleText, GetAttitudeLabel(attitudeTotal), colAttitudeX, textY,
+                         SDL_Color{attitudeCol.r, attitudeCol.g, attitudeCol.b, 255});
+
+                //the label is still the current string, so its width tells us where the icon goes
+                int attitudeLabelW = 0, attitudeLabelH = 0;
+                TTF_GetTextSize(gameDiplomacySousTitleText, &attitudeLabelW, &attitudeLabelH);
+
+                const float infoIconRadius = 9.f;
+                Circle attitudeInfoCircle = {
+                    std::min(colAttitudeX + attitudeLabelW + 16.f, rowRect.x + rowRect.w - 20.f),
+                    rowRect.y + rowRect.h / 2.f,
+                    infoIconRadius
+                };
+                bool bOnAttitudeInfoIcon = ClickInsideCircle(mouseRowPt.x, mouseRowPt.y, attitudeInfoCircle);
+
+                SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255); //outline
+                RenderCircle(attitudeInfoCircle.circleX, attitudeInfoCircle.circleY, attitudeInfoCircle.radius);
+                SDL_SetRenderDrawColor(renderer, bOnAttitudeInfoIcon ? 70 : 30, bOnAttitudeInfoIcon ? 100 : 45,
+                                       bOnAttitudeInfoIcon ? 170 : 80, 255); //fill
+                RenderCircle(attitudeInfoCircle.circleX, attitudeInfoCircle.circleY, attitudeInfoCircle.radius - 1.5f);
+
+                SDL_FRect attitudeInfoIconRect = {
+                    attitudeInfoCircle.circleX - infoIconRadius, attitudeInfoCircle.circleY - infoIconRadius,
+                    infoIconRadius * 2.f, infoIconRadius * 2.f
+                };
+                drawTextCentered(gameDiplomacyDescText, "i", attitudeInfoIconRect, white);
+
+                if (bOnAttitudeInfoIcon) {
+                    bHoveredAttitudeIcon = true;
+                    hoveredAttitudeFaction = faction_zone;
+                    hoveredAttitudeIconRect = attitudeInfoIconRect;
+                }
                 //Clickable of the vector
                 diplomacyFactionRowRects.push_back({rowRect, faction_zone});
                 rowY += rowH + rowGap; //to spawn the other rects after this one
@@ -11649,6 +11722,82 @@ private:
                 TTF_DrawRendererText(gameDiplomacyDescText, textX + padX, textY + padY);
             }
 
+            //Attitude tooltip: every modifier + total
+            if (bHoveredAttitudeIcon) {
+                std::vector<AttitudeModifier> tipMods = BuildAttitudeModifiers(hoveredAttitudeFaction);
+                int tipTotal = GetTotalAttitude(tipMods);
+                AttitudeColor tipTotalCol = GetAttitudeColor(tipTotal);
+
+                const float tipW = 320.f;
+                const float tipTitleH = 28.f;
+                const float tipRowH = 22.f;
+                const float tipPad = 8.f;
+                int tipLines = tipMods.empty() ? 1 : (int) tipMods.size();
+                float tipH = tipTitleH + tipPad + tipLines * tipRowH + 12.f + tipRowH + tipPad;
+
+                float tipX = hoveredAttitudeIconRect.x + hoveredAttitudeIconRect.w + 12.f;
+                float tipY = hoveredAttitudeIconRect.y + hoveredAttitudeIconRect.h / 2.f - tipH / 2.f;
+                if (tipX + tipW > 1910.f) tipX = hoveredAttitudeIconRect.x - tipW - 12.f;
+                if (tipY < 5.f) tipY = 5.f;
+                if (tipY + tipH > 1075.f) tipY = 1075.f - tipH;
+
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+                SDL_FRect tipBg = {tipX, tipY, tipW, tipH};
+                SDL_RenderFillRect(renderer, &tipBg);
+                SDL_SetRenderDrawColor(renderer, 25, 45, 70, 255);
+                SDL_FRect tipTitleBar = {tipX, tipY, tipW, tipTitleH};
+                SDL_RenderFillRect(renderer, &tipTitleBar);
+                SDL_SetRenderDrawColor(renderer, 90, 110, 140, 255);
+                SDL_RenderRect(renderer, &tipBg);
+
+                std::string tipTitle = std::string(getName(hoveredAttitudeFaction)) + " Attitude";
+                drawTextCentered(gameDiplomacySousTitleText, tipTitle.c_str(), tipTitleBar, white);
+
+                //right aligned text
+                auto drawRightText = [&](const char *str, float rightX, float y, SDL_Color c) {
+                    TTF_SetTextWrapWidth(gameDiplomacyDescText, 0);
+                    TTF_SetTextString(gameDiplomacyDescText, str, 0);
+                    TTF_SetTextColor(gameDiplomacyDescText, c.r, c.g, c.b, c.a);
+                    int w = 0, h = 0;
+                    TTF_GetTextSize(gameDiplomacyDescText, &w, &h);
+                    TTF_DrawRendererText(gameDiplomacyDescText, rightX - w, y);
+                };
+
+                float tipLineY = tipY + tipTitleH + tipPad;
+                float tipRightX = tipX + tipW - 10.f;
+
+                if (tipMods.empty()) {
+                    drawText(gameDiplomacyDescText, "No modifiers", tipX + 10.f, tipLineY, grey);
+                    tipLineY += tipRowH;
+                } else {
+                    for (const AttitudeModifier &m: tipMods) {
+                        std::string label = m.name;
+                        if (m.turnsRemaining > 0) label += " (" + std::to_string(m.turnsRemaining) + " turns)";
+                        drawText(gameDiplomacyDescText, label.c_str(), tipX + 10.f, tipLineY, grey);
+
+                        std::string valueStr = (m.value > 0 ? "+" : "") + std::to_string(m.value);
+                        SDL_Color valueColor = m.value > 0
+                                                   ? SDL_Color{100, 220, 60, 255}
+                                                   : m.value < 0
+                                                         ? SDL_Color{220, 60, 60, 255}
+                                                         : SDL_Color{180, 180, 180, 255};
+                        drawRightText(valueStr.c_str(), tipRightX, tipLineY, valueColor);
+                        tipLineY += tipRowH;
+                    }
+                }
+
+                //separator + total
+                SDL_SetRenderDrawColor(renderer, 90, 110, 140, 200);
+                SDL_RenderLine(renderer, tipX + 6.f, tipLineY + 3.f, tipX + tipW - 6.f, tipLineY + 3.f);
+                tipLineY += 12.f;
+
+                drawText(gameDiplomacyDescText, "Total", tipX + 10.f, tipLineY, white);
+                std::string totalStr = std::string(GetAttitudeLabel(tipTotal)) + " (" + (tipTotal > 0 ? "+" : "") +
+                                       std::to_string(tipTotal) + ")";
+                drawRightText(totalStr.c_str(), tipRightX, tipLineY,
+                              SDL_Color{tipTotalCol.r, tipTotalCol.g, tipTotalCol.b, 255});
+            }
 
         }
         //Inside Specific trade with other faction
@@ -14838,9 +14987,15 @@ public:
         }
 
         ProcessTradeAgreementsForTurn();
-        //for attitude modifier .
+        //Attitude modifiers now temporary ones expire, decaying ones go down toward their floor (never 0)
         for (auto& [factionKey, mods] : dynamicAttitudeModifiers) {
-            for (auto& m : mods) if (m.turnsRemaining > 0) m.turnsRemaining--;
+            for (auto& m : mods) {
+                if (m.turnsRemaining > 0) m.turnsRemaining--;
+                if (m.decayPerTurn > 0) {
+                    if (m.value > m.minValue)      m.value = std::max(m.minValue, m.value - m.decayPerTurn);
+                    else if (m.value < m.minValue) m.value = std::min(m.minValue, m.value + m.decayPerTurn);
+                }
+            }
             mods.erase(std::remove_if(mods.begin(), mods.end(),
                 [](const AttitudeModifier& m){ return m.turnsRemaining == 0; }), mods.end());
         }
@@ -15408,6 +15563,11 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     }
                     if (totalGoldOffered > 0 && dealAiState) {
                         dealAiState->currentGold += totalGoldOffered;
+                    }
+                    //Gift = gold offered and NOTHING asked in return //Bonus attribute
+                    bool bPureGift = app.dealDemands.empty() && app.dealResourceDemands.empty() && app.dealGoldDemandOffer <= 0;
+                    if (totalGoldOffered > 0 && bPureGift) {
+                        app.AddGiftAttitude(app.selectedDiplomacyFaction, totalGoldOffered);
                     }
                     if (app.dealGoldDemandOffer > 0 && dealAiState) {
                         dealAiState->currentGold -= app.dealGoldDemandOffer;

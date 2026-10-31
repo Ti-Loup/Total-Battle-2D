@@ -29,6 +29,9 @@ struct AttitudeModifier{
     std::string name;
     int value = 0;
     int turnsRemaining = -1;
+    //decay slowly over time
+    int minValue = 0;
+    int decayPerTurn = 0;
 };
 
 //all possible positive and negative
@@ -40,6 +43,19 @@ namespace AttitudeValues {
     constexpr int Marriage = 80;
     constexpr int DefensivePact = 65;
     constexpr int MilitaryAlliance = 108;
+    //Gifts (decaying)
+    constexpr int SmallGiftValue = 8; constexpr int SmallGiftFloor = 2; constexpr int SmallGiftDecay = 1;
+    constexpr int MediumGiftValue = 20; constexpr int MediumGiftFloor = 4; constexpr int MediumGiftDecay = 2;
+    constexpr int LargeGiftValue = 40; constexpr int LargeGiftFloor = 8; constexpr int LargeGiftDecay = 2;
+    constexpr int GiftMaxValue = 60;    // gifts stack up to this
+    constexpr int GiftMaxFloor = 15;
+    //Trade history (cumulative)
+    constexpr int TradeHistoryPerTurn = 3;  // gained each turn a trade exchange bonus
+    constexpr int TradeHistoryMax = 30;
+    constexpr int TradeHistoryFloorGain = 1;
+    constexpr int TradeHistoryFloorMax = 10;
+    constexpr int TradeHistoryDecay = 1;
+
     //military actions with a faction with common enemy
     constexpr int CommonEnemy = 10;
     constexpr int MilitaryActionsAgaintsCommonEnemy = 8;//cumulatif
