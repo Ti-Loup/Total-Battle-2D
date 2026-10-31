@@ -44,20 +44,20 @@ namespace AttitudeValues {
     constexpr int DefensivePact = 65;
     constexpr int MilitaryAlliance = 108;
      //start at the values above, then decay each turn toward a floor but itnever reaches 0
-     constexpr int FriendshipFloor = 6;        constexpr int FriendshipDecay = 1;
-     constexpr int MilitaryAccessFloor = 5;    constexpr int MilitaryAccessDecay = 1;
-     constexpr int MarriageFloor = 25;         constexpr int MarriageDecay = 2;
-     constexpr int DefensivePactFloor = 20;    constexpr int DefensivePactDecay = 2;
-     constexpr int MilitaryAllianceFloor = 35; constexpr int MilitaryAllianceDecay = 3;
+     constexpr int FriendshipFloor = 12; constexpr int FriendshipDecay = 1;
+     constexpr int MilitaryAccessFloor = 11; constexpr int MilitaryAccessDecay = 1;
+     constexpr int MarriageFloor = 48; constexpr int MarriageDecay = 2;
+     constexpr int DefensivePactFloor = 42; constexpr int DefensivePactDecay = 2;
+     constexpr int MilitaryAllianceFloor = 62; constexpr int MilitaryAllianceDecay = 3;
 
     //Gifts (decaying)
     constexpr int SmallGiftValue = 8; constexpr int SmallGiftFloor = 2; constexpr int SmallGiftDecay = 1;
     constexpr int MediumGiftValue = 20; constexpr int MediumGiftFloor = 4; constexpr int MediumGiftDecay = 2;
     constexpr int LargeGiftValue = 40; constexpr int LargeGiftFloor = 8; constexpr int LargeGiftDecay = 2;
-    constexpr int GiftMaxValue = 60;    // gifts stack up to this
+    constexpr int GiftMaxValue = 60; // gifts stack up to this
     constexpr int GiftMaxFloor = 15;
     //Trade history (cumulative)
-    constexpr int TradeHistoryPerTurn = 3;  // gained each turn a trade exchange bonus
+    constexpr int TradeHistoryPerTurn = 3; // gained each turn a trade exchange bonus
     constexpr int TradeHistoryMax = 30;
     constexpr int TradeHistoryFloorGain = 1;
     constexpr int TradeHistoryFloorMax = 10;
@@ -121,20 +121,20 @@ inline int GetTotalAttitude(const std::vector<AttitudeModifier>& mods) {
 
 
 inline const char* GetAttitudeLabel(int total) {
-    if (total <= AttitudeValues::HostileMax)      return "Hostile";
-    if (total <= AttitudeValues::UnfriendlyMax)   return "Unfriendly";
+    if (total <= AttitudeValues::HostileMax) return "Hostile";
+    if (total <= AttitudeValues::UnfriendlyMax) return "Unfriendly";
     if (total >= AttitudeValues::VeryFriendlyMin) return "Very friendly";
-    if (total >= AttitudeValues::FriendlyMin)     return "Friendly";
+    if (total >= AttitudeValues::FriendlyMin) return "Friendly";
     return "Neutral";
 }
 
 struct AttitudeColor { unsigned char r, g, b; };
 
 inline AttitudeColor GetAttitudeColor(int total) {
-    if (total <= AttitudeValues::HostileMax)      return { 200,  40,  40 };
-    if (total <= AttitudeValues::UnfriendlyMax)   return { 230, 120,  80 };
+    if (total <= AttitudeValues::HostileMax) return { 200,  40,  40 };
+    if (total <= AttitudeValues::UnfriendlyMax) return { 230, 120,  80 };
     if (total >= AttitudeValues::VeryFriendlyMin) return {  60, 220,  80 };
-    if (total >= AttitudeValues::FriendlyMin)     return { 140, 220, 120 };
+    if (total >= AttitudeValues::FriendlyMin) return { 140, 220, 120 };
     return { 220, 220, 220 };
 }
 
