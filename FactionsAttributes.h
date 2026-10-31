@@ -43,6 +43,13 @@ namespace AttitudeValues {
     constexpr int Marriage = 80;
     constexpr int DefensivePact = 65;
     constexpr int MilitaryAlliance = 108;
+     //start at the values above, then decay each turn toward a floor but itnever reaches 0
+     constexpr int FriendshipFloor = 6;        constexpr int FriendshipDecay = 1;
+     constexpr int MilitaryAccessFloor = 5;    constexpr int MilitaryAccessDecay = 1;
+     constexpr int MarriageFloor = 25;         constexpr int MarriageDecay = 2;
+     constexpr int DefensivePactFloor = 20;    constexpr int DefensivePactDecay = 2;
+     constexpr int MilitaryAllianceFloor = 35; constexpr int MilitaryAllianceDecay = 3;
+
     //Gifts (decaying)
     constexpr int SmallGiftValue = 8; constexpr int SmallGiftFloor = 2; constexpr int SmallGiftDecay = 1;
     constexpr int MediumGiftValue = 20; constexpr int MediumGiftFloor = 4; constexpr int MediumGiftDecay = 2;

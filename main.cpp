@@ -10918,6 +10918,67 @@ public:
             default: break; // Payment, Marriage, Friendship: nothing permanent to store
         }
     }
+    //Removes a dynamic modifier by name
+    void RemoveAttitudeModifier(FactionZone faction, const std::string& name) {
+        auto it = dynamicAttitudeModifiers.find((int)faction);
+        if (it == dynamicAttitudeModifiers.end()) return;
+        auto& mods = it->second;
+        mods.erase(std::remove_if(mods.begin(), mods.end(),
+            [&](const AttitudeModifier& m) { return m.name == name; }), mods.end());
+    }
+
+    //War cancels every treaty, so their attitude bonuses go away too
+    void ClearTreatyAttitudes(FactionZone faction) {
+        RemoveAttitudeModifier(faction, "Declaration of friendship");
+        RemoveAttitudeModifier(faction, "Military access");
+        RemoveAttitudeModifier(faction, "Royal marriage");
+        RemoveAttitudeModifier(faction, "Defensive pact");
+        RemoveAttitudeModifier(faction, "Military alliance");
+    }
+
+    //Call after ApplyTreaty~!~! Gives the attitude bonus that will decay each turn.
+    //AddDecayingAttitude
+    void ApplyTreatyAttitude(FactionZone faction, TreatyType t, const DiplomacyState& s) {
+        switch (t) {
+            case TreatyType::DeclarationOfFriendship:
+                //friendship is hidden if a pact/alliance already exists
+                if (!s.bDefensivePact && !s.bMilitaryAlliance)
+                    AddDecayingAttitude(faction, "Declaration of friendship",
+                        AttitudeValues::Friendship, AttitudeValues::Friendship,
+                        AttitudeValues::FriendshipFloor, AttitudeValues::FriendshipFloor,
+                        AttitudeValues::FriendshipDecay);
+                break;
+            case TreatyType::MilitaryAccess:
+                AddDecayingAttitude(faction, "Military access",
+                    AttitudeValues::MilitaryAccess, AttitudeValues::MilitaryAccess,
+                    AttitudeValues::MilitaryAccessFloor, AttitudeValues::MilitaryAccessFloor,
+                    AttitudeValues::MilitaryAccessDecay);
+                break;
+            case TreatyType::ArrangeMarriage:
+                AddDecayingAttitude(faction, "Royal marriage",
+                    AttitudeValues::Marriage, AttitudeValues::Marriage,
+                    AttitudeValues::MarriageFloor, AttitudeValues::MarriageFloor,
+                    AttitudeValues::MarriageDecay);
+                break;
+            case TreatyType::DefensivePact:
+                RemoveAttitudeModifier(faction, "Declaration of friendship"); //replaced by the pact
+                if (!s.bMilitaryAlliance)
+                    AddDecayingAttitude(faction, "Defensive pact",
+                        AttitudeValues::DefensivePact, AttitudeValues::DefensivePact,
+                        AttitudeValues::DefensivePactFloor, AttitudeValues::DefensivePactFloor,
+                        AttitudeValues::DefensivePactDecay);
+                break;
+            case TreatyType::MilitaryAlliance:
+                RemoveAttitudeModifier(faction, "Declaration of friendship");
+                RemoveAttitudeModifier(faction, "Defensive pact"); //replaced by the alliance
+                AddDecayingAttitude(faction, "Military alliance",
+                    AttitudeValues::MilitaryAlliance, AttitudeValues::MilitaryAlliance,
+                    AttitudeValues::MilitaryAllianceFloor, AttitudeValues::MilitaryAllianceFloor,
+                    AttitudeValues::MilitaryAllianceDecay);
+                break;
+            default: break;
+        }
+    }
 
     bool IsTreatyAvailable(TreatyType t, const DiplomacyState& s) {//if at war some treaties can't be signed.
         switch (t) {
@@ -10960,12 +11021,7 @@ public:
     std::vector<AttitudeModifier> BuildAttitudeModifiers(FactionZone other) {
         static const TreatyAttitudeEntry treatyAttitudeTable[] = {
             {&DiplomacyState::bAtWar, "At war", AttitudeValues::AtWar},
-            {&DiplomacyState::bFriendship, "Declaration of friendship", AttitudeValues::Friendship},
-            {&DiplomacyState::bMilitaryAccess, "Military access", AttitudeValues::MilitaryAccess},
             {&DiplomacyState::bTrade, "Trade agreement", AttitudeValues::Trade},
-            {&DiplomacyState::bMarriage, "Royal marriage", AttitudeValues::Marriage},
-            {&DiplomacyState::bDefensivePact, "Defensive pact", AttitudeValues::DefensivePact},
-            {&DiplomacyState::bMilitaryAlliance, "Military alliance", AttitudeValues::MilitaryAlliance},
         };
 
         std::vector<AttitudeModifier> mods = GetBaseAttitudeModifiers(other, player.faction);
@@ -10975,8 +11031,6 @@ public:
             const DiplomacyState& d = diplomacyIt->second;
             for (const TreatyAttitudeEntry& entry : treatyAttitudeTable) {
                 if (!(d.*(entry.flag))) continue;
-                //friendship is replaced with defensive or military alliance
-                if (entry.flag == &DiplomacyState::bFriendship && (d.bDefensivePact || d.bMilitaryAlliance)) continue;
                 mods.push_back({ entry.name, entry.value, -1 });
             }
         }
@@ -15292,6 +15346,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     if (app.ClickInsideCircle(nouveauX, nouveauY, app.DeclareWarConfirmButton)) {
                         GameApp::DiplomacyState& warState = app.diplomacyWithFaction[(int)app.selectedDiplomacyFaction];
                         app.ApplyTreaty(GameApp::TreatyType::DeclareWar, warState); // resets every treaty + bAtWar = true
+                        app.ClearTreatyAttitudes(app.selectedDiplomacyFaction);// remove their decaying bonuses
                         app.dealDemands.clear();
                         app.dealDemandsScrollOffset = 0.f;
                         app.dealOffers.clear();
@@ -15576,7 +15631,10 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
                     // treaties apply whether or not goods are involved
                     GameApp::DiplomacyState &state = app.diplomacyWithFaction[(int) app.selectedDiplomacyFaction];
-                    for (GameApp::TreatyType t: app.dealDemands) app.ApplyTreaty(t, state);
+                    for (GameApp::TreatyType t: app.dealDemands) {
+                        app.ApplyTreaty(t, state);
+                        app.ApplyTreatyAttitude(app.selectedDiplomacyFaction, t, state);
+                    }
 
                     if (bHasGoodsInDeal && dealAiState) {
                         state.tradeGive.clear();
