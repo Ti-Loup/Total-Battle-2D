@@ -32,28 +32,18 @@
 /*
 
  * --------------------------------------------
- * 0.3.5
- * DIPLOMACY & EXCHANGE
- * EXANGE MONEY OR RESSOURCES FOR FOOD. IN TRADE.
- * Province buffs.
- * Done | Treasury posibility to increase of reduce taxes. that increase the public order or reduce it
- * Done | UI remove when diplomacy button precess To show Different UI
- * Done | improve the Diplomacy Ui elements
- * Done | New Buttons textures
- * Done | Different treaties possible to do.
- * ToDo | Factions attitude to everyone. Possibility to trade goods make peace, war, alliances.
- * Done | Possibility to give money to improve relations
- * Done (raw Goods)| Trade raw goods only with others. but transformed goods with a distant buyer
- * Done| Can trade goods periodicly instead (Like troy)
- * ToDo | make some goods more desirable for some oher faction
+ * 0.3.6 Refactor
+ * ToDo | Refactor
+ *
+ * Todo | make some goods more desirable for some oher faction
  * ToDo | Add Visual to character portrait.
- *
- *
- * Bugs:
- * Fixed | The UI overlaps
- * Fixed | taxe rate ui of the settlements modifies with the current tax rate
- * Fixed | The import export arrow wrongly showing
+ * ToDo | Add Current proposal if deal gets accepted. which work with attitude with faction + base value from those demands amount
+ * ToDo | Buttons under minimap
  * --------------------------------------------
+ * 0.3.75
+ * Add family tree
+ * --------------------------------------------
+ *
  * 0.4.0
  * Kingdom -> different houses from 1 kingdom. Logo next to castle name
  * ~ Battle Conquests of settlements and battle army ~
@@ -63,6 +53,7 @@
  * 0.4.5
  * Ai uses everything implemented
  * Technology Tree
+ *
  *
  * --------------------------------------------
  * 0.5.0
@@ -182,7 +173,24 @@
  * Population Yes | No
  *
  * --------------------------------------------
-
+ * 0.3.5
+ * DIPLOMACY & EXCHANGE
+ * EXANGE MONEY OR RESSOURCES FOR FOOD. IN TRADE.
+ * Province buffs.
+ * Done | Treasury posibility to increase of reduce taxes. that increase the public order or reduce it
+ * Done | UI remove when diplomacy button precess To show Different UI
+ * Done | improve the Diplomacy Ui elements
+ * Done | New Buttons textures
+ * Done | Different treaties possible to do.
+ * Done | Factions attitude to everyone. Possibility to trade goods make peace, war, alliances.
+ * Done | Possibility to give money to improve relations
+ * Done (raw Goods)| Trade raw goods only with others. but transformed goods with a distant buyer
+ * Done| Can trade goods periodicly instead (Like troy)
+ *
+ * Bugs:
+ * Fixed | The UI overlaps
+ * Fixed | taxe rate ui of the settlements modifies with the current tax rate
+ * Fixed | The import export arrow wrongly showing
  */
 
 
