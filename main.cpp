@@ -32,16 +32,19 @@
 /*
 
  * --------------------------------------------
- * 0.3.6 Refactor
+ * 0.3.6 Refactor and ai can make trade offers.
  * ToDo | Refactor
  *
  * Todo | make some goods more desirable for some oher faction
  * ToDo | Add Visual to character portrait.
  * ToDo | Add Current proposal if deal gets accepted. which work with attitude with faction + base value from those demands amount
  * ToDo | Buttons under minimap
+ *
+ * Bugs:
+ * ToDo | The import and export arrow isn't showing
  * --------------------------------------------
  * 0.3.75
- * Add family tree
+ * Add family tree + influence feature + assassination
  * --------------------------------------------
  *
  * 0.4.0
