@@ -32,16 +32,27 @@
 /*
 
  * --------------------------------------------
- * 0.3.6 Refactor and ai can make trade offers.
+ * 0.3.6 Refactor , ai can make trade offers (1 month)
  * ToDo | Refactor
  *
+ * ToDo | Add Current proposal if deal gets accepted. which work with attitude with faction + base value from those demands amount
  * Todo | make some goods more desirable for some oher faction
  * ToDo | Add Visual to character portrait.
- * ToDo | Add Current proposal if deal gets accepted. which work with attitude with faction + base value from those demands amount
  * ToDo | Buttons under minimap
+ * ToDo | Per faction Ui Textures scalable.
+ * ToDo | Able to stop a trade agreement with button but reduce Attitude towards the other faction. (~ -10 per turn remaining)
+ * ToDo | Show the current faction turn instead of all being instant.
+ * ToDo | during a ai faction turn it can propose a treaty with the player or ai.
+ *
  *
  * Bugs:
  * ToDo | The import and export arrow isn't showing
+ * TODO | If you have a current Trade agreement you soudn't be able to get an other one with same faction
+ * ToDo | If not enough resources to trade, the trade agreement is stopped and it reduce Attitude towards the parter.
+ * ToDO | If you have a vassal after being in war with an other faction, he will join with you.
+ * ToDo | If you have a military alliance with a faction and you declare war after, it should show in the war panel your allies. and their allies if they have one.
+ * ToDo | Force the ai to not construct everything at once. (Max 3 constructions at the same time). Give Ai a bonus in income.
+ *
  * --------------------------------------------
  * 0.3.75
  * Add family tree + influence feature + assassination
@@ -1056,7 +1067,7 @@ private://constructor
         // -> MENU <-
         gameInProgressFont = TTF_OpenFont("assets/KnightFont.ttf", 40);
         gameVersionFont = TTF_OpenFont("assets/Rubik.ttf", 35);
-        gameVersionText = TTF_CreateText (textEngine, gameVersionFont, "Version (0.3.5)", 16);
+        gameVersionText = TTF_CreateText (textEngine, gameVersionFont, "Version (0.3.6)", 16);
         if (gameVersionText == nullptr) {
             SDL_LogWarn(0,"failed to create text for gameVersionText", SDL_GetError());
         }
@@ -9364,6 +9375,17 @@ private:
                                 break;
                             }
                         }
+
+
+                        //Current proposal (Insulting, Intriguing, Accept, Excessive)
+                        //If far from making a deal ->Insulting
+                        //If close from making a deal -> Intriguing
+                        //If reasonnable and can make a deal -> Accept
+                        //If way to much in favor of -> Excessive
+                        SDL_FRect currentProposalTextRect ={0, 0, 250, 40};
+
+                        //Text Proposal placeholder for now
+                        drawTextCentered(gameDiplomacyDescText, "Current Proposal:", currentProposalTextRect, white);
 
                         //Round X button to cancel this offer
                         float offerBtnR = offerRemoveSize / 2.f;
