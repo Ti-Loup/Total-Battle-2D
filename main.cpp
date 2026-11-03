@@ -8038,19 +8038,23 @@ public:
     }
 
     //Called once per EndTurn
+    //Runs ONE exchange of a trade agreement + gives the relation bonus if it worked
+    void RunTradeExchange(FactionZone other, const DiplomacyState& agreement) {
+        if (ExecuteTradeExchange(other, agreement)) {
+            SDL_Log("Trade with faction %d executed (%d turn(s) left)", (int)other, agreement.tradeTurnsRemaining);
+            //cumulative relation bonus, +3 per real exchange, floor also grows
+            AddDecayingAttitude(other, "Trade history", AttitudeValues::TradeHistoryPerTurn, AttitudeValues::TradeHistoryMax,
+                AttitudeValues::TradeHistoryFloorGain, AttitudeValues::TradeHistoryFloorMax, AttitudeValues::TradeHistoryDecay);
+        }
+        else
+            SDL_Log("Trade with faction %d skipped (missing goods or storage space)", (int)other);
+    }
+
+    //Called once per EndTurn.if the agreement continues, exchange the goods for the new turn.
     void ProcessTradeAgreementsForTurn() {
         for (auto& [factionKey, state] : diplomacyWithFaction) {
             if (state.tradeTurnsRemaining <= 0) continue;
             FactionZone other = (FactionZone)factionKey;
-
-            if (ExecuteTradeExchange(other, state)) {
-                SDL_Log("Trade with faction %d executed (%d turn(s) left after this one)", factionKey, state.tradeTurnsRemaining - 1);
-                //cumulative relation bonus, +3 per real exchange, floor also grows
-                AddDecayingAttitude(other, "Trade history", AttitudeValues::TradeHistoryPerTurn, AttitudeValues::TradeHistoryMax,
-                    AttitudeValues::TradeHistoryFloorGain, AttitudeValues::TradeHistoryFloorMax, AttitudeValues::TradeHistoryDecay);
-            }
-            else
-                SDL_Log("Trade with faction %d skipped this turn (missing goods or storage space)", factionKey);
 
             state.tradeTurnsRemaining--;
             if (state.tradeTurnsRemaining <= 0) {
@@ -8058,7 +8062,9 @@ public:
                 state.tradeGive.clear();
                 state.tradeReceive.clear();
                 SDL_Log("Trade agreement with faction %d ended", factionKey);
+                continue;
             }
+            RunTradeExchange(other, state);
         }
     }
 
@@ -8652,11 +8658,40 @@ private:
                         }
                         return false;
                     };
+                    // player , ai stock
+                    const std::unordered_map<ResourceType, int> *tradeStockPtr = nullptr;
+                    if (bIsPlayer) tradeStockPtr = &goodsStoredByType;
+                    else if (AiFactionState *aiStockState = aiBehaviour.GetState(faction))
+                        tradeStockPtr = &aiStockState->goodsStoredByType;
+
+                    auto factionHasStock = [&](ResourceType type) -> bool {
+                        if (!tradeStockPtr) return false;
+                        auto it = tradeStockPtr->find(type);
+                        return it != tradeStockPtr->end() && it->second > 0;
+                    };
+
+                    // 1| export, -1| import, 0| nothing
+                    auto getTradeFlow = [&](ResourceType type) -> int {
+                        for (FactionZone f : otherFactions) {
+                            auto it = diplomacyWithFaction.find((int)f);
+                            if (it == diplomacyWithFaction.end() || it->second.tradeTurnsRemaining <= 0) continue;
+
+                            if (bIsPlayer) {
+                                for (const auto &[t, a] : it->second.tradeGive)    if (t == type && a > 0) return 1;
+                                for (const auto &[t, a] : it->second.tradeReceive) if (t == type && a > 0) return -1;
+                            } else if (f == faction) {
+                                for (const auto &[t, a] : it->second.tradeReceive) if (t == type && a > 0) return 1;
+                                for (const auto &[t, a] : it->second.tradeGive)    if (t == type && a > 0) return -1;
+                            }
+                        }
+                        return 0;
+                    };
+
 
                     std::vector<ResourceType> rawTradeTypes;
                     std::vector<ResourceType> transformedTradeTypes;
                     for (const auto &[type, data]: GetResourceDatabase()) {
-                        if (!factionProduces(type)) continue;
+                        if (!factionProduces(type) && !factionHasStock(type)) continue;
                         (data.goodsCategory == ResourceCategory::Transformed ? transformedTradeTypes : rawTradeTypes).
                                 push_back(type);
                     }
@@ -8704,11 +8739,10 @@ private:
                             SDL_RenderTexture(renderer, goodsIcon, nullptr, &goodsIconRect);
 
                             // import / export indicator
-                            bool bIsExportedToSomeone = isGoodExported(type);
-                            bool bIsImportedFromFaction = isGoodImported(type);
+                            int tradeFlow = getTradeFlow(type);
                             SDL_Texture *arrowTexture = nullptr;
-                            if (bIsPlayer && bIsExportedToSomeone) arrowTexture = diplomacyGoodsExportArrowIndicatorTexture;
-                            else if (!bIsPlayer && bIsImportedFromFaction) arrowTexture = diplomacyGoodsImportArrowIndicatorTexture;
+                            if (tradeFlow == 1) arrowTexture = diplomacyGoodsExportArrowIndicatorTexture;
+                            else if (tradeFlow == -1) arrowTexture = diplomacyGoodsImportArrowIndicatorTexture;
                             if (arrowTexture) {
                                 const float tradeArrowSize = 10.f;
                                 SDL_FRect arrowRect = {
@@ -12851,6 +12885,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                             state.tradeReceive.push_back({d.type, d.amount});
                         state.tradeTurnsRemaining = std::max(1, app.dealTradeTurns);
                         app.ApplyTreaty(GameApp::TreatyType::Trade, state);
+                        app.RunTradeExchange(app.selectedDiplomacyFaction, state);
                     }
 
                     app.dealTradeTurns = 1;
