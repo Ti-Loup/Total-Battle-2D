@@ -49,7 +49,7 @@
  * Fixed | The import and export arrow isn't showing
  * TODO | If you have a current Trade agreement you soudn't be able to get an other one with same faction
  * ToDo | If not enough resources to trade, the trade agreement is stopped and it reduce Attitude towards the parter.
- * ToDO | If you have a vassal after being in war with an other faction, he will join with you.
+ * ToDO | If you have a vassal after being in war with an other faction, he will join with you. (Also should show in war panel)
  * ToDo | If you have a military alliance with a faction and you declare war after, it should show in the war panel your allies. and their allies if they have one.
  * ToDo | Force the ai to not construct everything at once. (Max 3 constructions at the same time). Give Ai a bonus in income.
  *
@@ -154,7 +154,7 @@
  * RESOURCE SETTLEMENTS/BUILDINGS + TRADE/MILITARY PORTS + industrial/clergy buildings production
  *
  * Done -> Code the remaining World Events Curently(10/12)
- * ToDo - Work on Degree, Win achievments, and more.
+ * Done - Work on Degree, Win achievments, and more.
  *
  * Done -> THE RESSOURCES ARE STORED IN (warehouse or castle).
  * Done -> Mines produced their own orb
