@@ -46,7 +46,7 @@
  *
  *
  * Bugs:
- * ToDo | The import and export arrow isn't showing
+ * Fixed | The import and export arrow isn't showing
  * TODO | If you have a current Trade agreement you soudn't be able to get an other one with same faction
  * ToDo | If not enough resources to trade, the trade agreement is stopped and it reduce Attitude towards the parter.
  * ToDO | If you have a vassal after being in war with an other faction, he will join with you.
@@ -8670,6 +8670,24 @@ private:
 
                     float tradeRowY = tradeContent.y;
 
+                    //is this good part of an active trade agreement?/if so export icon or import icons.
+                    auto isGoodExported = [&](ResourceType type) -> bool {
+                        for (FactionZone f : otherFactions) {
+                            auto it = diplomacyWithFaction.find((int)f);
+                            if (it == diplomacyWithFaction.end() || it->second.tradeTurnsRemaining <= 0) continue;
+                            for (const auto& [t, amount] : it->second.tradeGive)
+                                if (t == type && amount > 0) return true;
+                        }
+                        return false;
+                    };
+                    auto isGoodImported = [&](ResourceType type) -> bool {
+                        auto it = diplomacyWithFaction.find((int)faction);
+                        if (it == diplomacyWithFaction.end() || it->second.tradeTurnsRemaining <= 0) return false;
+                        for (const auto& [t, amount] : it->second.tradeReceive)
+                            if (t == type && amount > 0) return true;
+                        return false;
+                    };
+
                     auto drawTradeIconGroup = [&](const std::vector<ResourceType> &types) {
                         int iconIndex = 0;
                         for (ResourceType type: types) {
@@ -8685,9 +8703,9 @@ private:
                             };
                             SDL_RenderTexture(renderer, goodsIcon, nullptr, &goodsIconRect);
 
-                            // PLACEHOLDER import / export indicator
-                            bool bIsExportedToSomeone = false; // TODO: real trade-route check (player -> faction)
-                            bool bIsImportedFromFaction = false; // TODO: real trade-route check (that faction -> player)
+                            // import / export indicator
+                            bool bIsExportedToSomeone = isGoodExported(type);
+                            bool bIsImportedFromFaction = isGoodImported(type);
                             SDL_Texture *arrowTexture = nullptr;
                             if (bIsPlayer && bIsExportedToSomeone) arrowTexture = diplomacyGoodsExportArrowIndicatorTexture;
                             else if (!bIsPlayer && bIsImportedFromFaction) arrowTexture = diplomacyGoodsImportArrowIndicatorTexture;
