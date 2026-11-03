@@ -988,6 +988,7 @@ public:
     AiBehaviour aiBehaviour;
 
     void LoadTextures();
+    void DestroyTextures();
     SDL_Texture* LoadTex(const char* path);
 private://constructor
     GameApp() {
@@ -1566,63 +1567,8 @@ private://constructor
 
     //DESTRUCTEUR
     ~GameApp() {
-        //renderer
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
         // Timer
         SDL_RemoveTimer(fpsTimerID);
-        // ---------------------------------
-        TTF_CloseFont(fpsFont);
-        TTF_CloseFont(menuFont);
-        TTF_CloseFont(StartFont);
-        TTF_CloseFont(TutorialFont);
-        TTF_CloseFont(OptionsFont);
-        TTF_CloseFont(QuitFont);
-        TTF_CloseFont(CreditsFont);
-        TTF_CloseFont(factionSelectionTitleFont);
-        TTF_CloseFont(factionSelectionFactionBonusFont);
-        TTF_CloseFont(factionSelectionGeneralKnightFont);
-        TTF_CloseFont(factionSelectionGeneralVikingFont);
-        TTF_CloseFont(factionSelectionGeneralSamuraiFont);
-        TTF_CloseFont(creditsTitleFont);
-        TTF_CloseFont(creditsRoleTitleFont);
-        TTF_CloseFont(creditsRoleNameFont);
-        TTF_CloseFont(optionsTitleFont);
-        TTF_CloseFont(optionsMusicFont);
-        TTF_CloseFont(gameKingdomNameFont);
-        TTF_CloseFont(gameStatUITitleFont);
-        TTF_CloseFont(gameStatUIFont);
-        TTF_CloseFont(gameGeneralFont);
-        TTF_CloseFont(gameBuildingCostUIFont);
-        TTF_CloseFont(gameBuildingConstructionTimeFont);
-        TTF_CloseFont(gameBuildingDescriptionFont);
-        TTF_CloseFont(gameBuildingCategoriesNameFont);
-        TTF_CloseFont(gameCurrentFoodUiFont);
-        TTF_CloseFont(gameCurrentMoneyUiFont);
-        TTF_CloseFont(gameMoneyIndicatorUiFont);
-        TTF_CloseFont(gameFoodIndicatorUiFont);
-        TTF_CloseFont(gamePopulationIndicatorUiFont);
-        TTF_CloseFont(gameCurrentPopulationUiFont);
-        TTF_CloseFont(gameInProgressFont);
-        TTF_CloseFont(gameVersionFont);
-        TTF_CloseFont(gameSeasonUiTitleFont);
-        TTF_CloseFont(gameSeasonUiSmallFont);
-        TTF_CloseFont(gameWorldEventsTitleFont);
-        TTF_CloseFont(gameWorldEventsDescFont);
-        TTF_CloseFont(gameGoodsStorageManagerTitleFont);
-        TTF_CloseFont(gameGoodsStorageManagerDescFont);
-        TTF_CloseFont(gameDecreeTitleFont);
-        TTF_CloseFont(gameDecreeSousTitleFont);
-        TTF_CloseFont(gameDecreeDescFont);
-        TTF_CloseFont(gameObjectivesTitleFont);
-        TTF_CloseFont(gameObjectivesSousTitleFont);
-        TTF_CloseFont(gameObjectivesDescFont);
-        TTF_CloseFont(gameTreasuryInfoTitleFont);
-        TTF_CloseFont(gameTreasuryInfoSousTitleFont);
-        TTF_CloseFont(gameTreasuryInfoDescFont);
-        TTF_CloseFont(gameDiplomacyTitleFont);
-        TTF_CloseFont(gameDiplomacySousTitleFont);
-        TTF_CloseFont(gameDiplomacyDescFont);
         // ---------------------------------
         TTF_DestroyText(fpsText);
         TTF_DestroyText(menuText);
@@ -1683,205 +1629,69 @@ private://constructor
         TTF_DestroyText(gameDiplomacySousTitleText);
         TTF_DestroyText(gameDiplomacyDescText);
         // ---------------------------------
-        SDL_DestroyTexture(provinceKnightBannerTexture);
-        SDL_DestroyTexture(provinceVikingBannerTexture);
-        SDL_DestroyTexture(provinceSamuraiBannerTexture);
-        SDL_DestroyTexture(settlementKnightBannerTexture);
-        SDL_DestroyTexture(settlementVikingBannerTexture);
-        SDL_DestroyTexture(settlementSamuraiBannerTexture);
-        SDL_DestroyTexture(provinceTextureUIBuilding);
-        SDL_DestroyTexture(provinceTextureUIGarrison);
-        SDL_DestroyTexture(hammerUIBuildingUpgradeTexture);
-        SDL_DestroyTexture(capitalBuildingUpgrade1Knight);
-        SDL_DestroyTexture(capitalBuildingUpgrade2Knight);
-        SDL_DestroyTexture(capitalBuildingUpgrade3Knight);
-        SDL_DestroyTexture(capitalBuildingUpgrade4Knight);
-        SDL_DestroyTexture(capitalBuildingUpgrade5Knight);
-        SDL_DestroyTexture(castleBuildingUpgrade1Knight);
-        SDL_DestroyTexture(castleBuildingUpgrade2Knight);
-        SDL_DestroyTexture(castleBuildingUpgrade3Knight);
-        SDL_DestroyTexture(castleBuildingUpgrade4Knight);
-        SDL_DestroyTexture(castleBuildingUpgrade5Knight);
-        SDL_DestroyTexture(villageBuildingUpgrade1Knight);
-        SDL_DestroyTexture(villageBuildingUpgrade2Knight);
-        SDL_DestroyTexture(villageBuildingUpgrade3Knight);
-        SDL_DestroyTexture(capitalBuildingUpgrade1Viking);
-        SDL_DestroyTexture(capitalBuildingUpgrade2Viking);
-        SDL_DestroyTexture(capitalBuildingUpgrade3Viking);
-        SDL_DestroyTexture(capitalBuildingUpgrade4Viking);
-        SDL_DestroyTexture(capitalBuildingUpgrade5Viking);
-        SDL_DestroyTexture(castleBuildingUpgrade1Viking);
-        SDL_DestroyTexture(castleBuildingUpgrade2Viking);
-        SDL_DestroyTexture(castleBuildingUpgrade3Viking);
-        SDL_DestroyTexture(castleBuildingUpgrade4Viking);
-        SDL_DestroyTexture(castleBuildingUpgrade5Viking);
-        SDL_DestroyTexture(villageBuildingUpgrade1Viking);
-        SDL_DestroyTexture(villageBuildingUpgrade2Viking);
-        SDL_DestroyTexture(villageBuildingUpgrade3Viking);
-        SDL_DestroyTexture(capitalBuildingUpgrade1Samurai);
-        SDL_DestroyTexture(capitalBuildingUpgrade2Samurai);
-        SDL_DestroyTexture(capitalBuildingUpgrade3Samurai);
-        SDL_DestroyTexture(capitalBuildingUpgrade4Samurai);
-        SDL_DestroyTexture(capitalBuildingUpgrade5Samurai);
-        SDL_DestroyTexture(castleBuildingUpgrade1Samurai);
-        SDL_DestroyTexture(castleBuildingUpgrade2Samurai);
-        SDL_DestroyTexture(castleBuildingUpgrade3Samurai);
-        SDL_DestroyTexture(castleBuildingUpgrade4Samurai);
-        SDL_DestroyTexture(castleBuildingUpgrade5Samurai);
-        SDL_DestroyTexture(villageBuildingUpgrade1Samurai);
-        SDL_DestroyTexture(villageBuildingUpgrade2Samurai);
-        SDL_DestroyTexture(villageBuildingUpgrade3Samurai);
-        SDL_DestroyTexture(chooseFactionKnightIcon);
-        SDL_DestroyTexture(chooseFactionVikingIcon);
-        SDL_DestroyTexture(chooseFactionSamuraiIcon);
-        SDL_DestroyTexture(gameNotAvailableSlotKnight);
-        SDL_DestroyTexture(gameNotAvailableSlotViking);
-        SDL_DestroyTexture(gameNotAvailableSlotSamurai);
-        SDL_DestroyTexture(gameAvailableSlotKnight);
-        SDL_DestroyTexture(gameAvailableSlotViking);
-        SDL_DestroyTexture(gameAvailableSlotSamurai);
-        SDL_DestroyTexture(gameBuildingTypesGroupingMilitaryKnight);
-        SDL_DestroyTexture(gameBuildingTypesGroupingAdvMilitaryKnight);
-        SDL_DestroyTexture(gameBuildingTypesGroupingDefenceKnight);
-        SDL_DestroyTexture(gameBuildingTypesGroupingEconomyKnight);
-        SDL_DestroyTexture(gameBuildingTypesGroupingIndustryKnight);
-        SDL_DestroyTexture(gameBuildingTypesGroupingReligionKnight);
-        SDL_DestroyTexture(gameBuildingTypesGroupingMilitaryViking);
-        SDL_DestroyTexture(gameBuildingTypesGroupingAdvMilitaryViking);
-        SDL_DestroyTexture(gameBuildingTypesGroupingDefenceViking);
-        SDL_DestroyTexture(gameBuildingTypesGroupingEconomyViking);
-        SDL_DestroyTexture(gameBuildingTypesGroupingIndustryViking);
-        SDL_DestroyTexture(gameBuildingTypesGroupingReligionViking);
-        SDL_DestroyTexture(gameBuildingTypesGroupingMilitarySamurai);
-        SDL_DestroyTexture(gameBuildingTypesGroupingAdvMilitarySamurai);
-        SDL_DestroyTexture(gameBuildingTypesGroupingDefenceSamurai);
-        SDL_DestroyTexture(gameBuildingTypesGroupingEconomySamurai);
-        SDL_DestroyTexture(gameBuildingTypesGroupingIndustrySamurai);
-        SDL_DestroyTexture(gameBuildingTypesGroupingReligionSamurai);
-        SDL_DestroyTexture(gameCoinMoneyTexture);
-        SDL_DestroyTexture(gameTurnAmountTexture);
-        SDL_DestroyTexture(gameToggleTaxSettlementTrue);
-        SDL_DestroyTexture(gameToggleTaxSettlementFalse);
-        SDL_DestroyTexture(gamePublicOrderPositifTexture);
-        SDL_DestroyTexture(gamePublicOrderNegatifTexture);
-        SDL_DestroyTexture(gamePublicOrderNeutralTexture);
-        SDL_DestroyTexture(gameFoodIconUi);
-        SDL_DestroyTexture(gamePeasantryIconUi);
-        SDL_DestroyTexture(gameNobilityIconUi);
-        SDL_DestroyTexture(gameClergyIconUi);
-        SDL_DestroyTexture(gamePositiveUiIcon);
-        SDL_DestroyTexture(gameNegativeUiIcon);
-        SDL_DestroyTexture(gamePopulationGrowth);
-        SDL_DestroyTexture(gameFoodStorageUiIcon);
-        SDL_DestroyTexture(gameGoodsStorageUiIcon);
-        SDL_DestroyTexture(gameSeasonWinterIconUiTexture);
-        SDL_DestroyTexture(gameSeasonSummerIconUiTexture);
-        SDL_DestroyTexture(gameSeasonSpringIconUiTexture);
-        SDL_DestroyTexture(gameSeasonAutumnIconUiTexture);
-        SDL_DestroyTexture(tileMapTexture);
-        SDL_DestroyTexture(decreesPannelTexture);
-        SDL_DestroyTexture(winConditionPannelTexture);
-        SDL_DestroyTexture(treasuryPannelTexture);
-        SDL_DestroyTexture(diplomacyPannelTexture);
-        SDL_DestroyTexture(technologyPannelTexture);
-        SDL_DestroyTexture(familyHierarchyPannelTexture);
-        SDL_DestroyTexture(cameraResetPannelTexture);
-        SDL_DestroyTexture(gameGoodsManagerMinusTexture);
-        SDL_DestroyTexture(gameGoodsManagerPlusTexture);
-        SDL_DestroyTexture(gameMilitaryPortIconTexture);
-        SDL_DestroyTexture(gameResourceFishIconTexture);
-        SDL_DestroyTexture(gameResourceIronIconTexture);
-        SDL_DestroyTexture(gameResourceGoldIconTexture);
-        SDL_DestroyTexture(gameResourceSilverIconTexture);
-        SDL_DestroyTexture(gameResourceCopperIconTexture);
-        SDL_DestroyTexture(gameResourceTinIconTexture);
-        SDL_DestroyTexture(gameResourceLumberIconTexture);
-        SDL_DestroyTexture(gameResourceWoolIconTexture);
-        SDL_DestroyTexture(gameResourceCandleIconTexture);
-        SDL_DestroyTexture(gameResourceBeerIconTexture);
-        SDL_DestroyTexture(gameResourceGreenTeaIconTexture);
-        SDL_DestroyTexture(gameResourceFishOilIconTexture);
-        SDL_DestroyTexture(gameResourceHardWoodIconTexture);
-        SDL_DestroyTexture(gameResourceTextileIconTexture);
-        SDL_DestroyTexture(gameResourceToolsIconTexture);
-        SDL_DestroyTexture(gameResourceCopperJewleryIconTexture);
-        SDL_DestroyTexture(gameResourcePewterIconTexture);
-        SDL_DestroyTexture(gameResourceSilverCoinsIconTexture);
-        SDL_DestroyTexture(gameResourceGoldJewleryIconTexture);
-        SDL_DestroyTexture(gameGoodsTradeValueTexture);
-        SDL_DestroyTexture(goodsProductionManagerButtonTexture);
-        SDL_DestroyTexture(diplomacyGoodsExportArrowIndicatorTexture);
-        SDL_DestroyTexture(diplomacyGoodsImportArrowIndicatorTexture);
-        SDL_DestroyTexture(gameDestroyBuildingButtonIconUi);
-        SDL_DestroyTexture(gameRepairBuildingButtonIconUi);
-        SDL_DestroyTexture(gameBuildingDamagedIconUi);
-        SDL_DestroyTexture(gameReturnButtons);
-        SDL_DestroyTexture(gameStartDiplomacyTexture);
-        SDL_DestroyTexture(gameCounterDealTexture);
-        SDL_DestroyTexture(gameMakeDealTexture);
-        SDL_DestroyTexture(gameQuitDealTexture);
-        SDL_DestroyTexture(gameDecree1KnightTexture);
-        SDL_DestroyTexture(gameDecree2KnightTexture);
-        SDL_DestroyTexture(gameDecree3KnightTexture);
-        SDL_DestroyTexture(gameDecree1VikingTexture);
-        SDL_DestroyTexture(gameDecree2VikingTexture);
-        SDL_DestroyTexture(gameDecree3VikingTexture);
-        SDL_DestroyTexture(gameDecree1SamuraiTexture);
-        SDL_DestroyTexture(gameDecree2SamuraiTexture);
-        SDL_DestroyTexture(gameDecree3SamuraiTexture);
-        SDL_DestroyTexture(babyCharacterPortraitTexture);
-        SDL_DestroyTexture(youngMaleCharacterPortraitTexture);
-        SDL_DestroyTexture(youngFemaleCharacterPortraitTexture);
-        SDL_DestroyTexture(maleVariant1CharacterPortraitTexture);
-        SDL_DestroyTexture(maleVariant2CharacterPortraitTexture);
-        SDL_DestroyTexture(maleVariant3CharacterPortraitTexture);
-        SDL_DestroyTexture(maleOldVariant1CharacterPortraitTexture);
-        SDL_DestroyTexture(maleOldVariant2CharacterPortraitTexture);
-        SDL_DestroyTexture(maleOldVariant3CharacterPortraitTexture);
-        SDL_DestroyTexture(tradeDiplomacyIconTexture);
-        SDL_DestroyTexture(vassalDiplomacyIconTexture);
-        SDL_DestroyTexture(defensiveAllianceDiplomacyIconTexture);
-        SDL_DestroyTexture(militaryAllianceDiplomacyIconTexture);
-        SDL_DestroyTexture(warDiplomacyIconTexture);
-        SDL_DestroyTexture(friendshipDiplomacyIconTexture);
-        SDL_DestroyTexture(militaryAccessDiplomacyIconTexture);
-        SDL_DestroyTexture(smallGiftDiplomacyIconTexture);
-        SDL_DestroyTexture(mediumGiftDiplomacyIconTexture);
-        SDL_DestroyTexture(largeGiftDiplomacyIconTexture);
-        SDL_DestroyTexture(gameGiftSelectedCheckTexture);
-        SDL_DestroyTexture(gameDemandMinusArrowTexture);
-        SDL_DestroyTexture(gameDemandPlusArrowTexture);
-        SDL_DestroyTexture(gameWinConditionConquestShortIconTexture);
-        SDL_DestroyTexture(gameWinConditionConquestLongIconTexture);
-        SDL_DestroyTexture(gameWinConditionConstructionShortIconTexture);
-        SDL_DestroyTexture(gameWinConditionConstructionLongIconTexture);
-        SDL_DestroyTexture(gameWinConditionTradeShortIconTexture);
-        SDL_DestroyTexture(gameWinConditionTradeLongIconTexture);
-        SDL_DestroyTexture(gameWinConditionUltimateIconTexture);
-        SDL_DestroyTexture(gameTreasuryChestIconTexture);
-        SDL_DestroyTexture(gameTreasuryTaxRateIndicatorTexture);
-
+        TTF_DestroyRendererTextEngine(textEngine);
+        // -----------------------------------
+        TTF_CloseFont(fpsFont);
+        TTF_CloseFont(menuFont);
+        TTF_CloseFont(StartFont);
+        TTF_CloseFont(TutorialFont);
+        TTF_CloseFont(OptionsFont);
+        TTF_CloseFont(QuitFont);
+        TTF_CloseFont(CreditsFont);
+        TTF_CloseFont(factionSelectionTitleFont);
+        TTF_CloseFont(factionSelectionFactionBonusFont);
+        TTF_CloseFont(factionSelectionGeneralKnightFont);
+        TTF_CloseFont(factionSelectionGeneralVikingFont);
+        TTF_CloseFont(factionSelectionGeneralSamuraiFont);
+        TTF_CloseFont(creditsTitleFont);
+        TTF_CloseFont(creditsRoleTitleFont);
+        TTF_CloseFont(creditsRoleNameFont);
+        TTF_CloseFont(optionsTitleFont);
+        TTF_CloseFont(optionsMusicFont);
+        TTF_CloseFont(gameKingdomNameFont);
+        TTF_CloseFont(gameStatUITitleFont);
+        TTF_CloseFont(gameStatUIFont);
+        TTF_CloseFont(gameGeneralFont);
+        TTF_CloseFont(gameBuildingCostUIFont);
+        TTF_CloseFont(gameBuildingConstructionTimeFont);
+        TTF_CloseFont(gameBuildingDescriptionFont);
+        TTF_CloseFont(gameBuildingCategoriesNameFont);
+        TTF_CloseFont(gameCurrentFoodUiFont);
+        TTF_CloseFont(gameCurrentMoneyUiFont);
+        TTF_CloseFont(gameMoneyIndicatorUiFont);
+        TTF_CloseFont(gameFoodIndicatorUiFont);
+        TTF_CloseFont(gamePopulationIndicatorUiFont);
+        TTF_CloseFont(gameCurrentPopulationUiFont);
+        TTF_CloseFont(gameInProgressFont);
+        TTF_CloseFont(gameVersionFont);
+        TTF_CloseFont(gameSeasonUiTitleFont);
+        TTF_CloseFont(gameSeasonUiSmallFont);
+        TTF_CloseFont(gameWorldEventsTitleFont);
+        TTF_CloseFont(gameWorldEventsDescFont);
+        TTF_CloseFont(gameGoodsStorageManagerTitleFont);
+        TTF_CloseFont(gameGoodsStorageManagerDescFont);
+        TTF_CloseFont(gameDecreeTitleFont);
+        TTF_CloseFont(gameDecreeSousTitleFont);
+        TTF_CloseFont(gameDecreeDescFont);
+        TTF_CloseFont(gameObjectivesTitleFont);
+        TTF_CloseFont(gameObjectivesSousTitleFont);
+        TTF_CloseFont(gameObjectivesDescFont);
+        TTF_CloseFont(gameTreasuryInfoTitleFont);
+        TTF_CloseFont(gameTreasuryInfoSousTitleFont);
+        TTF_CloseFont(gameTreasuryInfoDescFont);
+        TTF_CloseFont(gameDiplomacyTitleFont);
+        TTF_CloseFont(gameDiplomacySousTitleFont);
+        TTF_CloseFont(gameDiplomacyDescFont);
         // ---------------------------------
-        SDL_DestroyCursor(cursor);
+        DestroyTextures();
+        // ---------------------------------
         delete tileMap;
+        SDL_DestroyCursor(cursor);
         // ---------------------------------
-        for (auto &[Type, texture]: buildingTypeTextures) {
-            SDL_DestroyTexture(texture);
-        }
-        buildingTypeTextures.clear();
-        // ---------------------------------
-        for (auto& [key, tex] : settlementTextureCampaign)
-            SDL_DestroyTexture(tex);
-        settlementTextureCampaign.clear();
-        // ---------------------------------
-        for (auto &[eventType, texture] : worldEventsImageTextures) {
-            SDL_DestroyTexture(texture);
-        }
-        worldEventsImageTextures.clear();
-        for (auto &[eventType, texture] : worldEventsIconTextures) {
-            SDL_DestroyTexture(texture);
-        }
-        worldEventsIconTextures.clear();
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+
+        TTF_Quit();
     }
 
 
@@ -13988,5 +13798,5 @@ SDL_AppIterate(void *appstate) {
 }
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result) {
-    TTF_Quit();
+
 }

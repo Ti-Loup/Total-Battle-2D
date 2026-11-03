@@ -4,6 +4,14 @@
 #ifndef TOTALBATTLE2D_TEXTURELOADER_H
 #define TOTALBATTLE2D_TEXTURELOADER_H
 
+// Destroys a texture and nulls the pointer
+inline void DestroyTex(SDL_Texture*& t) {
+    if (t) {
+        SDL_DestroyTexture(t);
+        t = nullptr;
+    }
+}
+//LoadTextures
 inline SDL_Texture* GameApp::LoadTex(const char* path) {
     SDL_Texture* t = IMG_LoadTexture(renderer, path);
     if (!t) {
@@ -2682,6 +2690,125 @@ inline void GameApp::LoadTextures() {
         }
         SDL_SetTextureScaleMode(gameResourceTextileIconTexture, SDL_SCALEMODE_NEAREST);
 
+}
+
+inline void GameApp::DestroyTextures() {
+    // Each group is a list of pointers to the member variables, destroyed in one loop
+    SDL_Texture** singles[] = {
+        // Menu / faction select / minimap
+        &chooseFactionKnightIcon, &chooseFactionVikingIcon, &chooseFactionSamuraiIcon,
+        &tileMapTexture,
+
+        // Banners
+        &provinceKnightBannerTexture, &provinceVikingBannerTexture, &provinceSamuraiBannerTexture,
+        &settlementKnightBannerTexture, &settlementVikingBannerTexture, &settlementSamuraiBannerTexture,
+
+        // General UI
+        &provinceTextureUIBuilding, &provinceTextureUIGarrison, &hammerUIBuildingUpgradeTexture,
+        &gameNextTurnTexture, &gameCoinMoneyTexture, &gameTurnAmountTexture,
+        &gameToggleTaxSettlementTrue, &gameToggleTaxSettlementFalse,
+        &gamePublicOrderPositifTexture, &gamePublicOrderNegatifTexture, &gamePublicOrderNeutralTexture,
+        &gameFoodIconUi, &gamePeasantryIconUi, &gameNobilityIconUi, &gameClergyIconUi,
+        &gamePositiveUiIcon, &gameNegativeUiIcon, &gamePopulationGrowth,
+        &gameFoodStorageUiIcon, &gameGoodsStorageUiIcon,
+        &gameSeasonWinterIconUiTexture, &gameSeasonSpringIconUiTexture,
+        &gameSeasonSummerIconUiTexture, &gameSeasonAutumnIconUiTexture,
+        &gameDestroyBuildingButtonIconUi, &gameRepairBuildingButtonIconUi, &gameBuildingDamagedIconUi,
+        &gameMilitaryPortIconTexture, &gameReturnButtons,
+
+        // Top-right panel buttons
+        &decreesPannelTexture, &winConditionPannelTexture, &treasuryPannelTexture,
+        &technologyPannelTexture, &diplomacyPannelTexture, &familyHierarchyPannelTexture,
+        &cameraResetPannelTexture,
+
+        // Goods manager
+        &gameGoodsManagerMinusTexture, &gameGoodsManagerPlusTexture,
+        &goodsProductionManagerButtonTexture, &gameGoodsTradeValueTexture,
+        &diplomacyGoodsExportArrowIndicatorTexture, &diplomacyGoodsImportArrowIndicatorTexture,
+
+        // Win conditions / treasury
+        &gameWinConditionConquestShortIconTexture, &gameWinConditionConquestLongIconTexture,
+        &gameWinConditionConstructionShortIconTexture, &gameWinConditionConstructionLongIconTexture,
+        &gameWinConditionTradeShortIconTexture, &gameWinConditionTradeLongIconTexture,
+        &gameWinConditionUltimateIconTexture,
+        &gameTreasuryChestIconTexture, &gameTreasuryTaxRateIndicatorTexture,
+
+        // Decrees
+        &gameDecree1KnightTexture, &gameDecree2KnightTexture, &gameDecree3KnightTexture,
+        &gameDecree1VikingTexture, &gameDecree2VikingTexture, &gameDecree3VikingTexture,
+        &gameDecree1SamuraiTexture, &gameDecree2SamuraiTexture, &gameDecree3SamuraiTexture,
+
+        // Character portraits
+        &babyCharacterPortraitTexture, &youngMaleCharacterPortraitTexture, &youngFemaleCharacterPortraitTexture,
+        &maleVariant1CharacterPortraitTexture, &maleOldVariant1CharacterPortraitTexture,
+        &maleVariant2CharacterPortraitTexture, &maleOldVariant2CharacterPortraitTexture,
+        &maleVariant3CharacterPortraitTexture, &maleOldVariant3CharacterPortraitTexture,
+        &femaleVariant1CharacterPortraitTexture, &femaleOldVariant1CharacterPortraitTexture,
+        &femaleVariant2CharacterPortraitTexture, &femaleOldVariant2CharacterPortraitTexture,
+        &femaleVariant3CharacterPortraitTexture, &femaleOldVariant3CharacterPortraitTexture,
+
+        // Diplomacy
+        &tradeDiplomacyIconTexture, &vassalDiplomacyIconTexture,
+        &defensiveAllianceDiplomacyIconTexture, &militaryAllianceDiplomacyIconTexture,
+        &warDiplomacyIconTexture, &friendshipDiplomacyIconTexture, &militaryAccessDiplomacyIconTexture,
+        &smallGiftDiplomacyIconTexture, &mediumGiftDiplomacyIconTexture, &largeGiftDiplomacyIconTexture,
+        &gameGiftSelectedCheckTexture, &gameDemandMinusArrowTexture, &gameDemandPlusArrowTexture,
+        &gameStartDiplomacyTexture, &gameCounterDealTexture, &gameMakeDealTexture, &gameQuitDealTexture,
+
+        // Resources (raw)
+        &gameResourceFishIconTexture, &gameResourceIronIconTexture, &gameResourceGoldIconTexture,
+        &gameResourceSilverIconTexture, &gameResourceCopperIconTexture, &gameResourceTinIconTexture,
+        &gameResourceLumberIconTexture, &gameResourceWoolIconTexture,
+        &gameResourceCandleIconTexture, &gameResourceBeerIconTexture, &gameResourceGreenTeaIconTexture,
+        // Resources (transformed)
+        &gameResourceFishOilIconTexture, &gameResourceHardWoodIconTexture, &gameResourceTextileIconTexture,
+        &gameResourceToolsIconTexture, &gameResourceCopperJewleryIconTexture, &gameResourcePewterIconTexture,
+        &gameResourceSilverCoinsIconTexture, &gameResourceGoldJewleryIconTexture,
+
+        // ~ KNIGHT ~
+        &capitalBuildingUpgrade1Knight, &capitalBuildingUpgrade2Knight, &capitalBuildingUpgrade3Knight,
+        &capitalBuildingUpgrade4Knight, &capitalBuildingUpgrade5Knight,
+        &castleBuildingUpgrade1Knight, &castleBuildingUpgrade2Knight, &castleBuildingUpgrade3Knight,
+        &castleBuildingUpgrade4Knight, &castleBuildingUpgrade5Knight,
+        &villageBuildingUpgrade1Knight, &villageBuildingUpgrade2Knight, &villageBuildingUpgrade3Knight,
+        &gameNotAvailableSlotKnight, &gameAvailableSlotKnight,
+        &gameBuildingTypesGroupingMilitaryKnight, &gameBuildingTypesGroupingAdvMilitaryKnight,
+        &gameBuildingTypesGroupingDefenceKnight, &gameBuildingTypesGroupingEconomyKnight,
+        &gameBuildingTypesGroupingIndustryKnight, &gameBuildingTypesGroupingReligionKnight,
+
+        // ~ VIKING ~
+        &capitalBuildingUpgrade1Viking, &capitalBuildingUpgrade2Viking, &capitalBuildingUpgrade3Viking,
+        &capitalBuildingUpgrade4Viking, &capitalBuildingUpgrade5Viking,
+        &castleBuildingUpgrade1Viking, &castleBuildingUpgrade2Viking, &castleBuildingUpgrade3Viking,
+        &castleBuildingUpgrade4Viking, &castleBuildingUpgrade5Viking,
+        &villageBuildingUpgrade1Viking, &villageBuildingUpgrade2Viking, &villageBuildingUpgrade3Viking,
+        &gameNotAvailableSlotViking, &gameAvailableSlotViking,
+        &gameBuildingTypesGroupingMilitaryViking, &gameBuildingTypesGroupingAdvMilitaryViking,
+        &gameBuildingTypesGroupingDefenceViking, &gameBuildingTypesGroupingEconomyViking,
+        &gameBuildingTypesGroupingIndustryViking, &gameBuildingTypesGroupingReligionViking,
+
+        // ~ SAMURAI ~
+        &capitalBuildingUpgrade1Samurai, &capitalBuildingUpgrade2Samurai, &capitalBuildingUpgrade3Samurai,
+        &capitalBuildingUpgrade4Samurai, &capitalBuildingUpgrade5Samurai,
+        &castleBuildingUpgrade1Samurai, &castleBuildingUpgrade2Samurai, &castleBuildingUpgrade3Samurai,
+        &castleBuildingUpgrade4Samurai, &castleBuildingUpgrade5Samurai,
+        &villageBuildingUpgrade1Samurai, &villageBuildingUpgrade2Samurai, &villageBuildingUpgrade3Samurai,
+        &gameNotAvailableSlotSamurai, &gameAvailableSlotSamurai,
+        &gameBuildingTypesGroupingMilitarySamurai, &gameBuildingTypesGroupingAdvMilitarySamurai,
+        &gameBuildingTypesGroupingDefenceSamurai, &gameBuildingTypesGroupingEconomySamurai,
+        &gameBuildingTypesGroupingIndustrySamurai, &gameBuildingTypesGroupingReligionSamurai,
+    };
+    for (SDL_Texture** t : singles) DestroyTex(*t);
+
+    // Maps
+    for (auto& [type, tex] : buildingTypeTextures) DestroyTex(tex);
+    for (auto& [key,  tex] : settlementTextureCampaign) DestroyTex(tex);
+    for (auto& [type, tex] : worldEventsImageTextures) DestroyTex(tex);
+    for (auto& [type, tex] : worldEventsIconTextures) DestroyTex(tex);
+    buildingTypeTextures.clear();
+    settlementTextureCampaign.clear();
+    worldEventsImageTextures.clear();
+    worldEventsIconTextures.clear();
 }
 
 
