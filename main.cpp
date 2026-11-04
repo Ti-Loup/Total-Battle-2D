@@ -32,7 +32,7 @@
 /*
 
  * --------------------------------------------
- * 0.3.6 Refactor , ai can make trade offers (1 month)
+ * 0.3.6 Refactor , ai can make trade offers (1 month, November)
  * ToDo | Refactor
  *
  * ToDo | Add Current proposal if deal gets accepted. which work with attitude with faction + base value from those demands amount
@@ -43,7 +43,7 @@
  * ToDo | Able to stop a trade agreement with button but reduce Attitude towards the other faction. (~ -10 per turn remaining)
  * ToDo | Show the current faction turn instead of all being instant.
  * ToDo | during a ai faction turn it can propose a treaty with the player or ai.
- *
+ * ToDo | Add Event Messages, Armies tab, Provinces tab and Factions tab + textures.
  *
  * Bugs:
  * Fixed | The import and export arrow isn't showing
@@ -53,7 +53,7 @@
  * ToDo | If you have a military alliance with a faction and you declare war after, it should show in the war panel your allies. and their allies if they have one.
  * ToDo | Force the ai to not construct everything at once. (Max 3 constructions at the same time). Give Ai a bonus in income.
  * --------------------------------------------
- * 0.3.75
+ * 0.3.75 (December)
  * Add family tree + influence feature + assassination
  * --------------------------------------------
  *
@@ -515,6 +515,12 @@ public:
     SDL_Texture *gameWinConditionTradeShortIconTexture = nullptr;
     SDL_Texture *gameWinConditionTradeLongIconTexture = nullptr;
     SDL_Texture *gameWinConditionUltimateIconTexture = nullptr;
+
+    //Under Minimap buttons textures (Event Messages, Armies, Provinces, Factions)
+    SDL_Texture *gameEventMessagesButtonIconTexture = nullptr;
+    SDL_Texture *gameArmiesButtonIconTexture = nullptr;
+    SDL_Texture *gameProvincesButtonIconTexture = nullptr;
+    SDL_Texture *gameFactionsButtonIconTexture = nullptr;
 
 
     //mains settlements buildings textures
@@ -4087,6 +4093,20 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
         return nullptr;
     }
 
+    SDL_Texture *GetNotificationButtonsTexture(int index){
+        switch (index) {
+            case 0:
+                return gameEventMessagesButtonIconTexture;
+            case 1:
+                return gameArmiesButtonIconTexture;
+            case 2:
+                return gameProvincesButtonIconTexture;
+            case 3:
+                return gameFactionsButtonIconTexture;
+            default: return nullptr;
+        }
+    }
+
     //The top UI bar for the money / turn area
     void RenderGeneralUI() {
         //rectangle of the top ui part
@@ -4770,7 +4790,7 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderRect(renderer, &camViewRect);
 
-            //Feature add events of what happend last turn (events, Active armies, settlements, character)
+            //Feature add events of what happend last turn (eventsmessage, Active armies, provinces, factions)
             //background under minimap
             SDL_FRect notificationEventsBackground = {miniMapBoxRect.x - 10.f, miniMapBoxRect.y + miniMapBoxRect.h, miniMapBoxRect.w + 15.f, 25.f};
             SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
@@ -4783,13 +4803,33 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
             int count = 4;
             float rectW = (notificationEventsBackground.w - gapX * (count + 1)) / count;
 
+
             for (int i = 0; i < count; i++) {
+
+
                 SDL_FRect insideNotificationEventsRect = {notificationEventsBackground.x + gapX + i * (rectW + gapX),notificationEventsBackground.y + gapY, rectW, notificationEventsBackground.h - 4.f};
 
                 SDL_SetRenderDrawColor(renderer, 40, 40, 120, 255);
                 SDL_RenderFillRect(renderer, &insideNotificationEventsRect);
                 SDL_SetRenderDrawColor(renderer, 140, 140, 140, 255);
                 SDL_RenderRect(renderer, &insideNotificationEventsRect);
+
+                float iconSize = insideNotificationEventsRect.h - 2.f;
+                SDL_FRect iconRect = {
+                    insideNotificationEventsRect.x + (insideNotificationEventsRect.w - iconSize) / 2.f,
+                    insideNotificationEventsRect.y + 1.f,
+                    iconSize, iconSize
+                };
+                if (SDL_Texture* notificationTex = GetNotificationButtonsTexture(i)) {
+                    float iconSize = insideNotificationEventsRect.h - 2.f;
+                    SDL_FRect iconRect = {
+                        insideNotificationEventsRect.x + (insideNotificationEventsRect.w - iconSize) / 2.f,
+                        insideNotificationEventsRect.y + 1.f,
+                        iconSize, iconSize
+                    };
+
+                    SDL_RenderTexture(renderer, notificationTex, nullptr, &iconRect);
+                }
             }
 
 

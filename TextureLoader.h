@@ -893,7 +893,28 @@ inline void GameApp::LoadTextures() {
         }
         SDL_SetTextureScaleMode(femaleOldVariant3CharacterPortraitTexture, SDL_SCALEMODE_NEAREST);
 
-        //TODO: Unique Characters portraits
+        //Under Minimap buttons UI
+        gameEventMessagesButtonIconTexture = IMG_LoadTexture(renderer, "assets/EventMessagesButtonIcon.png");
+        if (gameEventMessagesButtonIconTexture == nullptr){
+            SDL_LogWarn(0, "failed to load texture gameEventMessagesButtonIconTexture", SDL_GetError());
+        } 
+        SDL_SetTextureScaleMode(gameEventMessagesButtonIconTexture, SDL_SCALEMODE_NEAREST);
+        gameArmiesButtonIconTexture = IMG_LoadTexture(renderer, "assets/ArmiesButtonIcon.png");
+        if (gameArmiesButtonIconTexture == nullptr){
+            SDL_LogWarn(0, "failed to load texture gameArmiesButtonIconTexture",SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameArmiesButtonIconTexture, SDL_SCALEMODE_NEAREST);
+        gameProvincesButtonIconTexture = IMG_LoadTexture(renderer, "assets/ProvincesButtonIcon.png");
+        if (gameProvincesButtonIconTexture == nullptr){
+            SDL_LogWarn(0, "failed to load texture gameProvincesButtonIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameProvincesButtonIconTexture, SDL_SCALEMODE_NEAREST);
+        gameFactionsButtonIconTexture = IMG_LoadTexture(renderer, "assets/FactionsButtonIcon.png");
+        if (gameFactionsButtonIconTexture == nullptr){
+            SDL_LogWarn(0, "failed to load texture gameFactionsButtonIconTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(gameFactionsButtonIconTexture, SDL_SCALEMODE_NEAREST);
+
 
         // BUILDING UIS
         //                  ! KNIGHT !
@@ -2764,6 +2785,10 @@ inline void GameApp::DestroyTextures() {
         &gameResourceFishOilIconTexture, &gameResourceHardWoodIconTexture, &gameResourceTextileIconTexture,
         &gameResourceToolsIconTexture, &gameResourceCopperJewleryIconTexture, &gameResourcePewterIconTexture,
         &gameResourceSilverCoinsIconTexture, &gameResourceGoldJewleryIconTexture,
+
+        //Under Minimap buttons
+        &gameEventMessagesButtonIconTexture, &gameArmiesButtonIconTexture, &gameProvincesButtonIconTexture,
+        &gameFactionsButtonIconTexture,
 
         // ~ KNIGHT ~
         &capitalBuildingUpgrade1Knight, &capitalBuildingUpgrade2Knight, &capitalBuildingUpgrade3Knight,
