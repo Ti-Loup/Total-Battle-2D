@@ -47,12 +47,11 @@
  *
  * Bugs:
  * Fixed | The import and export arrow isn't showing
- * TODO | If you have a current Trade agreement you soudn't be able to get an other one with same faction
+ * Fixed | If you have a current Trade agreement you soudn't be able to get an other one with same faction
  * ToDo | If not enough resources to trade, the trade agreement is stopped and it reduce Attitude towards the parter.
  * ToDO | If you have a vassal after being in war with an other faction, he will join with you. (Also should show in war panel)
  * ToDo | If you have a military alliance with a faction and you declare war after, it should show in the war panel your allies. and their allies if they have one.
  * ToDo | Force the ai to not construct everything at once. (Max 3 constructions at the same time). Give Ai a bonus in income.
- *
  * --------------------------------------------
  * 0.3.75
  * Add family tree + influence feature + assassination
@@ -8161,7 +8160,7 @@ public:
     bool IsTreatyAvailable(TreatyType t, const DiplomacyState& s) {//if at war some treaties can't be signed.
         switch (t) {
             case TreatyType::Payment: return !s.bAtWar;
-            case TreatyType::Trade: return !s.bAtWar;
+            case TreatyType::Trade: return !s.bAtWar && s.tradeTurnsRemaining <=0;
             case TreatyType::ArrangeMarriage: return !s.bAtWar;
             case TreatyType::DeclarationOfFriendship: return !s.bAtWar && !s.bFriendship;
             case TreatyType::MilitaryAccess: return !s.bAtWar && !s.bMilitaryAccess;
@@ -8255,6 +8254,7 @@ public:
         }
         AddDecayingAttitude(faction, "Gifts received", value, AttitudeValues::GiftMaxValue, floorGain, AttitudeValues::GiftMaxFloor, decay);
     }
+
 private:
 
     void RenderDiplomacyInfoPopup() {
@@ -12815,8 +12815,13 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         if (o.type == GameApp::OfferType::Resource) bHasGoodsInDeal = true;
 
                     if (bHasGoodsInDeal) {
+                        //security
+                        const GameApp::DiplomacyState &currentState = app.diplomacyWithFaction[(int)app.selectedDiplomacyFaction];
+                        if (currentState.bTrade || currentState.tradeTurnsRemaining > 0) {
+                            SDL_Log("A trade agreement already exists with this faction");
+                            return SDL_APP_CONTINUE;
+                        }
                         if (!dealAiState) return SDL_APP_CONTINUE;
-
                         int totalOffered = 0, totalDemanded = 0;
                         for (const auto &o: app.dealOffers) {
                             if (o.type != GameApp::OfferType::Resource) continue;
