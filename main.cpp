@@ -48,7 +48,7 @@
  * Bugs:
  * Fixed | The import and export arrow isn't showing
  * Fixed | If you have a current Trade agreement you soudn't be able to get an other one with same faction
- * ToDo | If not enough resources to trade, the trade agreement is stopped and it reduce Attitude towards the parter.
+ * ToDo | If not enough resources to maintain a barter trade, the trade agreement is stopped and it reduce Attitude towards the parter by around 50 points. Also reduce your reliability
  * ToDO | If you have a vassal after being in war with an other faction, he will join with you. (Also should show in war panel)
  * ToDo | If you have a military alliance with a faction and you declare war after, it should show in the war panel your allies. and their allies if they have one.
  * ToDo | Force the ai to not construct everything at once. (Max 3 constructions at the same time). Give Ai a bonus in income.
@@ -8295,6 +8295,23 @@ public:
         AddDecayingAttitude(faction, "Gifts received", value, AttitudeValues::GiftMaxValue, floorGain, AttitudeValues::GiftMaxFloor, decay);
     }
 
+    //Reliability of the player in diplomacy (start with maximum )
+    static constexpr int trustworthinessMax = 100;
+    int playerTrustworthiness = trustworthinessMax;
+
+    const char *GetTrustworthinessLabel(int value) {
+        if (value == 100) return "Steadfast";
+        if (value >= 66) return "Trustworthy";
+        if (value >= 33) return "Untrustworthy";
+        return "Unreliable";
+    }
+    SDL_Color GetTrustworthinessColor(int value) {
+        if (value == 100) return {100,220,60,255};
+        if (value >= 66) return {170,220,60,255};
+        if (value >= 33) return {230,120,40,255};
+        return {220,60,60,255};
+    }
+
 private:
 
     void RenderDiplomacyInfoPopup() {
@@ -8455,6 +8472,9 @@ private:
             //TODOOOOOO
             //ADD AGE AND INFLUENCE NEXT TO PORTRAIT IN FUTURE
 
+
+
+            
             float boxY = factionLeaderPortrait.y + factionLeaderPortrait.h + 10.f;
             const float gap = 10.f;
             const float boxX = panel_rect.x + 10.f;
@@ -8464,9 +8484,21 @@ private:
                 SDL_FRect attributesRect = {boxX, boxY, boxW, 120.f};
                 SDL_FRect attributesContent = drawSection(attributesRect, "Attributes");
 
-                drawText(gameDiplomacySousTitleText, ("Strength Rank: " + std::to_string(getStrengthRank(faction))).c_str(),attributesContent.x + 6.f, attributesContent.y, grey);
+                drawText(gameDiplomacyDescText, ("Strength Ranking: " + std::to_string(getStrengthRank(faction))).c_str(),attributesContent.x + 6.f, attributesContent.y, grey);
                 float attributeY = attributesContent.y + 22.f;
-                if (const FactionAttributesData* attributeData = GetFactionAttributes(faction)) {
+
+                if (bIsPlayer) {
+                    //Player, Trustworthiness replaces the trait list, same font/size as Strength Rank
+                    int trust = std::clamp(playerTrustworthiness, 0, trustworthinessMax);
+                    SDL_Color trustColor = GetTrustworthinessColor(trust);
+
+                    drawText(gameDiplomacyDescText, "Trustworthiness:", attributesContent.x + 6.f, attributeY, grey);
+                    int trustLabelW = 0, trustLabelH = 0;
+                    TTF_GetTextSize(gameDiplomacyDescText, &trustLabelW, &trustLabelH); //string is still the label
+                    drawText(gameDiplomacyDescText, GetTrustworthinessLabel(trust),
+                             attributesContent.x + 6.f + trustLabelW + 6.f, attributeY, trustColor);
+                }
+                else if (const FactionAttributesData* attributeData = GetFactionAttributes(faction)) {
                     for (const std::string& attribute : attributeData->attributes) {
                         drawText(gameDiplomacyDescText, attribute.c_str(),
                                  attributesContent.x + 6.f, attributeY, grey);
