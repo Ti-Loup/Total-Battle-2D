@@ -69,7 +69,18 @@ namespace AttitudeValues {
     constexpr int RaidActionAgaintsCommonEnemy = 4;//cumulatif
     //negatives
     constexpr int AtWar = -150;
-    constexpr int AtWarAttrition = 1;//increment At war each turn(lenght of war)
+    constexpr int AtWarAttrition = 1;
+    constexpr int AtWarAttritionMax = 100;
+    constexpr int PastWarDecay = 1;
+    constexpr int PastWarFloorMax = 10;
+    //Text change from war to past war .
+    constexpr const char*attritionWar = "War duration";
+    constexpr const char*PastWarName = "Past war";
+    constexpr int RecentWarValue = AtWar / 2;
+    constexpr int RecentWarFloor = 10;
+    constexpr int RecentWarDecay = 3;
+    constexpr const char* RecentWarName = "Recent war";
+
     //military actions againts a faction with his ally
     constexpr int EnemyWithMyAlly = -40;
     constexpr int MilitaryActionsWithMyAlly = -8;//cuumulatif
@@ -81,8 +92,7 @@ namespace AttitudeValues {
     static constexpr int BrokenTradeFloorGain = 0;
     static constexpr int BrokenTradeFloorMax = 30;
 
-    //Text change from war to past war .
-    constexpr const char*attritionWar = "Attrition War";
+
     //Text change from current to past Trade agreement broken
     constexpr const char* BrokenTradeName = "Broken trade agreement";
     constexpr const char* PastBrokenTradeName = "Past broken treaty";

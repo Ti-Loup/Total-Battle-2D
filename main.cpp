@@ -8086,6 +8086,56 @@ public:
         return true;
     }
 
+    void OnPeaceMade(FactionZone other) {
+        // Collect the war-length value
+        int attrition = 0;// negative
+        auto it = dynamicAttitudeModifiers.find((int)other);
+        if (it != dynamicAttitudeModifiers.end()) {
+            for (const AttitudeModifier& m : it->second) {
+                if (m.name == AttitudeValues::attritionWar || m.name == AttitudeValues::PastWarName)
+                    attrition += m.value;
+            }
+        }
+        RemoveAttitudeModifier(other, AttitudeValues::attritionWar);
+        RemoveAttitudeModifier(other, AttitudeValues::PastWarName);
+
+        // Longer war = bigger scar now, and a lower floor later
+        int startValue = AttitudeValues::RecentWarValue + attrition;
+        int floorSize  = std::min(
+            AttitudeValues::RecentWarFloor + (-attrition) / 3,
+            AttitudeValues::RecentWarFloor + AttitudeValues::PastWarFloorMax);
+
+        AddDecayingAttitude(other, AttitudeValues::RecentWarName,
+            startValue, -AttitudeValues::RecentWarValue + AttitudeValues::AtWarAttritionMax,
+            -floorSize, floorSize,
+            AttitudeValues::RecentWarDecay);
+    }
+
+    // If new war start.the scar is replaced by the -150 at war, and attrition starts from 0
+    void ResumeWarAttrition(FactionZone other) {
+        RemoveAttitudeModifier(other, AttitudeValues::RecentWarName);
+    }
+
+    // called once per end turn
+    void ProcessWarAttritionForTurn() {
+        for (auto& [factionKey, state] : diplomacyWithFaction) {
+            if (!state.bAtWar) continue;// not at war
+
+            FactionZone other = (FactionZone)factionKey;
+            ResumeWarAttrition(other);// remove recent war
+            AddDecayingAttitude(other, AttitudeValues::attritionWar,
+                -AttitudeValues::AtWarAttrition, AttitudeValues::AtWarAttritionMax,
+                0, 0, 0);//no decay during war
+        }
+    }
+
+
+
+
+
+
+
+
     //Called once per EndTurn
     //Runs ONE exchange of a trade agreement + gives the relation bonus if it worked
     void BreakTradeAgreement(FactionZone other, DiplomacyState& agreement) {
@@ -12389,6 +12439,9 @@ public:
             }
         }
 
+
+        ProcessWarAttritionForTurn();
+
         //Attitude modifiers now temporary ones expire, decaying ones go down toward their floor (never 0)
         for (auto& [factionKey, mods] : dynamicAttitudeModifiers) {
             for (auto& m : mods) {
@@ -12707,6 +12760,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         GameApp::DiplomacyState& warState = app.diplomacyWithFaction[(int)app.selectedDiplomacyFaction];
                         app.ApplyTreaty(GameApp::TreatyType::DeclareWar, warState); // resets every treaty + bAtWar = true
                         app.ClearTreatyAttitudes(app.selectedDiplomacyFaction);// remove their decaying bonuses
+                        app.ResumeWarAttrition(app.selectedDiplomacyFaction);
                         app.dealDemands.clear();
                         app.dealDemandsScrollOffset = 0.f;
                         app.dealOffers.clear();
@@ -12999,6 +13053,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     for (GameApp::TreatyType t: app.dealDemands) {
                         app.ApplyTreaty(t, state);
                         app.ApplyTreatyAttitude(app.selectedDiplomacyFaction, t, state);
+                        if (t == GameApp::TreatyType::MakePeace) app.OnPeaceMade(app.selectedDiplomacyFaction);
                     }
 
                     if (bHasGoodsInDeal && dealAiState) {
