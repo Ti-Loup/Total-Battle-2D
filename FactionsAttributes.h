@@ -74,7 +74,15 @@ namespace AttitudeValues {
     constexpr int MilitaryActionsWithMyAlly = -8;//cuumulatif
     constexpr int RaidActionsWithMyAlly = -4;//cumulatif
     constexpr int Trespasser = -15;//cumulatif
+    //Treaties
+    constexpr int BrokenTrade = -50; constexpr int BrokenTradeDecay = 2;
+    static constexpr int BrokenTradeMax = 100;
+    static constexpr int BrokenTradeFloorGain = 0;
+    static constexpr int BrokenTradeFloorMax = 30;
 
+    constexpr const char* BrokenTradeName = "Broken trade agreement";
+    constexpr const char* PastBrokenTradeName = "Past broken treaty";
+    constexpr const char* TradeHistoryName= "Trade history";
     //Attitude labels
     constexpr int HostileMax = -150;
     constexpr int UnfriendlyMax = -40;

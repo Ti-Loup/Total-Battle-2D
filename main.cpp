@@ -35,6 +35,7 @@
  * 0.3.6 Refactor , ai can make trade offers (1 month, November)
  * ToDo | Refactor
  *
+ * Done | If not enough resources to maintain a barter trade, the trade agreement is stopped and it reduce Attitude towards the parter by around 50 points. Also reduce your reliability(from 100 to 66, to 33 to 0)
  * ToDo | Add Current proposal if deal gets accepted. which work with attitude with faction + base value from those demands amount
  * Todo | make some goods more desirable for some oher faction
  * ToDo | Add Visual to character portrait.
@@ -48,7 +49,6 @@
  * Bugs:
  * Fixed | The import and export arrow isn't showing
  * Fixed | If you have a current Trade agreement you soudn't be able to get an other one with same faction
- * ToDo | If not enough resources to maintain a barter trade, the trade agreement is stopped and it reduce Attitude towards the parter by around 50 points. Also reduce your reliability
  * ToDO | If you have a vassal after being in war with an other faction, he will join with you. (Also should show in war panel)
  * ToDo | If you have a military alliance with a faction and you declare war after, it should show in the war panel your allies. and their allies if they have one.
  * ToDo | Force the ai to not construct everything at once. (Max 3 constructions at the same time). Give Ai a bonus in income.
@@ -7913,6 +7913,7 @@ public:
     //Gift prices (small / medium / large)
     static constexpr int giftCosts[3] = {100, 450, 1000};
 
+
     int GetSelectedGiftIndex() const {
         if (bIsSmallGift) return 0;
         if (bIsMediumGift) return 1;
@@ -8043,25 +8044,34 @@ public:
         return added;
     }
     //Executes ONE turn of a trade agreement. Returns false if it had to be skipped
-    bool ExecuteTradeExchange(FactionZone otherFaction, const DiplomacyState& agreement) {
+    bool ExecuteTradeExchange(FactionZone otherFaction, const DiplomacyState& agreement, bool *bPlayerAtFault = nullptr) {
+        if (bPlayerAtFault) *bPlayerAtFault = false;
         AiFactionState* ai = aiBehaviour.GetState(otherFaction);
         if (!ai) return false;
 
         int totalGive = 0, totalReceive = 0;
         for (const auto& [type, amount] : agreement.tradeGive) {
             auto it = goodsStoredByType.find(type);
-            if ((it == goodsStoredByType.end() ? 0 : it->second) < amount) return false;
+            int have = (it == goodsStoredByType.end()) ? 0 : it->second;
+            if (have < amount) {
+                if (bPlayerAtFault) *bPlayerAtFault = true;   // player can't pay || player's fault
+                return false;
+            }
             totalGive += amount;
         }
         for (const auto& [type, amount] : agreement.tradeReceive) {
             auto it = ai->goodsStoredByType.find(type);
-            if ((it == ai->goodsStoredByType.end() ? 0 : it->second) < amount) return false;
+            if ((it == ai->goodsStoredByType.end() ? 0 : it->second) < amount)
+                return false; // AI can't pay
             totalReceive += amount;
         }
 
         auto playerCap = GetFactionGoodsCapacityByProvince(player.faction);
         auto aiCap = GetFactionGoodsCapacityByProvince(otherFaction);
-        if (GetFreeGoodsSpace(playerCap, goodsStoredByProvinceAndType) + totalGive < totalReceive) return false;
+        if (GetFreeGoodsSpace(playerCap, goodsStoredByProvinceAndType) + totalGive < totalReceive) {
+            if (bPlayerAtFault) *bPlayerAtFault = true;
+            return false;
+        }
         if (GetFreeGoodsSpace(aiCap, ai->goodsStoredByProvinceAndType) + totalReceive < totalGive) return false;
 
         //all removals first, then all additions
@@ -8078,15 +8088,43 @@ public:
 
     //Called once per EndTurn
     //Runs ONE exchange of a trade agreement + gives the relation bonus if it worked
-    void RunTradeExchange(FactionZone other, const DiplomacyState& agreement) {
-        if (ExecuteTradeExchange(other, agreement)) {
-            SDL_Log("Trade with faction %d executed (%d turn(s) left)", (int)other, agreement.tradeTurnsRemaining);
-            //cumulative relation bonus, +3 per real exchange, floor also grows
-            AddDecayingAttitude(other, "Trade history", AttitudeValues::TradeHistoryPerTurn, AttitudeValues::TradeHistoryMax,
-                AttitudeValues::TradeHistoryFloorGain, AttitudeValues::TradeHistoryFloorMax, AttitudeValues::TradeHistoryDecay);
+    void BreakTradeAgreement(FactionZone other, DiplomacyState& agreement) {
+        agreement.bTrade = false;
+        agreement.tradeTurnsRemaining = 0;
+        agreement.tradeGive.clear();
+        agreement.tradeReceive.clear();
+
+        RemoveAttitudeModifier(other, AttitudeValues::TradeHistoryName);
+
+        // If an old "past" broken treaty is still decaying, fold it into the new one
+        int carriedPenalty = 0;
+        auto it = dynamicAttitudeModifiers.find((int)other);
+        if (it != dynamicAttitudeModifiers.end()) {
+            for (const AttitudeModifier& m : it->second)
+                if (m.name == AttitudeValues::PastBrokenTradeName) carriedPenalty += m.value;
         }
-        else
-            SDL_Log("Trade with faction %d skipped (missing goods or storage space)", (int)other);
+        RemoveAttitudeModifier(other, AttitudeValues::PastBrokenTradeName);
+
+        AddDecayingAttitude(other, AttitudeValues::BrokenTradeName,
+            AttitudeValues::BrokenTrade + carriedPenalty, AttitudeValues::BrokenTradeMax,
+            AttitudeValues::BrokenTradeFloorGain, AttitudeValues::BrokenTradeFloorMax,
+            AttitudeValues::BrokenTradeDecay);
+
+        playerTrustworthiness = std::max(0, playerTrustworthiness - 33);
+        SDL_Log("Trade with faction %d broken by the player! Trustworthiness now %d", (int)other, playerTrustworthiness);
+    }
+
+    void RunTradeExchange(FactionZone other, DiplomacyState& agreement) {
+        bool bPlayerAtFault = false;
+        if (ExecuteTradeExchange(other, agreement, &bPlayerAtFault)) {
+            SDL_Log("Trade with faction %d executed (%d turn(s) left)", (int)other, agreement.tradeTurnsRemaining);
+            AddDecayingAttitude(other, AttitudeValues::TradeHistoryName, AttitudeValues::TradeHistoryPerTurn, AttitudeValues::TradeHistoryMax,
+                AttitudeValues::TradeHistoryFloorGain, AttitudeValues::TradeHistoryFloorMax, AttitudeValues::TradeHistoryDecay);
+            return;
+        }
+
+        SDL_Log("Trade with faction %d skipped (missing goods or storage space)", (int)other);
+        if (bPlayerAtFault) BreakTradeAgreement(other, agreement);
     }
 
     //Called once per EndTurn.if the agreement continues, exchange the goods for the new turn.
@@ -8474,7 +8512,7 @@ private:
 
 
 
-            
+
             float boxY = factionLeaderPortrait.y + factionLeaderPortrait.h + 10.f;
             const float gap = 10.f;
             const float boxX = panel_rect.x + 10.f;
@@ -12347,19 +12385,27 @@ public:
             }
         }
 
-        ProcessTradeAgreementsForTurn();
         //Attitude modifiers now temporary ones expire, decaying ones go down toward their floor (never 0)
         for (auto& [factionKey, mods] : dynamicAttitudeModifiers) {
             for (auto& m : mods) {
                 if (m.turnsRemaining > 0) m.turnsRemaining--;
+
+                if (m.name == AttitudeValues::BrokenTradeName)
+                    m.name = AttitudeValues::PastBrokenTradeName;
+
                 if (m.decayPerTurn > 0) {
-                    if (m.value > m.minValue)      m.value = std::max(m.minValue, m.value - m.decayPerTurn);
+                    if (m.value > m.minValue) m.value = std::max(m.minValue, m.value - m.decayPerTurn);
                     else if (m.value < m.minValue) m.value = std::min(m.minValue, m.value + m.decayPerTurn);
                 }
             }
+            // remove expired modifiers
             mods.erase(std::remove_if(mods.begin(), mods.end(),
-                [](const AttitudeModifier& m){ return m.turnsRemaining == 0; }), mods.end());
+                [](const AttitudeModifier& m) {
+                    return m.turnsRemaining == 0 || (m.value == 0 && m.minValue == 0);
+                }), mods.end());
         }
+
+        ProcessTradeAgreementsForTurn();
         //POPULATION
         //population increase each turn based on base random bonus + building bonus
         int buildingPeasantryBonus = 0;
