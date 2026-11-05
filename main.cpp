@@ -8331,6 +8331,7 @@ public:
             decay = AttitudeValues::MediumGiftDecay;
         }
         AddDecayingAttitude(faction, "Gifts received", value, AttitudeValues::GiftMaxValue, floorGain, AttitudeValues::GiftMaxFloor, decay);
+
     }
 
     //Reliability of the player in diplomacy (start with maximum )
@@ -10476,6 +10477,9 @@ private:
     }
     void RenderFamilyHierarchyInfoPopup() {
         if (!bFamilyHierarchyInfoPopup) return;
+        //Background
+
+
     }
     //Reset button only reset the camera position. no need a fonction for that
     //Done with INIT
@@ -11500,7 +11504,7 @@ void RenderCategoryBuildingInfoUI() {
             TTF_DrawRendererText(gameKingdomSamuraiNameText, sScreen.x - textW/2.f, sScreen.y - textH/2.f);;
         }
 //If diplomacy pressed the ui stop showing to show only the diplomacy area
-    if (!bDiplomacyInfoPopup) {
+    if (!bDiplomacyInfoPopup||!bFamilyHierarchyInfoPopup) {
         //Render the UI of provinces
         RenderProvinceUI();
         RenderGeneralUI();
@@ -11517,8 +11521,6 @@ void RenderCategoryBuildingInfoUI() {
         RenderDecreesInfoPopup();
         RenderWinConditionsInfoPopup();
         RenderTreasuryInfoPopup();
-
-        RenderFamilyHierarchyInfoPopup();
 
         // Tooltip public order
         if (bMouseOnPublicOrderIcon && hoveredPublicOrderSettlementIndex >= 0) {
@@ -11684,6 +11686,8 @@ void RenderCategoryBuildingInfoUI() {
     }
     //Diplomacy always shows when pressed
     RenderDiplomacyInfoPopup();
+    //FamilyTree always shows when button pressed
+    RenderFamilyHierarchyInfoPopup();
 
 
 
@@ -13038,6 +13042,8 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
                 return SDL_APP_CONTINUE;
             }
+
+
             // Minimap click -> jump camera there
             SDL_FPoint miniMapPt = {nouveauX, nouveauY};
             if (app.miniMapWorldScale > 0.f && SDL_PointInRectFloat(&miniMapPt, &app.miniMapBoxRect)) {
@@ -13534,6 +13540,8 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         app.bDecreesInfoPopup = true;
         app.bWinConditionsInfoPopup = false;
         app.bTreasuryInfoPopup = false;
+        app.bDiplomacyInfoPopup = false;
+        app.bFamilyHierarchyInfoPopup = false;
     }
     //WinAchivements Ui Button pressed
     if (app.ClickInsideCircle(nouveauX, nouveauY, app.WinConditionPannel)) {
@@ -13542,6 +13550,9 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         app.bWinConditionsInfoPopup = true;
         app.bDecreesInfoPopup = false;
         app.bTreasuryInfoPopup = false;
+        app.bDiplomacyInfoPopup = false;
+        app.bFamilyHierarchyInfoPopup = false;
+
     }
     //Treasury Ui button pressed
     if (app.ClickInsideCircle(nouveauX, nouveauY, app.TreasuryPannel)) {
@@ -13550,6 +13561,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         app.bTreasuryInfoPopup = true;
         app.bDecreesInfoPopup = false;
         app.bWinConditionsInfoPopup = false;
+        app.bFamilyHierarchyInfoPopup = false;
     }
     //Diplomacy UiButton pressed
     if (app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyPannel)) {
@@ -13558,6 +13570,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         app.bDecreesInfoPopup = false;
         app.bTreasuryInfoPopup = false;
         app.bWinConditionsInfoPopup = false;
+        app.bFamilyHierarchyInfoPopup = false;
     }
     //When button Technology is pressed it goes to the Technology State
     if (app.ClickInsideCircle(nouveauX, nouveauY, app.TechnologyPannel)) {
@@ -13569,6 +13582,10 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         //log message for now -> ui poping on later
         SDL_LogWarn(0, "Clicked FamilyHierarchy");
         app.bFamilyHierarchyInfoPopup = true;
+        app.bDecreesInfoPopup = false;
+        app.bTreasuryInfoPopup = false;
+        app.bWinConditionsInfoPopup = false;
+        app.bDiplomacyInfoPopup = false;
     }
     //Camera Zoom reset Ui Button Pressed
     if (app.ClickInsideCircle(nouveauX, nouveauY, app.CameraResetPannel)) {
