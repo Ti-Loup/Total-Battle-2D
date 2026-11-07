@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <unordered_set>
 //les classes
 #include "State.h"
 #include "Entity.h"
@@ -40,7 +41,7 @@
  * Todo | make some goods more desirable for some oher faction
  * ToDo | Add Visual to character portrait.
  * ToDo | Buttons under minimap
- * ToDo | Per faction Ui Textures scalable.
+ * ToDo | Per faction Ui Textures scalable. (With 9slice technic)
  * ToDo | Able to stop a trade agreement with button but reduce Attitude towards the other faction. (~ -10 per turn remaining)
  * ToDo | Show the current faction turn instead of all being instant.
  * ToDo | during a ai faction turn it can propose a treaty with the player or ai.
@@ -49,10 +50,10 @@
  * Bugs:
  * Fixed | The import and export arrow isn't showing
  * Fixed | If you have a current Trade agreement you soudn't be able to get an other one with same faction
- * Fixed | Vassal Bonus attidune now shows correcly
+ * Fixed | Vassal Bonus attitude now shows correcly
  * Fixed | If you have a vassal after being in war with an other faction, he will join with you. (Also should show in war panel)
  * Fixed | If you have a military alliance with a faction and you declare war after, it should show in the war panel your allies. and their allies if they have one.
- * ToDo | Force the ai to not construct everything at once. (Max 3 constructions at the same time). Give Ai a bonus in income.
+ * ToDo | Force the ai to not construct everything at once. (Max 2 to 4 constructions at the same time). Give Ai a bonus in start income.
  * --------------------------------------------
  * 0.3.75 (December)
  * Add family tree + influence feature + assassination
@@ -8116,7 +8117,61 @@ public:
     void ResumeWarAttrition(FactionZone other) {
         RemoveAttitudeModifier(other, AttitudeValues::RecentWarName);
     }
+// true if other faction at war with same faction has player
+bool HasCommonEnemyWithPlayer(FactionZone other) {
+    if (other == player.faction) return false;
+    for (FactionZone enemy : {FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai}) {
+        if (enemy == player.faction || enemy == other) continue;
+        if (IsAtWarWithPlayer(enemy) && IsFactionAtWarWith(other, enemy)) return true;
+    }
+    return false;
+}
 
+//called one after end turn
+    void ProcessCommonEnemyAttitudeForTurn(bool bGrow = true) {
+        JoinAlliesToPlayerWars();
+        constexpr int kNoMax = 999;
+
+        for (FactionZone other : {FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai}) {
+            if (other == player.faction) continue;
+
+            if (HasCommonEnemyWithPlayer(other)) {
+                std::vector<AttitudeModifier>& mods = dynamicAttitudeModifiers[(int)other];
+
+                AttitudeModifier* active = nullptr;
+                int carried = 0;
+                for (AttitudeModifier& m : mods) {
+                    if (m.name == AttitudeValues::WarWithSameEnemyName) active = &m;
+                    else if (m.name == AttitudeValues::PastWarWithSameEnemyName) carried += m.value;
+                }
+
+                if (active) {
+                    if (bGrow) active->value += AttitudeValues::WarWithSameEnemyGain;
+                    active->minValue = 0;
+                    active->decayPerTurn = 0;
+                    active->turnsRemaining = -1;
+                }
+                else {
+                    RemoveAttitudeModifier(other, AttitudeValues::PastWarWithSameEnemyName);
+                    int startValue = std::max(AttitudeValues::WarWithSameEnemy, carried);
+                    AddDecayingAttitude(other, AttitudeValues::WarWithSameEnemyName,
+                        startValue, kNoMax,
+                        0, 0, 0);
+                }
+            }
+            else {
+                auto it = dynamicAttitudeModifiers.find((int)other);
+                if (it == dynamicAttitudeModifiers.end()) continue;
+                for (AttitudeModifier& m : it->second) {
+                    if (m.name != AttitudeValues::WarWithSameEnemyName) continue;
+                    m.name = AttitudeValues::PastWarWithSameEnemyName;
+                    m.minValue = 0;
+                    m.decayPerTurn = AttitudeValues::PastWarWithSameEnemyDecay;
+                    m.turnsRemaining = -1;
+                }
+            }
+        }
+    }
     // called once per end turn
     void ProcessWarAttritionForTurn() {
         for (auto& [factionKey, state] : diplomacyWithFaction) {
@@ -8129,12 +8184,6 @@ public:
                 0, 0, 0);//no decay during war
         }
     }
-
-
-
-
-
-
 
 
     //Called once per EndTurn
@@ -8319,6 +8368,32 @@ public:
         auto it = diplomacyWithFaction.find((int)faction);
         return it != diplomacyWithFaction.end() && it->second.bAtWar;
     }
+    // Wars between two non-player factions independent
+    std::unordered_set<int> factionWars;
+
+    int FactionWarKey(FactionZone a, FactionZone b) {
+        int lo = std::min((int)a, (int)b);
+        int hi = std::max((int)a, (int)b);
+        return lo * 16 + hi;
+    }
+    void SetFactionsAtWar(FactionZone a, FactionZone b)  { if (a != b) factionWars.insert(FactionWarKey(a, b)); }
+    void SetFactionsAtPeace(FactionZone a, FactionZone b) { factionWars.erase(FactionWarKey(a, b)); }
+    bool AreFactionsAtWarDirect(FactionZone a, FactionZone b) {
+        return a != b && factionWars.count(FactionWarKey(a, b)) > 0;
+    }
+
+    // Military allies only join the player's current wars. (not vasssal here)
+    // After that their war is their own. a player peace doesnt change the war between those 2 other factions.
+    void JoinAlliesToPlayerWars() {
+        for (FactionZone ally : {FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai}) {
+            if (ally == player.faction) continue;
+            if (!IsMilitaryAllyOfPlayer(ally) || IsVassalOfPlayer(ally)) continue;
+            for (FactionZone enemy : {FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai}) {
+                if (enemy == player.faction || enemy == ally) continue;
+                if (IsAtWarWithPlayer(enemy)) SetFactionsAtWar(ally, enemy);
+            }
+        }
+    }
     bool IsMilitaryAllyOfPlayer(FactionZone faction) {
         if (faction == player.faction) return false;
         auto it = diplomacyWithFaction.find((int)faction);
@@ -8337,9 +8412,12 @@ public:
         if (factionZoneOne == player.faction) return IsAtWarWithPlayer(factionZoneTwo);
         if (factionZoneTwo == player.faction) return IsAtWarWithPlayer(factionZoneOne);
 
-        if (JoinsPlayerSideInWar(factionZoneOne) && IsAtWarWithPlayer(factionZoneTwo)) return true;
-        if (JoinsPlayerSideInWar(factionZoneTwo) && IsAtWarWithPlayer(factionZoneOne)) return true;
-        return false;
+        // Vassals still follow their master
+        if (IsVassalOfPlayer(factionZoneOne) && IsAtWarWithPlayer(factionZoneTwo)) return true;
+        if (IsVassalOfPlayer(factionZoneTwo) && IsAtWarWithPlayer(factionZoneOne)) return true;
+
+        // Military allies and everyone else: their own stored wars
+        return AreFactionsAtWarDirect(factionZoneOne, factionZoneTwo);
     }
 
     //stock max of a ressource offer(player) and faction(demand)
@@ -12490,6 +12568,7 @@ public:
 
 
         ProcessWarAttritionForTurn();
+        ProcessCommonEnemyAttitudeForTurn();
 
         //Attitude modifiers now temporary ones expire, decaying ones go down toward their floor (never 0)
         for (auto& [factionKey, mods] : dynamicAttitudeModifiers) {
@@ -12810,6 +12889,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         app.ApplyTreaty(GameApp::TreatyType::DeclareWar, warState); // resets every treaty + bAtWar = true
                         app.ClearTreatyAttitudes(app.selectedDiplomacyFaction);// remove their decaying bonuses
                         app.ResumeWarAttrition(app.selectedDiplomacyFaction);
+                        app.ProcessCommonEnemyAttitudeForTurn(false);
                         app.dealDemands.clear();
                         app.dealDemandsScrollOffset = 0.f;
                         app.dealOffers.clear();
@@ -13104,6 +13184,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         app.ApplyTreatyAttitude(app.selectedDiplomacyFaction, t, state);
                         if (t == GameApp::TreatyType::MakePeace) app.OnPeaceMade(app.selectedDiplomacyFaction);
                     }
+                    app.ProcessCommonEnemyAttitudeForTurn(false);
 
                     if (bHasGoodsInDeal && dealAiState) {
                         state.tradeGive.clear();

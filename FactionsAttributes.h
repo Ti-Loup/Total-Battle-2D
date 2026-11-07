@@ -51,9 +51,13 @@ namespace AttitudeValues {
      constexpr int DefensivePactFloor = 42; constexpr int DefensivePactDecay = 1;
      constexpr int MilitaryAllianceFloor = 62; constexpr int MilitaryAllianceDecay = 1;
      constexpr int VassalAllianceFloor = 34; constexpr int VassalAllianceDecay = 1;
-     
-     //War Add a positive value if same ennemy.
 
+     //War Add a positive value if same enemy.
+     constexpr int WarWithSameEnemy = 24; constexpr int WarWithSameEnemyGain = 1;//increase slowly each turn
+     constexpr int PastWarWithSameEnemyDecay = 1;
+    //Text change from war with same enemy to past war with same enemy
+    constexpr const char* WarWithSameEnemyName = "War with same enemy";
+    constexpr const char* PastWarWithSameEnemyName = "Past war with same enemy";
 
     //Gifts (decaying)
     constexpr int SmallGiftValue = 8; constexpr int SmallGiftFloor = 2; constexpr int SmallGiftDecay = 1;
