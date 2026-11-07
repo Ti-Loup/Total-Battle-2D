@@ -49,8 +49,9 @@
  * Bugs:
  * Fixed | The import and export arrow isn't showing
  * Fixed | If you have a current Trade agreement you soudn't be able to get an other one with same faction
- * ToDO | If you have a vassal after being in war with an other faction, he will join with you. (Also should show in war panel)
- * ToDo | If you have a military alliance with a faction and you declare war after, it should show in the war panel your allies. and their allies if they have one.
+ * Fixed | Vassal Bonus attidune now shows correcly
+ * Fixed | If you have a vassal after being in war with an other faction, he will join with you. (Also should show in war panel)
+ * Fixed | If you have a military alliance with a faction and you declare war after, it should show in the war panel your allies. and their allies if they have one.
  * ToDo | Force the ai to not construct everything at once. (Max 3 constructions at the same time). Give Ai a bonus in income.
  * --------------------------------------------
  * 0.3.75 (December)
@@ -8282,7 +8283,10 @@ public:
                     AttitudeValues::MilitaryAllianceDecay);
                 break;
             case TreatyType::CreateVassal:
-                AddDecayingAttitude(faction, "Vassal", AttitudeValues::VassalAlliance,AttitudeValues::VassalAlliance, AttitudeValues::VassalAllianceFloor,AttitudeValues::VassalAllianceFloor, AttitudeValues::VassalAllianceDecay);
+                AddDecayingAttitude(faction, "Vassal", AttitudeValues::VassalAlliance,AttitudeValues::VassalAlliance,
+                    AttitudeValues::VassalAllianceFloor,AttitudeValues::VassalAllianceFloor, AttitudeValues::VassalAllianceDecay);
+                break;
+
             default: break;
         }
     }
@@ -8302,6 +8306,40 @@ public:
             case TreatyType::MakePeace: return s.bAtWar;
             default: return false;
         }
+    }
+
+    //To know if this faction is currently the player's vassal
+    bool IsVassalOfPlayer(FactionZone faction) {
+        if (faction == player.faction) return false;
+        auto it = diplomacyWithFaction.find((int)faction);
+        return it != diplomacyWithFaction.end() && it->second.bVassal;
+    }
+    bool IsAtWarWithPlayer(FactionZone faction) {
+        if (faction == player.faction) return false;
+        auto it = diplomacyWithFaction.find((int)faction);
+        return it != diplomacyWithFaction.end() && it->second.bAtWar;
+    }
+    bool IsMilitaryAllyOfPlayer(FactionZone faction) {
+        if (faction == player.faction) return false;
+        auto it = diplomacyWithFaction.find((int)faction);
+        return it != diplomacyWithFaction.end()
+            && it->second.bMilitaryAlliance
+            && !it->second.bAtWar;
+    }
+
+    // vassals and military allies join war.
+    bool JoinsPlayerSideInWar(FactionZone faction) {
+        return IsVassalOfPlayer(faction) || IsMilitaryAllyOfPlayer(faction);
+    }
+
+    bool IsFactionAtWarWith(FactionZone factionZoneOne, FactionZone factionZoneTwo) {
+        if (factionZoneOne == factionZoneTwo) return false;
+        if (factionZoneOne == player.faction) return IsAtWarWithPlayer(factionZoneTwo);
+        if (factionZoneTwo == player.faction) return IsAtWarWithPlayer(factionZoneOne);
+
+        if (JoinsPlayerSideInWar(factionZoneOne) && IsAtWarWithPlayer(factionZoneTwo)) return true;
+        if (JoinsPlayerSideInWar(factionZoneTwo) && IsAtWarWithPlayer(factionZoneOne)) return true;
+        return false;
     }
 
     //stock max of a ressource offer(player) and faction(demand)
@@ -8705,6 +8743,14 @@ private:
                     if (it != diplomacyWithFaction.end() && it->second.*(block.factionFlag))
                         relatedFactions.push_back(player.faction);
                 }
+                // Enemies of the other faction also include wars joined through the player's vassals
+                if (!bIsPlayer && block.factionFlag == &DiplomacyState::bAtWar) {
+                    for (FactionZone f : allFactions) {
+                        if (f == player.faction || f == faction) continue;
+                        if (IsFactionAtWarWith(faction, f)) relatedFactions.push_back(f);
+                    }
+                }
+
 
                 const float relBannerSize = blockBoxH - 4.f;
                 float relBannerX = listBox.x + 3.f;
@@ -9852,8 +9898,9 @@ private:
                 if (f == player.faction || f == otherFaction) continue;
                 auto it = diplomacyWithFaction.find((int)f);
                 if (it == diplomacyWithFaction.end()) continue;
-                if (it->second.bMilitaryAlliance) yourAllies.push_back({f, "Military alliance"});
-                else if (it->second.bDefensivePact) yourAllies.push_back({f, "Defensive pact"});
+                if (it->second.bVassal) yourAllies.push_back({f, "Vassal (joins the war)"});
+                else if (it->second.bMilitaryAlliance) yourAllies.push_back({f, "Military alliance"});
+                //else if (it->second.bDefensivePact) yourAllies.push_back({f, "Defensive pact"});
             }
 
             auto drawAllyRows = [&](const SDL_FRect& content, const std::vector<std::pair<FactionZone, const char*>>& allies) {

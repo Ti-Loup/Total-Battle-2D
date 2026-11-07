@@ -51,6 +51,8 @@ namespace AttitudeValues {
      constexpr int DefensivePactFloor = 42; constexpr int DefensivePactDecay = 1;
      constexpr int MilitaryAllianceFloor = 62; constexpr int MilitaryAllianceDecay = 1;
      constexpr int VassalAllianceFloor = 34; constexpr int VassalAllianceDecay = 1;
+     
+     //War Add a positive value if same ennemy.
 
 
     //Gifts (decaying)
