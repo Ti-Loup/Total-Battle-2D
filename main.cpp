@@ -8281,6 +8281,8 @@ public:
                     AttitudeValues::MilitaryAllianceFloor, AttitudeValues::MilitaryAllianceFloor,
                     AttitudeValues::MilitaryAllianceDecay);
                 break;
+            case TreatyType::CreateVassal:
+                AddDecayingAttitude(faction, "Vassal", AttitudeValues::VassalAlliance,AttitudeValues::VassalAlliance, AttitudeValues::VassalAllianceFloor,AttitudeValues::VassalAllianceFloor, AttitudeValues::VassalAllianceDecay);
             default: break;
         }
     }
