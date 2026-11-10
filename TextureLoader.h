@@ -862,9 +862,6 @@ inline void GameApp::LoadTextures() {
         }
         SDL_SetTextureScaleMode(daimyoSamuraiStartOldPortraitTexture, SDL_SCALEMODE_NEAREST);
 
-
-
-
         //male
         maleVariant1CharacterPortraitTexture = IMG_LoadTexture(renderer, "assets/Characters/MaleVariant1Portrait.png");
         if (maleVariant1CharacterPortraitTexture == nullptr) {
@@ -2802,6 +2799,11 @@ inline void GameApp::DestroyTextures() {
         &femaleVariant1CharacterPortraitTexture, &femaleOldVariant1CharacterPortraitTexture,
         &femaleVariant2CharacterPortraitTexture, &femaleOldVariant2CharacterPortraitTexture,
         &femaleVariant3CharacterPortraitTexture, &femaleOldVariant3CharacterPortraitTexture,
+
+        //Start king, jarl, daimyo
+        &kingKnightStartYoungPortraitTexture, &kingKnightStartOldPortraitTexture,
+        &jarlVikingStartYoungPortraitTexture, &jarlVikingStartOldPortraitTexture,
+        &daimyoSamuraiStartYoungPortraitTexture, &daimyoSamuraiStartOldPortraitTexture,
 
         // Diplomacy
         &tradeDiplomacyIconTexture, &vassalDiplomacyIconTexture,

@@ -767,20 +767,30 @@ public:
     SDL_Texture *youngMaleCharacterPortraitTexture = nullptr;
     SDL_Texture *youngFemaleCharacterPortraitTexture = nullptr;
     //Character variants
+//knight
     SDL_Texture *maleVariant1CharacterPortraitTexture = nullptr;
     SDL_Texture *maleKingVariant1CharacterPortraitTexture = nullptr;//if variant 1 is king
     SDL_Texture *maleOldVariant1CharacterPortraitTexture = nullptr;
     SDL_Texture *maleKingOldVariant1CharacterPortraitTexture = nullptr;
     SDL_Texture *maleVariant2CharacterPortraitTexture = nullptr;
+	SDL_Texture *maleKingVariant2CharacterPortraitTexture = nullptr;
     SDL_Texture *maleOldVariant2CharacterPortraitTexture = nullptr;
+	SDL_Texture *maleKingOldVariant2CharacterPortraitTexture = nullptr;
     SDL_Texture *maleVariant3CharacterPortraitTexture = nullptr;
+	SDL_Texture *maleKingVariant3CharacterPortraitTexture = nullptr;
     SDL_Texture *maleOldVariant3CharacterPortraitTexture = nullptr;
+	SDL_Texture *maleKingOldVariant3CharacterPortraitTexture = nullptr;
     SDL_Texture *femaleVariant1CharacterPortraitTexture = nullptr;
     SDL_Texture *femaleOldVariant1CharacterPortraitTexture = nullptr;
     SDL_Texture *femaleVariant2CharacterPortraitTexture = nullptr;
     SDL_Texture *femaleOldVariant2CharacterPortraitTexture = nullptr;
     SDL_Texture *femaleVariant3CharacterPortraitTexture = nullptr;
     SDL_Texture *femaleOldVariant3CharacterPortraitTexture = nullptr;
+//Viking
+
+//Samurai
+
+
     //Special Characters (Kings, queens, jarl... )
     SDL_Texture *kingKnightStartYoungPortraitTexture = nullptr;
     SDL_Texture *kingKnightStartOldPortraitTexture = nullptr;
