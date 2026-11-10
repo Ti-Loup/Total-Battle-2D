@@ -57,6 +57,8 @@
  * --------------------------------------------
  * 0.3.75 (December)
  * Add family tree + influence feature + assassination
+ *
+ * ToDo | Name generator for
  * --------------------------------------------
  *
  * 0.4.0
@@ -766,7 +768,9 @@ public:
     SDL_Texture *youngFemaleCharacterPortraitTexture = nullptr;
     //Character variants
     SDL_Texture *maleVariant1CharacterPortraitTexture = nullptr;
+    SDL_Texture *maleKingVariant1CharacterPortraitTexture = nullptr;//if variant 1 is king
     SDL_Texture *maleOldVariant1CharacterPortraitTexture = nullptr;
+    SDL_Texture *maleKingOldVariant1CharacterPortraitTexture = nullptr;
     SDL_Texture *maleVariant2CharacterPortraitTexture = nullptr;
     SDL_Texture *maleOldVariant2CharacterPortraitTexture = nullptr;
     SDL_Texture *maleVariant3CharacterPortraitTexture = nullptr;
@@ -778,6 +782,12 @@ public:
     SDL_Texture *femaleVariant3CharacterPortraitTexture = nullptr;
     SDL_Texture *femaleOldVariant3CharacterPortraitTexture = nullptr;
     //Special Characters (Kings, queens, jarl... )
+    SDL_Texture *kingKnightStartYoungPortraitTexture = nullptr;
+    SDL_Texture *kingKnightStartOldPortraitTexture = nullptr;
+    SDL_Texture *jarlVikingStartYoungPortraitTexture = nullptr;
+    SDL_Texture *jarlVikingStartOldPortraitTexture = nullptr;
+    SDL_Texture *daimyoSamuraiStartYoungPortraitTexture = nullptr;
+    SDL_Texture *daimyoSamuraiStartOldPortraitTexture = nullptr;
 
 
     //Trade and diplomacy Icons

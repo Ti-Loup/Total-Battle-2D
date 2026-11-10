@@ -830,6 +830,41 @@ inline void GameApp::LoadTextures() {
         }
         SDL_SetTextureScaleMode(youngFemaleCharacterPortraitTexture, SDL_SCALEMODE_NEAREST);
         //variants
+        //kings
+        kingKnightStartYoungPortraitTexture = IMG_LoadTexture(renderer, "assets/Characters/KingKnightStartYoung.png");
+        if (kingKnightStartYoungPortraitTexture == nullptr){
+            SDL_LogWarn(0, "failed to load texture kingKnightStartYoungPortraitTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(kingKnightStartYoungPortraitTexture, SDL_SCALEMODE_NEAREST);
+        kingKnightStartOldPortraitTexture = IMG_LoadTexture(renderer, "assets/Characters/KingKnightStartOld.png");
+        if (kingKnightStartOldPortraitTexture == nullptr){
+            SDL_LogWarn(0, "failed to load texture kingKnightStartOldPortraitTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(kingKnightStartOldPortraitTexture, SDL_SCALEMODE_NEAREST);
+        jarlVikingStartYoungPortraitTexture = IMG_LoadTexture(renderer, "assets/Characters/JarlVikingStartYoung.png");
+        if (jarlVikingStartYoungPortraitTexture == nullptr){
+            SDL_LogWarn(0, "failed to load texture jarlVikingStartYoungPortraitTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(jarlVikingStartYoungPortraitTexture, SDL_SCALEMODE_NEAREST);
+        jarlVikingStartOldPortraitTexture = IMG_LoadTexture(renderer, "assets/Characters/JarlVikingStartOld.png");
+        if (jarlVikingStartOldPortraitTexture == nullptr){
+            SDL_LogWarn(0, "failed to load texture jarlVikingStartOldPortraitTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(jarlVikingStartOldPortraitTexture, SDL_SCALEMODE_NEAREST);
+        daimyoSamuraiStartYoungPortraitTexture = IMG_LoadTexture(renderer, "assets/Characters/DaimyoSamuraiStartYoung.png");
+        if (daimyoSamuraiStartYoungPortraitTexture == nullptr){
+            SDL_LogWarn(0, "failed to load texture daimyoSamuraiStartYoungPortraitTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(daimyoSamuraiStartYoungPortraitTexture, SDL_SCALEMODE_NEAREST);
+        daimyoSamuraiStartOldPortraitTexture = IMG_LoadTexture(renderer, "assets/Characters/DaimyoSamuraiStartOld.png");
+        if (daimyoSamuraiStartOldPortraitTexture == nullptr){
+            SDL_LogWarn(0, "failed to load texture daimyoSamuraiStartOldPortraitTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(daimyoSamuraiStartOldPortraitTexture, SDL_SCALEMODE_NEAREST);
+
+
+
+
         //male
         maleVariant1CharacterPortraitTexture = IMG_LoadTexture(renderer, "assets/Characters/MaleVariant1Portrait.png");
         if (maleVariant1CharacterPortraitTexture == nullptr) {
