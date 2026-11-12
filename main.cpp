@@ -7848,20 +7848,21 @@ public:
         const char *name;
         const char *description;
         bool bCanChoose; // true if the player can ask of make a demand to the other faction
+        int demandValue;//the base value of the treaty. will be mix with attitude towards faction
     };
 // Name of the different Treaties possible with 1 faction
     const TreatyData treatyDatabase[(int)TreatyType::Count] = {
-        {TreatyType::Payment, "Payment", "Offer or demand payments. Offering payments makes the deal more attractive. If you offer payment and ask nothing in return there will be a diplomatic relations bonus.", true},
-        {TreatyType::Trade, "Trade", "Make a trade with factions to increase your relations. It will open up your borders to allow trade if there is a direct route between your capital and theirs.", true},
-        {TreatyType::ArrangeMarriage, "Arrange Marriage", "Diplomatic marriage can be used to strengthen ties between two factions. Offering or asking for a wife both improve relations, although factions might be reluctant to let one of their own go.", true},
-        {TreatyType::MilitaryAccess, "Military access", "Military access removes the diplomatic penalty for trespassing on another faction's territory.",false},
-        {TreatyType::CancelVassal, "Cancel vassal Kingdom status for", "Offer or demand the breaking of an existing treaty with a third party. Where the third party is disliked this option may make a deal more attractive.", false},
-        {TreatyType::MilitaryAlliance, "Military alliance", "Military allies are sworn to support each other if attacked or attacking another faction. This is the strongest form of treaty. When signed, it replaces a defensive pact.", false},
+        {TreatyType::Payment, "Payment", "Offer or demand payments. Offering payments makes the deal more attractive. If you offer payment and ask nothing in return there will be a diplomatic relations bonus.", true, 0},//if you demand its negatif but if you offer its positif value bonus
+        {TreatyType::Trade, "Trade", "Make a trade with factions to increase your relations. It will open up your borders to allow trade if there is a direct route between your capital and theirs.", true, 0},//some values are more desirable then other
+        {TreatyType::ArrangeMarriage, "Arrange Marriage", "Diplomatic marriage can be used to strengthen ties between two factions. Offering or asking for a wife both improve relations, although factions might be reluctant to let one of their own go.", true, -35},
+        {TreatyType::MilitaryAccess, "Military access", "Military access removes the diplomatic penalty for trespassing on another faction's territory.",false, -17},
+        {TreatyType::CancelVassal, "Cancel vassal Kingdom status for", "Offer or demand the breaking of an existing treaty with a third party. Where the third party is disliked this option may make a deal more attractive.", false,0},//depends of the other faction status
+        {TreatyType::MilitaryAlliance, "Military alliance", "Military allies are sworn to support each other if attacked or attacking another faction. This is the strongest form of treaty. When signed, it replaces a defensive pact.", false, -72},
         {TreatyType::CreateVassal, "Create vassal kingdom", "Ask this faction to become your vassal kingdom. If you are strong enough and they accept your offer, they'll gain your protection but lose most of their diplomatic freedom, effectively becoming your puppets.", false},
-        {TreatyType::DeclareWar, "Declare war", "Declaring war will end any agreements with this faction. This sometimes comes at the cost of deals with other factions, as they will pick sides.", false},
-        {TreatyType::MakePeace, "Peace treaty", "Signing a peace treaty with a faction will end your current war with them.", false},
-        {TreatyType::DeclarationOfFriendship, "Declaration of friendship", "A declaration of friendship improves the relations betweem factions. It is an ideal first step in building good relations.", false},
-        {TreatyType::DefensivePact, "Defensive pact", "Defensive allies are sworn to protect each other if war is declared. It is useful to be on friendly terms with a faction before requesting an alliance.", false}
+        {TreatyType::DeclareWar, "Declare war", "Declaring war will end any agreements with this faction. This sometimes comes at the cost of deals with other factions, as they will pick sides.", false, 0},
+        {TreatyType::MakePeace, "Peace treaty", "Signing a peace treaty with a faction will end your current war with them.", false, 0},//based on war duration. more likely to peace after a long war.
+        {TreatyType::DeclarationOfFriendship, "Declaration of friendship", "A declaration of friendship improves the relations betweem factions. It is an ideal first step in building good relations.", false,-5},
+        {TreatyType::DefensivePact, "Defensive pact", "Defensive allies are sworn to protect each other if war is declared. It is useful to be on friendly terms with a faction before requesting an alliance.", false, -40}
     };
     const TreatyData& GetTreatyData(TreatyType treatyType) { return treatyDatabase[(int)treatyType]; }
     //To know when a treaty is available or not
@@ -7893,6 +7894,9 @@ public:
     bool bShowDeclareWarPanel = false;
     Circle DeclareWarConfirmButton = {930.f, 1042.f, 25};
     Circle DeclareWarCancelButton  = {990.f, 1042.f, 25};
+    //Deal rejected panel
+    bool bShowDealRejectedPanel = false;
+    Circle DealRejectedOkButton = {960.f, 1042.f, 25};
     //payment panel || Replace the current one
     bool bShowPaymentPanel = false;
     Circle PaymentConfirmButton = {930.f, 1042.f, 25};
@@ -8521,6 +8525,90 @@ bool HasCommonEnemyWithPlayer(FactionZone other) {
         AddDecayingAttitude(faction, "Gifts received", value, AttitudeValues::GiftMaxValue, floorGain, AttitudeValues::GiftMaxFloor, decay);
 
     }
+ //Deal evaluation (Current proposal)
+    enum class ProposalRating { Empty, Insulting, Intriguing, Sufficient, Excessive };
+    struct DealEvaluation {
+        int attitude = 0;
+        int treatyValue = 0;
+        int offeredValue = 0;
+        int demandedValue = 0;
+        int total = 0;
+        ProposalRating rating = ProposalRating::Empty;
+    };
+    //Tuning
+    static constexpr int dealGoldPerPoint = 10;// 100 gold (or gold-value of goods) = 10 points
+    static constexpr int dealIntriguingRange = 25;// total in [-25, 0[ -> Intriguing
+    static constexpr int dealExcessiveFrom = 40;// total >= 40 -> Excessive
+
+    DealEvaluation EvaluateCurrentDeal(FactionZone otherFaction) {
+        DealEvaluation eval;
+
+        bool bHasOffer = !dealOffers.empty();
+        bool bHasAsk = !dealDemands.empty() || !dealResourceDemands.empty() || dealGoldDemandOffer > 0;
+        if (!bHasOffer && !bHasAsk) {
+            eval.rating = ProposalRating::Empty;
+            return eval;
+        }
+
+        //Their attitude towards the player
+        eval.attitude = GetTotalAttitude(BuildAttitudeModifiers(otherFaction));
+
+        //demandValue of every treaty asked (negative values = the treaty costs points)
+        for (TreatyType t : dealDemands) eval.treatyValue += GetTreatyData(t).demandValue;
+
+        //Goods are exchanged each turn so value x number of turns. Gold is one time.
+        int turns = std::max(1, dealTradeTurns);
+
+        int offeredGoldEquivalent = GetTotalGoldOffered();
+        for (const DealOffer& o : dealOffers) {
+            if (o.type != OfferType::Resource) continue;
+            const ResourceData* resData = GetResourceData(o.resourceType);
+            if (resData) offeredGoldEquivalent += resData->ResourceValue * o.amount * turns;
+        }
+
+        int demandedGoldEquivalent = std::max(0, dealGoldDemandOffer);
+        for (const DealResourceDemand& d : dealResourceDemands) {
+            const ResourceData* resData = GetResourceData(d.type);
+            if (resData) demandedGoldEquivalent += resData->ResourceValue * d.amount * turns;
+        }
+
+        eval.offeredValue = offeredGoldEquivalent / dealGoldPerPoint;
+        eval.demandedValue = demandedGoldEquivalent / dealGoldPerPoint;
+
+        //Pure gift (nothing asked) -> attitude doesnt matter, they always take it
+        if (!bHasAsk) {
+            eval.total = eval.offeredValue;
+        } else {
+            eval.total = eval.attitude + eval.treatyValue + eval.offeredValue - eval.demandedValue;
+        }
+
+        if (eval.total < -dealIntriguingRange) eval.rating = ProposalRating::Insulting;
+        else if (eval.total < 0) eval.rating = ProposalRating::Intriguing;
+        else if (eval.total < dealExcessiveFrom) eval.rating = ProposalRating::Sufficient;
+        else eval.rating = ProposalRating::Excessive;
+        return eval;
+    }
+
+    const char* GetProposalLabel(ProposalRating rating) {
+        switch (rating) {
+            case ProposalRating::Insulting: return "Insulting";
+            case ProposalRating::Intriguing: return "Intriguing";
+            case ProposalRating::Sufficient: return "Sufficient";
+            case ProposalRating::Excessive: return "Excessive";
+            default: return "";
+        }
+    }
+    SDL_Color GetProposalColor(ProposalRating rating) {
+        switch (rating) {
+            case ProposalRating::Insulting: return {220, 60, 60, 255};
+            case ProposalRating::Intriguing: return {230, 160, 40, 255};
+            case ProposalRating::Sufficient: return {100, 220, 60, 255};
+            case ProposalRating::Excessive: return {235, 200, 70, 255};
+            default: return {255, 255, 255, 255};
+        }
+    }
+
+
 
     //Reliability of the player in diplomacy (start with maximum )
     static constexpr int trustworthinessMax = 100;
@@ -9386,7 +9474,7 @@ private:
 
         }
         //Inside Specific trade with other faction
-        if (bIsTradingWithSpecificFaction && !bShowDeclareWarPanel && !bShowPaymentPanel && !bShowTradePanel) {
+        if (bIsTradingWithSpecificFaction && !bShowDeclareWarPanel && !bShowPaymentPanel && !bShowTradePanel && !bShowDealRejectedPanel) {
             SDL_FRect tradeTitleRect = {830.f, 730.f, 260.f, 30.f};
             SDL_SetRenderDrawColor(renderer, 70, 70, 70, 255);
             SDL_RenderFillRect(renderer, &tradeTitleRect);
@@ -9545,16 +9633,6 @@ private:
                             }
                         }
 
-
-                        //Current proposal (Insulting, Intriguing, Accept, Excessive)
-                        //If far from making a deal ->Insulting
-                        //If close from making a deal -> Intriguing
-                        //If reasonnable and can make a deal -> Accept
-                        //If way to much in favor of -> Excessive
-                        SDL_FRect currentProposalTextRect ={0, 0, 250, 40};
-
-                        //Text Proposal placeholder for now
-                        drawTextCentered(gameDiplomacyDescText, "Current Proposal:", currentProposalTextRect, white);
 
                         //Round X button to cancel this offer
                         float offerBtnR = offerRemoveSize / 2.f;
@@ -9838,6 +9916,32 @@ private:
                 }
             }
 
+            //Current proposal
+            {
+                DealEvaluation dealEval = EvaluateCurrentDeal(otherFaction);
+                if (dealEval.rating != ProposalRating::Empty) {
+                    const char* proposalPrefix = "Current proposal:";
+                    const char* proposalLabel = GetProposalLabel(dealEval.rating);
+                    const float proposalGap = 6.f;
+
+                    int prefixW = 0, prefixH = 0, labelW = 0, labelH = 0;
+                    TTF_SetTextWrapWidth(gameDiplomacyDescText, 0);
+                    TTF_SetTextString(gameDiplomacyDescText, proposalPrefix, 0);
+                    TTF_GetTextSize(gameDiplomacyDescText, &prefixW, &prefixH);
+                    TTF_SetTextString(gameDiplomacyDescText, proposalLabel, 0);
+                    TTF_GetTextSize(gameDiplomacyDescText, &labelW, &labelH);
+
+                    float proposalAreaX = DiplomacyQuitDealButton.circleX + DiplomacyQuitDealButton.radius + 20.f;
+                    float proposalAreaW = (factionSelectionBackgroundRect.x + factionSelectionBackgroundRect.w - 24.f) - proposalAreaX;
+                    float proposalTotalW = prefixW + proposalGap + labelW;
+                    float proposalX = proposalAreaX + (proposalAreaW - proposalTotalW) / 2.f;
+                    float proposalY = DiplomacyQuitDealButton.circleY - prefixH / 2.f;
+
+                    drawText(gameDiplomacyDescText, proposalPrefix, proposalX, proposalY, white);
+                    drawText(gameDiplomacyDescText, proposalLabel, proposalX + prefixW + proposalGap, proposalY, GetProposalColor(dealEval.rating));
+                }
+            }
+
 
             //Counter offer Deal button
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
@@ -9946,6 +10050,101 @@ private:
                 TTF_DrawRendererText(gameDiplomacyDescText, textX + padX, textY + padY);
             }
         }
+
+//Deal rejected panel
+        if (bIsTradingWithSpecificFaction && bShowDealRejectedPanel) {
+            const SDL_FRect &rejectedBackground = factionSelectionBackgroundRect;
+
+            //Title
+            SDL_FRect rejectedTitleRect = {830.f, 730.f, 260.f, 30.f};
+            SDL_SetRenderDrawColor(renderer, 70, 70, 70, 255);
+            SDL_RenderFillRect(renderer, &rejectedTitleRect);
+            SDL_SetRenderDrawColor(renderer, 190, 190, 190, 255);
+            SDL_RenderRect(renderer, &rejectedTitleRect);
+            drawTextCentered(gameDiplomacyTitleText, "Diplomacy", rejectedTitleRect, white);
+
+            //Gold of the player
+            SDL_FRect rejectedGoldIconRect = {rejectedBackground.x + 24.f, rejectedBackground.y + 23.f, 18.f, 18.f};
+            SDL_RenderTexture(renderer, gameCoinMoneyTexture, nullptr, &rejectedGoldIconRect);
+            drawText(gameDiplomacySousTitleText, std::to_string(player.currentGold).c_str(), rejectedGoldIconRect.x + 24.f, rejectedBackground.y + 21.f, white);
+
+            //Strength bar
+            float rejectedPlayerStrength = (float)strengthByFaction[player.faction];
+            float rejectedOtherStrength = (float)strengthByFaction[otherFaction];
+            float rejectedTotalStrength = rejectedPlayerStrength + rejectedOtherStrength;
+            float rejectedPlayerShare = (rejectedTotalStrength > 0.f) ? (rejectedPlayerStrength / rejectedTotalStrength) : 0.5f;
+            SDL_FRect rejectedBarRect = {rejectedBackground.x + 565.f, rejectedBackground.y + 32.f, 80.f, 8.f};
+            SDL_SetRenderDrawColor(renderer, 120, 20, 20, 255);
+            SDL_RenderFillRect(renderer, &rejectedBarRect);
+            SDL_FRect rejectedBarFill = {rejectedBarRect.x, rejectedBarRect.y, rejectedBarRect.w * rejectedPlayerShare, rejectedBarRect.h};
+            SDL_SetRenderDrawColor(renderer, 230, 190, 20, 255);
+            SDL_RenderFillRect(renderer, &rejectedBarFill);
+            SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
+            SDL_RenderRect(renderer, &rejectedBarRect);
+
+            //Framed message
+            SDL_FRect rejectedMessageRect = {rejectedBackground.x + 24.f, rejectedBackground.y + 60.f, rejectedBackground.w - 48.f, 170.f};
+            SDL_SetRenderDrawColor(renderer, 140, 140, 140, 255);
+            SDL_RenderRect(renderer, &rejectedMessageRect);
+
+            //"They have" + "rejected" (red) + "your offer" on one line, centered
+            const char *rejectedPartA = "They have";
+            const char *rejectedPartB = "rejected";
+            const char *rejectedPartC = "your offer";
+            const float rejectedWordGap = 7.f;
+            int rejectedWA = 0, rejectedHA = 0, rejectedWB = 0, rejectedHB = 0, rejectedWC = 0, rejectedHC = 0;
+            TTF_SetTextWrapWidth(gameDiplomacySousTitleText, 0);
+            TTF_SetTextString(gameDiplomacySousTitleText, rejectedPartA, 0);
+            TTF_GetTextSize(gameDiplomacySousTitleText, &rejectedWA, &rejectedHA);
+            TTF_SetTextString(gameDiplomacySousTitleText, rejectedPartB, 0);
+            TTF_GetTextSize(gameDiplomacySousTitleText, &rejectedWB, &rejectedHB);
+            TTF_SetTextString(gameDiplomacySousTitleText, rejectedPartC, 0);
+            TTF_GetTextSize(gameDiplomacySousTitleText, &rejectedWC, &rejectedHC);
+
+            float rejectedTotalW = rejectedWA + rejectedWordGap + rejectedWB + rejectedWordGap + rejectedWC;
+            float rejectedTextX = rejectedMessageRect.x + (rejectedMessageRect.w - rejectedTotalW) / 2.f;
+            float rejectedTextY = rejectedMessageRect.y + (rejectedMessageRect.h - rejectedHA) / 2.f;
+            drawText(gameDiplomacySousTitleText, rejectedPartA, rejectedTextX, rejectedTextY, white);
+            drawText(gameDiplomacySousTitleText, rejectedPartB, rejectedTextX + rejectedWA + rejectedWordGap, rejectedTextY, SDL_Color{220, 40, 40, 255});
+            drawText(gameDiplomacySousTitleText, rejectedPartC, rejectedTextX + rejectedWA + rejectedWordGap + rejectedWB + rejectedWordGap, rejectedTextY, white);
+
+            //OK button
+            float mouseXRejected, mouseYRejected;
+            SDL_GetMouseState(&mouseXRejected, &mouseYRejected);
+            float lenghtXRejected, lenghtYRejected;
+            SDL_RenderCoordinatesFromWindow(renderer, mouseXRejected, mouseYRejected, &lenghtXRejected, &lenghtYRejected);
+
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+            bool bHoveredRejectedOk = ClickInsideCircle(lenghtXRejected, lenghtYRejected, DealRejectedOkButton);
+            SDL_SetTextureAlphaMod(gameMakeDealTexture, bHoveredRejectedOk ? 255 : 200);
+            RenderBoutonCercle(DealRejectedOkButton, nullptr, gameMakeDealTexture, 0, 0, 0);
+            SDL_SetTextureAlphaMod(gameMakeDealTexture, 255);
+
+            if (bHoveredRejectedOk) {
+                const char *rejectedOkLabel = "OK";
+                TTF_SetTextWrapWidth(gameDiplomacyDescText, 0);
+                TTF_SetTextString(gameDiplomacyDescText, rejectedOkLabel, 0);
+                int nameW = 0, nameH = 0;
+                TTF_GetTextSize(gameDiplomacyDescText, &nameW, &nameH);
+
+                float padX = 8.f, padY = 5.f;
+                float textW = nameW + padX * 2.f;
+                float textH = nameH + padY * 2.f;
+                float textX = lenghtXRejected + 15.f; //offset on the cursor
+                float textY = lenghtYRejected - textH / 2.f;//centered on cursor
+
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+                SDL_FRect tooltipRejectedOkBackground = {textX, textY, textW, textH};
+                SDL_RenderFillRect(renderer, &tooltipRejectedOkBackground);
+                SDL_SetRenderDrawColor(renderer, 40, 90, 110, 255);
+                SDL_RenderRect(renderer, &tooltipRejectedOkBackground);
+
+                TTF_SetTextColor(gameDiplomacyDescText, 240, 240, 240, 255);
+                TTF_DrawRendererText(gameDiplomacyDescText, textX + padX, textY + padY);
+            }
+        }
+
 
         //Declare War panel
         if (bIsTradingWithSpecificFaction && bShowDeclareWarPanel) {
@@ -12903,6 +13102,14 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             // In diplomacy popup only Return button Works and nothing else from the background
             if (app.bDiplomacyInfoPopup) {
                 //Declare War panel: only its 2 buttons work, everything else is blocked
+                //Deal rejected panel
+                if (app.bShowDealRejectedPanel) {
+                    if (app.ClickInsideCircle(nouveauX, nouveauY, app.DealRejectedOkButton)) {
+                        app.bShowDealRejectedPanel = false; // back todeal screen
+                    }
+                    return SDL_APP_CONTINUE;
+                }
+
                 if (app.bShowDeclareWarPanel) {
                     if (app.ClickInsideCircle(nouveauX, nouveauY, app.DeclareWarConfirmButton)) {
                         GameApp::DiplomacyState& warState = app.diplomacyWithFaction[(int)app.selectedDiplomacyFaction];
@@ -13124,8 +13331,20 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     app.bIsTradingWithSpecificFaction = true;
                 }
                 //Buttons after initiating Trade
-                //Buttons after initiating Trade
                 if (app.bIsTradingWithSpecificFaction && app.ClickInsideCircle(nouveauX, nouveauY, app.DiplomacyMakeDealButton)) {
+                    GameApp::DealEvaluation makeDealEval = app.EvaluateCurrentDeal(app.selectedDiplomacyFaction);
+                    if (makeDealEval.rating == GameApp::ProposalRating::Empty) return SDL_APP_CONTINUE;
+                    SDL_Log("Deal eval: attitude %d + treaties %d + offered %d - demanded %d = %d (%s)",
+                        makeDealEval.attitude, makeDealEval.treatyValue, makeDealEval.offeredValue,
+                        makeDealEval.demandedValue, makeDealEval.total,
+                        app.GetProposalLabel(makeDealEval.rating));
+                    if (makeDealEval.rating == GameApp::ProposalRating::Insulting ||
+                        makeDealEval.rating == GameApp::ProposalRating::Intriguing) {
+                        SDL_Log("The other faction rejected the deal");
+                        app.bShowTreatyList = false;
+                        app.bShowDealRejectedPanel = true;
+                        return SDL_APP_CONTINUE;
+                        }
                     AiFactionState *dealAiState = app.aiBehaviour.GetState(app.selectedDiplomacyFaction);
 
                     // ai can pay what you ask for
