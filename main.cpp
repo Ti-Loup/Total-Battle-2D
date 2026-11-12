@@ -37,7 +37,7 @@
  * ToDo | Refactor
  *
  * Done | If not enough resources to maintain a barter trade, the trade agreement is stopped and it reduce Attitude towards the parter by around 50 points. Also reduce your reliability(from 100 to 66, to 33 to 0)
- * ToDo | Add Current proposal if deal gets accepted. which work with attitude with faction + base value from those demands amount
+ * Done | Add Current proposal if deal gets accepted. which work with attitude with faction + base value from those demands amount
  * Todo | make some goods more desirable for some oher faction
  * ToDo | Add Visual to character portrait.
  * ToDo | Buttons under minimap
