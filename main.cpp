@@ -7895,7 +7895,8 @@ public:
     Circle DeclareWarConfirmButton = {930.f, 1042.f, 25};
     Circle DeclareWarCancelButton  = {990.f, 1042.f, 25};
     //Deal rejected panel
-    bool bShowDealRejectedPanel = false;
+    bool bShowDealRejectedPanel = false;//when refused
+    bool bShowDealAcceptedPanel = false;//when accepted
     Circle DealRejectedOkButton = {960.f, 1042.f, 25};
     //payment panel || Replace the current one
     bool bShowPaymentPanel = false;
@@ -10089,7 +10090,7 @@ private:
 
             //"They have" + "rejected" (red) + "your offer" on one line, centered
             const char *rejectedPartA = "They have";
-            const char *rejectedPartB = "rejected";
+            const char *rejectedPartB = bShowDealAcceptedPanel ? "accepted" : "rejected";
             const char *rejectedPartC = "your offer";
             const float rejectedWordGap = 7.f;
             int rejectedWA = 0, rejectedHA = 0, rejectedWB = 0, rejectedHB = 0, rejectedWC = 0, rejectedHC = 0;
@@ -10105,7 +10106,8 @@ private:
             float rejectedTextX = rejectedMessageRect.x + (rejectedMessageRect.w - rejectedTotalW) / 2.f;
             float rejectedTextY = rejectedMessageRect.y + (rejectedMessageRect.h - rejectedHA) / 2.f;
             drawText(gameDiplomacySousTitleText, rejectedPartA, rejectedTextX, rejectedTextY, white);
-            drawText(gameDiplomacySousTitleText, rejectedPartB, rejectedTextX + rejectedWA + rejectedWordGap, rejectedTextY, SDL_Color{220, 40, 40, 255});
+            SDL_Color rejectedPartBColor = bShowDealAcceptedPanel ? SDL_Color{60, 170, 60, 255} : SDL_Color{220, 40, 40, 255};
+            drawText(gameDiplomacySousTitleText, rejectedPartB, rejectedTextX + rejectedWA + rejectedWordGap, rejectedTextY, rejectedPartBColor);
             drawText(gameDiplomacySousTitleText, rejectedPartC, rejectedTextX + rejectedWA + rejectedWordGap + rejectedWB + rejectedWordGap, rejectedTextY, white);
 
             //OK button
@@ -13342,6 +13344,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         makeDealEval.rating == GameApp::ProposalRating::Intriguing) {
                         SDL_Log("The other faction rejected the deal");
                         app.bShowTreatyList = false;
+                        app.bShowDealAcceptedPanel = false;
                         app.bShowDealRejectedPanel = true;
                         return SDL_APP_CONTINUE;
                         }
@@ -13447,6 +13450,9 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     app.dealResourceDemands.clear();
                     app.dealOffersScrollOffset = 0.f;
                     app.dealGoldDemandOffer = 0;
+                    app.bShowTreatyList = false;
+                    app.bShowDealAcceptedPanel = true;
+                    app.bShowDealRejectedPanel = true;
                     return SDL_APP_CONTINUE;
                 }
 
