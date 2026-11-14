@@ -38,14 +38,13 @@
  *
  * Done | If not enough resources to maintain a barter trade, the trade agreement is stopped and it reduce Attitude towards the parter by around 50 points. Also reduce your reliability(from 100 to 66, to 33 to 0)
  * Done | Add Current proposal if deal gets accepted. which work with attitude with faction + base value from those demands amount
+ * ToDo | Per faction Ui Textures scalable. (With 9slice technic)
  * Todo | make some goods more desirable for some oher faction
  * ToDo | Add Visual to character portrait.
- * ToDo | Buttons under minimap
- * ToDo | Per faction Ui Textures scalable. (With 9slice technic)
  * ToDo | Able to stop a trade agreement with button but reduce Attitude towards the other faction. (~ -10 per turn remaining)
  * ToDo | Show the current faction turn instead of all being instant.
  * ToDo | during a ai faction turn it can propose a treaty with the player or ai.
- * ToDo | Add Event Messages, Armies tab, Provinces tab and Factions tab + textures.
+ * ToDo | Buttons under minimap ,Event Messages, Armies tab, Provinces tab and Factions tab + textures.
  *
  * Bugs:
  * Fixed | The import and export arrow isn't showing
