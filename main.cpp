@@ -8539,7 +8539,37 @@ bool HasCommonEnemyWithPlayer(FactionZone other) {
     static constexpr int dealGoldPerPoint = 10;// 100 gold (or gold-value of goods) = 10 points
     static constexpr int dealIntriguingRange = 25;// total in [-25, 0[ -> Intriguing
     static constexpr int dealExcessiveFrom = 40;// total >= 40 -> Excessive
+    //how goods are desirable (green ++, grey ~, red no)
+    static constexpr int goodsNeedBelow = 10;
+    static constexpr int goodsAbundantFrom = 50;
+    static constexpr float goodsNeedMultiplier = 1.5f;
+    static constexpr float goodsNormalMultiplier = 1.0f;
+    static constexpr float goodsAbundantMultiplier = 0.6;//less valuable when lots of ressources already.
+    enum class GoodsDemandLevel { Need, Normal, Abundant };
 
+    GoodsDemandLevel GetGoodsDemandLevel(FactionZone faction, ResourceType type) {
+        int stock = 0;
+        if (faction == player.faction) {
+            auto it = goodsStoredByType.find(type);
+            if (it != goodsStoredByType.end()) stock = it->second;
+        }
+        else if (AiFactionState* ai = aiBehaviour.GetState(faction)) {
+            auto it = ai->goodsStoredByType.find(type);
+            if (it != ai->goodsStoredByType.end()) stock = it->second;
+        }
+        if (stock < goodsNeedBelow) return GoodsDemandLevel::Need;//need green
+        if (stock >= goodsAbundantFrom) return GoodsDemandLevel::Abundant;//no needs red
+        return GoodsDemandLevel::Normal;
+    }
+
+    //How much the faction values 1 unit of this good, compared to its base ResourceValue
+    float GetGoodsDesirabilityMultiplier(FactionZone faction, ResourceType type) {
+        switch (GetGoodsDemandLevel(faction, type)) {
+            case GoodsDemandLevel::Need: return goodsNeedMultiplier;
+            case GoodsDemandLevel::Abundant: return goodsAbundantMultiplier;
+            default: return goodsNormalMultiplier;
+        }
+    }
     DealEvaluation EvaluateCurrentDeal(FactionZone otherFaction) {
         DealEvaluation eval;
 
@@ -8559,21 +8589,29 @@ bool HasCommonEnemyWithPlayer(FactionZone other) {
         //Goods are exchanged each turn so value x number of turns. Gold is one time.
         int turns = std::max(1, dealTradeTurns);
 
-        int offeredGoldEquivalent = GetTotalGoldOffered();
+        //gold equivalents to goods
+        //What the player gives to ai
+        float offeredGoldEquivalent = (float)GetTotalGoldOffered();
         for (const DealOffer& o : dealOffers) {
             if (o.type != OfferType::Resource) continue;
             const ResourceData* resData = GetResourceData(o.resourceType);
-            if (resData) offeredGoldEquivalent += resData->ResourceValue * o.amount * turns;
+            if (resData) {
+                offeredGoldEquivalent += resData->ResourceValue * o.amount * turns
+                                       * GetGoodsDesirabilityMultiplier(otherFaction, o.resourceType);
+            }
         }
-
-        int demandedGoldEquivalent = std::max(0, dealGoldDemandOffer);
+        //What the player asks to ai
+        float demandedGoldEquivalent = (float)std::max(0, dealGoldDemandOffer);
         for (const DealResourceDemand& d : dealResourceDemands) {
             const ResourceData* resData = GetResourceData(d.type);
-            if (resData) demandedGoldEquivalent += resData->ResourceValue * d.amount * turns;
+            if (resData) {
+                demandedGoldEquivalent += resData->ResourceValue * d.amount * turns
+                                        * GetGoodsDesirabilityMultiplier(otherFaction, d.type);
+            }
         }
 
-        eval.offeredValue = offeredGoldEquivalent / dealGoldPerPoint;
-        eval.demandedValue = demandedGoldEquivalent / dealGoldPerPoint;
+        eval.offeredValue  = (int)(offeredGoldEquivalent  / dealGoldPerPoint);
+        eval.demandedValue = (int)(demandedGoldEquivalent / dealGoldPerPoint);
 
         //Pure gift (nothing asked) -> attitude doesnt matter, they always take it
         if (!bHasAsk) {
@@ -8957,9 +8995,6 @@ private:
                 SDL_FRect tradeContent = drawSection(tradeRect, "Trade goods");
 
                 if (bIsTradingWithSpecificFaction) {
-                    // Initiate Diplomacy: every RAW good, with the amount + green if need / or red to mucvh
-                    const int needBelow = 10; // fewer than this need green
-                    const int abundantFrom = 50; // this much or more  red
 
                     // stock of this faction player or AI
                     const std::unordered_map<ResourceType, int> *storedPtr = nullptr;
@@ -8998,8 +9033,9 @@ private:
                             cellW, cellH
                         };
 
-                        bool bNeed = (amount < needBelow);
-                        bool bAbundant = (amount >= abundantFrom);
+                        GoodsDemandLevel demandLevel = GetGoodsDemandLevel(faction, type);
+                        bool bNeed = (demandLevel == GoodsDemandLevel::Need);
+                        bool bAbundant = (demandLevel == GoodsDemandLevel::Abundant);
 
                         // frame that is green ,red or gray
                         if (bNeed) {
