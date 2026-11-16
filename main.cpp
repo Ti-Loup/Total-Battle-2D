@@ -38,8 +38,8 @@
  *
  * Done | If not enough resources to maintain a barter trade, the trade agreement is stopped and it reduce Attitude towards the parter by around 50 points. Also reduce your reliability(from 100 to 66, to 33 to 0)
  * Done | Add Current proposal if deal gets accepted. which work with attitude with faction + base value from those demands amount
- * ToDo | Per faction Ui Textures scalable. (With 9slice technic)
- * Todo | make some goods more desirable for some oher faction
+ * Done | Per faction Ui Textures scalable. (With 9slice technic)
+ * Done | make some goods more desirable for some oher faction
  * ToDo | Add Visual to character portrait.
  * ToDo | Able to stop a trade agreement with button but reduce Attitude towards the other faction. (~ -10 per turn remaining)
  * ToDo | Show the current faction turn instead of all being instant.
@@ -12181,6 +12181,15 @@ void RenderCategoryBuildingInfoUI() {
 
 
 public:
+    //9slice texture helper
+    void Render9GridTexture(SDL_Texture* texture, const SDL_FRect& rect, float corner, float scaleSize = 1.f, Uint8 alpha = 255) {
+        if (!texture) return;
+        SDL_SetTextureAlphaMod(texture, alpha);
+        SDL_RenderTexture9Grid(renderer, texture, nullptr, corner, corner, corner, corner, scaleSize, &rect);
+        SDL_SetTextureAlphaMod(texture, 255);
+    }
+    //to use Render9GridTexture(GetPanelTexture(province.owner), leftPanel, 16.f, 1.f, 210);//faction owner texture
+
     //To render the circles
     void RenderCircle(float circleX, float circleY, float radius) {
         for (float y = -radius; y <= radius; y++) {
