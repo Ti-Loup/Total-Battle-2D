@@ -2743,6 +2743,25 @@ inline void GameApp::LoadTextures() {
         }
         SDL_SetTextureScaleMode(gameResourceTextileIconTexture, SDL_SCALEMODE_NEAREST);
 
+        //Faction UI Textures
+        //Knight
+        knightBuildingConstructionBackgroundUITexture = IMG_LoadTexture(renderer, "assets/UI/KnightBuildingConstructionBackground.png");
+        if (knightBuildingConstructionBackgroundUITexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture knightBuildingConstructionBackgroundUITexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(knightBuildingConstructionBackgroundUITexture, SDL_SCALEMODE_NEAREST);
+        //Viking
+        vikingBuildingConstructionBackgroundUITexture = IMG_LoadTexture(renderer, "assets/UI/VikingBuildingConstructionBackground.png");
+        if (vikingBuildingConstructionBackgroundUITexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture vikingBuildingConstructionBackgroundUITexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(vikingBuildingConstructionBackgroundUITexture, SDL_SCALEMODE_NEAREST);
+        //Samurai
+        samuraiBuildingConstructionBackgroundUITexture = IMG_LoadTexture(renderer, "assets/UI/SamuraiBuildingConstructionBackground.png");
+        if (samuraiBuildingConstructionBackgroundUITexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture samuraiBuildingConstructionBackgroundUITexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(samuraiBuildingConstructionBackgroundUITexture, SDL_SCALEMODE_NEAREST);
 }
 
 inline void GameApp::DestroyTextures() {
@@ -2827,6 +2846,13 @@ inline void GameApp::DestroyTextures() {
         &gameEventMessagesButtonIconTexture, &gameArmiesButtonIconTexture, &gameProvincesButtonIconTexture,
         &gameFactionsButtonIconTexture,
 
+        //UI For Each Faction
+        // ~Knight~
+        &knightBuildingConstructionBackgroundUITexture,
+        // ~Viking~
+        &vikingBuildingConstructionBackgroundUITexture,
+        // ~Samurai~
+        &samuraiBuildingConstructionBackgroundUITexture,
         // ~ KNIGHT ~
         &capitalBuildingUpgrade1Knight, &capitalBuildingUpgrade2Knight, &capitalBuildingUpgrade3Knight,
         &capitalBuildingUpgrade4Knight, &capitalBuildingUpgrade5Knight,

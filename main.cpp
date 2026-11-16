@@ -815,6 +815,23 @@ public:
     //Demand gift
     SDL_Texture *gameDemandMinusArrowTexture = nullptr;
     SDL_Texture *gameDemandPlusArrowTexture = nullptr;
+
+    //Texture Factions UI
+    //Knight
+    SDL_Texture *knightBuildingConstructionBackgroundUITexture = nullptr;
+    //Viking
+    SDL_Texture *vikingBuildingConstructionBackgroundUITexture = nullptr;
+    //Samurai
+    SDL_Texture *samuraiBuildingConstructionBackgroundUITexture = nullptr;
+
+
+
+
+
+
+
+
+
     //buttons Win condition +Missions
     //900.f, 185.f, 200, 40
     SDL_FRect WinConditionsButton = {800.f, 250.f, 200, 40};
@@ -3811,6 +3828,17 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
         categoryEvolutionPopupRect = bg;
         SDL_SetRenderDrawColor(renderer, fc.r, fc.g, fc.b, 130);
         SDL_RenderRect(renderer, &bg);
+        //background textures UI
+        if (faction == FactionZone::Knight) {
+            Render9GridTexture(knightBuildingConstructionBackgroundUITexture, bg, 16.f, 1.f, 210);
+        }
+        else if (faction == FactionZone::Viking) {
+            Render9GridTexture(vikingBuildingConstructionBackgroundUITexture, bg, 16.f, 1.f, 210);
+        }
+        else if (faction == FactionZone::Samurai){
+            Render9GridTexture(samuraiBuildingConstructionBackgroundUITexture, bg, 16.f, 1.f, 210);
+        }
+
 
         //Render each col for the building upgrades
         for (int ci = 0; ci < (int)chains.size(); ci++) {
