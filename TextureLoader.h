@@ -2750,19 +2750,36 @@ inline void GameApp::LoadTextures() {
             SDL_LogWarn(0, "failed to load texture knightBuildingConstructionBackgroundUITexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(knightBuildingConstructionBackgroundUITexture, SDL_SCALEMODE_NEAREST);
+        knightGeneralUIAreaTexture = IMG_LoadTexture(renderer, "assets/UI/KnightGeneralUI.png");
+        if (knightGeneralUIAreaTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture knightGeneralUIAreaTexture",SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(knightGeneralUIAreaTexture, SDL_SCALEMODE_NEAREST);
         //Viking
         vikingBuildingConstructionBackgroundUITexture = IMG_LoadTexture(renderer, "assets/UI/VikingBuildingConstructionBackground.png");
         if (vikingBuildingConstructionBackgroundUITexture == nullptr) {
             SDL_LogWarn(0, "failed to load texture vikingBuildingConstructionBackgroundUITexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(vikingBuildingConstructionBackgroundUITexture, SDL_SCALEMODE_NEAREST);
+        vikingGeneralUIAreaTexture = IMG_LoadTexture(renderer, "assets/UI/VikingGeneralUI.png");
+        if (vikingGeneralUIAreaTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture vikingGeneralUIAreaTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(vikingGeneralUIAreaTexture, SDL_SCALEMODE_NEAREST);
         //Samurai
         samuraiBuildingConstructionBackgroundUITexture = IMG_LoadTexture(renderer, "assets/UI/SamuraiBuildingConstructionBackground.png");
         if (samuraiBuildingConstructionBackgroundUITexture == nullptr) {
             SDL_LogWarn(0, "failed to load texture samuraiBuildingConstructionBackgroundUITexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(samuraiBuildingConstructionBackgroundUITexture, SDL_SCALEMODE_NEAREST);
+        samuraiGeneralUIAreaTexture = IMG_LoadTexture(renderer, "assets/UI/SamuraiGeneralUI.png");
+        if (samuraiGeneralUIAreaTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture samuraiGeneralUIAreaTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(samuraiGeneralUIAreaTexture, SDL_SCALEMODE_NEAREST);
+
 }
+
 
 inline void GameApp::DestroyTextures() {
     // Each group is a list of pointers to the member variables, destroyed in one loop
@@ -2849,10 +2866,13 @@ inline void GameApp::DestroyTextures() {
         //UI For Each Faction
         // ~Knight~
         &knightBuildingConstructionBackgroundUITexture,
+        &knightGeneralUIAreaTexture,
         // ~Viking~
         &vikingBuildingConstructionBackgroundUITexture,
+        &vikingGeneralUIAreaTexture,
         // ~Samurai~
         &samuraiBuildingConstructionBackgroundUITexture,
+        &samuraiGeneralUIAreaTexture,
         // ~ KNIGHT ~
         &capitalBuildingUpgrade1Knight, &capitalBuildingUpgrade2Knight, &capitalBuildingUpgrade3Knight,
         &capitalBuildingUpgrade4Knight, &capitalBuildingUpgrade5Knight,

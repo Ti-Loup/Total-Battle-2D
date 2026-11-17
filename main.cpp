@@ -819,17 +819,13 @@ public:
     //Texture Factions UI
     //Knight
     SDL_Texture *knightBuildingConstructionBackgroundUITexture = nullptr;
+    SDL_Texture *knightGeneralUIAreaTexture = nullptr;
     //Viking
     SDL_Texture *vikingBuildingConstructionBackgroundUITexture = nullptr;
+    SDL_Texture *vikingGeneralUIAreaTexture = nullptr;
     //Samurai
     SDL_Texture *samuraiBuildingConstructionBackgroundUITexture = nullptr;
-
-
-
-
-
-
-
+    SDL_Texture *samuraiGeneralUIAreaTexture = nullptr;
 
 
     //buttons Win condition +Missions
@@ -4158,6 +4154,8 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
 
     //The top UI bar for the money / turn area
     void RenderGeneralUI() {
+        FactionZone faction = player.faction;
+
         //rectangle of the top ui part
         // Bordure
         float thickness = 5.0f;
@@ -4169,6 +4167,16 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
         SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
         SDL_FRect contentRect = {600 + thickness,0 + thickness,800 - (thickness * 2),40 - (thickness * 2)};
         SDL_RenderFillRect(renderer, &contentRect);
+        //add 9GridTexture texture for all different factions
+        if (faction == FactionZone::Knight) {
+            Render9GridTexture(knightGeneralUIAreaTexture, borderRect, 16.f, 1.f, 210);
+        }
+        else if (faction == FactionZone::Viking) {
+            Render9GridTexture(vikingGeneralUIAreaTexture, borderRect, 16.f, 1.f, 210);
+        }
+        else if (faction == FactionZone::Samurai) {
+            Render9GridTexture(samuraiGeneralUIAreaTexture, borderRect, 16.f,1.f, 210);
+        }
 
         //icon Gold
         SDL_FRect goldIcon = {contentRect.x + 45.f, borderRect.y  + 10.f,20.f,20.f};
