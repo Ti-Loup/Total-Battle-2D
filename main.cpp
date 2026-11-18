@@ -3532,12 +3532,19 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
                     if (popY < 5.f) popY = 5.f;
 
                     // Background of popup
-                    SDL_SetRenderDrawColor(renderer, 10, 10, 10, 230);
+                    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
                     SDL_FRect bgRect = {popX - 12.f, popY - 8.f, tileW + 24.f, totalH + 16.f};
-                    SDL_RenderFillRect(renderer, &bgRect);
                     mainBuildingPopupRect = bgRect;
-                    SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 120);
-                    SDL_RenderRect(renderer, &bgRect);
+
+                    if (province.owner == FactionZone::Knight) {
+                        Render9GridTextureTiled(knightBuildingConstructionBackgroundUITexture, bgRect, 12.f, 2.f, 220, 1.f);
+                    }
+                    else if (province.owner == FactionZone::Viking) {
+                        Render9GridTextureTiled(vikingBuildingConstructionBackgroundUITexture, bgRect, 16.f, 2.f, 220);
+                    }
+                    else if (province.owner == FactionZone::Samurai) {
+                        Render9GridTextureTiled(samuraiBuildingConstructionBackgroundUITexture, bgRect, 16.f, 2.f, 220);
+                    }
 
                     if (showTierChain) {
                         // Tier 5 is UP → Tier 1 if down
@@ -3818,21 +3825,17 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
 
         // Fond of the popup
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(renderer, 10, 10, 10, 230);
         SDL_FRect bg = {popX - 10.f, popY - 8.f, totalW + 20.f, totalH + 16.f};
-        SDL_RenderFillRect(renderer, &bg);
         categoryEvolutionPopupRect = bg;
-        SDL_SetRenderDrawColor(renderer, fc.r, fc.g, fc.b, 130);
-        SDL_RenderRect(renderer, &bg);
         //background textures UI
         if (faction == FactionZone::Knight) {
-            Render9GridTexture(knightBuildingConstructionBackgroundUITexture, bg, 16.f, 1.f, 210);
+            Render9GridTextureTiled(knightBuildingConstructionBackgroundUITexture, bg, 12.f, 2.f,  220,  1.f);
         }
         else if (faction == FactionZone::Viking) {
-            Render9GridTexture(vikingBuildingConstructionBackgroundUITexture, bg, 16.f, 1.f, 210);
+            Render9GridTextureTiled(vikingBuildingConstructionBackgroundUITexture, bg, 16.f, 2.f, 220);
         }
         else if (faction == FactionZone::Samurai){
-            Render9GridTexture(samuraiBuildingConstructionBackgroundUITexture, bg, 16.f, 1.f, 210);
+            Render9GridTextureTiled(samuraiBuildingConstructionBackgroundUITexture, bg, 16.f, 2.f, 220);
         }
 
 
@@ -12225,7 +12228,79 @@ public:
         SDL_SetTextureAlphaMod(texture, 255);
     }
     //to use Render9GridTexture(GetPanelTexture(province.owner), leftPanel, 16.f, 1.f, 210);//faction owner texture
+    //9slice texture helper (tiled center)
+       void Render9GridTextureTiled(SDL_Texture* texture, const SDL_FRect& rect, float corner, float scaleSize = 1.f, Uint8 alpha = 255, float tileScale = 1.f) {
+    if (!texture || rect.w <= 0.f || rect.h <= 0.f) return;
 
+    float tw = 0.f, th = 0.f;
+    SDL_GetTextureSize(texture, &tw, &th);
+    const float midW = tw - corner * 2.f;
+    const float midH = th - corner * 2.f;
+    if (midW <= 0.f || midH <= 0.f) return;
+
+    //pixel art: no filtering, otherwise tile seams blur and bleed
+    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
+    SDL_SetTextureAlphaMod(texture, alpha);
+
+    //snap the outer rect to whole screen pixels
+    const float rx0 = std::round(rect.x);
+    const float ry0 = std::round(rect.y);
+    const float rw  = std::round(rect.x + rect.w) - rx0;
+    const float rh  = std::round(rect.y + rect.h) - ry0;
+
+    //border thickness wanted
+    float c = std::round(corner * scaleSize);
+
+    const float borderScale = c / corner;
+    auto drawFitted = [&](const SDL_FRect& src, const SDL_FRect& area, float wantedTileW, float wantedTileH) {
+        if (area.w < 1.f || area.h < 1.f || wantedTileW <= 0.f || wantedTileH <= 0.f) return;
+        const int cols = std::max(1, (int)std::round(area.w / wantedTileW));
+        const int rows = std::max(1, (int)std::round(area.h / wantedTileH));
+        for (int row = 0; row < rows; row++) {
+            const float y0 = std::round(area.y + area.h * row / rows);
+            const float y1 = std::round(area.y + area.h * (row + 1) / rows);
+            for (int col = 0; col < cols; col++) {
+                const float x0 = std::round(area.x + area.w * col / cols);
+                const float x1 = std::round(area.x + area.w * (col + 1) / cols);
+                SDL_FRect d = {x0, y0, x1 - x0, y1 - y0};
+                SDL_RenderTexture(renderer, texture, &src, &d);
+            }
+        }
+    };
+
+    const SDL_FRect inner = {rx0 + c, ry0 + c, rw - c * 2.f, rh - c * 2.f};
+
+    // One uniform scale for width and height, auto-reduced if the area is smaller than a tile
+    if (inner.w >= 1.f && inner.h >= 1.f) {
+        const float fitScale = std::min(inner.w / midW, inner.h / midH);// biggest scale where 1 tile fits
+        const float centerScale = std::min(tileScale, fitScale);// never bigger than the room available
+        drawFitted({corner, corner, midW, midH}, inner, midW * centerScale, midH * centerScale);
+    }
+
+    // Borders
+    const float edgeTileW = midW * borderScale;
+    const float edgeTileH = midH * borderScale;
+    drawFitted({corner, 0.f, midW, corner},{rx0 + c, ry0, rw - c * 2.f, c}, edgeTileW, c); // top
+    drawFitted({corner, th - corner, midW, corner}, {rx0 + c,ry0 + rh - c,  rw - c * 2.f, c}, edgeTileW, c); // bottom
+    drawFitted({0.f, corner, corner, midH}, {rx0,  ry0 + c,c, rh - c * 2.f}, c, edgeTileH); // left
+    drawFitted({tw - corner, corner, corner, midH}, {rx0 + rw - c, ry0 + c,c, rh - c * 2.f}, c, edgeTileH); // right
+
+    //Corners
+    const SDL_FRect srcTL = {0.f, 0.f, corner, corner};
+    const SDL_FRect srcTR = {tw - corner, 0.f, corner, corner};
+    const SDL_FRect srcBL = {0.f, th - corner, corner, corner};
+    const SDL_FRect srcBR = {tw - corner, th - corner, corner, corner};
+    const SDL_FRect dstTL = {rx0, ry0, c, c};
+    const SDL_FRect dstTR = {rx0 + rw - c, ry0, c, c};
+    const SDL_FRect dstBL = {rx0, ry0 + rh - c, c, c};
+    const SDL_FRect dstBR = {rx0 + rw - c, ry0 + rh - c, c, c};
+    SDL_RenderTexture(renderer, texture, &srcTL, &dstTL);
+    SDL_RenderTexture(renderer, texture, &srcTR, &dstTR);
+    SDL_RenderTexture(renderer, texture, &srcBL, &dstBL);
+    SDL_RenderTexture(renderer, texture, &srcBR, &dstBR);
+
+    SDL_SetTextureAlphaMod(texture, 255);
+}
     //To render the circles
     void RenderCircle(float circleX, float circleY, float radius) {
         for (float y = -radius; y <= radius; y++) {
