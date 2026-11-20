@@ -2755,6 +2755,11 @@ inline void GameApp::LoadTextures() {
             SDL_LogWarn(0, "failed to load texture knightGeneralUIAreaTexture",SDL_GetError());
         }
         SDL_SetTextureScaleMode(knightGeneralUIAreaTexture, SDL_SCALEMODE_NEAREST);
+        knightIndicatorLeftPanelTexture = IMG_LoadTexture(renderer, "assets/UI/KnightLeftPanel.png");
+        if (knightIndicatorLeftPanelTexture == nullptr){
+            SDL_LogWarn(0, "failed to load texture knightIndicatorLeftPanelTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(knightIndicatorLeftPanelTexture, SDL_SCALEMODE_NEAREST);
         //Viking
         vikingBuildingConstructionBackgroundUITexture = IMG_LoadTexture(renderer, "assets/UI/VikingBuildingConstructionBackground.png");
         if (vikingBuildingConstructionBackgroundUITexture == nullptr) {
@@ -2766,6 +2771,11 @@ inline void GameApp::LoadTextures() {
             SDL_LogWarn(0, "failed to load texture vikingGeneralUIAreaTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(vikingGeneralUIAreaTexture, SDL_SCALEMODE_NEAREST);
+        vikingIndicatorLeftPanelTexture = IMG_LoadTexture(renderer, "assets/UI/VikingLeftPanel.png");
+        if (vikingIndicatorLeftPanelTexture == nullptr){
+            SDL_LogWarn(0, "failed to load texture vikingIndicatorLeftPanelTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(vikingIndicatorLeftPanelTexture, SDL_SCALEMODE_NEAREST);
         //Samurai
         samuraiBuildingConstructionBackgroundUITexture = IMG_LoadTexture(renderer, "assets/UI/SamuraiBuildingConstructionBackground.png");
         if (samuraiBuildingConstructionBackgroundUITexture == nullptr) {
@@ -2777,6 +2787,11 @@ inline void GameApp::LoadTextures() {
             SDL_LogWarn(0, "failed to load texture samuraiGeneralUIAreaTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(samuraiGeneralUIAreaTexture, SDL_SCALEMODE_NEAREST);
+        samuraiIndicatorLeftPanelTexture = IMG_LoadTexture(renderer, "assets/UI/SamuraiLeftPanel.png");
+        if (samuraiIndicatorLeftPanelTexture == nullptr){
+            SDL_LogWarn(0, "failed to load texture samuraiIndicatorLeftPanelTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(samuraiIndicatorLeftPanelTexture, SDL_SCALEMODE_NEAREST);
 
 }
 
@@ -2867,12 +2882,15 @@ inline void GameApp::DestroyTextures() {
         // ~Knight~
         &knightBuildingConstructionBackgroundUITexture,
         &knightGeneralUIAreaTexture,
+        &knightIndicatorLeftPanelTexture,
         // ~Viking~
         &vikingBuildingConstructionBackgroundUITexture,
         &vikingGeneralUIAreaTexture,
+        &vikingIndicatorLeftPanelTexture,
         // ~Samurai~
         &samuraiBuildingConstructionBackgroundUITexture,
         &samuraiGeneralUIAreaTexture,
+        &samuraiIndicatorLeftPanelTexture,
         // ~ KNIGHT ~
         &capitalBuildingUpgrade1Knight, &capitalBuildingUpgrade2Knight, &capitalBuildingUpgrade3Knight,
         &capitalBuildingUpgrade4Knight, &capitalBuildingUpgrade5Knight,
