@@ -2666,11 +2666,13 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
         SDL_RenderFillRect(renderer, &leftPanel);
 
         // Title Province Name
-        SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 180);
         SDL_FRect titleBar = {leftX, leftY, leftW, 40.f};
-        SDL_RenderFillRect(renderer, &titleBar);
-        SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 255);
-        SDL_RenderRect(renderer, &leftPanel);
+        if (province.owner == FactionZone::Knight)
+            Render9GridTextureTiled(knightIndicatorLeftPanelTexture, titleBar, 16.f, 1.f, 255);
+        else if (province.owner == FactionZone::Viking)
+            Render9GridTextureTiled(vikingIndicatorLeftPanelTexture, titleBar, 16.f, 1.f, 255);
+        else if (province.owner == FactionZone::Samurai)
+            Render9GridTextureTiled(vikingIndicatorLeftPanelTexture, titleBar, 16.f, 1.f, 255);
 
         // Name province
         TTF_SetTextString(gameStatUITitleText, province.name.c_str(), 0);
@@ -11660,12 +11662,13 @@ void RenderBuildingStatRows(const BuildingData* data, BuildingType type, float t
         SDL_FRect bg = {tooltipX, tooltipY, tooltipW, tooltipH};
         SDL_RenderFillRect(renderer, &bg);
 
-        SDL_SetRenderDrawColor(renderer, fc.r, fc.g, fc.b, 180);
         SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, 30.f};
-        SDL_RenderFillRect(renderer, &titleBar);
-
-        SDL_SetRenderDrawColor(renderer, fc.r, fc.g, fc.b, 255);
-        SDL_RenderRect(renderer, &bg);
+        if (province.owner == FactionZone::Knight)
+            Render9GridTextureTiled(knightIndicatorLeftPanelTexture, titleBar, 16.f, 1.f, 255);
+        else if (province.owner == FactionZone::Viking)
+            Render9GridTextureTiled(vikingIndicatorLeftPanelTexture, titleBar, 16.f, 1.f, 255);
+        else if (province.owner == FactionZone::Samurai)
+            Render9GridTextureTiled(samuraiIndicatorLeftPanelTexture, titleBar, 16.f, 1.f, 255);
 
         TTF_SetTextString(gameStatUITitleText, data->name.c_str(), 0);
         TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
