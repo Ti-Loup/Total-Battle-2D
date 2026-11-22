@@ -2668,16 +2668,21 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
         // Title Province Name
         SDL_FRect titleBar = {leftX, leftY, leftW, 40.f};
         if (province.owner == FactionZone::Knight)
-            Render9GridTextureTiled(knightIndicatorLeftPanelTexture, titleBar, 16.f, 1.f, 255);
+            Render9GridTextureTiled(knightIndicatorLeftPanelTexture, titleBar, 16.f, 1.3f, 255);
         else if (province.owner == FactionZone::Viking)
-            Render9GridTextureTiled(vikingIndicatorLeftPanelTexture, titleBar, 16.f, 1.f, 255);
+            Render9GridTextureTiled(vikingIndicatorLeftPanelTexture, titleBar, 16.f, 1.3f, 255);
         else if (province.owner == FactionZone::Samurai)
-            Render9GridTextureTiled(vikingIndicatorLeftPanelTexture, titleBar, 16.f, 1.f, 255);
+            Render9GridTextureTiled(samuraiIndicatorLeftPanelTexture, titleBar, 16.f, 1.3f, 255);
 
         // Name province
         TTF_SetTextString(gameStatUITitleText, province.name.c_str(), 0);
         TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
-        TTF_DrawRendererText(gameStatUITitleText, leftX + 10.f, leftY + 8.f);
+        int provinceNameW = 0, provinceNameH = 0;
+        TTF_GetTextSize(gameStatUITitleText, &provinceNameW, &provinceNameH);
+        TTF_DrawRendererText(gameStatUITitleText,
+            titleBar.x + (titleBar.w - provinceNameW) / 2.f,
+            titleBar.y + (titleBar.h - provinceNameH) / 2.f);
+
 
         // Stats
         float statY = leftY + 55.f;
@@ -2944,10 +2949,12 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
             SDL_SetRenderDrawColor(renderer, typeColor.r, typeColor.g, typeColor.b, 255);
             SDL_FRect icon = {cx + 10.f, panelY + 10.f, 18.f, 18.f};
             SDL_RenderFillRect(renderer, &icon);
-            //each settlement Title ->
+            //each settlement Title -> now centered
             TTF_SetTextString(gameStatUITitleText, s->settlementData.cityName.c_str(), 0);
             TTF_SetTextColor(gameStatUITitleText, 230, 230, 230, 255);
-            TTF_DrawRendererText(gameStatUITitleText, cx + 36.f, panelY + 9.f);
+            int settlementNameW = 0, settlementNameH = 0;
+            TTF_GetTextSize(gameStatUITitleText, &settlementNameW, &settlementNameH);
+            TTF_DrawRendererText(gameStatUITitleText,cardTitle.x + (cardTitle.w - settlementNameW) / 2.f,cardTitle.y + (cardTitle.h - settlementNameH) / 2.f);
 
             // building slots
             if (bButtonUIBuildingIsPressed) {
@@ -3274,13 +3281,22 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
         // Title bottomProvince Title
         float middleTitlePositionX = 835.f;
         float middleTitlePositionY = 770.f;
-        SDL_SetRenderDrawColor(renderer, factionColor.r, factionColor.g, factionColor.b, 180);
+
         SDL_FRect titleBottomBar = {middleTitlePositionX, middleTitlePositionY, 250.f, 40.f};
-        SDL_RenderFillRect(renderer, &titleBottomBar);
+        if (province.owner == FactionZone::Knight)
+            Render9GridTextureTiled(knightIndicatorLeftPanelTexture, titleBottomBar, 16.f, 1.3f, 255);
+        else if (province.owner == FactionZone::Viking)
+            Render9GridTextureTiled(vikingIndicatorLeftPanelTexture, titleBottomBar, 16.f, 1.3f, 255);
+        else if (province.owner == FactionZone::Samurai)
+            Render9GridTextureTiled(samuraiIndicatorLeftPanelTexture, titleBottomBar, 16.f, 1.3f, 255);
+
+
         // Name province for bottomProvince Title
         TTF_SetTextString(gameStatUITitleText, province.name.c_str(), 0);
         TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
-        TTF_DrawRendererText(gameStatUITitleText, middleTitlePositionX + 50.f, middleTitlePositionY + 2.f);
+        int bottomProvinceNameW = 0, bottomProvinceNameH = 0;
+        TTF_GetTextSize(gameStatUITitleText, &bottomProvinceNameW, &bottomProvinceNameH);
+        TTF_DrawRendererText(gameStatUITitleText,titleBottomBar.x + (titleBottomBar.w - bottomProvinceNameW) / 2.f,titleBottomBar.y + (titleBottomBar.h - bottomProvinceNameH) / 2.f);
 
         // Restore
         TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
@@ -11664,15 +11680,17 @@ void RenderBuildingStatRows(const BuildingData* data, BuildingType type, float t
 
         SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, 30.f};
         if (province.owner == FactionZone::Knight)
-            Render9GridTextureTiled(knightIndicatorLeftPanelTexture, titleBar, 16.f, 1.f, 255);
+            Render9GridTextureTiled(knightIndicatorLeftPanelTexture, titleBar, 16.f, 1.3f, 255);
         else if (province.owner == FactionZone::Viking)
-            Render9GridTextureTiled(vikingIndicatorLeftPanelTexture, titleBar, 16.f, 1.f, 255);
+            Render9GridTextureTiled(vikingIndicatorLeftPanelTexture, titleBar, 16.f, 1.3f, 255);
         else if (province.owner == FactionZone::Samurai)
-            Render9GridTextureTiled(samuraiIndicatorLeftPanelTexture, titleBar, 16.f, 1.f, 255);
+            Render9GridTextureTiled(samuraiIndicatorLeftPanelTexture, titleBar, 16.f, 1.3f, 255);
 
         TTF_SetTextString(gameStatUITitleText, data->name.c_str(), 0);
         TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
-        TTF_DrawRendererText(gameStatUITitleText, tooltipX + 8.f, tooltipY + 4.f);
+        int buildingNameW = 0, buildingNameH = 0;
+        TTF_GetTextSize(gameStatUITitleText, &buildingNameW, &buildingNameH);
+        TTF_DrawRendererText(gameStatUITitleText,titleBar.x + (titleBar.w - buildingNameW) / 2.f,titleBar.y + (titleBar.h - buildingNameH) / 2.f);
 
         float lineY = tooltipY + 36.f;
 
@@ -11717,16 +11735,19 @@ void RenderCategoryBuildingInfoUI() {
     SDL_FRect bg = {tooltipX, tooltipY, tooltipW, tooltipH};
     SDL_RenderFillRect(renderer, &bg);
 
-    SDL_SetRenderDrawColor(renderer, fc.r, fc.g, fc.b, 180);
     SDL_FRect titleBar = {tooltipX, tooltipY, tooltipW, 30.f};
-    SDL_RenderFillRect(renderer, &titleBar);
-
-    SDL_SetRenderDrawColor(renderer, fc.r, fc.g, fc.b, 255);
-    SDL_RenderRect(renderer, &bg);
+    if (province.owner == FactionZone::Knight)
+        Render9GridTextureTiled(knightIndicatorLeftPanelTexture, titleBar, 16.f, 1.3f, 255);
+    else if (province.owner == FactionZone::Viking)
+        Render9GridTextureTiled(vikingIndicatorLeftPanelTexture, titleBar, 16.f, 1.3f, 255);
+    else if (province.owner == FactionZone::Samurai)
+        Render9GridTextureTiled(samuraiIndicatorLeftPanelTexture, titleBar, 16.f, 1.3f, 255);
 
     TTF_SetTextString(gameStatUITitleText, data->name.c_str(), 0);
     TTF_SetTextColor(gameStatUITitleText, 255, 255, 255, 255);
-    TTF_DrawRendererText(gameStatUITitleText, tooltipX + 8.f, tooltipY + 4.f);
+    int categoryBuildingNameW = 0, categoryBuildingNameH = 0;
+    TTF_GetTextSize(gameStatUITitleText, &categoryBuildingNameW, &categoryBuildingNameH);
+    TTF_DrawRendererText(gameStatUITitleText,titleBar.x + (titleBar.w - categoryBuildingNameW) / 2.f,titleBar.y + (titleBar.h - categoryBuildingNameH) / 2.f);
 
     float lineY = tooltipY + 36.f;
 
