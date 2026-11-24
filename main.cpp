@@ -821,16 +821,19 @@ public:
     SDL_Texture *knightBuildingConstructionBackgroundUITexture = nullptr;
     SDL_Texture *knightGeneralUIAreaTexture = nullptr;
     SDL_Texture *knightIndicatorLeftPanelTexture = nullptr;
+    SDL_Texture *knightEndTurnIndicatorTexture = nullptr;
 
     //Viking
     SDL_Texture *vikingBuildingConstructionBackgroundUITexture = nullptr;
     SDL_Texture *vikingGeneralUIAreaTexture = nullptr;
     SDL_Texture *vikingIndicatorLeftPanelTexture = nullptr;
+    SDL_Texture *vikingEndTurnIndicatorTexture = nullptr;
 
     //Samurai
     SDL_Texture *samuraiBuildingConstructionBackgroundUITexture = nullptr;
     SDL_Texture *samuraiGeneralUIAreaTexture = nullptr;
     SDL_Texture *samuraiIndicatorLeftPanelTexture = nullptr;
+    SDL_Texture *samuraiEndTurnIndicatorTexture = nullptr;
 
 
 
