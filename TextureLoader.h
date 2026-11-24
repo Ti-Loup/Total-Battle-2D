@@ -2765,6 +2765,11 @@ inline void GameApp::LoadTextures() {
             SDL_LogWarn(0, "failed to load texture knightEndTurnIndicatorTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(knightEndTurnIndicatorTexture, SDL_SCALEMODE_NEAREST);
+        knightEndTurnCurrentFactionTurnIndicatorTexture = IMG_LoadTexture(renderer, "assets/UI/KnightEndTurnCurrentFactionIndicator.png");
+        if (knightEndTurnCurrentFactionTurnIndicatorTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture knightEndTurnCurrentFactionTurnIndicatorTexture",SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(knightEndTurnCurrentFactionTurnIndicatorTexture, SDL_SCALEMODE_NEAREST);
         //Viking
         vikingBuildingConstructionBackgroundUITexture = IMG_LoadTexture(renderer, "assets/UI/VikingBuildingConstructionBackground.png");
         if (vikingBuildingConstructionBackgroundUITexture == nullptr) {
@@ -2786,6 +2791,12 @@ inline void GameApp::LoadTextures() {
             SDL_LogWarn(0, "failed to load texture vikingEndTurnIndicatorTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(vikingEndTurnIndicatorTexture, SDL_SCALEMODE_NEAREST);
+        vikingEndTurnCurrentFactionTurnIndicatorTexture = IMG_LoadTexture(renderer, "assets/UI/VikingEndTurnCurrentFactionIndicator.png");
+        if (vikingEndTurnCurrentFactionTurnIndicatorTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture vikingEndTurnCurrentFactionTurnIndicatorTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(vikingEndTurnCurrentFactionTurnIndicatorTexture, SDL_SCALEMODE_NEAREST);
+
         //Samurai
         samuraiBuildingConstructionBackgroundUITexture = IMG_LoadTexture(renderer, "assets/UI/SamuraiBuildingConstructionBackground.png");
         if (samuraiBuildingConstructionBackgroundUITexture == nullptr) {
@@ -2807,6 +2818,11 @@ inline void GameApp::LoadTextures() {
             SDL_LogWarn(0, "failed to load texture samuraiEndTurnIndicatorTexture", SDL_GetError());
         }
         SDL_SetTextureScaleMode(samuraiEndTurnIndicatorTexture, SDL_SCALEMODE_NEAREST);
+        samuraiEndTurnCurrentFactionTurnIndicatorTexture = IMG_LoadTexture(renderer, "assets/UI/SamuraiEndTurnCurrentFactionIndicator.png");
+        if (samuraiEndTurnCurrentFactionTurnIndicatorTexture == nullptr) {
+            SDL_LogWarn(0, "failed to load texture samuraiEndTurnCurrentFactionTurnIndicatorTexture", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(samuraiEndTurnCurrentFactionTurnIndicatorTexture, SDL_SCALEMODE_NEAREST);
 
 }
 
@@ -2899,16 +2915,19 @@ inline void GameApp::DestroyTextures() {
         &knightGeneralUIAreaTexture,
         &knightIndicatorLeftPanelTexture,
         &knightEndTurnIndicatorTexture,
+        &knightEndTurnCurrentFactionTurnIndicatorTexture,
         // ~Viking~
         &vikingBuildingConstructionBackgroundUITexture,
         &vikingGeneralUIAreaTexture,
         &vikingIndicatorLeftPanelTexture,
         &vikingEndTurnIndicatorTexture,
+        &vikingEndTurnCurrentFactionTurnIndicatorTexture,
         // ~Samurai~
         &samuraiBuildingConstructionBackgroundUITexture,
         &samuraiGeneralUIAreaTexture,
         &samuraiIndicatorLeftPanelTexture,
         &samuraiEndTurnIndicatorTexture,
+        &samuraiEndTurnCurrentFactionTurnIndicatorTexture,
         // ~ KNIGHT ~
         &capitalBuildingUpgrade1Knight, &capitalBuildingUpgrade2Knight, &capitalBuildingUpgrade3Knight,
         &capitalBuildingUpgrade4Knight, &capitalBuildingUpgrade5Knight,

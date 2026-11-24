@@ -40,9 +40,9 @@
  * Done | Add Current proposal if deal gets accepted. which work with attitude with faction + base value from those demands amount
  * Done | Per faction Ui Textures scalable. (With 9slice technic)
  * Done | make some goods more desirable for some oher faction
- * ToDo | Add Visual to character portrait.
+ * Done | Add Visual to character portrait.
  * ToDo | Able to stop a trade agreement with button but reduce Attitude towards the other faction. (~ -10 per turn remaining)
- * ToDo | Show the current faction turn instead of all being instant.
+ * Done | Show the current faction turn instead of all being instant.
  * ToDo | during a ai faction turn it can propose a treaty with the player or ai.
  * ToDo | Buttons under minimap ,Event Messages, Armies tab, Provinces tab and Factions tab + textures.
  *
@@ -465,7 +465,7 @@ public:
     float factionTurnSlideT = 0.f; //slide progress
     float factionTurnEndHoldTimer = 0.f;// short pause on banners
     static constexpr float kFactionTurnSlideDuration = 0.75f; // visual only
-    static constexpr float kFactionTurnEndHold = 1.5f; // visual only little hold while waiting for army movements
+    static constexpr float kFactionTurnEndHold = 1.0f; // visual only little hold while waiting for army movements
     //texture next turn button
     SDL_Texture  *gameNextTurnTexture = nullptr;
 
@@ -832,18 +832,20 @@ public:
     SDL_Texture *knightGeneralUIAreaTexture = nullptr;
     SDL_Texture *knightIndicatorLeftPanelTexture = nullptr;
     SDL_Texture *knightEndTurnIndicatorTexture = nullptr;
-
+    SDL_Texture *knightEndTurnCurrentFactionTurnIndicatorTexture = nullptr;
     //Viking
     SDL_Texture *vikingBuildingConstructionBackgroundUITexture = nullptr;
     SDL_Texture *vikingGeneralUIAreaTexture = nullptr;
     SDL_Texture *vikingIndicatorLeftPanelTexture = nullptr;
     SDL_Texture *vikingEndTurnIndicatorTexture = nullptr;
+    SDL_Texture *vikingEndTurnCurrentFactionTurnIndicatorTexture = nullptr;
 
     //Samurai
     SDL_Texture *samuraiBuildingConstructionBackgroundUITexture = nullptr;
     SDL_Texture *samuraiGeneralUIAreaTexture = nullptr;
     SDL_Texture *samuraiIndicatorLeftPanelTexture = nullptr;
     SDL_Texture *samuraiEndTurnIndicatorTexture = nullptr;
+    SDL_Texture *samuraiEndTurnCurrentFactionTurnIndicatorTexture = nullptr;
 
 
 
@@ -12690,6 +12692,14 @@ public:
                 default: return nullptr;
             }
         };
+        auto getPanelIndicatorTexture = [&](FactionZone factionZone) -> SDL_Texture* {
+            switch (factionZone) {
+                case FactionZone::Knight: return knightEndTurnCurrentFactionTurnIndicatorTexture;
+                case FactionZone::Viking: return vikingEndTurnCurrentFactionTurnIndicatorTexture;
+                case FactionZone::Samurai: return samuraiEndTurnCurrentFactionTurnIndicatorTexture;
+                    default: return nullptr;
+            }
+        };
         auto getBannerTexture = [&](FactionZone f) -> SDL_Texture* {
             switch (f) {
                 case FactionZone::Knight: return settlementKnightBannerTexture;
@@ -12720,6 +12730,7 @@ public:
         const FactionZone current = strip[curIdx];
         const FactionZone nextFaction = strip[nextIdx];
         const FactionZone panelFaction = (t >= 0.5f) ? nextFaction : current;
+        const FactionZone frameFaction = (t >= 0.5f) ? nextFaction:current;
 
         // panel background
         const float panelW = 400.f;
@@ -12728,8 +12739,6 @@ public:
         SDL_FRect panel = {960.f - panelW / 2.f, panelTopY, panelW, panelH};
 
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(renderer, 30, 30, 30, 230);
-        SDL_RenderFillRect(renderer, &panel);
         Render9GridTextureTiled(getPanelTexture(panelFaction), panel, 16.f, 1.3f, 255);
 
         // BANNERS: offset 0 = middle one, +1 = right slot, negative = leaving to the left
@@ -12760,10 +12769,10 @@ public:
                 SDL_SetTextureAlphaMod(tex, 255);// texture is shared with other UI, always reset
             }
 
-            if (closeness > 0.01f) {// white frame follows whoever is in the middle. Need special texture
+            if (closeness > 0.01f) {// faction texture frame follows whoever is in the middle. Need special texture
                 SDL_FRect frame = {rect.x - 3.f, rect.y - 3.f, rect.w + 6.f, rect.h + 6.f};
-                SDL_SetRenderDrawColor(renderer, 255, 255, 255, (Uint8)(200.f * closeness));
-                SDL_RenderRect(renderer, &frame);
+                Render9GridTextureTiled(getPanelIndicatorTexture(frameFaction), frame, 16.f, 1.3f, 255);
+
             }
         }
 
