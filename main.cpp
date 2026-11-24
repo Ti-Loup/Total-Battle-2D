@@ -456,6 +456,16 @@ public:
     //End Turn
     int currentTurn = 1;
     FactionZone currentFactionTurn = FactionZone::Knight;//start with player
+    //Faction turns after End Turn
+    bool bFactionTurnsRunning = false;
+    bool bCurrentFactionTurnProcessed = false;
+    std::vector<FactionZone> factionTurnQueue;
+    int factionTurnQueueIndex = 0;
+    bool  bFactionTurnSliding = false;//true while the banners slide left
+    float factionTurnSlideT = 0.f; //slide progress
+    float factionTurnEndHoldTimer = 0.f;// short pause on banners
+    static constexpr float kFactionTurnSlideDuration = 0.75f; // visual only
+    static constexpr float kFactionTurnEndHold = 1.5f; // visual only little hold while waiting for army movements
     //texture next turn button
     SDL_Texture  *gameNextTurnTexture = nullptr;
 
@@ -7879,6 +7889,7 @@ void RenderRepairTooltip() {
     void TechnologyTree(float deltaTime) {
 
         UpdateBackgroundTint(deltaTime);
+        UpdateFactionTurns(deltaTime);
         //Clear everything
         SDL_SetRenderDrawColor(renderer, 0,0,0,255);
         SDL_RenderClear(renderer);
@@ -11865,6 +11876,7 @@ void RenderCategoryBuildingInfoUI() {
     //Game
     void Game(float deltaTime) {
         UpdateBackgroundTint(deltaTime);
+        UpdateFactionTurns(deltaTime);
         // camera wasd movement
         const bool* keys = SDL_GetKeyboardState(nullptr);
         float baseSpeed = 400.f;
@@ -12193,7 +12205,7 @@ void RenderCategoryBuildingInfoUI() {
     RenderDiplomacyInfoPopup();
     //FamilyTree always shows when button pressed
     RenderFamilyHierarchyInfoPopup();
-
+    RenderFactionTurnBanner();//for end turn
 
 
         //fps
@@ -12586,9 +12598,236 @@ public:
         return 6 + (int)SDL_rand(5); //range [6,12]
     }
 
+     //return true when the faction finished its turn
+    //return false while an AI faction is stillplaying or asking the player for a treaty or army moving
+    bool RunFactionTurn(FactionZone faction) {
+        // UpdateFactionTurns can call this on several frames
+        if (!bCurrentFactionTurnProcessed) {
+            bCurrentFactionTurnProcessed = true;
+
+            // The player's own turn is already handled in EndTurn(), only the AI acts here
+            if (faction != player.faction) {
+                if (AiFactionState *aiState = aiBehaviour.GetState(faction)) {
+                    int income = CalculateFactionIncome(faction);
+                    aiState->currentGold += income;
+                    SDL_Log("AI faction %d earned %d gold (total: %d)", (int)faction, income, aiState->currentGold);
+
+                    ProcessAiFactionFoodForTurn(faction, *aiState);
+                    SDL_Log("AI faction %d food: %d/%d stored (net this turn: %d)", (int)faction, aiState->foodStored, aiState->foodStorage, aiState->nextTurnFood);
+
+                    ProcessAiFactionGoodsForTurn(faction, *aiState);
+                    SDL_Log("AI faction %d goods: %d/%d stored", (int)faction, aiState->currentGoods, aiState->goodsStorage);
+
+                    ProcessAiFactionConstructionForTurn(faction, *aiState);
+                }
+            }
+        }
+        return true;
+
+        // later: return false while an AI is still "thinking" or proposing a treaty
+        //or when an army is currently moving.
+    }
+
+    void StartFactionTurns(const std::vector<FactionZone>& factionOrder) {
+        factionTurnQueue = factionOrder;
+        factionTurnQueueIndex = 0;
+        factionTurnSlideT = 0.f;
+        factionTurnEndHoldTimer = 0.f;
+        bFactionTurnSliding = false;
+        bFactionTurnsRunning = !factionOrder.empty();
+        if (bFactionTurnsRunning) currentFactionTurn = factionOrder[0];
+        bCurrentFactionTurnProcessed = false;
+    }
+
+    //Called every frame from Game()
+    void UpdateFactionTurns(float dt) {
+        if (!bFactionTurnsRunning) return;
+        const int lastFactionIdx = (int)factionTurnQueue.size() - 1; // the last banner is now the last AI faction
+
+        // - Sliding left, bringing the next banner to the middle whn turn finished
+        if (bFactionTurnSliding) {
+            factionTurnSlideT += dt / kFactionTurnSlideDuration;
+            if (factionTurnSlideT >= 1.f) {
+                factionTurnSlideT = 0.f;
+                bFactionTurnSliding = false;
+                factionTurnQueueIndex++;
+                bCurrentFactionTurnProcessed = false;
+                currentFactionTurn = factionTurnQueue[factionTurnQueueIndex];
+            }
+            return;
+        }
+
+        //- When Last faction in the queue: when it's done, short pause before closing banner
+        if (factionTurnQueueIndex >= lastFactionIdx) {
+            if (RunFactionTurn(currentFactionTurn)) {
+                factionTurnEndHoldTimer += dt;
+                if (factionTurnEndHoldTimer >= kFactionTurnEndHold) {
+                    bFactionTurnsRunning = false;
+                    factionTurnQueue.clear();
+                    factionTurnQueueIndex = 0;
+                    factionTurnEndHoldTimer = 0.f;
+                    currentFactionTurn = player.faction;
+                }
+            }
+            return;
+        }
+
+        // - Current faction is playing, and when RunFactionTurn says it's done we slide
+        if (RunFactionTurn(currentFactionTurn)) {
+            bFactionTurnSliding = true;
+            factionTurnSlideT = 0.f;
+        }
+    }
+     //current faction in the middle, next on the right, slides left when finished
+    void RenderFactionTurnBanner() {
+        if (!bFactionTurnsRunning) return;
+
+        auto getPanelTexture = [&](FactionZone f) -> SDL_Texture* {
+            switch (f) {
+                case FactionZone::Knight: return knightEndTurnIndicatorTexture;
+                case FactionZone::Viking: return vikingEndTurnIndicatorTexture;
+                case FactionZone::Samurai: return samuraiEndTurnIndicatorTexture;
+                default: return nullptr;
+            }
+        };
+        auto getBannerTexture = [&](FactionZone f) -> SDL_Texture* {
+            switch (f) {
+                case FactionZone::Knight: return settlementKnightBannerTexture;
+                case FactionZone::Viking: return settlementVikingBannerTexture;
+                case FactionZone::Samurai: return settlementSamuraiBannerTexture;
+                default: return nullptr;
+            }
+        };
+        auto getName = [&](FactionZone f) -> const char* {
+            switch (f) {
+                case FactionZone::Knight: return "Knight";
+                case FactionZone::Viking: return "Viking";
+                case FactionZone::Samurai: return "Samurai";
+                default: return "Not Declared";
+            }
+        };
+
+        // strip = the queue itself // The player is the one staring the queue
+        const std::vector<FactionZone>& strip = factionTurnQueue;
+        const int lastIdx = (int)strip.size() - 1;
+
+        float t = bFactionTurnSliding ? std::clamp(factionTurnSlideT, 0.f, 1.f) : 0.f;
+        t = t * t * (3.f - 2.f * t);// smoothstep easing
+        const float focus = (float)factionTurnQueueIndex + t;// fractional index that sits in the middle
+
+        const int curIdx = std::clamp(factionTurnQueueIndex, 0, lastIdx);
+        const int nextIdx = std::min(curIdx + 1, lastIdx);
+        const FactionZone current = strip[curIdx];
+        const FactionZone nextFaction = strip[nextIdx];
+        const FactionZone panelFaction = (t >= 0.5f) ? nextFaction : current;
+
+        // panel background
+        const float panelW = 400.f;
+        const float panelH = 160.f;
+        const float panelTopY = 180.f;
+        SDL_FRect panel = {960.f - panelW / 2.f, panelTopY, panelW, panelH};
+
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 30, 30, 30, 230);
+        SDL_RenderFillRect(renderer, &panel);
+        Render9GridTextureTiled(getPanelTexture(panelFaction), panel, 16.f, 1.3f, 255);
+
+        // BANNERS: offset 0 = middle one, +1 = right slot, negative = leaving to the left
+        const float bigSize = 64.f;
+        const float smallSize = 34.f;//the banners not in the center.
+        const float spacing = 80.f; // distance between banner centers
+        const float rowTopY = panel.y + 15.f;
+        const float rowCenterY = rowTopY + bigSize / 2.f;
+        const float centerX = panel.x + panel.w / 2.f;
+
+        for (int i = 0; i < (int)strip.size(); i++) {
+            float offset = (float)i - focus;
+            float absOff = std::fabs(offset);
+            if (offset <= -1.f) continue;// already gone skip rest
+
+            float closeness = std::clamp(1.f - absOff, 0.f, 1.f);// 1 in the middle, 0 elsewhere
+            float size = smallSize + (bigSize - smallSize) * closeness;
+
+            float alpha;
+            if (offset >= 0.f) alpha = 255.f - 105.f * std::min(offset, 1.f); // right side is dimmed
+            else alpha = 255.f * (1.f + offset);               // fades out while leaving left
+
+            SDL_FRect rect = {centerX + offset * spacing - size / 2.f, rowCenterY - size / 2.f, size, size};
+
+            if (SDL_Texture* tex = getBannerTexture(strip[i])) {
+                SDL_SetTextureAlphaMod(tex, (Uint8)alpha);
+                SDL_RenderTexture(renderer, tex, nullptr, &rect);
+                SDL_SetTextureAlphaMod(tex, 255);// texture is shared with other UI, always reset
+            }
+
+            if (closeness > 0.01f) {// white frame follows whoever is in the middle. Need special texture
+                SDL_FRect frame = {rect.x - 3.f, rect.y - 3.f, rect.w + 6.f, rect.h + 6.f};
+                SDL_SetRenderDrawColor(renderer, 255, 255, 255, (Uint8)(200.f * closeness));
+                SDL_RenderRect(renderer, &frame);
+            }
+        }
+
+        // FACTION NAME
+        const float nameY = rowTopY + bigSize + 12.f;
+        const float nameH = 24.f;
+        const float warIconSize = 22.f;
+        const float warIconGap = 6.f;
+
+        auto drawFactionName = [&](FactionZone f, float alphaMul) {
+            if (alphaMul <= 0.01f) return;
+            const bool bWar = IsAtWarWithPlayer(f);
+            const Uint8 a = (Uint8)(255.f * std::clamp(alphaMul, 0.f, 1.f));
+            SDL_Color c = bWar ? SDL_Color{220, 60, 60, 255} : SDL_Color{255, 255, 255, 255};
+
+            TTF_SetTextWrapWidth(gameDiplomacySousTitleText, 0);
+            TTF_SetTextString(gameDiplomacySousTitleText, getName(f), 0);
+            TTF_SetTextColor(gameDiplomacySousTitleText, c.r, c.g, c.b, a);
+            int nw = 0, nh = 0;
+            TTF_GetTextSize(gameDiplomacySousTitleText, &nw, &nh);
+
+            const bool bShowWarIcon = bWar && warDiplomacyIconTexture;
+            const float groupW = (float)nw + (bShowWarIcon ? warIconSize + warIconGap : 0.f);
+            float gx = panel.x + (panel.w - groupW) / 2.f;
+            if (bShowWarIcon) {
+                SDL_FRect warRect = {gx, nameY + ((float)nh - warIconSize) / 2.f, warIconSize, warIconSize};
+                SDL_SetTextureAlphaMod(warDiplomacyIconTexture, a);
+                SDL_RenderTexture(renderer, warDiplomacyIconTexture, nullptr, &warRect);
+                SDL_SetTextureAlphaMod(warDiplomacyIconTexture, 255);
+                gx += warIconSize + warIconGap;
+            }
+            TTF_DrawRendererText(gameDiplomacySousTitleText, gx, nameY);
+        };
+
+        if (curIdx == nextIdx) {
+            drawFactionName(current, 1.f);
+        } else {
+            drawFactionName(current, 1.f - t);
+            drawFactionName(nextFaction, t);
+        }
+
+        // STRENGTH BAr ,yellow player and red ai, interpolated during the slide
+        const float playerStrength = (float)GetFactionStrength(player.faction);
+        auto shareAgainst = [&](FactionZone f) {
+            float total = playerStrength + (float)GetFactionStrength(f);
+            return (total > 0.f) ? playerStrength / total : 0.5f;
+        };
+        const float playerShare = shareAgainst(current) * (1.f - t) + shareAgainst(nextFaction) * t;
+
+        const float barW = 220.f;
+        const float barH = 12.f;
+        SDL_FRect barRect = {panel.x + (panel.w - barW) / 2.f, nameY + nameH + 10.f, barW, barH};
+        SDL_SetRenderDrawColor(renderer, 120, 20, 20, 255);
+        SDL_RenderFillRect(renderer, &barRect);
+        SDL_FRect barFill = {barRect.x, barRect.y, barRect.w * playerShare, barRect.h};
+        SDL_SetRenderDrawColor(renderer, 230, 190, 20, 255);
+        SDL_RenderFillRect(renderer, &barFill);
+        SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
+        SDL_RenderRect(renderer, &barRect);
+    }
+
     //fonction to end a turn
     void EndTurn() {
-
+        if (bFactionTurnsRunning) return;//protection
     //Bonus public order per province all buildings
     std::unordered_map<int, int> provincePublicOrderBonus;
     for (const auto& s : settlements) {
@@ -12713,24 +12952,6 @@ public:
             }
         }
     }
-        //Ai gold added + food added
-        for (FactionZone faction : {FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai}) {
-            if (faction == player.faction) continue;
-            if (AiFactionState *aiState = aiBehaviour.GetState(faction)) {
-                int income = CalculateFactionIncome(faction);
-                aiState->currentGold += income;
-                SDL_Log("AI faction %d earned %d gold (total: %d)", (int)faction, income, aiState->currentGold);
-
-                ProcessAiFactionFoodForTurn(faction, *aiState);
-                SDL_Log("AI faction %d food: %d/%d stored (net this turn: %d)", (int)faction, aiState->foodStored, aiState->foodStorage, aiState->nextTurnFood);
-
-                ProcessAiFactionGoodsForTurn(faction, *aiState);
-                SDL_Log("AI faction %d goods: %d/%d stored", (int)faction, aiState->currentGoods, aiState->goodsStorage);
-
-                //for the ai construction buildings
-                ProcessAiFactionConstructionForTurn(faction, *aiState);
-            }
-        }
 
         // Building destructions (takes 1 turn)
         for (auto it = buildingsMarkedDestroyed.begin(); it != buildingsMarkedDestroyed.end(); ) {
@@ -13085,17 +13306,18 @@ public:
         player.baseClergyGrowth   = 1  + rand() % 5;
         player.baseClergyDeath    = 1  + rand() % 4;
 
-    // AI TURNS~!
-    std::vector<FactionZone> turnOrder = { FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai };
-    int playerIndex = 0;
-    for (int i = 0; i < (int)turnOrder.size(); i++) {
-        if (turnOrder[i] == player.faction) { playerIndex = i; break; }
-    }
-    for (int i = 1; i < (int)turnOrder.size(); i++) {
-        FactionZone aiTurn = turnOrder[(playerIndex + i) % turnOrder.size()];
-        SDL_Log("AI turn: faction %d", (int)aiTurn);
-        // AIPlayTurn(aiTurn);
-    }
+        // FACTION TURNS~! -> player banner first, then the AI factions. Banner is drawn from Game()
+        std::vector<FactionZone> turnOrder = { FactionZone::Knight, FactionZone::Viking, FactionZone::Samurai };
+        int playerIndex = 0;
+        for (int i = 0; i < (int)turnOrder.size(); i++) {
+            if (turnOrder[i] == player.faction) { playerIndex = i; break; }
+        }
+        std::vector<FactionZone> factionTurnOrder;
+        factionTurnOrder.push_back(player.faction); // the player is the FIRST banner now
+        for (int i = 1; i < (int)turnOrder.size(); i++) {
+            factionTurnOrder.push_back(turnOrder[(playerIndex + i) % turnOrder.size()]);
+        }
+        StartFactionTurns(factionTurnOrder);
 
     currentTurn++;
     SDL_Log("Turn %d || your turn (%d)", currentTurn, (int)player.faction);
@@ -13236,7 +13458,10 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         //new variables if fullScreen vs window mod
         SDL_RenderCoordinatesFromWindow(app.renderer, event->button.x, event->button.y, &nouveauX, &nouveauY);
         SDL_FPoint MousePT = {nouveauX, nouveauY};
-
+        //protection during other ai turn
+        if (app.StateActuel == State::Game && app.bFactionTurnsRunning) {
+            return SDL_APP_CONTINUE;
+        }
         //IF IN MENU
         if (app.StateActuel == State::Menu) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonPlay)) {
