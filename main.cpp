@@ -11006,7 +11006,7 @@ private:
     void RenderFamilyHierarchyInfoPopup() {
         if (!bFamilyHierarchyInfoPopup) return;
         //Background
-        SDL_FRect
+        //SDL_FRect
 
 
     }
