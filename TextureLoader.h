@@ -2824,6 +2824,18 @@ inline void GameApp::LoadTextures() {
         }
         SDL_SetTextureScaleMode(samuraiEndTurnCurrentFactionTurnIndicatorTexture, SDL_SCALEMODE_NEAREST);
 
+
+        //Hierarchy textures
+        hierarchyAssassinationIcon = IMG_LoadTexture (renderer, "assets/AssassinationIcon.png");
+        if (hierarchyAssassinationIcon == nullptr) {
+            SDL_LogWarn(0, "failed to load texture hierarchyAssassinationIcon", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(hierarchyAssassinationIcon, SDL_SCALEMODE_NEAREST);
+        hierarchyFindWifeIcon = IMG_LoadTexture(renderer, "assets/FindWifeIcon.png");
+        if (hierarchyFindWifeIcon == nullptr) {
+            SDL_LogWarn(0, "failed to load texture hierarchyFindWifeIcon",SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(hierarchyFindWifeIcon, SDL_SCALEMODE_NEAREST);
 }
 
 
@@ -2887,6 +2899,12 @@ inline void GameApp::DestroyTextures() {
         &jarlVikingStartYoungPortraitTexture, &jarlVikingStartOldPortraitTexture,
         &daimyoSamuraiStartYoungPortraitTexture, &daimyoSamuraiStartOldPortraitTexture,
 
+        //Hierarchy icons
+        &hierarchyAssassinationIcon,
+        &hierarchyFindWifeIcon,
+        &hierarchyFeastIcon,
+        //mouse Icons textures
+        &hierarchyAssassinationMouseIcon,
         // Diplomacy
         &tradeDiplomacyIconTexture, &vassalDiplomacyIconTexture,
         &defensiveAllianceDiplomacyIconTexture, &militaryAllianceDiplomacyIconTexture,

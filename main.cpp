@@ -799,6 +799,9 @@ public:
 
 //Samurai
 
+    //mouse icons
+    SDL_Texture *hierarchyAssassinationMouseIcon = nullptr;
+
 
     //Special Characters (Kings, queens, jarl... )
     SDL_Texture *kingKnightStartYoungPortraitTexture = nullptr;
@@ -807,8 +810,15 @@ public:
     SDL_Texture *jarlVikingStartOldPortraitTexture = nullptr;
     SDL_Texture *daimyoSamuraiStartYoungPortraitTexture = nullptr;
     SDL_Texture *daimyoSamuraiStartOldPortraitTexture = nullptr;
-
-
+    //Hierarchy icons
+    SDL_Texture *hierarchyAssassinationIcon = nullptr;
+    SDL_Texture *hierarchyFeastIcon = nullptr;
+    SDL_Texture *hierarchyFindWifeIcon = nullptr;
+    //different wifes bonuses icon
+    //-
+    //-
+    //-
+    //-
     //Trade and diplomacy Icons
     SDL_Texture *tradeDiplomacyIconTexture = nullptr;//current trade parters
     SDL_Texture *vassalDiplomacyIconTexture = nullptr;
@@ -8744,6 +8754,12 @@ bool HasCommonEnemyWithPlayer(FactionZone other) {
         return {220,60,60,255};
     }
 
+
+
+    //family tree& diplomacy connect
+    int playerFame = 0;//fame is general and for the player
+    int characterInfluence = 0;//influence per character. different for each
+
 private:
 
     void RenderDiplomacyInfoPopup() {
@@ -10990,6 +11006,7 @@ private:
     void RenderFamilyHierarchyInfoPopup() {
         if (!bFamilyHierarchyInfoPopup) return;
         //Background
+        SDL_FRect
 
 
     }
