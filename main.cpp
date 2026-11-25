@@ -12746,17 +12746,14 @@ public:
         const int nextIdx = std::min(curIdx + 1, lastIdx);
         const FactionZone current = strip[curIdx];
         const FactionZone nextFaction = strip[nextIdx];
-        const FactionZone panelFaction = (t >= 0.5f) ? nextFaction : current;
-        const FactionZone frameFaction = (t >= 0.5f) ? nextFaction:current;
 
         // panel background
         const float panelW = 400.f;
         const float panelH = 160.f;
         const float panelTopY = 180.f;
         SDL_FRect panel = {960.f - panelW / 2.f, panelTopY, panelW, panelH};
-
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        Render9GridTextureTiled(getPanelTexture(panelFaction), panel, 16.f, 1.3f, 255);
+        Render9GridTextureTiled(getPanelTexture(player.faction), panel, 16.f, 1.3f, 255);
 
         // BANNERS: offset 0 = middle one, +1 = right slot, negative = leaving to the left
         const float bigSize = 64.f;
@@ -12785,12 +12782,17 @@ public:
                 SDL_RenderTexture(renderer, tex, nullptr, &rect);
                 SDL_SetTextureAlphaMod(tex, 255);// texture is shared with other UI, always reset
             }
-
-            if (closeness > 0.01f) {// faction texture frame follows whoever is in the middle. Need special texture
-                SDL_FRect frame = {rect.x - 3.f, rect.y - 3.f, rect.w + 6.f, rect.h + 6.f};
-                Render9GridTextureTiled(getPanelIndicatorTexture(frameFaction), frame, 16.f, 1.3f, 255);
-
-            }
+        }
+        // Frame FIXE
+        {
+            const float framePad = 3.f;
+            SDL_FRect centerFrame = {
+                centerX - bigSize / 2.f - framePad,
+                rowCenterY - bigSize / 2.f - framePad,
+                bigSize + framePad * 2.f,
+                bigSize + framePad * 2.f
+            };
+            Render9GridTextureTiled(getPanelIndicatorTexture(player.faction), centerFrame, 16.f, 1.f, 255, 1.f);
         }
 
         // FACTION NAME
