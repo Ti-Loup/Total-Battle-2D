@@ -4216,18 +4216,16 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
         SDL_RenderFillRect(renderer, &borderRect);
 
         //inner UI rectangle
-        SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
         SDL_FRect contentRect = {600 + thickness,0 + thickness,800 - (thickness * 2),40 - (thickness * 2)};
-        SDL_RenderFillRect(renderer, &contentRect);
         //add 9GridTexture texture for all different factions
         if (faction == FactionZone::Knight) {
-            Render9GridTexture(knightGeneralUIAreaTexture, borderRect, 16.f, 1.f, 210);
+            Render9GridTexture(knightGeneralUIAreaTexture, borderRect, 16.f, 1.3f, 255);
         }
         else if (faction == FactionZone::Viking) {
-            Render9GridTexture(vikingGeneralUIAreaTexture, borderRect, 16.f, 1.f, 210);
+            Render9GridTexture(vikingGeneralUIAreaTexture, borderRect, 16.f, 1.3f, 255);
         }
         else if (faction == FactionZone::Samurai) {
-            Render9GridTexture(samuraiGeneralUIAreaTexture, borderRect, 16.f,1.f, 210);
+            Render9GridTexture(samuraiGeneralUIAreaTexture, borderRect, 16.f,1.3f, 255);
         }
 
         //icon Gold
@@ -4765,13 +4763,20 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
         //thickness 5.f
         //border
 
-        SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
+
         SDL_FRect growthBorderRect = {825.f, 40.f, 350, 35};
-        SDL_RenderFillRect(renderer, &growthBorderRect);
         //Background
-        SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
         SDL_FRect growthContentRect = {825.f + thickness, 35.f + thickness , 350 - (thickness * 2),40 - (thickness * 2)};
-        SDL_RenderFillRect(renderer, &growthContentRect);
+        //add 9GridTexture texture for all different factions
+        if (faction == FactionZone::Knight) {
+            Render9GridTexture(knightGeneralUIAreaTexture, growthBorderRect, 16.f, 1.3f, 210);
+        }
+        else if (faction == FactionZone::Viking) {
+            Render9GridTexture(vikingGeneralUIAreaTexture, growthBorderRect, 16.f, 1.3f, 210);
+        }
+        else if (faction == FactionZone::Samurai) {
+            Render9GridTexture(samuraiGeneralUIAreaTexture, growthBorderRect, 16.f,1.3f, 210);
+        }
         //inter lines to seperate the 3 types of population
         SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
         SDL_FRect growthFirstLine = {935.f + thickness, 35.f + thickness, 10 - thickness , 40 - (thickness * 2)};
@@ -4842,8 +4847,16 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
             miniMapBoxRect.w + 10.f,
             miniMapBoxRect.h + 10.f
         };
-        SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
-        SDL_RenderFillRect(renderer, &miniMapBorderCampaign);
+        //add 9GridTexture texture for all different factions
+        if (faction == FactionZone::Knight) {
+            Render9GridTexture(knightGeneralUIAreaTexture, miniMapBorderCampaign, 16.f, 1.3f, 255);
+        }
+        else if (faction == FactionZone::Viking) {
+            Render9GridTexture(vikingGeneralUIAreaTexture, miniMapBorderCampaign, 16.f, 1.3f, 255);
+        }
+        else if (faction == FactionZone::Samurai) {
+            Render9GridTexture(samuraiGeneralUIAreaTexture, miniMapBorderCampaign, 16.f,1.3f, 255);
+        }
 
         float texW = 0.f, texH = 0.f;
         SDL_GetTextureSize(tileMapTexture, &texW, &texH);
@@ -4901,7 +4914,7 @@ int GetWinConditionProgress(WinConditionCategory category, int objectiveIndex) {
 
             //Feature add events of what happend last turn (eventsmessage, Active armies, provinces, factions)
             //background under minimap
-            SDL_FRect notificationEventsBackground = {miniMapBoxRect.x - 10.f, miniMapBoxRect.y + miniMapBoxRect.h, miniMapBoxRect.w + 15.f, 25.f};
+            SDL_FRect notificationEventsBackground = {miniMapBorderCampaign.x,miniMapBorderCampaign.y + miniMapBorderCampaign.h,miniMapBorderCampaign.w,25.f};
             SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
             SDL_RenderFillRect(renderer, &notificationEventsBackground);
             SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
