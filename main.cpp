@@ -14,6 +14,7 @@
 #include <cmath>
 #include <limits>
 #include <unordered_set>
+#include <cctype>
 //les classes
 #include "State.h"
 #include "Entity.h"
@@ -34,17 +35,15 @@
 
  * --------------------------------------------
  * 0.3.6 Refactor , ai can make trade offers (1 month, November)
- * ToDo | Refactor
+ * Done | Refactor
  *
  * Done | If not enough resources to maintain a barter trade, the trade agreement is stopped and it reduce Attitude towards the parter by around 50 points. Also reduce your reliability(from 100 to 66, to 33 to 0)
  * Done | Add Current proposal if deal gets accepted. which work with attitude with faction + base value from those demands amount
- * Done | Per faction Ui Textures scalable. (With 9slice technic)
+ * ToDo | Per faction Ui Textures scalable. (With 9slice technic)
  * Done | make some goods more desirable for some oher faction
- * Done | Add Visual to character portrait.
- * ToDo | Able to stop a trade agreement with button but reduce Attitude towards the other faction. (~ -10 per turn remaining)
+ * ToDo | Add Visual to character portrait.
+ * Done | Able to stop a trade agreement with button but reduce Attitude towards the other faction. (~ -10 per turn remaining) or any agreements with a negative in attitude towards other faction.(reducing over time)
  * Done | Show the current faction turn instead of all being instant.
- * ToDo | during a ai faction turn it can propose a treaty with the player or ai.
- * ToDo | Buttons under minimap ,Event Messages, Armies tab, Provinces tab and Factions tab + textures.
  *
  * Bugs:
  * Fixed | The import and export arrow isn't showing
@@ -52,10 +51,17 @@
  * Fixed | Vassal Bonus attitude now shows correcly
  * Fixed | If you have a vassal after being in war with an other faction, he will join with you. (Also should show in war panel)
  * Fixed | If you have a military alliance with a faction and you declare war after, it should show in the war panel your allies. and their allies if they have one.
- * ToDo | Force the ai to not construct everything at once. (Max 2 to 4 constructions at the same time). Give Ai a bonus in start income.
  * --------------------------------------------
  * 0.3.75 (December)
  * Add family tree + influence feature + assassination
+ *
+ * ToDo | during a ai faction turn it can propose a treaty with the player or ai.
+ * ToDo | Buttons under minimap ,Event Messages, Armies tab, Provinces tab and Factions tab + textures.
+ *
+ *
+ * Bugs :
+ * ToDo | Force the ai to not construct everything at once. (Max 2 to 4 constructions at the same time). Give Ai a bonus in start income.
+
  *
  * ToDo | Name generator for
  * --------------------------------------------
@@ -7981,6 +7987,23 @@ public:
         std::vector<std::pair<ResourceType,int>> tradeGive;// what the player give each turn
         std::vector<std::pair<ResourceType,int>> tradeReceive;//what other faction give each turn
     };
+
+    //Treaties the player can end with the X button in the Treaties panel
+    enum class EndableTreaty { None, Trade, Vassal, DefensivePact, MilitaryAlliance, Friendship, MilitaryAccess };
+
+    const char* GetEndableTreatyName(EndableTreaty t) {
+        switch (t) {
+            case EndableTreaty::Trade: return "Trade agreement";
+            case EndableTreaty::Vassal: return "Vassal kingdom";
+            case EndableTreaty::DefensivePact: return "Defensive pact";
+            case EndableTreaty::MilitaryAlliance: return "Military alliance";
+            case EndableTreaty::Friendship: return "Declaration of friendship";
+            case EndableTreaty::MilitaryAccess: return "Military access";
+            default: return "Treaty";
+        }
+    }
+
+
     std::unordered_map<int, DiplomacyState> diplomacyWithFaction;
     std::unordered_map<int, std::vector<AttitudeModifier>> dynamicAttitudeModifiers; //(int)FactionZone
 
@@ -7993,6 +8016,12 @@ public:
     std::vector<std::pair<SDL_FRect, int>> dealDemandRemoveRects;// for the buttons rect for the index in dealDemands
     //Declare War confirmation panel ~~ replaces the deal UI
     bool bShowDeclareWarPanel = false;
+    //End treaty confirmation panel replaces the deal UI
+    bool bShowEndTreatyPanel = false;
+    EndableTreaty treatyToEnd = EndableTreaty::None;
+    std::vector<std::pair<SDL_FRect, EndableTreaty>> endTreatyButtonRects; // rebuilt each frame
+    Circle EndTreatyConfirmButton = {930.f, 1042.f, 25};
+    Circle EndTreatyCancelButton  = {990.f, 1042.f, 25};
     Circle DeclareWarConfirmButton = {930.f, 1042.f, 25};
     Circle DeclareWarCancelButton  = {990.f, 1042.f, 25};
     //Deal rejected panel
@@ -8315,6 +8344,8 @@ bool HasCommonEnemyWithPlayer(FactionZone other) {
     //Called once per EndTurn
     //Runs ONE exchange of a trade agreement + gives the relation bonus if it worked
     void BreakTradeAgreement(FactionZone other, DiplomacyState& agreement) {
+        int turnsLeft = std::max(1, agreement.tradeTurnsRemaining);
+        int brokenTradePenalty = AttitudeValues::BrokenTradePerTurnRemaining * turnsLeft;
         agreement.bTrade = false;
         agreement.tradeTurnsRemaining = 0;
         agreement.tradeGive.clear();
@@ -8332,12 +8363,52 @@ bool HasCommonEnemyWithPlayer(FactionZone other) {
         RemoveAttitudeModifier(other, AttitudeValues::PastBrokenTradeName);
 
         AddDecayingAttitude(other, AttitudeValues::BrokenTradeName,
-            AttitudeValues::BrokenTrade + carriedPenalty, AttitudeValues::BrokenTradeMax,
+     brokenTradePenalty + carriedPenalty, AttitudeValues::BrokenTradeMax,
             AttitudeValues::BrokenTradeFloorGain, AttitudeValues::BrokenTradeFloorMax,
             AttitudeValues::BrokenTradeDecay);
 
         playerTrustworthiness = std::max(0, playerTrustworthiness - 33);
-        SDL_Log("Trade with faction %d broken by the player! Trustworthiness now %d", (int)other, playerTrustworthiness);
+        SDL_Log("Trade with faction %d broken with %d turn(s) left (%d attitude)! Trustworthiness now %d", (int)other, turnsLeft, brokenTradePenalty, playerTrustworthiness);
+    }
+    //Player ends a treaty with the X button. Flat attitude penalty that decays over time.
+    void EndTreaty(FactionZone other, EndableTreaty treaty) {
+        DiplomacyState& state = diplomacyWithFaction[(int)other];
+
+        switch (treaty) {
+            case EndableTreaty::Trade:
+                BreakTradeAgreement(other, state); // already handles attitude + trustworthiness
+                return;
+            case EndableTreaty::Vassal:
+                state.bVassal = false;
+                RemoveAttitudeModifier(other, "Vassal");
+                break;
+            case EndableTreaty::DefensivePact:
+                state.bDefensivePact = false;
+                RemoveAttitudeModifier(other, "Defensive pact");
+                break;
+            case EndableTreaty::MilitaryAlliance:
+                state.bMilitaryAlliance = false;
+                RemoveAttitudeModifier(other, "Military alliance");
+                break;
+            case EndableTreaty::Friendship:
+                state.bFriendship = false;
+                RemoveAttitudeModifier(other, "Declaration of friendship");
+                break;
+            case EndableTreaty::MilitaryAccess:
+                state.bMilitaryAccess = false;
+                RemoveAttitudeModifier(other, "Military access");
+                break;
+            default:
+                return;
+        }
+
+        AddDecayingAttitude(other, AttitudeValues::BrokenTreatyName,
+            AttitudeValues::BrokenTreaty, AttitudeValues::BrokenTreatyMax,
+            AttitudeValues::BrokenTreatyFloorGain, AttitudeValues::BrokenTreatyFloorMax,
+            AttitudeValues::BrokenTreatyDecay);
+
+        playerTrustworthiness = std::max(0, playerTrustworthiness - brokenTreatyTrustPenalty);
+        SDL_Log("Player ended treaty %d with faction %d. Trustworthiness now %d", (int)treaty, (int)other, playerTrustworthiness);
     }
 
     void RunTradeExchange(FactionZone other, DiplomacyState& agreement) {
@@ -8753,7 +8824,7 @@ bool HasCommonEnemyWithPlayer(FactionZone other) {
     //Reliability of the player in diplomacy (start with maximum )
     static constexpr int trustworthinessMax = 100;
     int playerTrustworthiness = trustworthinessMax;
-
+    static constexpr int brokenTreatyTrustPenalty = 15;
     const char *GetTrustworthinessLabel(int value) {
         if (value == 100) return "Steadfast";
         if (value >= 66) return "Trustworthy";
@@ -9618,7 +9689,7 @@ private:
 
         }
         //Inside Specific trade with other faction
-        if (bIsTradingWithSpecificFaction && !bShowDeclareWarPanel && !bShowPaymentPanel && !bShowTradePanel && !bShowDealRejectedPanel) {
+        if (bIsTradingWithSpecificFaction && !bShowDeclareWarPanel && !bShowPaymentPanel && !bShowTradePanel && !bShowDealRejectedPanel && !bShowEndTreatyPanel) {
             SDL_FRect tradeTitleRect = {830.f, 730.f, 260.f, 30.f};
             SDL_SetRenderDrawColor(renderer, 70, 70, 70, 255);
             SDL_RenderFillRect(renderer, &tradeTitleRect);
@@ -10015,22 +10086,24 @@ private:
 
 
             }
-            // Icons of the current treaties with this faction (always visible, stacked vertically and centered)
+             // Icons of the current treaties with this faction + X button to end each one
             {
+                endTreatyButtonRects.clear();
                 const DiplomacyState& currentDiplomacy = diplomacyWithFaction[(int)otherFaction];
-                struct TreatyIconEntry { SDL_Texture* icon; int turnsRemaining; };
+                struct TreatyIconEntry { SDL_Texture* icon; int turnsRemaining; EndableTreaty endType; };
                 std::vector<TreatyIconEntry> treatyIcons;
-                if (currentDiplomacy.bAtWar) treatyIcons.push_back({warDiplomacyIconTexture, 0});
-                if (currentDiplomacy.bTrade) treatyIcons.push_back({tradeDiplomacyIconTexture, currentDiplomacy.tradeTurnsRemaining});
-                if (currentDiplomacy.bVassal) treatyIcons.push_back({vassalDiplomacyIconTexture, 0});
-                if (currentDiplomacy.bDefensivePact) treatyIcons.push_back({defensiveAllianceDiplomacyIconTexture, 0});
-                if (currentDiplomacy.bMilitaryAlliance) treatyIcons.push_back({militaryAllianceDiplomacyIconTexture, 0});
-                if (currentDiplomacy.bFriendship) treatyIcons.push_back({friendshipDiplomacyIconTexture, 0});
-                if (currentDiplomacy.bMilitaryAccess) treatyIcons.push_back({militaryAccessDiplomacyIconTexture, 0});
+                if (currentDiplomacy.bAtWar) treatyIcons.push_back({warDiplomacyIconTexture, 0, EndableTreaty::None}); // war ends with a peace deal
+                if (currentDiplomacy.bTrade) treatyIcons.push_back({tradeDiplomacyIconTexture, currentDiplomacy.tradeTurnsRemaining, EndableTreaty::Trade});
+                if (currentDiplomacy.bVassal) treatyIcons.push_back({vassalDiplomacyIconTexture, 0, EndableTreaty::Vassal});
+                if (currentDiplomacy.bDefensivePact) treatyIcons.push_back({defensiveAllianceDiplomacyIconTexture, 0, EndableTreaty::DefensivePact});
+                if (currentDiplomacy.bMilitaryAlliance) treatyIcons.push_back({militaryAllianceDiplomacyIconTexture, 0, EndableTreaty::MilitaryAlliance});
+                if (currentDiplomacy.bFriendship) treatyIcons.push_back({friendshipDiplomacyIconTexture, 0, EndableTreaty::Friendship});
+                if (currentDiplomacy.bMilitaryAccess) treatyIcons.push_back({militaryAccessDiplomacyIconTexture, 0, EndableTreaty::MilitaryAccess});
 
                 const float treatyIconSize = 32.f;
                 const float treatyIconGap  = 4.f;
                 const float treatyTurnIconSize = 14.f;
+                const float endBtnSize = 20.f;
                 float treatyIconX = treatiesContent.x + 10.f;
 
                 for (int i = 0; i < (int)treatyIcons.size(); i++) {
@@ -10056,6 +10129,30 @@ private:
                         int ttw = 0, tth = 0;
                         TTF_GetTextSize(gameDiplomacyDescText, &ttw, &tth);
                         TTF_DrawRendererText(gameDiplomacyDescText, treatyTurnIconRect.x + treatyTurnIconSize + 3.f, treatyIconRect.y + (treatyIconSize - tth) / 2.f);
+                    }
+
+                    //Round X button on the right of the icon
+                    if (treatyIcons[i].endType != EndableTreaty::None) {
+                        SDL_FRect endBtnRect = {
+                            treatiesContent.x + treatiesContent.w - endBtnSize - 4.f,
+                            treatyIconRect.y + (treatyIconSize - endBtnSize) / 2.f,
+                            endBtnSize, endBtnSize
+                        };
+                        bool bHoveredEnd = SDL_PointInRectFloat(&mouseAddOfferPt, &endBtnRect);
+                        float endR = endBtnSize / 2.f;
+                        float endCX = endBtnRect.x + endR;
+                        float endCY = endBtnRect.y + endR;
+
+                        SDL_SetRenderDrawColor(renderer, 200, 210, 230, 255);
+                        RenderCircle(endCX, endCY, endR);
+                        SDL_SetRenderDrawColor(renderer, bHoveredEnd ? 70 : 40, bHoveredEnd ? 100 : 70, bHoveredEnd ? 170 : 130, 255);
+                        RenderCircle(endCX, endCY, endR - 1.5f);
+                        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                        const float endXs = 4.f;
+                        SDL_RenderLine(renderer, endCX - endXs, endCY - endXs, endCX + endXs, endCY + endXs);
+                        SDL_RenderLine(renderer, endCX - endXs, endCY + endXs, endCX + endXs, endCY - endXs);
+
+                        endTreatyButtonRects.push_back({endBtnRect, treatyIcons[i].endType});
                     }
                 }
             }
@@ -10430,6 +10527,81 @@ private:
                 TTF_SetTextColor(gameDiplomacyDescText, 240, 240, 240, 255);
                 TTF_DrawRendererText(gameDiplomacyDescText, textX + padX, textY + padY);
             }
+        }
+        if (bIsTradingWithSpecificFaction && bShowEndTreatyPanel) {
+            const SDL_FRect& endBackground = factionSelectionBackgroundRect;
+
+            //Title
+            SDL_FRect endTitleRect = {830.f, 730.f, 260.f, 30.f};
+            SDL_SetRenderDrawColor(renderer, 70, 70, 70, 255);
+            SDL_RenderFillRect(renderer, &endTitleRect);
+            SDL_SetRenderDrawColor(renderer, 190, 190, 190, 255);
+            SDL_RenderRect(renderer, &endTitleRect);
+            drawTextCentered(gameDiplomacyTitleText, "End Treaty", endTitleRect, white);
+
+            std::string treatyName = GetEndableTreatyName(treatyToEnd);
+            std::string treatyNameLower = treatyName;
+            if (!treatyNameLower.empty()) treatyNameLower[0] = (char)std::tolower((unsigned char)treatyNameLower[0]);
+
+            //Heading "End defensive pact" + line under it
+            std::string endHeading = "End " + treatyNameLower;
+            SDL_FRect endHeadingRect = {endBackground.x, endBackground.y + 25.f, endBackground.w, 30.f};
+            drawTextCentered(gameDiplomacySousTitleText, endHeading.c_str(), endHeadingRect, white);
+            SDL_SetRenderDrawColor(renderer, 90, 110, 140, 255);
+            SDL_RenderLine(renderer, endBackground.x + 120.f, endHeadingRect.y + endHeadingRect.h + 4.f,
+                                     endBackground.x + endBackground.w - 120.f, endHeadingRect.y + endHeadingRect.h + 4.f);
+
+            //Question
+            std::string endQuestion = "Do you want to end your " + treatyNameLower + " with " + getName(otherFaction) + "?";
+            SDL_FRect endQuestionRect = {endBackground.x + 24.f, endBackground.y + 80.f, endBackground.w - 48.f, 60.f};
+            drawTextCentered(gameDiplomacyDescText, endQuestion.c_str(), endQuestionRect, white, 20.f);
+
+            //Warning
+            SDL_FRect endWarningRect = {endBackground.x + 24.f, endBackground.y + 170.f, endBackground.w - 48.f, 60.f};
+            drawTextCentered(gameDiplomacyDescText, "Ending a treaty will hurt your relations with this faction and your reputation.",
+                             endWarningRect, SDL_Color{220, 90, 90, 255}, 20.f);
+
+            //Confirm / Cancel buttons
+            float mouseXEnd, mouseYEnd;
+            SDL_GetMouseState(&mouseXEnd, &mouseYEnd);
+            float lenghtXEnd, lenghtYEnd;
+            SDL_RenderCoordinatesFromWindow(renderer, mouseXEnd, mouseYEnd, &lenghtXEnd, &lenghtYEnd);
+
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+            bool bHoveredEndConfirm = ClickInsideCircle(lenghtXEnd, lenghtYEnd, EndTreatyConfirmButton);
+            SDL_SetTextureAlphaMod(gameMakeDealTexture, bHoveredEndConfirm ? 255 : 200);
+            RenderBoutonCercle(EndTreatyConfirmButton, nullptr, gameMakeDealTexture, 0, 0, 0);
+            SDL_SetTextureAlphaMod(gameMakeDealTexture, 255);
+
+            bool bHoveredEndCancel = ClickInsideCircle(lenghtXEnd, lenghtYEnd, EndTreatyCancelButton);
+            SDL_SetTextureAlphaMod(gameQuitDealTexture, bHoveredEndCancel ? 255 : 200);
+            RenderBoutonCercle(EndTreatyCancelButton, nullptr, gameQuitDealTexture, 0, 0, 0);
+            SDL_SetTextureAlphaMod(gameQuitDealTexture, 255);
+
+            //Same tooltip style as the other buttons
+            auto drawEndTreatyTooltip = [&](const char* label) {
+                TTF_SetTextWrapWidth(gameDiplomacyDescText, 0);
+                TTF_SetTextString(gameDiplomacyDescText, label, 0);
+                int nameW = 0, nameH = 0;
+                TTF_GetTextSize(gameDiplomacyDescText, &nameW, &nameH);
+                float padX = 8.f, padY = 5.f;
+                float textW = nameW + padX * 2.f;
+                float textH = nameH + padY * 2.f;
+                float textX = lenghtXEnd + 15.f;
+                float textY = lenghtYEnd - textH / 2.f;
+
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                SDL_SetRenderDrawColor(renderer, 12, 10, 8, 240);
+                SDL_FRect tooltipBg = {textX, textY, textW, textH};
+                SDL_RenderFillRect(renderer, &tooltipBg);
+                SDL_SetRenderDrawColor(renderer, 40, 90, 110, 255);
+                SDL_RenderRect(renderer, &tooltipBg);
+
+                TTF_SetTextColor(gameDiplomacyDescText, 240, 240, 240, 255);
+                TTF_DrawRendererText(gameDiplomacyDescText, textX + padX, textY + padY);
+            };
+            if (bHoveredEndConfirm) drawEndTreatyTooltip("Accept");
+            if (bHoveredEndCancel) drawEndTreatyTooltip("Cancel");
         }
 
         if (bIsTradingWithSpecificFaction && bShowPaymentPanel) {
@@ -13565,6 +13737,19 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     }
                     return SDL_APP_CONTINUE;
                 }
+                //End treaty confirmation panel
+                if (app.bShowEndTreatyPanel) {
+                    if (app.ClickInsideCircle(nouveauX, nouveauY, app.EndTreatyConfirmButton)) {
+                        app.EndTreaty(app.selectedDiplomacyFaction, app.treatyToEnd);
+                        app.bShowEndTreatyPanel = false;
+                        app.treatyToEnd = GameApp::EndableTreaty::None;
+                    }
+                    else if (app.ClickInsideCircle(nouveauX, nouveauY, app.EndTreatyCancelButton)) {
+                        app.bShowEndTreatyPanel = false;
+                        app.treatyToEnd = GameApp::EndableTreaty::None;
+                    }
+                    return SDL_APP_CONTINUE; // block everything behind the panel
+                }
 
                 if (app.bShowDeclareWarPanel) {
                     if (app.ClickInsideCircle(nouveauX, nouveauY, app.DeclareWarConfirmButton)) {
@@ -13762,6 +13947,15 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                                 app.bShowTreatyList = false;
                                 return SDL_APP_CONTINUE;
                             }
+                        }
+                    }
+                    //X button on a current treaty -> open the confirmation panel
+                    for (auto& [rect, endType] : app.endTreatyButtonRects) {
+                        if (SDL_PointInRectFloat(&MousePT, &rect)) {
+                            app.treatyToEnd = endType;
+                            app.bShowEndTreatyPanel = true;
+                            app.bShowTreatyList = false;
+                            return SDL_APP_CONTINUE;
                         }
                     }
                     if (SDL_PointInRectFloat(&MousePT, &app.DiplomacyAddOfferDemandButton)) {

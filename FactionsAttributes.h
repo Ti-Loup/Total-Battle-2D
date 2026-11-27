@@ -96,11 +96,17 @@ namespace AttitudeValues {
     constexpr int RaidActionsWithMyAlly = -4;//cumulatif
     constexpr int Trespasser = -15;//cumulatif
     //Treaties
-    constexpr int BrokenTrade = -50; constexpr int BrokenTradeDecay = 2;
+    constexpr int BrokenTradePerTurnRemaining = -10; constexpr int BrokenTradeDecay = 2;
     static constexpr int BrokenTradeMax = 100;
     static constexpr int BrokenTradeFloorGain = 0;
     static constexpr int BrokenTradeFloorMax = 30;
-
+    //Ending a treaty by hand (flat penalty, decays slowly over time)
+    constexpr int BrokenTreaty = -30;
+    constexpr int BrokenTreatyDecay = 1;
+    constexpr int BrokenTreatyMax = 100;// stacks if you break several
+    constexpr int BrokenTreatyFloorGain = 0;
+    constexpr int BrokenTreatyFloorMax = 10;
+    constexpr const char* BrokenTreatyName = "Broken treaty";
 
     //Text change from current to past Trade agreement broken
     constexpr const char* BrokenTradeName = "Broken trade agreement";
